@@ -10,6 +10,8 @@
 // @include      https://www.mousehuntgame.com/*
 // @include      http://www.mousehuntgame.com/camp.php*
 // @include      https://www.mousehuntgame.com/camp.php*
+// @grant		     unsafeWindow
+// @grant		     GM_info
 // @run-at       document-end
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
@@ -43,8 +45,8 @@ function embedTimer(targetPage) {
 //                timerDivElement.appendChild(titleElement);
 //                titleElement = null;
 //
-                // embed all msg to the page
-                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
+//                // embed all msg to the page
+//                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
                 timerDivElement = null;
             }
         }
