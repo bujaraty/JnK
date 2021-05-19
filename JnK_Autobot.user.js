@@ -9,12 +9,12 @@
 // @require http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 
-$(document).ready(function() {  $('.athing:odd').css('background-color', '#EEE');});
+exeScript();
 
-(function() {
+function exeScript() {
     'use strict';
-
     alert('Hello World !');
-})();
+}
+
 
 
