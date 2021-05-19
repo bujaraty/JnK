@@ -31,22 +31,22 @@ function embedTimer(targetPage) {
     try {
         if (showTimerInPage) {
             headerElement = document.getElementById('overlayContainer');
-            if (headerElement) {
-                var timerDivElement = document.createElement('div');
-
-                // show bot title and version
-                var titleElement = document.createElement('div');
-                titleElement.setAttribute('id', 'titleElement');
-                titleElement.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/JnK_Autobot.user.js" target=\"_blank\">MouseHunt AutoBot UPDATED </b>";
-
-                timerDivElement.appendChild(titleElement);
-                titleElement = null;
-                alert('Set titleElement');
-
-                // embed all msg to the page
-                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
-                timerDivElement = null;
-            }
+            alert('Set titleElement');
+//            if (headerElement) {
+//                var timerDivElement = document.createElement('div');
+//
+//                // show bot title and version
+//                var titleElement = document.createElement('div');
+//                titleElement.setAttribute('id', 'titleElement');
+//                titleElement.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/JnK_Autobot.user.js" target=\"_blank\">MouseHunt AutoBot UPDATED </b>";
+//
+//                timerDivElement.appendChild(titleElement);
+//                titleElement = null;
+//
+//                // embed all msg to the page
+//                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
+//                timerDivElement = null;
+//            }
         }
 
     } catch (e) {
