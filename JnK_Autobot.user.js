@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       JnK
-// @match        https://www.mousehuntgame.com/camp.php
+// @match        https://news.ycombinator.com
 // @grant        none
 // @require http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
