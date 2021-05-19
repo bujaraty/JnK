@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         JnK_Autobot
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/bujaraty/JnK
 // @version      0.1
 // @description  try to take over the world!
 // @author       JnK
-// @match        https://github.com/bujaraty/JnK
+// @match        https://news.ycombinator.com
 // @grant        none
 // @require http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
