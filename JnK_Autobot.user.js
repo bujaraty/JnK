@@ -17,7 +17,7 @@
 
 // // Embed a timer in page to show next hunter horn timer, highly recommended to turn on. (true/false)
 // // Note: You may not access some option like pause at invalid location if you turn this off.
-var showTimerInPage = true;
+//var showTimerInPage = true;
 
 execScript();
 
