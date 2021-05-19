@@ -23,8 +23,8 @@ execScript();
 
 function execScript() {
     'use strict';
-    alert('Hello World !');
-//    embedTimer(true);
+//    alert('Hello World !');
+    embedTimer(true);
 }
 
 function embedTimer(targetPage) {
