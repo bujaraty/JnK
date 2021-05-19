@@ -24,13 +24,13 @@ execScript();
 function execScript() {
     'use strict';
     alert('Hello World !');
-    embedTimer(true);
+//    embedTimer(true);
 }
 
 function embedTimer(targetPage) {
     try {
         if (showTimerInPage) {
-            headerElement = document.getElementById('overlayContainer');
+//            headerElement = document.getElementById('overlayContainer');
             alert('Set titleElement');
 //            if (headerElement) {
 //                var timerDivElement = document.createElement('div');
