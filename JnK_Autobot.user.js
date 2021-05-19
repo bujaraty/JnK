@@ -6,7 +6,7 @@
 // @author       JnK
 // @match        https://news.ycombinator.com
 // @grant        none
-// @run-at		   document-end
+// @run-at       document-end
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 
