@@ -43,8 +43,8 @@ function embedTimer(targetPage) {
 //                timerDivElement.appendChild(titleElement);
 //                titleElement = null;
 //
-//                // embed all msg to the page
-//                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
+                // embed all msg to the page
+                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
                 timerDivElement = null;
             }
         }
