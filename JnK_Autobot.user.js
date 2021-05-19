@@ -15,6 +15,10 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 
+// // Embed a timer in page to show next hunter horn timer, highly recommended to turn on. (true/false)
+// // Note: You may not access some option like pause at invalid location if you turn this off.
+var showTimerInPage = true;
+
 execScript();
 
 function execScript() {
@@ -24,5 +28,17 @@ function execScript() {
 }
 
 function embedTimer(targetPage) {
-}
+    try {
+        if (showTimerInPage) {
+        }
+    } catch (e) {
+        if (debug) {
+            for (var prop in e) {
+                console.log("embedTimer error stack: " + prop + " value: [" + e[prop] + "]\n");
+            }
+        }
 
+        if (debug) console.log('embedTimer error - ' + e);
+        if (debug) console.log(e);
+    }
+}
