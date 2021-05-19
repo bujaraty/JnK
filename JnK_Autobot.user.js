@@ -41,6 +41,7 @@ function embedTimer(targetPage) {
 
                 timerDivElement.appendChild(titleElement);
                 titleElement = null;
+                alert('Set titleElement');
             }
         }
 
