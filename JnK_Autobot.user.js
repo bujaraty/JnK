@@ -10,8 +10,8 @@
 // @include      https://www.mousehuntgame.com/*
 // @include      http://www.mousehuntgame.com/camp.php*
 // @include      https://www.mousehuntgame.com/camp.php*
-// @grant		     unsafeWindow
-// @grant		     GM_info
+// @grant        unsafeWindow
+// @grant        GM_info
 // @run-at       document-end
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
