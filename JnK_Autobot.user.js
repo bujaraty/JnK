@@ -31,7 +31,7 @@ function embedTimer(targetPage) {
     alert('In embedTimer');
     try {
         if (showTimerInPage) {
-//            headerElement = document.getElementById('overlayContainer');
+            headerElement = document.getElementById('overlayContainer');
             alert('Set titleElement');
 //            if (headerElement) {
 //                var timerDivElement = document.createElement('div');
