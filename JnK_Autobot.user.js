@@ -4,10 +4,10 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       JnK
-// @include		   http://mousehuntgame.com/*
-// @include		   https://mousehuntgame.com/*
-// @include		   http://www.mousehuntgame.com/*
-// @include		   https://www.mousehuntgame.com/*
+// @include      http://mousehuntgame.com/*
+// @include      https://mousehuntgame.com/*
+// @include      http://www.mousehuntgame.com/*
+// @include      https://www.mousehuntgame.com/*
 // @include      http://www.mousehuntgame.com/camp.php*
 // @include      https://www.mousehuntgame.com/camp.php*
 // @grant        none
