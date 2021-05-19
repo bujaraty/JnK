@@ -28,6 +28,7 @@ function execScript() {
 }
 
 function embedTimer(targetPage) {
+    alert('In embedTimer');
     try {
         if (showTimerInPage) {
 //            headerElement = document.getElementById('overlayContainer');
