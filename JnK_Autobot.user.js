@@ -35,7 +35,7 @@ function embedTimer(targetPage) {
                 var timerDivElement = document.createElement('div');
 
                 // show bot title and version
-                var titleElement = document.createElement('div');
+//                var titleElement = document.createElement('div');
 //                titleElement.setAttribute('id', 'titleElement');
 //                titleElement.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/JnK_Autobot.user.js>MouseHunt AutoBot UPDATED </b>";
 //
