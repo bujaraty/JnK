@@ -45,7 +45,7 @@ function embedTimer(targetPage) {
 //
 //                // embed all msg to the page
 //                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
-//                timerDivElement = null;
+                timerDivElement = null;
             }
         }
 
