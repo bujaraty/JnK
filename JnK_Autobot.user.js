@@ -24,7 +24,7 @@ execScript();
 function execScript() {
     'use strict';
     alert('Hello World !');
-    embedTimer(true);
+//    embedTimer(true);
 }
 
 function embedTimer(targetPage) {
