@@ -35,7 +35,6 @@ function embedTimer(targetPage) {
             headerElement = document.getElementById('overlayContainer');
             if (headerElement) {
                 var timerDivElement = document.createElement('div');
-                alert('Set titleElement');
 
                 // show bot title and version
 //                var titleElement = document.createElement('div');
@@ -48,6 +47,7 @@ function embedTimer(targetPage) {
 //                // embed all msg to the page
 //                headerElement.parentNode.insertBefore(timerDivElement, headerElement);
                 timerDivElement = null;
+                alert('Set titleElement');
             }
         }
 
