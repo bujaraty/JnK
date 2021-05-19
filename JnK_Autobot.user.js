@@ -15,12 +15,14 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 
-exeScript();
+execScript();
 
-function exeScript() {
+function execScript() {
     'use strict';
     alert('Hello World !');
+    embedTimer(True);
 }
 
-
+function embedTimer(targetPage) {
+}
 
