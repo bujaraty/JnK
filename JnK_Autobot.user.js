@@ -19,12 +19,12 @@
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
-/*
+
 // // ERROR CHECKING ONLY: Script debug
 var debug = true;
-// // ERROR CHECKING ONLY: KR debug
-var debugKR = false;
-
+// // // ERROR CHECKING ONLY: KR debug
+// var debugKR = false;
+/*
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 10 - 360
 var hornTimeDelayMin = 10;
@@ -784,17 +784,18 @@ try {
         g_strVersion = GM_info.script.version;
     }
 } catch (e) {
-    console.perror('Before exeScript', e.message);
+    console.perror('Before execScript', e.message);
     getMapPort = undefined;
     g_strVersion = undefined;
     g_strScriptHandler = undefined;
 }
+*/
+execScript();
 
-exeScript();
-
-function exeScript() {
+function execScript() {
+    alert("execScript");
     if (debug) console.log('RUN %cexeScript()', 'color: #9cffbd');
-    browser = browserDetection();
+/*    browser = browserDetection();
     try {
         var titleElm = document.getElementById('titleElement');
         if (titleElm) {
@@ -805,9 +806,9 @@ function exeScript() {
     } finally {
         titleElm = null;
     }
-
+*/
     try {
-        // check the trap check setting first
+/*        // check the trap check setting first
         trapCheckTimeDiff = GetTrapCheckTime();
 
         // check the trap check setting first
@@ -868,145 +869,190 @@ function exeScript() {
         // check if user running in https secure connection, true/false
         secureConnection = (window.location.href.indexOf("https://") > -1);
         setStorage('HTTPS', secureConnection);
+*/
+//        if (fbPlatform) {
+//            if (window.location.href == "http://www.mousehuntgame.com/canvas/" ||
+//                window.location.href == "http://www.mousehuntgame.com/canvas/#" ||
+//                window.location.href == "https://www.mousehuntgame.com/canvas/" ||
+//                window.location.href == "https://www.mousehuntgame.com/canvas/#" ||
+//                window.location.href.indexOf("mousehuntgame.com/canvas/?") != -1) {
+//                window.location.href == "https://www.mousehuntgame.com/" ||
+//                window.location.href == "https://www.mousehuntgame.com/#" ||
+//                window.location.href == "https://www.mousehuntgame.com/?switch_to=standard" ||
+//                window.location.href == "https://www.mousehuntgame.com/index.php" ||
+//                window.location.href == "https://www.mousehuntgame.com/camp.php" ||
+//                window.location.href.indexOf("mousehuntgame.com/index.php") >= 0 ||
+//                // page to execute the script!
+//
+//                // make sure all the preference already loaded
+//                loadPreferenceSettingFromStorage();
+//
+//                // this is the page to execute the script
+//                if (!checkIntroContainer() && retrieveDataFirst()) {
+//                    // embed a place where timer show
+//                    embedTimer(true);
+//
+//                    // embed script to horn button
+//                    embedScript();
+//
+//                    // start script action
+//                    action();
+//
+//                    nobInit();
+//                } else {
+//                    // fail to retrieve data, display error msg and reload the page
+//                    document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+//                    window.setTimeout(function () {
+//                        reloadPage(false);
+//                    }, errorReloadTime * 1000);
+//                }
+//            } else {
+//                // not in hunters camp, just show the title of autobot version
+//                embedTimer(false);
+//
+//                nobInit();
+//            }
+//        }     else if (mhPlatform) {
+//        if (window.location.href == "http://www.mousehuntgame.com/" ||
+//            window.location.href == "https://www.mousehuntgame.com/" ||
+//			window.location.href == "http://www.mousehuntgame.com/#" ||
+//            window.location.href == "https://www.mousehuntgame.com/#" ||
+//			window.location.href == "http://www.mousehuntgame.com/?switch_to=standard" ||
+//            window.location.href == "https://www.mousehuntgame.com/?switch_to=standard" ||
+//            window.location.href == "http://www.mousehuntgame.com/index.php" ||
+//			window.location.href == "https://www.mousehuntgame.com/index.php" ||
+//            window.location.href == "http://www.mousehuntgame.com/camp.php" ||
+//			window.location.href == "https://www.mousehuntgame.com/camp.php" ||
+//            window.location.href == "http://www.mousehuntgame.com/camp.php#" ||
+//            window.location.href == "https://www.mousehuntgame.com/camp.php#" ||
+//			window.location.href.indexOf("mousehuntgame.com/index.php") >= 0 ||
+//            window.location.href.indexOf("mousehuntgame.com/camp.php") >= 0 ||
+//			window.location.href.indexOf("mousehuntgame.com/camp.php#") >= 0) {
+//                // page to execute the script!
+//
+//                // make sure all the preference already loaded
+//                loadPreferenceSettingFromStorage();
+//
+//                // this is the page to execute the script
+//                if (!checkIntroContainer() && retrieveDataFirst()) {
+//                    // embed a place where timer show
+//                    embedTimer(true);
+//
+//                    // embed script to horn button
+//                    embedScript();
+//
+//                    // start script action
+//                    action();
+//
+//                    nobInit();
+//                } else {
+//                    // fail to retrieve data, display error msg and reload the page
+//                    document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+//                    window.setTimeout(function () {
+//                        reloadPage(false);
+//                    }, errorReloadTime * 1000);
+//                }
+//            } else {
+//                // not in hunters camp, just show the title of autobot version
+//                embedTimer(false);
+//            }
+//        } else if (mhMobilePlatform) {
+//            // execute at all page of mobile version
+//            // page to execute the script!
+//
+//            // make sure all the preference already loaded
+//            loadPreferenceSettingFromStorage();
+//
+//            // embed a place where timer show
+//            embedTimer(false);
+//        } else if (hiFivePlatform) {
+//            if (window.location.href == "http://mousehunt.hi5.hitgrab.com/#" ||
+//                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/?") != -1 ||
+//                window.location.href == "http://mousehunt.hi5.hitgrab.com/" ||
+//                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/turn.php") != -1 ||
+//                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/?newpuzzle") != -1 ||
+//                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/index.php") != -1) {
+//                // page to execute the script!
+//
+//                // make sure all the preference already loaded
+//                loadPreferenceSettingFromStorage();
+//
+//                // this is the page to execute the script
+//                if (!checkIntroContainer() && retrieveDataFirst()) {
+//                    // embed a place where timer show
+//                    embedTimer(true);
+//
+//                    // embed script to horn button
+//                    embedScript();
+//
+//                    // start script action
+//                    action();
+//
+//                    nobInit();
+//                } else {
+//                    // fail to retrieve data, display error msg and reload the page
+//                    document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+//                    window.setTimeout(function () {
+//                        reloadPage(false);
+//                    }, errorReloadTime * 1000);
+//                }
+//            } else {
+//                // not in hunters camp, just show the title of autobot version
+//                embedTimer(false);
+//
+//                nobInit();
+//            }
+//        }
 
-        if (fbPlatform) {
-            if (window.location.href == "http://www.mousehuntgame.com/canvas/" ||
-                window.location.href == "http://www.mousehuntgame.com/canvas/#" ||
-                window.location.href == "https://www.mousehuntgame.com/canvas/" ||
-                window.location.href == "https://www.mousehuntgame.com/canvas/#" ||
-                window.location.href.indexOf("mousehuntgame.com/canvas/?") != -1) {
-                window.location.href == "https://www.mousehuntgame.com/" ||
-                window.location.href == "https://www.mousehuntgame.com/#" ||
-                window.location.href == "https://www.mousehuntgame.com/?switch_to=standard" ||
-                window.location.href == "https://www.mousehuntgame.com/index.php" ||
-                window.location.href == "https://www.mousehuntgame.com/camp.php" ||
-                window.location.href.indexOf("mousehuntgame.com/index.php") >= 0 ||
-                // page to execute the script!
-
-                // make sure all the preference already loaded
-                loadPreferenceSettingFromStorage();
-
-                // this is the page to execute the script
-                if (!checkIntroContainer() && retrieveDataFirst()) {
-                    // embed a place where timer show
-                    embedTimer(true);
-
-                    // embed script to horn button
-                    embedScript();
-
-                    // start script action
-                    action();
-
-                    nobInit();
-                } else {
-                    // fail to retrieve data, display error msg and reload the page
-                    document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                    window.setTimeout(function () {
-                        reloadPage(false);
-                    }, errorReloadTime * 1000);
-                }
-            } else {
-                // not in hunters camp, just show the title of autobot version
-                embedTimer(false);
-
-                nobInit();
-            }
-        }     else if (mhPlatform) {
         if (window.location.href == "http://www.mousehuntgame.com/" ||
             window.location.href == "https://www.mousehuntgame.com/" ||
-			window.location.href == "http://www.mousehuntgame.com/#" ||
+            window.location.href == "http://www.mousehuntgame.com/#" ||
             window.location.href == "https://www.mousehuntgame.com/#" ||
-			window.location.href == "http://www.mousehuntgame.com/?switch_to=standard" ||
+            window.location.href == "http://www.mousehuntgame.com/?switch_to=standard" ||
             window.location.href == "https://www.mousehuntgame.com/?switch_to=standard" ||
             window.location.href == "http://www.mousehuntgame.com/index.php" ||
-			window.location.href == "https://www.mousehuntgame.com/index.php" ||
+            window.location.href == "https://www.mousehuntgame.com/index.php" ||
             window.location.href == "http://www.mousehuntgame.com/camp.php" ||
-			window.location.href == "https://www.mousehuntgame.com/camp.php" ||
+            window.location.href == "https://www.mousehuntgame.com/camp.php" ||
             window.location.href == "http://www.mousehuntgame.com/camp.php#" ||
             window.location.href == "https://www.mousehuntgame.com/camp.php#" ||
-			window.location.href.indexOf("mousehuntgame.com/index.php") >= 0 ||
+            window.location.href.indexOf("mousehuntgame.com/index.php") >= 0 ||
             window.location.href.indexOf("mousehuntgame.com/camp.php") >= 0 ||
-			window.location.href.indexOf("mousehuntgame.com/camp.php#") >= 0) {
-                // page to execute the script!
-
-                // make sure all the preference already loaded
-                loadPreferenceSettingFromStorage();
-
-                // this is the page to execute the script
-                if (!checkIntroContainer() && retrieveDataFirst()) {
-                    // embed a place where timer show
-                    embedTimer(true);
-
-                    // embed script to horn button
-                    embedScript();
-
-                    // start script action
-                    action();
-
-                    nobInit();
-                } else {
-                    // fail to retrieve data, display error msg and reload the page
-                    document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                    window.setTimeout(function () {
-                        reloadPage(false);
-                    }, errorReloadTime * 1000);
-                }
-            } else {
-                // not in hunters camp, just show the title of autobot version
-                embedTimer(false);
-            }
-        } else if (mhMobilePlatform) {
-            // execute at all page of mobile version
+            window.location.href.indexOf("mousehuntgame.com/camp.php#") >= 0) {
             // page to execute the script!
-
+        
             // make sure all the preference already loaded
             loadPreferenceSettingFromStorage();
-
-            // embed a place where timer show
-            embedTimer(false);
-        } else if (hiFivePlatform) {
-            if (window.location.href == "http://mousehunt.hi5.hitgrab.com/#" ||
-                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/?") != -1 ||
-                window.location.href == "http://mousehunt.hi5.hitgrab.com/" ||
-                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/turn.php") != -1 ||
-                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/?newpuzzle") != -1 ||
-                window.location.href.indexOf("http://mousehunt.hi5.hitgrab.com/index.php") != -1) {
-                // page to execute the script!
-
-                // make sure all the preference already loaded
-                loadPreferenceSettingFromStorage();
-
-                // this is the page to execute the script
-                if (!checkIntroContainer() && retrieveDataFirst()) {
-                    // embed a place where timer show
-                    embedTimer(true);
-
-                    // embed script to horn button
-                    embedScript();
-
-                    // start script action
-                    action();
-
-                    nobInit();
-                } else {
-                    // fail to retrieve data, display error msg and reload the page
-                    document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                    window.setTimeout(function () {
-                        reloadPage(false);
-                    }, errorReloadTime * 1000);
-                }
-            } else {
-                // not in hunters camp, just show the title of autobot version
-                embedTimer(false);
-
+        
+            // this is the page to execute the script
+            if (!checkIntroContainer() && retrieveDataFirst()) {
+                // embed a place where timer show
+                embedTimer(true);
+        
+                // embed script to horn button
+                embedScript();
+        
+                // start script action
+                action();
+        
                 nobInit();
+            } else {
+                // fail to retrieve data, display error msg and reload the page
+                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+                window.setTimeout(function () {
+                    reloadPage(false);
+                }, errorReloadTime * 1000);
             }
+        } else {
+            // not in hunters camp, just show the title of autobot version
+            embedTimer(false);
         }
     } catch (e) {
         if (debug) console.log('exeScript error - ' + e)
     }
-}
 
+}
+/*
 function GetTrapCheckTime() {
     // Check storage first
     var trapCheckFromStorage = getStorageToVariableInt('TrapCheckTimeOffset', -1);
@@ -14024,3 +14070,4 @@ function bodyJS() {
         //initControlsSpecialFeature();
     }
 }*/
+
