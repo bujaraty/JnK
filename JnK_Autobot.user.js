@@ -24,11 +24,11 @@
 var debug = true;
 // // // ERROR CHECKING ONLY: KR debug
 // var debugKR = false;
-/*
+
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 10 - 360
-var hornTimeDelayMin = 10;
-var hornTimeDelayMax = 240;
+var hornTimeDelayMin = 7;
+var hornTimeDelayMax = 15;
 
 // // Bot aggressively by ignore all safety measure such as check horn image visible before sounding it. (true/false)
 // // Note: Highly recommended to turn off because it increase the chances of getting caught in botting.
@@ -39,16 +39,16 @@ var aggressiveMode = false;
 // // Enable trap check once an hour. (true/false)
 var enableTrapCheck = true;
 
-// // Trap check time different value (00 minutes - 45 minutes)
-// // Note: Every player had different trap check time, set your trap check time here. It only take effect if enableTrapCheck = true;
-// // Example: If you have XX:00 trap check time then set 00. If you have XX:45 trap check time, then set 45.
-var trapCheckTimeDiff = 15;
+// // // Trap check time different value (00 minutes - 45 minutes)
+// // // Note: Every player had different trap check time, set your trap check time here. It only take effect if enableTrapCheck = true;
+// // // Example: If you have XX:00 trap check time then set 00. If you have XX:45 trap check time, then set 45.
+// var trapCheckTimeDiff = 15;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
-var checkTimeDelayMin = 15;
-var checkTimeDelayMax = 120;
-
+var checkTimeDelayMin = 7;
+var checkTimeDelayMax = 15;
+/*
 // // Play sound when encounter king's reward (true/false)
 var isKingWarningSound = false;
 
@@ -74,7 +74,7 @@ var reloadKingReward = false;
 // // Duration of pausing the script before reload the King's Reward page (in seconds)
 // // Note: It only take effect if reloadKingReward = true;
 var kingPauseTimeMax = 18000;
-
+*/
 // // Auto solve KR
 var isAutoSolve = true;
 
@@ -82,7 +82,7 @@ var isAutoSolve = true;
 // // Default: 10 - 30
 var krDelayMin = 10;
 var krDelayMax = 30;
-
+/*
 // // Time to start and stop solving KR. (in hours, 24-hour format)
 // // Example: Script would not auto solve KR between 00:00 - 6:00 when krStopHour = 0 & krStartHour = 6;
 // // To disable this feature, set both to the same value.
@@ -133,11 +133,11 @@ var autoPopupKR = false;
 
 // // Display timer and message in page title. (true/false)
 var showTimerInTitle = true;
-
+*/
 // // Embed a timer in page to show next hunter horn timer, highly recommended to turn on. (true/false)
 // // Note: You may not access some option like pause at invalid location if you turn this off.
 var showTimerInPage = true;
-
+/*
 // // Display the last time the page did a refresh or reload. (true/false)
 var showLastPageLoadTime = true;
 
@@ -366,14 +366,16 @@ var g_objConstTrap = {
 
 // // Addon code (default: empty string)
 var addonCode = "";
-
+*/
 // == Advance User Preference Setting (End) ==
 
 
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
+var g_strScriptVersion = GM_info.script.version;
 var g_strHTTP = 'https';
+/*
 var g_strVersion = scriptVersion = GM_info.script.version;
 var g_strScriptHandler = "";
 var fbPlatform = false;
@@ -409,8 +411,14 @@ var g_arrArmingList = [];
 var kingsRewardRetry = 0;
 var keyKR = [];
 var separator = "~";
-
+*/
 // element in page
+var g_isNewUI = false;
+var g_nextHornTimeElement;
+var g_checkTimeElement;
+var g_kingTimeElement;
+var g_lastKingRewardSumTimeElement;
+/*
 var titleElement;
 var nextHornTimeElement;
 var checkTimeElement;
@@ -1020,28 +1028,33 @@ function execScript() {
             window.location.href.indexOf("mousehuntgame.com/camp.php") >= 0 ||
             window.location.href.indexOf("mousehuntgame.com/camp.php#") >= 0) {
             // page to execute the script!
-        
-            // make sure all the preference already loaded
-            loadPreferenceSettingFromStorage();
-        
+
+// K_Todo_001
+//            // make sure all the preference already loaded
+//            loadPreferenceSettingFromStorage();
+
             // this is the page to execute the script
             if (!checkIntroContainer() && retrieveDataFirst()) {
                 // embed a place where timer show
                 embedTimer(true);
-        
-                // embed script to horn button
-                embedScript();
-        
-                // start script action
-                action();
-        
-                nobInit();
+
+// K_Todo_003
+//                // embed script to horn button
+//                embedScript();
+
+// K_Todo_004
+//                // start script action
+//                action();
+
+// K_Todo_005
+//                nobInit();
             } else {
-                // fail to retrieve data, display error msg and reload the page
-                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
-                window.setTimeout(function () {
-                    reloadPage(false);
-                }, errorReloadTime * 1000);
+// K_Todo_006
+//                // fail to retrieve data, display error msg and reload the page
+//                document.title = "Fail to retrieve data from page. Reloading in " + timeFormat(errorReloadTime);
+//                window.setTimeout(function () {
+//                    reloadPage(false);
+//                }, errorReloadTime * 1000);
             }
         } else {
             // not in hunters camp, just show the title of autobot version
@@ -1079,7 +1092,7 @@ function GetTrapCheckTime() {
         return parseInt(tempStorage);
     }
 }
-
+*/
 function checkIntroContainer() {
     if (debug) console.log('RUN %ccheckIntroContainer()', 'color: #bada55');
     var gotIntroContainerDiv = false;
@@ -1098,7 +1111,7 @@ function checkIntroContainer() {
         gotIntroContainerDiv = undefined;
     }
 }
-
+/*
 function getJournalDetail() {
     var strLastRecordedJournal = getStorageToVariableStr('LastRecordedJournal', '');
     var classJournal = document.getElementsByClassName('journaltext');
@@ -5184,7 +5197,12 @@ function closeTrapSelector(category) {
 }
 
 //// END EMBED
-
+*/
+function retrieveDataFirst() {
+    return true;
+}
+// K_Todo_002
+/*
 function retrieveDataFirst() {
     if (debug) console.log('RUN retrieveDataFirst()');
 
@@ -5853,31 +5871,36 @@ function reloadWithMessage(msg, soundHorn) {
     msg = undefined;
     soundHorn = undefined;
 }
-
+*/
 // ################################################################################################
 //   Timer Function - Start
 // ################################################################################################
 
 function embedTimer(targetPage) {
+    var temp;
+    var i;
     try {
         if (showTimerInPage) {
             var headerElement;
-            if (fbPlatform || hiFivePlatform || mhPlatform) {
-                headerElement = document.getElementById('overlayContainer');
-            } else if (mhMobilePlatform) {
-                headerElement = document.getElementById('mobileHorn');
-            }
+//            if (fbPlatform || hiFivePlatform || mhPlatform) {
+//                headerElement = document.getElementById('overlayContainer');
+//            } else if (mhMobilePlatform) {
+//                headerElement = document.getElementById('mobileHorn');
+//            }
+            headerElement = document.getElementById('overlayContainer');
 
+            // headerElement has been located, next is to prepare content to add in as our header
             if (headerElement) {
+
                 var timerDivElement = document.createElement('div');
 
                 // show bot title and version
                 var titleElement = document.createElement('div');
                 titleElement.setAttribute('id', 'titleElement');
                 if (targetPage && aggressiveMode) {
-                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">MouseHunt AutoBot UPDATED (version " + scriptVersion + ")</a>" + (isNewUI ? " ~ Beta UI" : "") + "</b> - <font color='red'>Aggressive Mode</font>";
+                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">MouseHunt AutoBot UPDATED (version " + g_strScriptVersion + ")</a>" + (g_isNewUI ? " ~ Beta UI" : "") + "</b> - <font color='red'>Aggressive Mode</font>";
                 } else {
-                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">MouseHunt AutoBot UPDATED (version " + scriptVersion + ")</a>" + (isNewUI ? " ~ Beta UI" : "") + "</b>";
+                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">MouseHunt AutoBot UPDATED (version " + g_strScriptVersion + ")</a>" + (g_isNewUI ? " ~ Beta UI" : "") + "</b>";
                 }
                 timerDivElement.appendChild(titleElement);
                 titleElement = null;
@@ -5888,16 +5911,16 @@ function embedTimer(targetPage) {
                     timerDivElement.appendChild(updateElement);
                     updateElement = null;
 
-                    nextHornTimeElement = document.createElement('div');
-                    nextHornTimeElement.setAttribute('id', 'nextHornTimeElement');
-                    nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
-                    timerDivElement.appendChild(nextHornTimeElement);
+                    g_nextHornTimeElement = document.createElement('div');
+                    g_nextHornTimeElement.setAttribute('id', 'nextHornTimeElement');
+                    g_nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
+                    timerDivElement.appendChild(g_nextHornTimeElement);
 
-                    checkTimeElement = document.createElement('div');
-                    checkTimeElement.setAttribute('id', 'checkTimeElement');
-                    checkTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
-                    timerDivElement.appendChild(checkTimeElement);
-
+                    g_checkTimeElement = document.createElement('div');
+                    g_checkTimeElement.setAttribute('id', 'checkTimeElement');
+                    g_checkTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
+                    timerDivElement.appendChild(g_checkTimeElement);
+/*
                     if (pauseAtInvalidLocation) {
                         // location information only display when enable this feature
                         travelElement = document.createElement('div');
@@ -5905,7 +5928,7 @@ function embedTimer(targetPage) {
                         travelElement.innerHTML = "<b>Target Hunt Location:</b> Loading...";
                         timerDivElement.appendChild(travelElement);
                     }
-
+*/
                     var lastKingRewardDate = getStorage("lastKingRewardDate");
                     var lastDateStr;
                     if (lastKingRewardDate == undefined || lastKingRewardDate == null) {
@@ -5916,15 +5939,15 @@ function embedTimer(targetPage) {
                         lastDate = null;
                     }
 
-                    kingTimeElement = document.createElement('div');
-                    kingTimeElement.setAttribute('id', 'kingTimeElement');
-                    kingTimeElement.innerHTML = "<b>Last King's Reward:</b> " + lastDateStr + " ";
-                    timerDivElement.appendChild(kingTimeElement);
+                    g_kingTimeElement = document.createElement('div');
+                    g_kingTimeElement.setAttribute('id', 'kingTimeElement');
+                    g_kingTimeElement.innerHTML = "<b>Last King's Reward:</b> " + lastDateStr + " ";
+                    timerDivElement.appendChild(g_kingTimeElement);
 
-                    lastKingRewardSumTimeElement = document.createElement('font');
-                    lastKingRewardSumTimeElement.setAttribute('id', 'lastKingRewardSumTimeElement');
-                    lastKingRewardSumTimeElement.innerHTML = "(Loading...)";
-                    kingTimeElement.appendChild(lastKingRewardSumTimeElement);
+                    g_lastKingRewardSumTimeElement = document.createElement('font');
+                    g_lastKingRewardSumTimeElement.setAttribute('id', 'lastKingRewardSumTimeElement');
+                    g_lastKingRewardSumTimeElement.innerHTML = "(Loading...)";
+                    g_kingTimeElement.appendChild(g_lastKingRewardSumTimeElement);
 
                     lastKingRewardDate = null;
                     lastDateStr = null;
@@ -6001,7 +6024,9 @@ function embedTimer(targetPage) {
                     timersElementToggle = null;
                     loadTimersElement = null;
                     loadLinkToUpdate = null;
-                } else {
+*/
+                }
+/*                } else {
                     if (isNewUI || nobTestBetaUI()) {
                         // try check if ajax was called
                         if (doubleCheckLocation()) {
@@ -6052,7 +6077,7 @@ function embedTimer(targetPage) {
 
                     helpTextElement = null;
                 }
-
+*/
                 var showPreference = getStorage('showPreference');
                 if (showPreference == undefined || showPreference == null) {
                     showPreference = false;
@@ -6076,10 +6101,11 @@ function embedTimer(targetPage) {
                     '}' +
                     '">';
 
-                if (showPreference === true)
+                if (showPreference === true){
                     showPreferenceLinkStr += '<b>[Hide Preference]</b>';
-                else
+                } else {
                     showPreferenceLinkStr += '<b>[Show Preference]</b>';
+                }
                 showPreferenceLinkStr += '</a>';
                 showPreferenceLinkStr += '&nbsp;&nbsp;&nbsp;';
                 showPreferenceSpan.innerHTML = showPreferenceLinkStr;
@@ -6150,31 +6176,31 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
 
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Play sound when encounter king\'s reward"><b>Play King Reward Sound</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<select id="PlayKingRewardSoundInput" >';
-                preferenceHTMLStr += '<option value="false"' + ((!isKingWarningSound) ? ' selected' : '') + '>False</option>';
-                preferenceHTMLStr += '<option value="true"' + ((isKingWarningSound) ? ' selected' : '') + '>True</option>';
-                preferenceHTMLStr += '</select>&nbsp;&nbsp;';
-                preferenceHTMLStr += '<a title="Link to MP3 sound to play, defaults NobodyRandom\'s awesome song if left blank"><b>Sound Link:</b></a>&emsp;';
-                preferenceHTMLStr += '<input type="text" id="kingWarningSoundInput" value="' + kingWarningSound + '">';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
-                preferenceHTMLStr += '<a title="Auto Popup on KR"><b>Auto KR Popup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '<td style="height: 24px">';
-                preferenceHTMLStr += '<select id="autoPopKR">';
-                preferenceHTMLStr += '<option value="false"' + ((!autoPopupKR) ? ' selected' : '') + '>False</option>';
-                preferenceHTMLStr += '<option value="true"' + ((autoPopupKR) ? ' selected' : '') + '>True</option>';
-                preferenceHTMLStr += '</select>';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
+//                preferenceHTMLStr += '<tr>';
+//                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+//                preferenceHTMLStr += '<a title="Play sound when encounter king\'s reward"><b>Play King Reward Sound</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+//                preferenceHTMLStr += '</td>';
+//                preferenceHTMLStr += '<td style="height:24px">';
+//                preferenceHTMLStr += '<select id="PlayKingRewardSoundInput" >';
+//                preferenceHTMLStr += '<option value="false"' + ((!isKingWarningSound) ? ' selected' : '') + '>False</option>';
+//                preferenceHTMLStr += '<option value="true"' + ((isKingWarningSound) ? ' selected' : '') + '>True</option>';
+//                preferenceHTMLStr += '</select>&nbsp;&nbsp;';
+//                preferenceHTMLStr += '<a title="Link to MP3 sound to play, defaults NobodyRandom\'s awesome song if left blank"><b>Sound Link:</b></a>&emsp;';
+//                preferenceHTMLStr += '<input type="text" id="kingWarningSoundInput" value="' + kingWarningSound + '">';
+//                preferenceHTMLStr += '</td>';
+//                preferenceHTMLStr += '</tr>';
+//
+//                preferenceHTMLStr += '<tr>';
+//                preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
+//                preferenceHTMLStr += '<a title="Auto Popup on KR"><b>Auto KR Popup</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;';
+//                preferenceHTMLStr += '</td>';
+//                preferenceHTMLStr += '<td style="height: 24px">';
+//                preferenceHTMLStr += '<select id="autoPopKR">';
+//                preferenceHTMLStr += '<option value="false"' + ((!autoPopupKR) ? ' selected' : '') + '>False</option>';
+//                preferenceHTMLStr += '<option value="true"' + ((autoPopupKR) ? ' selected' : '') + '>True</option>';
+//                preferenceHTMLStr += '</select>';
+//                preferenceHTMLStr += '</td>';
+//                preferenceHTMLStr += '</tr>';
 
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;">';
@@ -6247,7 +6273,7 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</select>';
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
-
+*/
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Best Weapon for </b></a>';
                 preferenceHTMLStr += '<select id="selectBestTrapPowerType" style="width:75px;" onchange="initControlsBestTrap();">';
@@ -6289,11 +6315,11 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
                 */
-/*
+
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
                 preferenceHTMLStr += '(Changes above this line only take place after user save the preference) ';
-                preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
+/*                preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
 				try {\
 				window.localStorage.setItem(\'AggressiveMode\', 		document.getElementById(\'AggressiveModeInput\').value);\
 				window.localStorage.setItem(\'HornTimeDelayMin\', 		document.getElementById(\'HornTimeDelayMinInput\').value);\
@@ -6311,16 +6337,17 @@ function embedTimer(targetPage) {
 				setSessionToLocal();\
 				} catch(e) {console.log(e);}\
 				';
-
+*/
                 //window.localStorage.setItem('PlayKingRewardSound', 	document.getElementById('PlayKingRewardSoundInput').value);
                 //window.localStorage.setItem('SaveKRImage', 			document.getElementById('SaveKRImageInput').value);
 
-                if (fbPlatform)
-                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/canvas/\';';
-                else if (hiFivePlatform)
-                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehunt.hi5.hitgrab.com/\';';
-                else if (mhPlatform)
-                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/\';';
+//                if (fbPlatform)
+//                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/canvas/\';';
+//                else if (hiFivePlatform)
+//                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehunt.hi5.hitgrab.com/\';';
+//                else if (mhPlatform)
+//                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/\';';
+                temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/\';';
 
                 preferenceHTMLStr += temp + '"/>&nbsp;&nbsp;&nbsp;</td>';
                 preferenceHTMLStr += '</tr>';
@@ -8070,7 +8097,7 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</textarea>';
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
-
+*/
                 preferenceHTMLStr += '</table>';
 
                 /*
@@ -8115,7 +8142,7 @@ window.localStorage.setItem(\'addonCode\', document.getElementById(\'addonCode\'
                 preferenceHTMLStr += '</tr>';
                 preferenceHTMLStr += '</table>';
                 */
-/*
+
                 var NOBspecialMessageDiv = document.createElement('div');
                 NOBspecialMessageDiv.setAttribute('id', 'nobSpecialMessage');
                 NOBspecialMessageDiv.setAttribute('style', 'display: block; position: fixed; bottom: 0; z-index: 999; text-align: center; width: 760px;');
@@ -8165,10 +8192,11 @@ window.localStorage.setItem(\'addonCode\', document.getElementById(\'addonCode\'
 
                 var preferenceDiv = document.createElement('div');
                 preferenceDiv.setAttribute('id', 'preferenceDiv');
-                if (showPreference === true)
+                if (showPreference === true){
                     preferenceDiv.setAttribute('style', 'display: block');
-                else
+                } else {
                     preferenceDiv.setAttribute('style', 'display: none');
+                }
                 preferenceDiv.innerHTML = preferenceHTMLStr;
                 timerDivElement.appendChild(preferenceDiv);
                 timerDivElement.appendChild(NOBspecialMessageDiv);
@@ -8186,7 +8214,7 @@ window.localStorage.setItem(\'addonCode\', document.getElementById(\'addonCode\'
                 // embed all msg to the page
                 headerElement.parentNode.insertBefore(timerDivElement, headerElement);
                 timerDivElement = null;
-
+/*
                 var scriptElement = document.createElement("script");
                 scriptElement.setAttribute('type', "text/javascript");
                 scriptElement.setAttribute('id', "scriptUIFunction");
@@ -8227,10 +8255,10 @@ window.localStorage.setItem(\'addonCode\', document.getElementById(\'addonCode\'
                 //document.getElementById('idGetLogAndPreference').style.display = (targetPage) ? 'table-row' : 'none';
                 //document.getElementById('clearTrapList').style.display = (targetPage) ? 'table-row' : 'none';
                 document.getElementById('showPreferenceLink').style.display = (targetPage) ? 'table-row' : 'none';
+*/
             }
             headerElement = null;
         }
-
         targetPage = null;
     } catch (e) {
         if (debug) {
@@ -8243,7 +8271,7 @@ window.localStorage.setItem(\'addonCode\', document.getElementById(\'addonCode\'
         if (debug) console.log(e);
     }
 }
-
+/*
 function loadPreferenceSettingFromStorage() {
     /*
     var aggressiveModeTemp = getStorage("AggressiveMode");
@@ -9904,11 +9932,11 @@ function versionCompare(v1, v2, options) {
 
     return 0;
 }
-
+*/
 function isNullOrUndefined(obj) {
     return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined');
 }
-
+/*
 function getAllIndices(arr, val) {
     var indices = [];
     for (var i = 0; i < arr.length; i++) {
@@ -10139,7 +10167,7 @@ function clearSessionStorage() {
     if ('sessionStorage' in window && !isNullOrUndefined(window.sessionStorage))
         window.sessionStorage.clear();
 }
-
+*/
 function setStorage(name, value) {
     // check if the web browser support HTML5 storage
     if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
@@ -10149,7 +10177,7 @@ function setStorage(name, value) {
     name = undefined;
     value = undefined;
 }
-
+/*
 function removeStorage(name) {
     // check if the web browser support HTML5 storage
     if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
@@ -10157,7 +10185,7 @@ function removeStorage(name) {
     }
     name = undefined;
 }
-
+*/
 function getStorage(name) {
     // check if the web browser support HTML5 storage
     if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
@@ -10165,7 +10193,7 @@ function getStorage(name) {
     }
     name = undefined;
 }
-
+/*
 function getCookie(c_name) {
     if (document.cookie.length > 0) {
         var c_start = document.cookie.indexOf(c_name + "=");
@@ -11452,10 +11480,11 @@ function runAddonCode() {
         eval(addonCode);
     }
 }
-
+*/
 
 // Inject CnN Functions
 function bodyJS() {
+/*
     var objDefaultFGAR = {
         order: ['FG', 'AR'],
         weapon: new Array(2).fill(''),
@@ -14069,5 +14098,7 @@ function bodyJS() {
         initControlsMapHunting();
         //initControlsSpecialFeature();
     }
-}*/
+*/
+}
+
 
