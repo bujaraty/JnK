@@ -804,18 +804,18 @@ execScript();
 function execScript() {
     alert("execScript");
     if (debug) console.log('RUN %cexeScript()', 'color: #9cffbd');
-/*    browser = browserDetection();
-    try {
-        var titleElm = document.getElementById('titleElement');
-        if (titleElm) {
-            titleElm.parentNode.remove();
-        }
-    } catch (e) {
-        if (debug) console.log('No past title elements found.');
-    } finally {
-        titleElm = null;
-    }
-*/
+//    browser = browserDetection();
+//    try {
+//        var titleElm = document.getElementById('titleElement');
+//        if (titleElm) {
+//            titleElm.parentNode.remove();
+//        }
+//    } catch (e) {
+//        if (debug) console.log('No past title elements found.');
+//    } finally {
+//        titleElm = null;
+//    }
+//
     try {
 /*        // check the trap check setting first
         trapCheckTimeDiff = GetTrapCheckTime();
