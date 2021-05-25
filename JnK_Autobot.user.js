@@ -777,27 +777,27 @@ if (window.top != window.self) {
     if (debug) console.log('NOT IN IFRAME - will not work in fb MH');
 }
 
-var getMapPort;
-try {
-    if (!isNullOrUndefined(chrome.runtime.id)) {
-        g_strScriptHandler = "Extensions";
-        g_strVersion = chrome.runtime.getManifest().version;
-        getMapPort = chrome.runtime.connect({name: 'map'});
-        getMapPort.onMessage.addListener(function (msg) {
-            console.log(msg);
-            if (msg.array.length > 0)
-                checkCaughtMouse(msg.obj, msg.array);
-        });
-    } else {
-        g_strScriptHandler = GM_info.scriptHandler + " " + GM_info.version;
-        g_strVersion = GM_info.script.version;
-    }
-} catch (e) {
-    console.perror('Before execScript', e.message);
-    getMapPort = undefined;
-    g_strVersion = undefined;
-    g_strScriptHandler = undefined;
-}
+//var getMapPort;
+//try {
+//    if (!isNullOrUndefined(chrome.runtime.id)) {
+//        g_strScriptHandler = "Extensions";
+//        g_strVersion = chrome.runtime.getManifest().version;
+//        getMapPort = chrome.runtime.connect({name: 'map'});
+//        getMapPort.onMessage.addListener(function (msg) {
+//            console.log(msg);
+//            if (msg.array.length > 0)
+//                checkCaughtMouse(msg.obj, msg.array);
+//        });
+//    } else {
+//        g_strScriptHandler = GM_info.scriptHandler + " " + GM_info.version;
+//        g_strVersion = GM_info.script.version;
+//    }
+//} catch (e) {
+//    console.perror('Before execScript', e.message);
+//    getMapPort = undefined;
+//    g_strVersion = undefined;
+//    g_strScriptHandler = undefined;
+//}
 */
 execScript();
 
