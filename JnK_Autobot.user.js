@@ -11,6 +11,7 @@
 // @include      https://www.mousehuntgame.com/*
 // @include      http://www.mousehuntgame.com/camp.php*
 // @include      https://www.mousehuntgame.com/camp.php*
+// @grant        unsafeWindow
 // @grant        GM_info
 // @run-at       document-end
 // @require      http://code.jquery.com/jquery-latest.js
@@ -1029,9 +1030,8 @@ function execScript() {
             window.location.href.indexOf("mousehuntgame.com/camp.php#") >= 0) {
             // page to execute the script!
 
-// K_Todo_001
-//            // make sure all the preference already loaded
-//            loadPreferenceSettingFromStorage();
+            // make sure all the preference already loaded
+            loadPreferenceSettingFromStorage();
 
             // this is the page to execute the script
             if (!checkIntroContainer() && retrieveDataFirst()) {
@@ -1044,7 +1044,7 @@ function execScript() {
 
 // K_Todo_004
 //                // start script action
-//                action();
+                action();
 
 // K_Todo_005
 //                nobInit();
@@ -5544,7 +5544,7 @@ function checkJournalDate() {
         reload = undefined;
     }
 }
-
+*/
 function action() {
     if (debug) console.log("Run %caction()", 'color: #00ff00');
 
@@ -5633,7 +5633,7 @@ function action() {
         console.log("action() ERROR - " + e);
     }
 }
-
+/*
 function countdownTimer() {
     if (isKingReward) {
         // update timer
@@ -5898,9 +5898,9 @@ function embedTimer(targetPage) {
                 var titleElement = document.createElement('div');
                 titleElement.setAttribute('id', 'titleElement');
                 if (targetPage && aggressiveMode) {
-                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">MouseHunt AutoBot UPDATED (version " + g_strScriptVersion + ")</a>" + (g_isNewUI ? " ~ Beta UI" : "") + "</b> - <font color='red'>Aggressive Mode</font>";
+                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">J n K AutoBot UPDATED (version " + g_strScriptVersion + ")</a>" + (g_isNewUI ? " ~ Beta UI" : "") + "</b> - <font color='red'>Aggressive Mode</font>";
                 } else {
-                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">MouseHunt AutoBot UPDATED (version " + g_strScriptVersion + ")</a>" + (g_isNewUI ? " ~ Beta UI" : "") + "</b>";
+                    titleElement.innerHTML = "<b><a href=\"https://greasyfork.org/en/scripts/395928-mousehunt-autobot-updated\" target=\"_blank\">J n K AutoBot UPDATED (version " + g_strScriptVersion + ")</a>" + (g_isNewUI ? " ~ Beta UI" : "") + "</b>";
                 }
                 timerDivElement.appendChild(titleElement);
                 titleElement = null;
@@ -6307,18 +6307,30 @@ function embedTimer(targetPage) {
                 preferenceHTMLStr += '</td>';
                 preferenceHTMLStr += '</tr>';
 
-                /*
-                preferenceHTMLStr += '<tr>';
-                preferenceHTMLStr += '<td style="height:24px; text-align:right;"><a><b>Support Me</b></a>&nbsp;&nbsp;:&nbsp;&nbsp;</td>';
-                preferenceHTMLStr += '<td style="height:24px">';
-                preferenceHTMLStr += '<input type="button" id="inputShowAds" value="Click to Show Ads" onclick="onIdAdsClicked()">';
-                preferenceHTMLStr += '</td>';
-                preferenceHTMLStr += '</tr>';
-                */
-
                 preferenceHTMLStr += '<tr>';
                 preferenceHTMLStr += '<td style="height:24px; text-align:right;" colspan="2">';
                 preferenceHTMLStr += '(Changes above this line only take place after user save the preference) ';
+
+                preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\n';
+                preferenceHTMLStr += 'try{\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'AggressiveMode\',\tdocument.getElementById(\'AggressiveModeInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'HornTimeDelayMin\',\tdocument.getElementById(\'HornTimeDelayMinInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'HornTimeDelayMax\',\tdocument.getElementById(\'HornTimeDelayMaxInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'TrapCheck\',\tdocument.getElementById(\'TrapCheckInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'TrapCheckTimeDelayMin\',\tdocument.getElementById(\'TrapCheckTimeDelayMinInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'TrapCheckTimeDelayMax\',\tdocument.getElementById(\'TrapCheckTimeDelayMaxInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'AutoSolveKR\',\tdocument.getElementById(\'AutoSolveKRInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'AutoSolveKRDelayMin\',\tdocument.getElementById(\'AutoSolveKRDelayMinInput\').value);\n';
+				preferenceHTMLStr += '\twindow.localStorage.setItem(\'AutoSolveKRDelayMax\',\tdocument.getElementById(\'AutoSolveKRDelayMaxInput\').value);\n';
+				preferenceHTMLStr += '\tsetSessionToLocal();\n';
+				preferenceHTMLStr += '} catch(e) {\n';
+				preferenceHTMLStr += '\tconsole.log(e);\n';
+				preferenceHTMLStr += '}\n';
+
+                temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/\';';
+
+                preferenceHTMLStr += temp + '"/>&nbsp;&nbsp;&nbsp;</td>';
+
 /*                preferenceHTMLStr += '<input type="button" id="PreferenceSaveInput" value="Save" onclick="\
 				try {\
 				window.localStorage.setItem(\'AggressiveMode\', 		document.getElementById(\'AggressiveModeInput\').value);\
@@ -6328,8 +6340,6 @@ function embedTimer(targetPage) {
 				window.localStorage.setItem(\'TrapCheckTimeDelayMin\',	document.getElementById(\'TrapCheckTimeDelayMinInput\').value);\
 				window.localStorage.setItem(\'TrapCheckTimeDelayMax\', 	document.getElementById(\'TrapCheckTimeDelayMaxInput\').value);\
 				window.localStorage.setItem(\'AutoSolveKR\',            document.getElementById(\'AutoSolveKRInput\').value);\
-				window.localStorage.setItem(\'AutoSolveKR\', 			document.getElementById(\'AutoSolveKRInput\').value);\
-				window.localStorage.setItem(\'AutoSolveKR\', 			document.getElementById(\'AutoSolveKRInput\').value);\
 				window.localStorage.setItem(\'AutoSolveKRDelayMin\', 	document.getElementById(\'AutoSolveKRDelayMinInput\').value);\
 				window.localStorage.setItem(\'AutoSolveKRDelayMax\', 	document.getElementById(\'AutoSolveKRDelayMaxInput\').value);\
 				window.localStorage.setItem(\'PauseLocation\', 			document.getElementById(\'PauseLocationInput\').value);\
@@ -6337,9 +6347,7 @@ function embedTimer(targetPage) {
 				setSessionToLocal();\
 				} catch(e) {console.log(e);}\
 				';
-*/
-                //window.localStorage.setItem('PlayKingRewardSound', 	document.getElementById('PlayKingRewardSoundInput').value);
-                //window.localStorage.setItem('SaveKRImage', 			document.getElementById('SaveKRImageInput').value);
+
 
 //                if (fbPlatform)
 //                    temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/canvas/\';';
@@ -6350,6 +6358,7 @@ function embedTimer(targetPage) {
                 temp = 'window.location.href=\'' + g_strHTTP + '://www.mousehuntgame.com/\';';
 
                 preferenceHTMLStr += temp + '"/>&nbsp;&nbsp;&nbsp;</td>';
+*/
                 preferenceHTMLStr += '</tr>';
 
                 preferenceHTMLStr += '<tr>';
@@ -8271,9 +8280,9 @@ window.localStorage.setItem(\'addonCode\', document.getElementById(\'addonCode\'
         if (debug) console.log(e);
     }
 }
-/*
+
 function loadPreferenceSettingFromStorage() {
-    /*
+
     var aggressiveModeTemp = getStorage("AggressiveMode");
     if (aggressiveModeTemp == undefined || aggressiveModeTemp == null) {
         setStorage("AggressiveMode", aggressiveMode.toString());
@@ -8305,7 +8314,7 @@ function loadPreferenceSettingFromStorage() {
         enableTrapCheck = false;
     }
     trapCheckTemp = undefined;
-
+/*
     var trapCheckTimeOffsetTemp = getStorage("TrapCheckTimeOffset");
     if (trapCheckTimeOffsetTemp == undefined || trapCheckTimeOffsetTemp == null) {
         setStorage("TrapCheckTimeOffset", trapCheckTimeDiff);
@@ -8313,7 +8322,7 @@ function loadPreferenceSettingFromStorage() {
         trapCheckTimeDiff = parseInt(trapCheckTimeOffsetTemp);
     }
     trapCheckTimeOffsetTemp = undefined;
-
+*/
     var trapCheckTimeDelayMinTemp = getStorage("TrapCheckTimeDelayMin");
     var trapCheckTimeDelayMaxTemp = getStorage("TrapCheckTimeDelayMax");
     if (trapCheckTimeDelayMinTemp == undefined || trapCheckTimeDelayMinTemp == null || trapCheckTimeDelayMaxTemp == undefined || trapCheckTimeDelayMaxTemp == null) {
@@ -8326,6 +8335,12 @@ function loadPreferenceSettingFromStorage() {
     trapCheckTimeDelayMinTemp = undefined;
     trapCheckTimeDelayMaxTemp = undefined;
 
+    isAutoSolve = getStorageToVariableBool("AutoSolveKR", isAutoSolve);
+    krDelayMin = getStorageToVariableInt("AutoSolveKRDelayMin", krDelayMin);
+    krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);
+//    kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);
+
+/*
     var playKingRewardSoundTemp = getStorage("PlayKingRewardSound");
     if (playKingRewardSoundTemp == undefined || playKingRewardSoundTemp == null) {
         setStorage("PlayKingRewardSound", isKingWarningSound.toString());
@@ -8441,12 +8456,8 @@ function loadPreferenceSettingFromStorage() {
     }
     eventLocation = eventTemp;
     eventTemp = undefined;
+*/
 
-    isAutoSolve = getStorageToVariableBool("AutoSolveKR", isAutoSolve);
-    krDelayMin = getStorageToVariableInt("AutoSolveKRDelayMin", krDelayMin);
-    krDelayMax = getStorageToVariableInt("AutoSolveKRDelayMax", krDelayMax);
-    kingsRewardRetry = getStorageToVariableInt("KingsRewardRetry", kingsRewardRetry);
-    */
 /*
     aggressiveMode = getStorageToVariableBool("AggressiveMode", aggressiveMode);
     hornTimeDelayMin = getStorageToVariableInt("HornTimeDelayMin", hornTimeDelayMin);
@@ -8871,8 +8882,9 @@ function loadPreferenceSettingFromStorage() {
     getBestTrap();
     bestLGBase = arrayConcatUnique(bestLGBase, objBestTrap.base.luck);
     bestSCBase = arrayConcatUnique(bestSCBase, objBestTrap.base.luck);
+*/
 }
-
+/*
 function getTrapList(category) {
     var temp = "";
     var arrObjList;
@@ -8987,7 +8999,7 @@ function getBestTrap() {
         }
     }
 }
-
+*/
 function getStorageToVariableInt(storageName, defaultInt) {
     var temp = getStorage(storageName);
     var tempInt = defaultInt;
@@ -8995,12 +9007,13 @@ function getStorageToVariableInt(storageName, defaultInt) {
         setStorage(storageName, defaultInt);
     } else {
         tempInt = parseInt(temp);
-        if (Number.isNaN(tempInt))
+        if (Number.isNaN(tempInt)) {
             tempInt = defaultInt;
+        }
     }
     return tempInt;
 }
-
+/*
 function getStorageToVariableStr(storageName, defaultStr) {
     var temp = getStorage(storageName);
     if (isNullOrUndefined(temp)) {
@@ -9009,7 +9022,7 @@ function getStorageToVariableStr(storageName, defaultStr) {
     }
     return temp;
 }
-
+*/
 function getStorageToVariableBool(storageName, defaultBool) {
     var temp = getStorage(storageName);
     if (temp == undefined || temp == null) {
@@ -9021,7 +9034,7 @@ function getStorageToVariableBool(storageName, defaultBool) {
         return false;
     }
 }
-
+/*
 function getStorageToObject(keyName, objDefault) {
     var obj = getStorage(keyName);
     var bCheckNewProp = true;
@@ -14100,5 +14113,6 @@ function bodyJS() {
     }
 */
 }
+
 
 
