@@ -5546,92 +5546,92 @@ function checkJournalDate() {
 }
 */
 function action() {
-    if (debug) console.log("Run %caction()", 'color: #00ff00');
-
-    try {
-        if (isKingReward) {
-            kingRewardAction();
-            notifyMe('KR NOW - ' + getPageVariable('user.username'), 'http://3.bp.blogspot.com/_O2yZIhpq9E8/TBoAMw0fMNI/AAAAAAAAAxo/1ytaIxQQz4o/s1600/Subliminal+Message.JPG', "Kings Reward NOW");
-        } else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
-            // update timer
-            displayTimer("Out of pre-defined hunting location...", "Out of pre-defined hunting location...", "Out of pre-defined hunting location...");
-
-            if (fbPlatform) {
-                if (secureConnection) {
-                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-                } else {
-                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-                }
-            } else if (hiFivePlatform) {
-                if (secureConnection) {
-                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-                } else {
-                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-                }
-            } else if (mhPlatform) {
-                if (secureConnection) {
-                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-                } else {
-                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
-                }
-            }
-
-            displayKingRewardSumTime(null);
-
-            // pause script
-        } else if (baitQuantity == 0) {
-            // update timer
-            displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
-            displayLocation(huntLocation);
-            displayKingRewardSumTime(null);
-
-            // Notify no more cheese
-            noCheeseAction();
-
-            // pause the script
-        } else {
-            // update location
-            displayLocation(huntLocation);
-
-            var isHornSounding = false;
-
-            // check if the horn image is visible
-            nobTestBetaUI();
-            var headerElement = document.getElementById(header).firstChild;
-            if (headerElement) {
-                var headerStatus = headerElement.getAttribute('class');
-                if (headerStatus.indexOf(hornReady) != -1) {
-                    // if the horn image is visible, why do we need to wait any more, sound the horn!
-                    soundHorn();
-
-                    // make sure the timer don't run twice!
-                    isHornSounding = true;
-                }
-                headerStatus = undefined;
-            }
-            headerElement = undefined;
-
-            if (isHornSounding === false) {
-                // start timer
-                window.setTimeout(function () {
-                    countdownTimer();
-                }, timerRefreshInterval * 1000);
-            }
-
-            isHornSounding = undefined;
-        }
-        if (!isKingReward) {
-            window.setTimeout(function () {
-                getJournalDetail();
-                eventLocationCheck('action()');
-                //specialFeature('action()');
-                mapHunting();
-                runAddonCode();
-            }, 1000);
-        }
-    } catch (e) {
-        console.log("action() ERROR - " + e);
-    }
+//    if (debug) console.log("Run %caction()", 'color: #00ff00');
+//
+//    try {
+//        if (isKingReward) {
+//            kingRewardAction();
+//            notifyMe('KR NOW - ' + getPageVariable('user.username'), 'http://3.bp.blogspot.com/_O2yZIhpq9E8/TBoAMw0fMNI/AAAAAAAAAxo/1ytaIxQQz4o/s1600/Subliminal+Message.JPG', "Kings Reward NOW");
+//        } else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
+//            // update timer
+//            displayTimer("Out of pre-defined hunting location...", "Out of pre-defined hunting location...", "Out of pre-defined hunting location...");
+//
+//            if (fbPlatform) {
+//                if (secureConnection) {
+//                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+//                } else {
+//                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/canvas/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+//                }
+//            } else if (hiFivePlatform) {
+//                if (secureConnection) {
+//                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+//                } else {
+//                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://mousehunt.hi5.hitgrab.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+//                }
+//            } else if (mhPlatform) {
+//                if (secureConnection) {
+//                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='https://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+//                } else {
+//                    displayLocation("<span style='color: red; '>" + currentLocation + "</span> [<a onclick='window.localStorage.removeItem(\"huntLocation\");' href='http://www.mousehuntgame.com/\'>Hunt Here</a>] - <i>Script pause because you had move to a different location recently, click hunt here to continue hunt at this location.</i>");
+//                }
+//            }
+//
+//            displayKingRewardSumTime(null);
+//
+//            // pause script
+//        } else if (baitQuantity == 0) {
+//            // update timer
+//            displayTimer("No more cheese!", "Cannot hunt without the cheese...", "Cannot hunt without the cheese...");
+//            displayLocation(huntLocation);
+//            displayKingRewardSumTime(null);
+//
+//            // Notify no more cheese
+//            noCheeseAction();
+//
+//            // pause the script
+//        } else {
+//            // update location
+//            displayLocation(huntLocation);
+//
+//            var isHornSounding = false;
+//
+//            // check if the horn image is visible
+//            nobTestBetaUI();
+//            var headerElement = document.getElementById(header).firstChild;
+//            if (headerElement) {
+//                var headerStatus = headerElement.getAttribute('class');
+//                if (headerStatus.indexOf(hornReady) != -1) {
+//                    // if the horn image is visible, why do we need to wait any more, sound the horn!
+//                    soundHorn();
+//
+//                    // make sure the timer don't run twice!
+//                    isHornSounding = true;
+//                }
+//                headerStatus = undefined;
+//            }
+//            headerElement = undefined;
+//
+//            if (isHornSounding === false) {
+//                // start timer
+//                window.setTimeout(function () {
+//                    countdownTimer();
+//                }, timerRefreshInterval * 1000);
+//            }
+//
+//            isHornSounding = undefined;
+//        }
+//        if (!isKingReward) {
+//            window.setTimeout(function () {
+//                getJournalDetail();
+//                eventLocationCheck('action()');
+//                //specialFeature('action()');
+//                mapHunting();
+//                runAddonCode();
+//            }, 1000);
+//        }
+//    } catch (e) {
+//        console.log("action() ERROR - " + e);
+//    }
 }
 /*
 function countdownTimer() {
