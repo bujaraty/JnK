@@ -40,10 +40,10 @@ var aggressiveMode = false;
 // // Enable trap check once an hour. (true/false)
 var enableTrapCheck = true;
 
-// // // Trap check time different value (00 minutes - 45 minutes)
-// // // Note: Every player had different trap check time, set your trap check time here. It only take effect if enableTrapCheck = true;
-// // // Example: If you have XX:00 trap check time then set 00. If you have XX:45 trap check time, then set 45.
-// var trapCheckTimeDiff = 15;
+// // Trap check time different value (00 minutes - 45 minutes)
+// // Note: Every player had different trap check time, set your trap check time here. It only take effect if enableTrapCheck = true;
+// // Example: If you have XX:00 trap check time then set 00. If you have XX:45 trap check time, then set 45.
+var trapCheckTimeDiff = 15;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
@@ -376,6 +376,7 @@ var addonCode = "";
 // All global variable declaration and default value
 var g_strScriptVersion = GM_info.script.version;
 var g_strHTTP = 'https';
+var g_isKingReward = false;
 /*
 var g_strVersion = scriptVersion = GM_info.script.version;
 var g_strScriptHandler = "";
@@ -388,7 +389,6 @@ var lastDateRecorded = new Date();
 var hornTime = 900;
 var hornTimeDelay = 0;
 var checkTimeDelay = 0;
-var isKingReward = false;
 var lastKingRewardSumTime;
 var baitQuantity = -1;
 var huntLocation;
@@ -763,13 +763,15 @@ function setKREntriesColor() {
     }
 }
 
+// K_Todo_009
 window.addEventListener("message", receiveMessage, false);
 if (debugKR)
     CallKRSolver();
 // CNN KR SOLVER END
 
+*/
 // start executing script
-if (debug) console.log('STARTING SCRIPT - ver: ' + scriptVersion);
+if (debug) console.log('STARTING SCRIPT - ver: ' + g_strScriptVersion);
 if (window.top != window.self) {
     if (debug) console.log('In IFRAME - may cause firefox to error, location: ' + window.location.href);
     //return;
@@ -777,6 +779,7 @@ if (window.top != window.self) {
     if (debug) console.log('NOT IN IFRAME - will not work in fb MH');
 }
 
+// K_Todo_010
 //var getMapPort;
 //try {
 //    if (!isNullOrUndefined(chrome.runtime.id)) {
@@ -798,12 +801,12 @@ if (window.top != window.self) {
 //    g_strVersion = undefined;
 //    g_strScriptHandler = undefined;
 //}
-*/
+
 execScript();
 
 function execScript() {
-    alert("execScript");
     if (debug) console.log('RUN %cexeScript()', 'color: #9cffbd');
+// K_Todo_011
 //    browser = browserDetection();
 //    try {
 //        var titleElm = document.getElementById('titleElement');
@@ -817,7 +820,7 @@ function execScript() {
 //    }
 //
     try {
-/*        // check the trap check setting first
+        // check the trap check setting first
         trapCheckTimeDiff = GetTrapCheckTime();
 
         // check the trap check setting first
@@ -827,7 +830,7 @@ function execScript() {
             // invalid value, just disable the trap check
             enableTrapCheck = false;
         }
-
+/*
         if (showTimerInTitle) {
             // check if they are running in iFrame
             if (window.location.href.indexOf("apps.facebook.com/mousehunt/") != -1) {
@@ -1065,12 +1068,15 @@ function execScript() {
     }
 
 }
-/*
+
 function GetTrapCheckTime() {
+// K_Todo_012
+// I have to refactor the in this part as sometime, the TrapCheck time is incorrect
     // Check storage first
     var trapCheckFromStorage = getStorageToVariableInt('TrapCheckTimeOffset', -1);
-    if (trapCheckFromStorage != -1)
+    if (trapCheckFromStorage != -1) {
         return trapCheckFromStorage;
+    }
 
     try {
         var passiveElement = document.getElementsByClassName('passive');
@@ -1091,8 +1097,9 @@ function GetTrapCheckTime() {
         }
         return parseInt(tempStorage);
     }
+
 }
-*/
+
 function checkIntroContainer() {
     if (debug) console.log('RUN %ccheckIntroContainer()', 'color: #bada55');
     var gotIntroContainerDiv = false;
@@ -5546,10 +5553,11 @@ function checkJournalDate() {
 }
 */
 function action() {
-//    if (debug) console.log("Run %caction()", 'color: #00ff00');
-//
-//    try {
-//        if (isKingReward) {
+    if (debug) console.log("Run %caction()", 'color: #00ff00');
+
+    try {
+// K_Todo_007
+        if (g_isKingReward) {
 //            kingRewardAction();
 //            notifyMe('KR NOW - ' + getPageVariable('user.username'), 'http://3.bp.blogspot.com/_O2yZIhpq9E8/TBoAMw0fMNI/AAAAAAAAAxo/1ytaIxQQz4o/s1600/Subliminal+Message.JPG', "Kings Reward NOW");
 //        } else if (pauseAtInvalidLocation && (huntLocation != currentLocation)) {
@@ -5589,7 +5597,8 @@ function action() {
 //            noCheeseAction();
 //
 //            // pause the script
-//        } else {
+        } else {
+// K_Todo_008
 //            // update location
 //            displayLocation(huntLocation);
 //
@@ -5619,7 +5628,7 @@ function action() {
 //            }
 //
 //            isHornSounding = undefined;
-//        }
+        }
 //        if (!isKingReward) {
 //            window.setTimeout(function () {
 //                getJournalDetail();
@@ -5629,9 +5638,9 @@ function action() {
 //                runAddonCode();
 //            }, 1000);
 //        }
-//    } catch (e) {
-//        console.log("action() ERROR - " + e);
-//    }
+    } catch (e) {
+        console.log("action() ERROR - " + e);
+    }
 }
 /*
 function countdownTimer() {
@@ -14113,6 +14122,4 @@ function bodyJS() {
     }
 */
 }
-
-
 
