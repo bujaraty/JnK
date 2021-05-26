@@ -831,56 +831,56 @@ function execScript() {
             enableTrapCheck = false;
         }
 /*
-        if (showTimerInTitle) {
-            // check if they are running in iFrame
-            if (window.location.href.indexOf("apps.facebook.com/mousehunt/") != -1) {
-                contentElement = document.getElementById('pagelet_canvas_content');
-                if (contentElement) {
-                    breakFrameDivElement = document.createElement('div');
-                    breakFrameDivElement.setAttribute('id', 'breakFrameDivElement');
-                    breakFrameDivElement.innerHTML = "Timer cannot show on title page. You can <a href='http://www.mousehuntgame.com/canvas/'>run MouseHunt without iFrame (Facebook)</a> to enable timer on title page";
-                    contentElement.parentNode.insertBefore(breakFrameDivElement, contentElement);
-                }
-                contentElement = undefined;
-            } else if (window.location.href.indexOf("hi5.com/friend/games/MouseHunt") != -1) {
-                contentElement = document.getElementById('apps-canvas-body');
-                if (contentElement) {
-                    breakFrameDivElement = document.createElement('div');
-                    breakFrameDivElement.setAttribute('id', 'breakFrameDivElement');
-                    breakFrameDivElement.innerHTML = "Timer cannot show on title page. You can <a href='http://mousehunt.hi5.hitgrab.com/'>run MouseHunt without iFrame (Hi5)</a> to enable timer on title page";
-                    contentElement.parentNode.insertBefore(breakFrameDivElement, contentElement);
-                }
-                contentElement = breakFrameDivElement = undefined;
-            }
-        }
-
-        // check user running this script from where
-        if (window.location.href.indexOf("mousehuntgame.com/canvas/") != -1) {
-            // from facebook
-            fbPlatform = true;
-            setStorage('Platform', 'FB');
-        } else if (window.location.href.indexOf("mousehuntgame.com") != -1) {
-            // need to check if it is running in mobile version
-            var version = getCookie("switch_to");
-            if (version !== null && version == "mobile") {
-                // from mousehunt game mobile version
-                mhMobilePlatform = true;
-                setStorage('Platform', 'MHMobile');
-            } else {
-                // from mousehunt game standard version
-                mhPlatform = true;
-                setStorage('Platform', 'MH');
-            }
-            version = undefined;
-        } else if (window.location.href.indexOf("mousehunt.hi5.hitgrab.com") != -1) {
-            // from hi5
-            hiFivePlatform = true;
-            setStorage('Platform', 'Hi5');
-        }
-
-        // check if user running in https secure connection, true/false
-        secureConnection = (window.location.href.indexOf("https://") > -1);
-        setStorage('HTTPS', secureConnection);
+//        if (showTimerInTitle) {
+//            // check if they are running in iFrame
+//            if (window.location.href.indexOf("apps.facebook.com/mousehunt/") != -1) {
+//                contentElement = document.getElementById('pagelet_canvas_content');
+//                if (contentElement) {
+//                    breakFrameDivElement = document.createElement('div');
+//                    breakFrameDivElement.setAttribute('id', 'breakFrameDivElement');
+//                    breakFrameDivElement.innerHTML = "Timer cannot show on title page. You can <a href='http://www.mousehuntgame.com/canvas/'>run MouseHunt without iFrame (Facebook)</a> to enable timer on title page";
+//                    contentElement.parentNode.insertBefore(breakFrameDivElement, contentElement);
+//                }
+//                contentElement = undefined;
+//            } else if (window.location.href.indexOf("hi5.com/friend/games/MouseHunt") != -1) {
+//                contentElement = document.getElementById('apps-canvas-body');
+//                if (contentElement) {
+//                    breakFrameDivElement = document.createElement('div');
+//                    breakFrameDivElement.setAttribute('id', 'breakFrameDivElement');
+//                    breakFrameDivElement.innerHTML = "Timer cannot show on title page. You can <a href='http://mousehunt.hi5.hitgrab.com/'>run MouseHunt without iFrame (Hi5)</a> to enable timer on title page";
+//                    contentElement.parentNode.insertBefore(breakFrameDivElement, contentElement);
+//                }
+//                contentElement = breakFrameDivElement = undefined;
+//            }
+//        }
+//
+//        // check user running this script from where
+//        if (window.location.href.indexOf("mousehuntgame.com/canvas/") != -1) {
+//            // from facebook
+//            fbPlatform = true;
+//            setStorage('Platform', 'FB');
+//        } else if (window.location.href.indexOf("mousehuntgame.com") != -1) {
+//            // need to check if it is running in mobile version
+//            var version = getCookie("switch_to");
+//            if (version !== null && version == "mobile") {
+//                // from mousehunt game mobile version
+//                mhMobilePlatform = true;
+//                setStorage('Platform', 'MHMobile');
+//            } else {
+//                // from mousehunt game standard version
+//                mhPlatform = true;
+//                setStorage('Platform', 'MH');
+//            }
+//            version = undefined;
+//        } else if (window.location.href.indexOf("mousehunt.hi5.hitgrab.com") != -1) {
+//            // from hi5
+//            hiFivePlatform = true;
+//            setStorage('Platform', 'Hi5');
+//        }
+//
+//        // check if user running in https secure connection, true/false
+//        secureConnection = (window.location.href.indexOf("https://") > -1);
+//        setStorage('HTTPS', secureConnection);
 */
 //        if (fbPlatform) {
 //            if (window.location.href == "http://www.mousehuntgame.com/canvas/" ||
