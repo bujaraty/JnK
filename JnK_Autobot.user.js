@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         JnK_Autobot
 // @namespace    https://github.com/bujaraty/JnK
-// @version      0.1
+// @version      0.0.1
 // @description  Customized version of MH autobot
 // @author       JnK
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
@@ -19,7 +19,6 @@
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
-
 
 // // ERROR CHECKING ONLY: Script debug
 var debug = true;
@@ -377,28 +376,28 @@ var addonCode = "";
 var g_strScriptVersion = GM_info.script.version;
 var g_strHTTP = 'https';
 var g_isKingReward = false;
+var g_mhPlatform = false;
+var g_huntLocation;
+var g_nextActiveTime = 900;
+var g_hornTime = 900;
+var g_hornTimeDelay = 0;
 /*
 var g_strVersion = scriptVersion = GM_info.script.version;
 var g_strScriptHandler = "";
 var fbPlatform = false;
 var hiFivePlatform = false;
-var mhPlatform = false;
 var mhMobilePlatform = false;
 var secureConnection = false;
 var lastDateRecorded = new Date();
-var hornTime = 900;
-var hornTimeDelay = 0;
 var checkTimeDelay = 0;
 var lastKingRewardSumTime;
 var baitQuantity = -1;
-var huntLocation;
 var currentLocation;
 var today = new Date();
 var checkTime = (today.getMinutes() >= trapCheckTimeDiff) ? 3600 + (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds()) : (trapCheckTimeDiff * 60) - (today.getMinutes() * 60 + today.getSeconds());
 today = undefined;
 var hornRetryMax = 10;
 var hornRetry = 0;
-var nextActiveTime = 900;
 var timerInterval = 2;
 var checkMouseResult = null;
 var armingQueue = [];
@@ -882,6 +881,9 @@ function execScript() {
 //        secureConnection = (window.location.href.indexOf("https://") > -1);
 //        setStorage('HTTPS', secureConnection);
 */
+        g_mhPlatform = true;
+        setStorage('Platform', 'MH');
+/*
 //        if (fbPlatform) {
 //            if (window.location.href == "http://www.mousehuntgame.com/canvas/" ||
 //                window.location.href == "http://www.mousehuntgame.com/canvas/#" ||
@@ -1015,7 +1017,7 @@ function execScript() {
 //                nobInit();
 //            }
 //        }
-
+*/
         if (window.location.href == "http://www.mousehuntgame.com/" ||
             window.location.href == "https://www.mousehuntgame.com/" ||
             window.location.href == "http://www.mousehuntgame.com/#" ||
@@ -5206,11 +5208,6 @@ function closeTrapSelector(category) {
 //// END EMBED
 */
 function retrieveDataFirst() {
-    return true;
-}
-// K_Todo_002
-/*
-function retrieveDataFirst() {
     if (debug) console.log('RUN retrieveDataFirst()');
 
     try {
@@ -5222,6 +5219,10 @@ function retrieveDataFirst() {
         var scriptElementList = document.getElementsByTagName('script');
 
         if (scriptElementList) {
+// K_Todo_013
+// I need to refactor code in this part as small functions later
+// I need a better way to identify the document
+// I need a better parser
             var i;
             for (i = 0; i < scriptElementList.length; ++i) {
                 var scriptString = scriptElementList[i].innerHTML;
@@ -5232,31 +5233,37 @@ function retrieveDataFirst() {
                     hornTimeStartIndex += 25;
                     var hornTimeEndIndex = scriptString.indexOf(",", hornTimeStartIndex);
                     var hornTimerString = scriptString.substring(hornTimeStartIndex, hornTimeEndIndex);
-                    nextActiveTime = parseInt(hornTimerString);
-                    if (debug) console.log("From substr: " + nextActiveTime + ", from page var: " + getPageVariable("user.next_activeturn_seconds"));
+                    g_nextActiveTime = parseInt(hornTimerString);
+                    if (debug) console.log("From substr: " + g_nextActiveTime + ", from page var: " + getPageVariable("user.next_activeturn_seconds"));
 
-                    hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
+                    g_hornTimeDelay = hornTimeDelayMin + Math.round(Math.random() * (hornTimeDelayMax - hornTimeDelayMin));
+                    alert(g_hornTimeDelay);
 
                     if (!aggressiveMode) {
                         // calculation base on the js in Mousehunt
-                        var additionalDelayTime = Math.ceil(nextActiveTime * 0.1);
+                        var additionalDelayTime = Math.ceil(g_nextActiveTime * 0.1);
                         // Safety switch
                         //hornTimeDelay += additionalDelayTime + 5;
-                        hornTimeDelay += 5;
+                        g_hornTimeDelay += 5;
 
-                        hornTime = nextActiveTime + hornTimeDelay;
-                        if (nextActiveTime <= 0)
-                            eventLocationCheck();
+                        g_hornTime = g_nextActiveTime + g_hornTimeDelay;
+                        if (g_nextActiveTime <= 0){
+                            alert("g_nextActiveTime <= 0");
+// K_Todo_014
+//                            eventLocationCheck();
+                        }
 
-                        lastDateRecorded = undefined;
-                        lastDateRecorded = new Date();
+// K_Todo_015
+//                        lastDateRecorded = undefined;
+//                        lastDateRecorded = new Date();
 
                         additionalDelayTime = undefined;
                     } else {
                         // aggressive mode, no extra delay like time in horn image appear
-                        hornTime = nextActiveTime;
-                        lastDateRecorded = undefined;
-                        lastDateRecorded = new Date();
+                        g_hornTime = g_nextActiveTime;
+// K_Todo_015
+//                        lastDateRecorded = undefined;
+//                        lastDateRecorded = new Date();
                     }
 
                     gotHornTime = true;
@@ -5265,7 +5272,7 @@ function retrieveDataFirst() {
                     hornTimeEndIndex = undefined;
                     hornTimerString = undefined;
                 }
-
+/*
                 // get is king's reward or not
                 var hasPuzzleStartIndex = scriptString.indexOf("has_puzzle");
                 if (hasPuzzleStartIndex >= 0) {
@@ -5317,11 +5324,12 @@ function retrieveDataFirst() {
                 }
 
                 scriptString = undefined;
+*/
             }
             i = undefined;
         }
         scriptElementList = undefined;
-
+/*
         if (gotHornTime && gotPuzzle && gotBaitQuantity) {
             // get trap check time
             CalculateNextTrapCheckInMinute();
@@ -5352,7 +5360,9 @@ function retrieveDataFirst() {
         } else {
             retrieveSuccess = false;
         }
-
+*/
+// temp retrieveSuccess
+        retrieveSuccess = true;
         // clean up
         gotHornTime = undefined;
         gotPuzzle = undefined;
@@ -5365,7 +5375,7 @@ function retrieveDataFirst() {
         console.perror('retrieveDataFirst', e.message);
     }
 }
-
+/*
 function GetHornTime() {
     var huntTimerElement = document.getElementById('huntTimer');
     var totalSec = 900;
@@ -5598,6 +5608,7 @@ function action() {
 //
 //            // pause the script
         } else {
+//            alert(huntLocation);
 // K_Todo_008
 //            // update location
 //            displayLocation(huntLocation);
@@ -10143,21 +10154,22 @@ function functionToHTMLString(func) {
 function replaceAll(str, find, replace) {
     return str.replace(new RegExp(find, 'g'), replace);
 }
-
+*/
 function browserDetection() {
     var browserName = "unknown";
     var userAgentStr = navigator.userAgent.toString().toLowerCase();
-    if (userAgentStr.indexOf("firefox") >= 0)
+    if (userAgentStr.indexOf("firefox") >= 0){
         browserName = "firefox";
-    else if (userAgentStr.indexOf("opera") >= 0 || userAgentStr.indexOf("opr/") >= 0)
+    } else if (userAgentStr.indexOf("opera") >= 0 || userAgentStr.indexOf("opr/") >= 0){
         browserName = "opera";
-    else if (userAgentStr.indexOf("chrome") >= 0)
+    } else if (userAgentStr.indexOf("chrome") >= 0){
         browserName = "chrome";
+    }
     setStorage('Browser', browserName);
     //setStorage('UserAgent', userAgentStr);
     return browserName;
 }
-
+/*
 function setSessionStorage(name, value) {
     // check if the web browser support HTML5 storage
     if ('sessionStorage' in window && !isNullOrUndefined(window.sessionStorage)) {
@@ -10403,7 +10415,7 @@ function fireEvent(element, event) {
         }
     }
 }
-
+*/
 function getPageVariable(name) {
     //if (debug) console.log('RUN GPV(' + name + ')');
     try {
@@ -10411,7 +10423,7 @@ function getPageVariable(name) {
 
         if (browser == 'chrome') {
             if (name == "user.unique_hash") {
-                return user.unique_hash;
+                return unsafeWindow.user.unique_hash;
             } else {
                 return getPageVariableForChrome(name);
             }
@@ -10436,7 +10448,10 @@ function getPageVariable(name) {
                 if (debug) console.log('GPV firefox: ' + name + ' not found.');
             }
         } else {
-            if (debug) console.log('GPV other: ' + name + 'not found.');
+            if (name == "user.next_activeturn_seconds") {
+                return unsafeWindow.user.next_activeturn_seconds;
+            }
+            if (debug) console.log('GPV other: ' + name + ' not found.');
         }
 
         return 'ERROR';
@@ -10467,7 +10482,7 @@ function getPageVariableForChrome(variableName) {
         value = null;
     }
 }
-
+/*
 function getPageText(idName) {
     try {
         return (document.getElementById(idName).innerText);
@@ -14122,4 +14137,5 @@ function bodyJS() {
     }
 */
 }
+
 
