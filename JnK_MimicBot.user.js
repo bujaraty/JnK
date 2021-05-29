@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         JnK_Autobot
+// @name         JnK_Mimicbot
 // @namespace    https://github.com/bujaraty/JnK
 // @version      0.0.1
 // @description  Customized version of MH autobot
