@@ -5709,118 +5709,118 @@ function countdownTimer() {
 
         // pause the script
     } else {
-        var dateNow = new Date();
-        var intervalTime = timeElapsed(lastDateRecorded, dateNow);
-        lastDateRecorded = undefined;
-        lastDateRecorded = dateNow;
-        dateNow = undefined;
-
-        // Update time
-        hornTime -= intervalTime;
-        if (lastKingRewardSumTime != -1) {
-            lastKingRewardSumTime += intervalTime;
-        }
-        if (enableTrapCheck)
-            checkTime -= intervalTime;
-
-        intervalTime = undefined;
-
-        // Check event location 60s before trap check
-        if (enableTrapCheck && checkTime == 60)
-            eventLocationCheck();
-
-        if (hornTime <= 0) {
-            // blow the horn!
-            hornTime = 0;
-            soundHorn();
-        } else if (enableTrapCheck && checkTime <= 0) {
-            // trap check!
-            checkTime = 0;
-            trapCheck();
-        } else {
-            if (enableTrapCheck) {
-                // update timer
-                if (!aggressiveMode) {
-                    displayTimer("Horn: " + timeFormat(hornTime) + " | Check: " + timeFormat(checkTime),
-                        timeFormat(hornTime) + "  <i>(included extra " + timeFormat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
-                        timeFormat(checkTime) + "  <i>(included extra " + timeFormat(checkTimeDelay) + " delay)</i>");
-
-                    // check if user manaually sounded the horn
-                    var scriptNode = document.getElementById("scriptNode");
-                    if (scriptNode) {
-                        var isHornSounded = scriptNode.getAttribute("soundedHornAtt");
-                        if (isHornSounded == "true") {
-                            // sound horn function do the rest
-                            soundHorn();
-
-                            // stop loopping
-                            return;
-                        }
-                        isHornSounded = undefined;
-                    }
-                    scriptNode = undefined;
-
-                    if (hornTime - hornTimeDelay == 0)
-                        eventLocationCheck();
-                } else {
-                    displayTimer("Horn: " + timeFormat(hornTime) + " | Check: " + timeFormat(checkTime),
-                        timeFormat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
-                        timeFormat(checkTime) + "  <i>(included extra " + timeFormat(checkTimeDelay) + " delay)</i>");
-                }
-            } else {
-                // update timer
-                if (!aggressiveMode) {
-                    displayTimer("Horn: " + timeFormat(hornTime),
-                        timeFormat(hornTime) + "  <i>(included extra " + timeFormat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
-                        "-");
-
-                    // check if user manaually sounded the horn
-                    var scriptNode = document.getElementById("scriptNode");
-                    if (scriptNode) {
-                        var isHornSounded = scriptNode.getAttribute("soundedHornAtt");
-                        if (isHornSounded == "true") {
-                            // sound horn function do the rest
-                            soundHorn();
-
-                            // stop loopping
-                            return;
-                        }
-                        isHornSounded = undefined;
-                    }
-                    scriptNode = undefined;
-
-                    if (hornTime - hornTimeDelay == 0)
-                        eventLocationCheck();
-                } else {
-                    displayTimer("Horn: " + timeFormat(hornTime),
-                        timeFormat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
-                        "-");
-
-                    // agressive mode should sound the horn whenever it is possible to do so.
-                    var headerElement = document.getElementById(header).firstChild;
-                    if (headerElement) {
-                        // the horn image appear before the timer end
-                        if (headerElement.getAttribute('class').indexOf(hornReady) != -1) {
-                            // who care, blow the horn first!
-                            soundHorn();
-
-                            headerElement = undefined;
-
-                            // skip all the code below
-                            return;
-                        }
-                    }
-                    headerElement = undefined;
-                }
-            }
-
-            // set king reward sum time
-            displayKingRewardSumTime(timeFormatLong(lastKingRewardSumTime));
-
-            window.setTimeout(function () {
-                (countdownTimer)()
-            }, timerRefreshInterval * 1000);
-        }
+//        var dateNow = new Date();
+//        var intervalTime = timeElapsed(lastDateRecorded, dateNow);
+//        lastDateRecorded = undefined;
+//        lastDateRecorded = dateNow;
+//        dateNow = undefined;
+//
+//        // Update time
+//        hornTime -= intervalTime;
+//        if (lastKingRewardSumTime != -1) {
+//            lastKingRewardSumTime += intervalTime;
+//        }
+//        if (enableTrapCheck)
+//            checkTime -= intervalTime;
+//
+//        intervalTime = undefined;
+//
+//        // Check event location 60s before trap check
+//        if (enableTrapCheck && checkTime == 60)
+//            eventLocationCheck();
+//
+//        if (hornTime <= 0) {
+//            // blow the horn!
+//            hornTime = 0;
+//            soundHorn();
+//        } else if (enableTrapCheck && checkTime <= 0) {
+//            // trap check!
+//            checkTime = 0;
+//            trapCheck();
+//        } else {
+//            if (enableTrapCheck) {
+//                // update timer
+//                if (!aggressiveMode) {
+//                    displayTimer("Horn: " + timeFormat(hornTime) + " | Check: " + timeFormat(checkTime),
+//                        timeFormat(hornTime) + "  <i>(included extra " + timeFormat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
+//                        timeFormat(checkTime) + "  <i>(included extra " + timeFormat(checkTimeDelay) + " delay)</i>");
+//
+//                    // check if user manaually sounded the horn
+//                    var scriptNode = document.getElementById("scriptNode");
+//                    if (scriptNode) {
+//                        var isHornSounded = scriptNode.getAttribute("soundedHornAtt");
+//                        if (isHornSounded == "true") {
+//                            // sound horn function do the rest
+//                            soundHorn();
+//
+//                            // stop loopping
+//                            return;
+//                        }
+//                        isHornSounded = undefined;
+//                    }
+//                    scriptNode = undefined;
+//
+//                    if (hornTime - hornTimeDelay == 0)
+//                        eventLocationCheck();
+//                } else {
+//                    displayTimer("Horn: " + timeFormat(hornTime) + " | Check: " + timeFormat(checkTime),
+//                        timeFormat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
+//                        timeFormat(checkTime) + "  <i>(included extra " + timeFormat(checkTimeDelay) + " delay)</i>");
+//                }
+//            } else {
+//                // update timer
+//                if (!aggressiveMode) {
+//                    displayTimer("Horn: " + timeFormat(hornTime),
+//                        timeFormat(hornTime) + "  <i>(included extra " + timeFormat(hornTimeDelay) + " delay & +/- 5 seconds different from MouseHunt timer)</i>",
+//                        "-");
+//
+//                    // check if user manaually sounded the horn
+//                    var scriptNode = document.getElementById("scriptNode");
+//                    if (scriptNode) {
+//                        var isHornSounded = scriptNode.getAttribute("soundedHornAtt");
+//                        if (isHornSounded == "true") {
+//                            // sound horn function do the rest
+//                            soundHorn();
+//
+//                            // stop loopping
+//                            return;
+//                        }
+//                        isHornSounded = undefined;
+//                    }
+//                    scriptNode = undefined;
+//
+//                    if (hornTime - hornTimeDelay == 0)
+//                        eventLocationCheck();
+//                } else {
+//                    displayTimer("Horn: " + timeFormat(hornTime),
+//                        timeFormat(hornTime) + "  <i>(lot faster than MouseHunt timer)</i>",
+//                        "-");
+//
+//                    // agressive mode should sound the horn whenever it is possible to do so.
+//                    var headerElement = document.getElementById(header).firstChild;
+//                    if (headerElement) {
+//                        // the horn image appear before the timer end
+//                        if (headerElement.getAttribute('class').indexOf(hornReady) != -1) {
+//                            // who care, blow the horn first!
+//                            soundHorn();
+//
+//                            headerElement = undefined;
+//
+//                            // skip all the code below
+//                            return;
+//                        }
+//                    }
+//                    headerElement = undefined;
+//                }
+//            }
+//
+//            // set king reward sum time
+//            displayKingRewardSumTime(timeFormatLong(lastKingRewardSumTime));
+//
+//            window.setTimeout(function () {
+//                (countdownTimer)()
+//            }, timerRefreshInterval * 1000);
+//        }
     }
 }
 
