@@ -22,6 +22,10 @@
 
 // // ERROR CHECKING ONLY: Script debug
 var DEBUG_MODE = true;
+var ID_HEADER_ELEMENT = 'envHeaderImg';
+var HORNREADY_TXT = 'hornReady';
+var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
+var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
 
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 10 - 360
@@ -155,7 +159,7 @@ function countdownTimer() {
     intervalTime = undefined;
 
     if (g_nextBotHornTimeInSeconds <= 0) {
-        // soundHorn();
+        soundHorn();
     } else if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
@@ -166,10 +170,10 @@ function countdownTimer() {
 
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
+        window.setTimeout(function () {
+            (countdownTimer)()
+        }, g_timerRefreshInterval * 1000);
     }
-    window.setTimeout(function () {
-        (countdownTimer)()
-    }, g_timerRefreshInterval * 1000);
 }
 
 function timeFormat(time) {
@@ -211,6 +215,139 @@ function trapCheck() {
 function reloadCampPage() {
     window.location.href = HTTP_STR + "://www.mousehuntgame.com/";
 }
+
+function soundHorn() {
+    var hornElement;
+    if (DEBUG_MODE) console.log("RUN %csoundHorn()", "color: #FF7700");
+
+    updateUI("Ready to Blow The Horn...", "Ready to Blow The Horn...", "Ready to Blow The Horn...");
+
+    // safety mode, check the horn image is there or not before sound the horn
+    var headerElement = document.getElementById(ID_HEADER_ELEMENT);
+
+    if (headerElement) {
+        alert("inside header");
+        //        headerElement = headerElement.firstChild;
+        var headerClass = headerElement.getAttribute('class');
+        if (headerClass.indexOf(HORNREADY_TXT) !== -1) {
+            alert("found the horn");
+            // found the horn
+            // simulate mouse click on the horn
+            hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
+            fireEvent(hornElement, 'click');
+            hornElement = null;
+
+            // clean up
+            headerElement = null;
+            headerClass = null;
+
+            // double check if the horn was already sounded
+            window.setTimeout(function () {
+                afterSoundingHorn()
+            }, 5000);
+        } else if (headerClass.indexOf("hornsounding") != -1 || headerClass.indexOf("hornsounded") != -1) {
+            // some one just sound the horn...
+
+            // update timer
+            updateUI("Synchronizing Data...", "Someone had just sound the horn. Synchronizing data...", "Someone had just sound the horn. Synchronizing data...");
+
+            // clean up
+            headerElement = null;
+            headerClass = null;
+            /*
+            // load the new data
+            window.setTimeout(function () {
+                afterSoundingHorn()
+            }, 5000);
+*/
+        } else if (headerClass.indexOf("hornwaiting") != -1) {
+            // the horn is not appearing, let check the time again
+
+            // update timer
+            updateUI("Synchronizing Data...", "Hunter horn is not ready yet. Synchronizing data...", "Hunter horn is not ready yet. Synchronizing data...");
+            /*
+            // sync the time again, maybe user already click the horn
+            retrieveData();
+
+            checkJournalDate();
+*/
+            // clean up
+            headerElement = null;
+            headerClass = null;
+            /*
+            // loop again
+            window.setTimeout(function () {
+                countdownTimer()
+            }, timerRefreshInterval * 1000);
+*/
+        } else {
+            // some one steal the horn!
+            alert("horn not found");
+
+            // update timer
+            updateUI("Synchronizing Data...", "Hunter horn is missing. Synchronizing data...", "Hunter horn is missing. Synchronizing data...");
+            /*
+            // try to click on the horn
+            hornElement = document.getElementsByClassName(hornButton)[0].firstChild;
+            fireEvent(hornElement, 'click');
+            hornElement = null;
+
+            // clean up
+            headerElement = null;
+            headerStatus = null;
+
+            // double check if the horn was already sounded
+            window.setTimeout(function () {
+                afterSoundingHorn()
+            }, 5000);
+*/
+        }
+    } else {
+        // something wrong, can't even found the header...
+
+        // clean up
+        headerElement = null;
+
+        // reload the page see if thing get fixed
+        reloadCampPage();
+    }
+}
+
+function fireEvent(element, event) {
+    if (DEBUG_MODE) {
+        console.log("RUN %cfireEvent() ON:", "color: #bada55");
+        console.log(event);
+        console.log(element);
+    }
+
+    var evt;
+    // dispatch for firefox + others
+    evt = document.createEvent("HTMLEvents");
+    evt.initEvent(event, true, true); // event type,bubbling,cancelable
+
+    try {
+        return !element.dispatchEvent(evt);
+    } finally {
+        element = null;
+        event = null;
+        evt = null;
+    }
+}
+
+function afterSoundingHorn() {
+    if (DEBUG_MODE) console.log("RUN %cafterSoundingHorn()", "color: #bada55");
+    // update timer
+    updateUI("Horn sounded. Synchronizing Data...", "Horn sounded. Synchronizing data...", "Horn sounded. Synchronizing data...");
+
+    // reload data
+    retrieveCampActiveData();
+
+    // script continue as normal
+    window.setTimeout(function () {
+        countdownTimer()
+    }, g_timerRefreshInterval * 1000);
+}
+
 
 function updateUI(documentTitle, nextHornTimeTxt, trapCheckTimeTxt) {
     document.title = documentTitle;
