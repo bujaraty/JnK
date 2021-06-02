@@ -157,7 +157,7 @@ function countdownTimer() {
     if (g_nextBotHornTimeInSeconds <= 0) {
         // soundHorn();
     } else if (g_nextTrapCheckTimeInSeconds <= 0) {
-        // trapCheck();
+        trapCheck();
     } else {
 
         updateUI("Horn: " + timeFormat(g_nextBotHornTimeInSeconds),
@@ -196,6 +196,20 @@ function timeFormat(time) {
     } finally {
         timeString = null;
     }
+}
+
+function trapCheck() {
+    // Let user known that the script is going to check the trap
+    updateUI("Checking The Trap...", "Checking trap now...", "Checking trap now...");
+
+    // reload the page
+    setTimeout(function () {
+        reloadCampPage()
+    }, 1000);
+}
+
+function reloadCampPage() {
+    window.location.href = HTTP_STR + "://www.mousehuntgame.com/";
 }
 
 function updateUI(documentTitle, nextHornTimeTxt, trapCheckTimeTxt) {
