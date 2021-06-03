@@ -289,7 +289,7 @@ function soundHorn() {
             // double check if the horn was already sounded
             window.setTimeout(function () {
                 afterSoundingHorn()
-            }, 5000);
+            }, 2000);
         }
     } else {
         // something wrong, can't even found the header...
