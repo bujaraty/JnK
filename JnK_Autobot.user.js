@@ -88,6 +88,13 @@ if (window.top != window.self) {
     if (DEBUG_MODE) console.log('NOT IN IFRAME - will not work in fb MH');
 }
 
+window.addEventListener("message", receiveMessage, false);
+
+function receiveMessage(event) {
+    if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
+}
+
+
 execScript();
 
 function execScript() {
@@ -163,7 +170,6 @@ function countdownTimer() {
     } else if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-
         updateUI("Horn: " + timeFormat(g_nextBotHornTimeInSeconds),
                  timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " + 5 sec delay)</i>",
                  timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
@@ -438,7 +444,7 @@ function retrieveCampActiveData() {
 function getTrapCheckTime() {
     // I have to refactor the in this part as sometime, the TrapCheck time is incorrect
     // Check storage first
-    var trapCheckTimeOffset = getStorageVarInt('TrapCheckTimeOffset', -1);
+    var trapCheckTimeOffset = getStorageVarInt('trapCheckTimeOffset', -1);
     if (trapCheckTimeOffset != -1) {
         return trapCheckTimeOffset;
     }
@@ -463,6 +469,14 @@ function getTrapCheckTimeFromPage() {
     }
 }
 
+function resetTrapCheckTime() {
+    // No idea what to do at the moment
+    /*
+    var tmp = getTrapCheckTimeFromPage();
+    alert(tmp);
+    */
+}
+
 function embedUIStructure() {
     // This function is to embed UI structure at the top of related pages
     // The UI consist of 3 parts
@@ -485,10 +499,23 @@ function embedUIStructure() {
         g_nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
         timerDivElement.appendChild(g_nextHornTimeElement);
 
-        g_trapCheckTimeElement = document.createElement('div');
+        var trapCheckGroupElement = document.createElement('table');
+        var trapCheckRow = trapCheckGroupElement.insertRow();
+        g_trapCheckTimeElement = trapCheckRow.insertCell();
         g_trapCheckTimeElement.setAttribute('id', 'trapCheckTimeElement');
         g_trapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
-        timerDivElement.appendChild(g_trapCheckTimeElement);
+        g_trapCheckTimeElement.width = 400;
+
+        var trapCheckButtonCellElement = trapCheckRow.insertCell();
+        var trapCheckButtonElement = document.createElement('button');
+        trapCheckButtonElement.setAttribute('id', 'trapCheckButtonElement');
+        trapCheckButtonElement.onclick = resetTrapCheckTime
+        trapCheckButtonElement.style.fontSize = "10px";
+        var buttonTxt = document.createTextNode("Reset Time");
+        trapCheckButtonElement.appendChild(buttonTxt);
+        trapCheckButtonCellElement.appendChild(trapCheckButtonElement);
+
+        timerDivElement.appendChild(trapCheckGroupElement);
 
         autobotDivElement.appendChild(timerDivElement);
         timerDivElement = null;
@@ -622,27 +649,6 @@ function embedUIStructure() {
     }
 }
 
-/*
-function retrieveData() {
-    function loadTrapCheckTimeOffSet() {
-        var TrapCheckTimeOffSet = getTrapCheckTimeOffSetFromPage();
-        alert(TrapCheckTimeOffSet);
-    }
-    loadTrapCheckTimeOffSet();
-}
-
-function getTrapCheckTimeOffSetFromPage() {
-    var passiveElement = document.getElementsByClassName('passive');
-    if (passiveElement.length > 0) {
-        var time = passiveElement[0].textContent;
-        time = time.substr(time.indexOf('m -') - 4, 2);
-        return parseInt(time);
-    } else {
-        console.log('passiveElement not found');
-        return -1;
-    }
-}
-*/
 function getPageVariable(name) {
     if (DEBUG_MODE) console.log('RUN GPV(' + name + ')');
     try {
