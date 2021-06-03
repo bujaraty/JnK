@@ -226,11 +226,8 @@ function soundHorn() {
     var headerElement = document.getElementById(ID_HEADER_ELEMENT);
 
     if (headerElement) {
-        alert("inside header");
-        //        headerElement = headerElement.firstChild;
         var headerClass = headerElement.getAttribute('class');
         if (headerClass.indexOf(HORNREADY_TXT) !== -1) {
-            alert("found the horn");
             // found the horn
             // simulate mouse click on the horn
             hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
@@ -254,12 +251,11 @@ function soundHorn() {
             // clean up
             headerElement = null;
             headerClass = null;
-            /*
+
             // load the new data
             window.setTimeout(function () {
                 afterSoundingHorn()
             }, 5000);
-*/
         } else if (headerClass.indexOf("hornwaiting") != -1) {
             // the horn is not appearing, let check the time again
 
@@ -282,25 +278,18 @@ function soundHorn() {
 */
         } else {
             // some one steal the horn!
-            alert("horn not found");
 
             // update timer
             updateUI("Synchronizing Data...", "Hunter horn is missing. Synchronizing data...", "Hunter horn is missing. Synchronizing data...");
-            /*
-            // try to click on the horn
-            hornElement = document.getElementsByClassName(hornButton)[0].firstChild;
-            fireEvent(hornElement, 'click');
-            hornElement = null;
 
             // clean up
             headerElement = null;
-            headerStatus = null;
+            headerClass = null;
 
             // double check if the horn was already sounded
             window.setTimeout(function () {
                 afterSoundingHorn()
             }, 5000);
-*/
         }
     } else {
         // something wrong, can't even found the header...
