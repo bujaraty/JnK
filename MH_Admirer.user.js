@@ -28,7 +28,7 @@ var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
 var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
 
 // // Extra delay time before sounding the horn. (in seconds)
-// // Default: 3-10
+// // Default: 3-15
 var g_hornTimeDelayMin = 3;
 var g_hornTimeDelayMax = 15;
 
