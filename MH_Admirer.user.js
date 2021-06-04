@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.0.0.1
+// @version      1.0.0.2
 // @description  Customized version of MH autobot
 // @author       JnK
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
@@ -28,9 +28,9 @@ var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
 var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
 
 // // Extra delay time before sounding the horn. (in seconds)
-// // Default: 10 - 360
-var g_hornTimeDelayMin = 5;
-var g_hornTimeDelayMax = 10;
+// // Default: 3-10
+var g_hornTimeDelayMin = 3;
+var g_hornTimeDelayMax = 15;
 
 // // Enable trap check once an hour. (true/false)
 var g_enableTrapCheck = true;
@@ -56,7 +56,7 @@ var g_krDelayMax = 30;
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // Time interval for script timer to update the time. May affect timer accuracy if set too high value. (in seconds)
-var g_timerRefreshInterval = 3;
+var g_timerRefreshInterval = 4;
 
 // == Advance User Preference Setting (End) ==
 
@@ -294,8 +294,8 @@ function soundHorn() {
 
             // double check if the horn was already sounded
             window.setTimeout(function () {
-                afterSoundingHorn()
-            }, 2000);
+                reloadCampPage()
+            }, 1000);
         }
     } else {
         // something wrong, can't even found the header...
