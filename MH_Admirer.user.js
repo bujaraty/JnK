@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.0.0.2
+// @version      1.0.0.3
 // @description  Customized version of MH autobot
 // @author       JnK
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
@@ -28,7 +28,7 @@ var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
 var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
 
 // // Extra delay time before sounding the horn. (in seconds)
-// // Default: 3-15
+// // Default: 3-10
 var g_hornTimeDelayMin = 3;
 var g_hornTimeDelayMax = 15;
 
@@ -294,7 +294,7 @@ function soundHorn() {
 
             // double check if the horn was already sounded
             window.setTimeout(function () {
-                reloadCampPage()
+                afterSoundingHorn()
             }, 1000);
         }
     } else {
