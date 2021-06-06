@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.0.0.3
-// @description  Customized version of MH autobot
+// @version      1.0.0.4
+// @description  beta version of MH Admirer
 // @author       JnK
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
 // @include      http://mousehuntgame.com/*
@@ -438,6 +438,11 @@ function retrieveCampActiveData() {
     g_nextTrapCheckTimeInSeconds = (g_nextTrapCheckTimeInSeconds <= 0) ? 3600 + g_nextTrapCheckTimeInSeconds : g_nextTrapCheckTimeInSeconds;
     g_nextTrapCheckTimeInSeconds += g_nextTrapCheckTimeDelayInSeconds;
 
+    // Check if there is King Reward ongoing
+    g_isKingReward = getPageVariable("user.has_puzzle");
+
+    nextMHHornTimeInSeconds = undefined;
+    trapCheckTimeOffsetInSeconds = undefined;
     now = undefined;
 }
 
@@ -654,7 +659,10 @@ function getPageVariable(name) {
     try {
         if (name == "user.next_activeturn_seconds") {
             return unsafeWindow.user.next_activeturn_seconds;
+        } else if (name == "user.has_puzzle") {
+            return unsafeWindow.user.has_puzzle;
         }
+
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
         return 'ERROR';
     } catch (e) {
