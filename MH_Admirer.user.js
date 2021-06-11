@@ -2,7 +2,7 @@
 // @name         MH_Admirer_by_JnK
 // @namespace    https://github.com/bujaraty/JnK
 // @version      1.0.0.4
-// @description  beta version of MH Admirer
+// @description  Customized version of MH autobot
 // @author       JnK
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
 // @include      http://mousehuntgame.com/*
