@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.0.0.4
+// @version      1.0.0.5b
 // @description  beta version of MH Admirer
 // @author       JnK
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
@@ -16,6 +16,12 @@
 // @run-at       document-end
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
+// Issue list
+// - Autosolve KR
+// - Auto change trap setting
+// - Auto claim/send gifts and raffles
+// - Check valid location
+
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
@@ -80,6 +86,8 @@ var g_isKingReward = false;
 var g_baitCount = 100;
 
 // Start executing script
+window.addEventListener("message", processEventMsg, false);
+
 if (DEBUG_MODE) console.log('STARTING SCRIPT - ver: ' + g_strScriptVersion);
 if (window.top != window.self) {
     if (DEBUG_MODE) console.log('In IFRAME - may cause firefox to error, location: ' + window.location.href);
@@ -88,9 +96,7 @@ if (window.top != window.self) {
     if (DEBUG_MODE) console.log('NOT IN IFRAME - will not work in fb MH');
 }
 
-window.addEventListener("message", receiveMessage, false);
-
-function receiveMessage(event) {
+function processEventMsg(event) {
     if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
 }
 
@@ -155,6 +161,12 @@ function countdownTimer() {
     }
 
     // Update timer
+    /*
+    console.log("before Update timer");
+    console.log(g_lastDateRecorded);
+    console.log(intervalTime);
+    console.log(g_nextBotHornTimeInSeconds);
+    */
     var dateNow = new Date();
     var intervalTime = timeElapsedInSeconds(g_lastDateRecorded, dateNow);
     g_lastDateRecorded = undefined;
@@ -164,6 +176,13 @@ function countdownTimer() {
     g_nextBotHornTimeInSeconds -= intervalTime;
     g_nextTrapCheckTimeInSeconds -= intervalTime;
     intervalTime = undefined;
+
+    /*
+    console.log("after Update timer");
+    console.log(g_lastDateRecorded);
+    console.log(intervalTime);
+    console.log(g_nextBotHornTimeInSeconds);
+    */
 
     if (g_nextBotHornTimeInSeconds <= 0) {
         soundHorn();
@@ -292,7 +311,7 @@ function soundHorn() {
             headerElement = null;
             headerClass = null;
 
-            // double check if the horn was already sounded
+            // I should double check if the horn was already sounded (not yet)
             window.setTimeout(function () {
                 afterSoundingHorn()
             }, 1000);
@@ -422,6 +441,13 @@ function retrieveCampActiveData() {
     // - bait quantity
     if (DEBUG_MODE) console.log('RUN retrieveCampActiveData()');
 
+    // Set time stamp for when the other time stamps are queried
+    g_lastDateRecorded = new Date();
+    /*
+    console.log("at retrieveCampActiveData()");
+    console.log(g_lastDateRecorded);
+    */
+
     // Get MH horn time and use it to calculate next bot horn time
     var nextMHHornTimeInSeconds = parseInt(getPageVariable("user.next_activeturn_seconds"));
     g_botHornTimeDelayInSeconds = g_hornTimeDelayMin + Math.round(Math.random() * (g_hornTimeDelayMax - g_hornTimeDelayMin));
@@ -431,6 +457,7 @@ function retrieveCampActiveData() {
         // K_Todo_014
         //eventLocationCheck();
     }
+    //console.log(g_nextBotHornTimeInSeconds);
     var trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
     var now = new Date();
     g_nextTrapCheckTimeInSeconds = trapCheckTimeOffsetInSeconds - (now.getMinutes() * 60 + now.getSeconds());
