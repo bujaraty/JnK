@@ -17,7 +17,8 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Autosolve KR
+// - Auto check manual horn
+// - Auto solve KR
 // - Auto change trap setting
 // - Auto claim/send gifts and raffles
 // - Check valid location
@@ -98,7 +99,22 @@ if (window.top != window.self) {
 
 function processEventMsg(event) {
     if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
+    if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1) {
+        alert(event.origin);
+        if (event.data.indexOf("~") > -1) {
+            alert("going with ~");
+
+        } else if (event.data.indexOf("#") > -1) {
+            alert("going with #");
+        } else if (event.data.indexOf('Log_') > -1) {
+            alert("going with Log_");
+        }
+        else if (event.data.indexOf('MHAKRS_') > -1) {
+            alert("going with MHAKRS_");
+        }
+    }
 }
+
 
 
 execScript();
