@@ -4,7 +4,11 @@
 // @version      1.0.0.5b
 // @description  beta version of MH Admirer
 // @author       JnK
+// @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
+// @require      https://greasyfork.org/scripts/7601-parse-db-min/code/Parse%20DB%20min.js?version=132819
+// @require      https://greasyfork.org/scripts/16046-ocrad/code/OCRAD.js?version=100053
+// @require      https://greasyfork.org/scripts/16036-mh-auto-kr-solver/code/MH%20Auto%20KR%20Solver.js?version=102270
 // @include      http://mousehuntgame.com/*
 // @include      https://mousehuntgame.com/*
 // @include      http://www.mousehuntgame.com/*
@@ -33,6 +37,7 @@ var ID_HEADER_ELEMENT = 'envHeaderImg';
 var HORNREADY_TXT = 'hornReady';
 var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
 var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
+var KR_SEPARATOR = "~";
 
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 3-10
@@ -55,6 +60,10 @@ var g_isAutoSolve = true;
 var g_krDelayMin = 10;
 var g_krDelayMax = 30;
 
+// // Maximum retry of solving KR.
+// // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
+var MAX_KR_RETRY = 5;
+
 // == Basic User Preference Setting (End) ==
 
 // == Advance User Preference Setting (Begin) ==
@@ -64,6 +73,7 @@ var g_krDelayMax = 30;
 
 // // Time interval for script timer to update the time. May affect timer accuracy if set too high value. (in seconds)
 var g_timerRefreshInterval = 4;
+var g_krRefreshInterval = 1;
 
 // == Advance User Preference Setting (End) ==
 
@@ -81,6 +91,8 @@ var g_nextHornTimeElement;
 var g_trapCheckTimeElement;
 var g_nextBotHornTime;
 var g_lastDateRecorded = new Date();
+var g_kingsRewardRetry = 0;
+
 
 // I have to re-define the default value of the following variables somewhere else
 var g_isKingReward = false;
@@ -98,12 +110,23 @@ if (window.top != window.self) {
 }
 
 function processEventMsg(event) {
+    var tmpKRFrame = document.getElementById('tmpKRFrame');
+
     if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
     if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1) {
-        alert(event.origin);
         if (event.data.indexOf("~") > -1) {
-            alert("going with ~");
-
+            var possibleAns = event.data.substring(0, event.data.indexOf("~"));
+            var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
+            var strKR = "KR" + KR_SEPARATOR;
+            strKR += Date.now() + KR_SEPARATOR;
+            strKR += possibleAns + KR_SEPARATOR;
+            strKR += "RETRY" + g_kingsRewardRetry;
+            try {
+                setStorage(strKR, processedImg);
+            } catch (e) {
+                console.perror('receiveMessage', e.message);
+            }
+            validateImageAnswer(possibleAns);
         } else if (event.data.indexOf("#") > -1) {
             alert("going with #");
         } else if (event.data.indexOf('Log_') > -1) {
@@ -115,7 +138,110 @@ function processEventMsg(event) {
     }
 }
 
+function validateImageAnswer(possibleAns) {
+    // If the answer is valid enough then submit, otherwise get a new one (if not yet exceed max retry)
+    if (DEBUG_MODE) console.log("RUN validateImageAnswer()");
+    if (DEBUG_MODE) console.log(possibleAns);
 
+    if (possibleAns.length != 5) {
+        // The length is too short, then get a new one.
+        retryKRSolver(true);
+    } else {
+        if (DEBUG_MODE) console.log("Submitting captcha answer: " + possibleAns);
+
+        //Submit answer
+        var puzzleAns = document.getElementsByClassName("mousehuntPage-puzzle-form-code")[0];
+
+        if (!puzzleAns) {
+            if (DEBUG_MODE) console.plog("puzzleAns: " + puzzleAns);
+            return;
+        }
+        puzzleAns.value = "";
+        puzzleAns.value = possibleAns.toLowerCase();
+
+        var puzzleSubmitButton = document.getElementsByClassName("mousehuntPage-puzzle-form-code-button")[0];
+
+        if (!puzzleSubmitButton) {
+            if (DEBUG_MODE) console.plog("puzzleSubmit: " + puzzleSubmitButton);
+            return;
+        }
+
+        fireEvent(puzzleSubmitButton, 'click');
+        g_kingsRewardRetry = 0;
+        setStorage("KingsRewardRetry", g_kingsRewardRetry);
+        var tmpKRFrame = document.getElementById('tmpKRFrame');
+        if (tmpKRFrame) {
+            document.body.removeChild(tmpKRFrame);
+        }
+
+        window.setTimeout(function () {
+            checkKRAnswer();
+        }, 5000);
+    }
+}
+
+function checkKRAnswer() {
+    var puzzleForm = document.getElementsByClassName("mousehuntPage-puzzle-formContainer")[0];
+    if (puzzleForm.classList.contains("noPuzzle")) {
+        // KR is solved clicking continue now
+        location.reload(true)
+        // resumeHuntAfterKRSolved();
+        return;
+    }
+
+    var strTemp = '';
+    var codeError = document.getElementsByClassName("mousehuntPage-puzzle-form-code-error");
+    for (var i = 0; i < codeError.length; i++) {
+        if (codeError[i].innerText.toLowerCase().indexOf("incorrect claim code") > -1) {
+            retryKRSolver(false);
+        }
+    }
+
+    window.setTimeout(function () {
+        checkKRAnswer();
+    }, 1000);
+}
+
+function resumeHuntAfterKRSolved() {
+}
+
+function retryKRSolver(resetCaptcha) {
+    if (DEBUG_MODE) console.log("RUN retryKRSolver()");
+
+    if (g_kingsRewardRetry >= MAX_KR_RETRY) {
+        g_kingsRewardRetry = 0;
+        setStorage("KingsRewardRetry", g_kingsRewardRetry);
+        var strTemp = 'Max ' + MAX_KR_RETRY + 'retries. Pls solve it manually ASAP.';
+        updateUI(strTemp, strTemp, strTemp);
+        console.perror(strTemp);
+    } else {
+        ++g_kingsRewardRetry;
+        setStorage("KingsRewardRetry", g_kingsRewardRetry);
+        if (resetCaptcha) {
+            getNewKRCaptcha();
+        }
+        var tmpKRFrame = document.getElementById('tmpKRFrame');
+        if (!isNullOrUndefined(tmpKRFrame)) {
+            document.body.removeChild(tmpKRFrame);
+        }
+        window.setTimeout(function () {
+            callKRSolver();
+        }, 2000);
+    }
+    return;
+}
+
+function getNewKRCaptcha() {
+    if (DEBUG_MODE) console.log("RUN getNewKRCaptcha()");
+
+    var tagName = document.getElementsByTagName("a");
+    for (var i = 0; i < tagName.length; i++) {
+        if (tagName[i].innerText == "Click here to get a new one!") {
+            // TODO IMPORTANT: Find another time to fetch new puzzle
+            fireEvent(tagName[i], 'click');
+        }
+    }
+}
 
 execScript();
 
@@ -145,6 +271,7 @@ function execScript() {
 function operateBot() {
     try {
         if (g_isKingReward) {
+            handleKingReward();
         } else if (g_baitCount == 0) {
         } else {
             window.setTimeout(function () {
@@ -154,6 +281,46 @@ function operateBot() {
     } catch (e) {
         console.log("operateBot() ERROR - " + e);
     }
+}
+
+function handleKingReward() {
+    if (DEBUG_MODE) console.log("START AUTOSOLVE COUNTDOWN");
+
+    var krDelaySec = g_krDelayMin + Math.floor(Math.random() * (g_krDelayMax - g_krDelayMin));
+
+    kingRewardCountdownTimer(krDelaySec);
+}
+
+function kingRewardCountdownTimer(krDelaySec) {
+    var strTemp = "Solve KR in ";
+    strTemp += timeFormat(krDelaySec);
+    strTemp += " second(s)";
+    updateUI(strTemp, strTemp, strTemp);
+    krDelaySec -= g_krRefreshInterval;
+    if (krDelaySec < 0) {
+        if (DEBUG_MODE) console.log("START AUTOSOLVE NOW");
+
+        callKRSolver();
+    } else {
+        window.setTimeout(function () {
+            kingRewardCountdownTimer(krDelaySec);
+        }, g_krRefreshInterval * 1000);
+    }
+}
+
+function callKRSolver() {
+    if (DEBUG_MODE) console.log("RUN CallKRSolver()");
+
+    var frame = document.createElement('iframe');
+    frame.setAttribute("id", "tmpKRFrame");
+    var img;
+
+    img = document.getElementsByClassName('mousehuntPage-puzzle-form-captcha-image')[0];
+    if (DEBUG_MODE) console.log("Captcha Image fetched:")
+    if (DEBUG_MODE) console.log(img);
+
+    frame.src = img.querySelector('img').src;
+    document.body.appendChild(frame);
 }
 
 function countdownTimer() {
