@@ -31,7 +31,7 @@
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // ERROR CHECKING ONLY: Script debug
-var DEBUG_MODE = true;
+var DEBUG_MODE = false;
 var ID_HEADER_ELEMENT = 'envHeaderImg';
 var HORNREADY_TXT = 'hornReady';
 var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
