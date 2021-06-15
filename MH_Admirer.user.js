@@ -31,7 +31,7 @@
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // ERROR CHECKING ONLY: Script debug
-var DEBUG_MODE = false;
+var DEBUG_MODE = true;
 var ID_HEADER_ELEMENT = 'envHeaderImg';
 var HORNREADY_TXT = 'hornReady';
 var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
@@ -109,7 +109,6 @@ if (window.top != window.self) {
 }
 
 function processEventMsg(event) {
-    alert(event.origin);
     var tmpKRFrame = document.getElementById('tmpKRFrame');
 
     if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
@@ -316,7 +315,6 @@ function callKRSolver() {
     var img;
 
     img = document.getElementsByClassName('mousehuntPage-puzzle-form-captcha-image')[0];
-    alert(img.querySelector('img').src);
     if (DEBUG_MODE) console.log("Captcha Image fetched:")
     if (DEBUG_MODE) console.log(img);
 
