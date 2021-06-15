@@ -6,7 +6,6 @@
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
 // @require      https://code.jquery.com/jquery-2.2.2.min.js
-// @require      https://greasyfork.org/scripts/7601-parse-db-min/code/Parse%20DB%20min.js?version=132819
 // @require      https://greasyfork.org/scripts/16046-ocrad/code/OCRAD.js?version=100053
 // @require      https://greasyfork.org/scripts/16036-mh-auto-kr-solver/code/MH%20Auto%20KR%20Solver.js?version=102270
 // @include      http://mousehuntgame.com/*
