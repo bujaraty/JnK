@@ -40,7 +40,7 @@ var KR_SEPARATOR = "~";
 
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 3-10
-var g_hornTimeDelayMin = 3;
+var g_hornTimeDelayMin = 10;
 var g_hornTimeDelayMax = 15;
 
 // // Enable trap check once an hour. (true/false)
@@ -48,8 +48,8 @@ var g_enableTrapCheck = true;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
-var g_trapCheckTimeDelayMin = 7;
-var g_trapCheckTimeDelayMax = 15;
+var g_trapCheckTimeDelayMin = 10;
+var g_trapCheckTimeDelayMax = 20;
 
 // // Auto solve KR
 var g_isAutoSolve = true;
@@ -57,7 +57,7 @@ var g_isAutoSolve = true;
 // // Extra delay time before solving KR. (in seconds)
 // // Default: 10 - 30
 var g_krDelayMin = 10;
-var g_krDelayMax = 30;
+var g_krDelayMax = 20;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
