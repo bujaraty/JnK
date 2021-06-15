@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         MH_Admirer_by_JnK_beta
+// @name         MH_Admirer_by_JnK
 // @namespace    https://github.com/bujaraty/JnK
 // @version      1.1.0.0
 // @description  beta version of MH Admirer
