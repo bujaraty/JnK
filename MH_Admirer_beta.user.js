@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.1.0.1
+// @version      1.1.0.2
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -80,8 +80,8 @@ var g_botHornTimeDelayInSeconds;
 var g_nextTrapCheckTimeInSeconds = 0;
 var g_nextTrapCheckTimeDelayInSeconds = 0;
 var g_strScriptVersion = GM_info.script.version;
-var g_nextHornTimeElement;
-var g_trapCheckTimeElement;
+var g_nextBotHornTimeElement;
+var g_nextTrapCheckTimeElement;
 var g_nextBotHornTime;
 var g_lastBotHornTimeRecorded = new Date();
 var g_lastTrapCheckTimeRecorded = new Date();
@@ -190,10 +190,11 @@ function checkKRAnswer() {
             retryKRSolver(false);
         }
     }
-
+/*
     window.setTimeout(function () {
         checkKRAnswer();
     }, 1000);
+    */
 }
 
 function resumeHuntAfterKRSolved() {
@@ -564,12 +565,12 @@ function updateTitleTxt(titleTxt) {
 }
 
 function updateNextHornTimeTxt(nextHornTimeTxt) {
-    g_nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> " + nextHornTimeTxt;
+    g_nextBotHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> " + nextHornTimeTxt;
     nextHornTimeTxt = null;
 }
 
 function updateTrapCheckTimeTxt(trapCheckTimeTxt) {
-    g_trapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> " + trapCheckTimeTxt;
+    g_nextTrapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> " + trapCheckTimeTxt;
     trapCheckTimeTxt = null;
 }
 
@@ -724,25 +725,28 @@ function embedUIStructure() {
 
     function embedTimer() {
         var timerDivElement = document.createElement('div');
+        var timerTableElement = document.createElement('table');
 
-        // show bot title and version
-        var titleElement = document.createElement('div');
+        // First row show title and version
+        var firstRow = timerTableElement.insertRow();
+        var titleElement = firstRow.insertCell();
         titleElement.setAttribute('id', 'titleElement');
         titleElement.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
-        timerDivElement.appendChild(titleElement);
         titleElement = null;
+        timerDivElement.appendChild(timerTableElement);
+        timerTableElement = null;
 
-        g_nextHornTimeElement = document.createElement('div');
-        g_nextHornTimeElement.setAttribute('id', 'nextHornTimeElement');
-        g_nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
-        timerDivElement.appendChild(g_nextHornTimeElement);
+        g_nextBotHornTimeElement = document.createElement('div');
+        g_nextBotHornTimeElement.setAttribute('id', 'nextBotHornTimeElement');
+        g_nextBotHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
+        timerDivElement.appendChild(g_nextBotHornTimeElement);
 
         var trapCheckGroupElement = document.createElement('table');
         var trapCheckRow = trapCheckGroupElement.insertRow();
-        g_trapCheckTimeElement = trapCheckRow.insertCell();
-        g_trapCheckTimeElement.setAttribute('id', 'trapCheckTimeElement');
-        g_trapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
-        g_trapCheckTimeElement.width = 400;
+        g_nextTrapCheckTimeElement = trapCheckRow.insertCell();
+        g_nextTrapCheckTimeElement.setAttribute('id', 'nextTrapCheckTimeElement');
+        g_nextTrapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
+        g_nextTrapCheckTimeElement.width = 400;
 
         var trapCheckButtonCellElement = trapCheckRow.insertCell();
         var trapCheckButtonElement = document.createElement('button');
