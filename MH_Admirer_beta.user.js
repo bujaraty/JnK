@@ -80,8 +80,8 @@ var g_botHornTimeDelayInSeconds;
 var g_nextTrapCheckTimeInSeconds = 0;
 var g_nextTrapCheckTimeDelayInSeconds = 0;
 var g_strScriptVersion = GM_info.script.version;
-var g_nextHornTimeElement;
-var g_trapCheckTimeElement;
+var g_nextBotHornTimeElement;
+var g_nextTrapCheckTimeElement;
 var g_nextBotHornTime;
 var g_lastBotHornTimeRecorded = new Date();
 var g_lastTrapCheckTimeRecorded = new Date();
@@ -565,12 +565,12 @@ function updateTitleTxt(titleTxt) {
 }
 
 function updateNextHornTimeTxt(nextHornTimeTxt) {
-    g_nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> " + nextHornTimeTxt;
+    g_nextBotHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> " + nextHornTimeTxt;
     nextHornTimeTxt = null;
 }
 
 function updateTrapCheckTimeTxt(trapCheckTimeTxt) {
-    g_trapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> " + trapCheckTimeTxt;
+    g_nextTrapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> " + trapCheckTimeTxt;
     trapCheckTimeTxt = null;
 }
 
@@ -648,10 +648,6 @@ function retrieveCampActiveData() {
 
     // Set time stamp for when the other time stamps are queried
     g_lastBotHornTimeRecorded = new Date();
-    /*
-    console.log("at retrieveCampActiveData()");
-    console.log(g_lastBotHornTimeRecorded);
-    */
 
     // Get MH horn time and use it to calculate next bot horn time
     var nextMHHornTimeInSeconds = parseInt(getPageVariable("user.next_activeturn_seconds"));
@@ -662,7 +658,6 @@ function retrieveCampActiveData() {
         // K_Todo_014
         //eventLocationCheck();
     }
-    //console.log(g_nextBotHornTimeInSeconds);
     var trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
     var now = new Date();
     g_nextTrapCheckTimeInSeconds = trapCheckTimeOffsetInSeconds - (now.getMinutes() * 60 + now.getSeconds());
@@ -725,27 +720,29 @@ function embedUIStructure() {
 
     function embedTimer() {
         var timerDivElement = document.createElement('div');
+        var timerTableElement = document.createElement('table');
 
-        // show bot title and version
-        var titleElement = document.createElement('div');
+        // First row show title and version
+        var firstRow = timerTableElement.insertRow();
+        var titleElement = firstRow.insertCell();
         titleElement.setAttribute('id', 'titleElement');
         titleElement.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
-        timerDivElement.appendChild(titleElement);
         titleElement = null;
+        firstRow = null;
 
-        g_nextHornTimeElement = document.createElement('div');
-        g_nextHornTimeElement.setAttribute('id', 'nextHornTimeElement');
-        g_nextHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
-        timerDivElement.appendChild(g_nextHornTimeElement);
+        var secondRow = timerTableElement.insertRow();
+        g_nextBotHornTimeElement = secondRow.insertCell();
+        g_nextBotHornTimeElement.setAttribute('id', 'nextBotHornTimeElement');
+        g_nextBotHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
+        secondRow = null;
 
-        var trapCheckGroupElement = document.createElement('table');
-        var trapCheckRow = trapCheckGroupElement.insertRow();
-        g_trapCheckTimeElement = trapCheckRow.insertCell();
-        g_trapCheckTimeElement.setAttribute('id', 'trapCheckTimeElement');
-        g_trapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
-        g_trapCheckTimeElement.width = 400;
+        var thirdRow = timerTableElement.insertRow();
+        g_nextTrapCheckTimeElement = thirdRow.insertCell();
+        g_nextTrapCheckTimeElement.setAttribute('id', 'nextTrapCheckTimeElement');
+        g_nextTrapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
+        g_nextTrapCheckTimeElement.width = 400;
 
-        var trapCheckButtonCellElement = trapCheckRow.insertCell();
+        var trapCheckButtonCellElement = thirdRow.insertCell();
         var trapCheckButtonElement = document.createElement('button');
         trapCheckButtonElement.setAttribute('id', 'trapCheckButtonElement');
         trapCheckButtonElement.onclick = resetTrapCheckTime
@@ -754,7 +751,8 @@ function embedUIStructure() {
         trapCheckButtonElement.appendChild(buttonTxt);
         trapCheckButtonCellElement.appendChild(trapCheckButtonElement);
 
-        timerDivElement.appendChild(trapCheckGroupElement);
+        timerDivElement.appendChild(timerTableElement);
+        timerTableElement = null;
 
         autobotDivElement.appendChild(timerDivElement);
         timerDivElement = null;
