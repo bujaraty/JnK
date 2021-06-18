@@ -519,7 +519,7 @@ function soundHorn() {
             // I should double check if the horn was already sounded (not yet)
             window.setTimeout(function () {
                 reloadCampPage();
-            }, 1000);
+            }, 10000);
         }
     } else {
         // something wrong, can't even found the header...
