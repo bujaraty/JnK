@@ -248,6 +248,9 @@ function execScript() {
         loadPreferenceSettingFromStorage();
         retrieveCampActiveData();
         if (isNullOrUndefined(g_baitCount)) {
+            setTimeout(function () {
+                reloadCampPage()
+            }, 600*1000);
             return;
         }
         //        // check the trap check setting first
@@ -821,7 +824,7 @@ function embedUIStructure() {
         trapCheckButtonElement.appendChild(buttonTxt);
         trapCheckButtonCellElement.appendChild(trapCheckButtonElement);
         thirdRow = null;
-/*
+        /*
         var forthRow = timerTableElement.insertRow();
         var testButton1CellElement = forthRow.insertCell();
         var testButton1Element = document.createElement('button');
