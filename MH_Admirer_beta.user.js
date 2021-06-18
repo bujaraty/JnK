@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.1.0.3
+// @version      1.1.0.4
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -208,7 +208,7 @@ function retryKRSolver(resetCaptcha) {
         setStorage("KingsRewardRetry", g_kingsRewardRetry);
         var strTemp = 'Max ' + MAX_KR_RETRY + 'retries. Pls solve it manually ASAP.';
         updateTitleTxt(strTemp);
-        updateNextHornTimeTxt(strTemp);
+        updateNextBotHornTimeTxt(strTemp);
         console.perror(strTemp);
     } else {
         ++g_kingsRewardRetry;
@@ -269,6 +269,9 @@ function operateBot() {
         if (g_isKingReward) {
             handleKingReward();
         } else if (g_baitCount == 0) {
+            updateTitleTxt("No more cheese!");
+            updateNextBotHornTimeTxt("Cannot hunt without the cheese...");
+            updateNextTrapCheckTimeTxt("Cannot hunt without the cheese...");
         } else {
             window.setTimeout(function () {
                 (countdownBotHornTimer)()
@@ -295,8 +298,8 @@ function kingRewardCountdownTimer(krDelaySec) {
     strTemp += timeFormat(krDelaySec);
     strTemp += " second(s)";
     updateTitleTxt(strTemp);
-    updateNextHornTimeTxt(strTemp);
-    updateTrapCheckTimeTxt(strTemp);
+    updateNextBotHornTimeTxt(strTemp);
+    updateNextTrapCheckTimeTxt(strTemp);
     krDelaySec -= KR_SOLVER_COUNTDOWN_INTERVAL;
     if (krDelaySec < 0) {
         if (DEBUG_MODE) console.log("START AUTOSOLVE NOW");
@@ -358,7 +361,7 @@ function countdownBotHornTimer() {
         soundHorn();
     } else {
         updateTitleTxt("Horn: " + timeFormat(g_nextBotHornTimeInSeconds));
-        updateNextHornTimeTxt(timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " delay)</i>");
+        updateNextBotHornTimeTxt(timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " delay)</i>");
 
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
@@ -382,7 +385,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        updateTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
+        updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
@@ -421,7 +424,7 @@ function timeFormat(time) {
 function trapCheck() {
     // Let user known that the script is going to check the trap
     updateTitleTxt("Checking The Trap...");
-    updateNextHornTimeTxt("Checking trap now...");
+    updateNextBotHornTimeTxt("Checking trap now...");
 
     // reload the page
     setTimeout(function () {
@@ -438,7 +441,7 @@ function soundHorn() {
     if (DEBUG_MODE) console.log("RUN %csoundHorn()", "color: #FF7700");
 
     updateTitleTxt("Ready to Blow The Horn...");
-    updateNextHornTimeTxt("Ready to Blow The Horn...");
+    updateNextBotHornTimeTxt("Ready to Blow The Horn...");
 
     // safety mode, check the horn image is there or not before sound the horn
     var headerElement = document.getElementById(ID_HEADER_ELEMENT);
@@ -465,7 +468,7 @@ function soundHorn() {
 
             // update timer
             updateTitleTxt("Synchronizing Data...");
-            updateNextHornTimeTxt("Someone had just sound the horn. Synchronizing data...");
+            updateNextBotHornTimeTxt("Someone had just sound the horn. Synchronizing data...");
 
             // clean up
             headerElement = null;
@@ -480,7 +483,7 @@ function soundHorn() {
 
             // update timer
             updateTitleTxt("Synchronizing Data...");
-            updateNextHornTimeTxt("Hunter horn is not ready yet. Synchronizing data...");
+            updateNextBotHornTimeTxt("Hunter horn is not ready yet. Synchronizing data...");
             /*
             // sync the time again, maybe user already click the horn
             retrieveData();
@@ -501,7 +504,7 @@ function soundHorn() {
 
             // update timer
             updateTitleTxt("Synchronizing Data...");
-            updateNextHornTimeTxt("Hunter horn is missing. Synchronizing data...");
+            updateNextBotHornTimeTxt("Hunter horn is missing. Synchronizing data...");
 
             // clean up
             headerElement = null;
@@ -548,7 +551,7 @@ function afterSoundingHorn() {
     if (DEBUG_MODE) console.log("RUN %cafterSoundingHorn()", "color: #bada55");
     // update timer
     updateTitleTxt("Horn sounded. Synchronizing Data...");
-    updateNextHornTimeTxt("Horn sounded. Synchronizing Data...");
+    updateNextBotHornTimeTxt("Horn sounded. Synchronizing Data...");
 
     // reload data
     retrieveCampActiveData();
@@ -564,20 +567,20 @@ function updateTitleTxt(titleTxt) {
     titleTxt = null;
 }
 
-function updateNextHornTimeTxt(nextHornTimeTxt) {
+function updateNextBotHornTimeTxt(nextHornTimeTxt) {
     g_nextBotHornTimeElement.innerHTML = "<b>Next Hunter Horn Time:</b> " + nextHornTimeTxt;
     nextHornTimeTxt = null;
 }
 
-function updateTrapCheckTimeTxt(trapCheckTimeTxt) {
+function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
     g_nextTrapCheckTimeElement.innerHTML = "<b>Next Trap Check Time:</b> " + trapCheckTimeTxt;
     trapCheckTimeTxt = null;
 }
 
 function updateUI(titleTxt, nextHornTimeTxt, trapCheckTimeTxt) {
     updateTitleTxt(titleTxt);
-    updateNextHornTimeTxt(nextHornTimeTxt);
-    updateTrapCheckTimeTxt(trapCheckTimeTxt);
+    updateNextBotHornTimeTxt(nextHornTimeTxt);
+    updateNextTrapCheckTimeTxt(trapCheckTimeTxt);
 }
 
 function loadPreferenceSettingFromStorage() {
@@ -667,6 +670,8 @@ function retrieveCampActiveData() {
 
     // Check if there is King Reward ongoing
     g_isKingReward = getPageVariable("user.has_puzzle");
+
+    g_baitCount = parseInt(getPageVariable("user.bait_quantity"));
 
     nextMHHornTimeInSeconds = undefined;
     trapCheckTimeOffsetInSeconds = undefined;
@@ -966,6 +971,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.next_activeturn_seconds;
         } else if (name == "user.has_puzzle") {
             return unsafeWindow.user.has_puzzle;
+        } else if (name == "user.bait_quantity") {
+            return unsafeWindow.user.bait_quantity;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
