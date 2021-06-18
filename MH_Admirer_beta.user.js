@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.1.0.2
+// @version      1.1.0.3
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -38,19 +38,19 @@ var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
 var KR_SEPARATOR = "~";
 
 // // Extra delay time before sounding the horn. (in seconds)
-// // Default: 3-10
-var g_hornTimeDelayMin = 3;
+// // Default: 10-15
+var g_hornTimeDelayMin = 10;
 var g_hornTimeDelayMax = 15;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
-var g_trapCheckTimeDelayMin = 7;
-var g_trapCheckTimeDelayMax = 15;
+var g_trapCheckTimeDelayMin = 10;
+var g_trapCheckTimeDelayMax = 60;
 
 // // Extra delay time before solving KR. (in seconds)
-// // Default: 10 - 30
-var g_krDelayMin = 10;
-var g_krDelayMax = 30;
+// // Default: 3 - 10
+var g_krDelayMin = 3;
+var g_krDelayMax = 10;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
@@ -190,7 +190,7 @@ function checkKRAnswer() {
             retryKRSolver(false);
         }
     }
-/*
+    /*
     window.setTimeout(function () {
         checkKRAnswer();
     }, 1000);
@@ -509,7 +509,7 @@ function soundHorn() {
 
             // I should double check if the horn was already sounded (not yet)
             window.setTimeout(function () {
-                afterSoundingHorn()
+                reloadCampPage();
             }, 1000);
         }
     } else {
@@ -711,6 +711,68 @@ function resetTrapCheckTime() {
     */
 }
 
+function test1() {
+    alert("test1");
+    var itemEle = document.getElementsByClassName('campPage-trap-armedItem weapon');
+    if (itemEle) {
+        window.setTimeout(function () {
+            fireEvent(itemEle[0], 'click');
+        }, 5 * 1000);
+
+        window.setTimeout(function () {
+            fireEvent(itemEle[0], 'click');
+        }, 10 * 1000);
+    } else {
+    }
+    var nameElement;
+    //    var arrName = (Array.isArray(name)) ? name.slice() : [name];
+    /*
+    if (sort == 'best' || sort == 'any')
+        name = name[0];
+*/
+    if (itemEle.length > 0) {
+        alert("length > 0");
+        //        console.plog('Trying to arm ' + name);
+        for (var i = 0; i < itemEle.length; i++) {
+            //            nameElement = itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-name')[0].textContent;
+            //            alert(nameElement);
+            /*
+            if (nameElement.indexOf(name) === 0) {
+                if (itemEle[i].getAttribute('class').indexOf('canArm') > -1)
+                    fireEvent(itemEle[i].getElementsByClassName('campPage-trap-itemBrowser-item-armButton')[0], 'click');
+                else
+                    closeTrapSelector(trap);
+                if (objTrapList[trap].indexOf(nameElement) < 0) {
+                    objTrapList[trap].unshift(nameElement);
+                    setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
+                }
+                console.plog(name + ' armed');
+                return ARMED;
+            }
+            */
+        }
+        /*
+        console.plog(name, 'not found');
+        for (var i = 0; i < objTrapList[trap].length; i++) {
+            if (objTrapList[trap][i].indexOf(name) === 0) {
+                objTrapList[trap].splice(i, 1);
+                setStorage("TrapList" + capitalizeFirstLetter(trap), objTrapList[trap].join(","));
+                break;
+            }
+        }
+        if (sort == 'best' || sort == 'any') {
+            arrName.shift();
+            if (arrName.length > 0)
+                return armTrapNewUI(sort, trap, arrName);
+            else
+                return NOT_FOUND;
+        }
+        else
+            return NOT_FOUND;
+            */
+    }
+}
+
 function embedUIStructure() {
     // This function is to embed UI structure at the top of related pages
     // The UI consist of 3 parts
@@ -750,7 +812,18 @@ function embedUIStructure() {
         var buttonTxt = document.createTextNode("Reset Time");
         trapCheckButtonElement.appendChild(buttonTxt);
         trapCheckButtonCellElement.appendChild(trapCheckButtonElement);
-
+        thirdRow = null;
+/*
+        var forthRow = timerTableElement.insertRow();
+        var testButton1CellElement = forthRow.insertCell();
+        var testButton1Element = document.createElement('button');
+        testButton1Element.setAttribute('id', 'testButton1Element');
+        testButton1Element.onclick = test1
+        testButton1Element.style.fontSize = "10px";
+        var testbuttonTxt = document.createTextNode("test 1");
+        testButton1Element.appendChild(testbuttonTxt);
+        testButton1CellElement.appendChild(testButton1Element);
+*/
         timerDivElement.appendChild(timerTableElement);
         timerTableElement = null;
 

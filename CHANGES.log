@@ -1,3 +1,6 @@
+Version 1.1.0.3
+- Reload the page when horn is not found
+
 Version 1.1.0.2
 - Remove recursively calling "checkKRAnswer()"
 
