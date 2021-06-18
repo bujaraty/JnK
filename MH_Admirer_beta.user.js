@@ -90,7 +90,7 @@ var g_kingsRewardRetry = 0;
 
 // I have to re-define the default value of the following variables somewhere else
 var g_isKingReward = false;
-var g_baitCount = 100;
+var g_baitCount;
 
 // Start executing script
 window.addEventListener("message", processEventMsg, false);
@@ -247,6 +247,9 @@ function execScript() {
     try {
         loadPreferenceSettingFromStorage();
         retrieveCampActiveData();
+        if (isNullOrUndefined(g_baitCount)) {
+            return;
+        }
         //        // check the trap check setting first
         //        trapCheckTimeDiff = GetTrapCheckTime();
         //
@@ -639,7 +642,7 @@ function setStorage(name, value) {
 }
 
 function isNullOrUndefined(obj) {
-    return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined');
+    return (obj === null || obj === undefined || obj === 'null' || obj === 'undefined' || obj === NaN);
 }
 
 function retrieveCampActiveData() {
@@ -671,7 +674,7 @@ function retrieveCampActiveData() {
     // Check if there is King Reward ongoing
     g_isKingReward = getPageVariable("user.has_puzzle");
 
-    g_baitCount = parseInt(getPageVariable("user.bait_quantity"));
+    g_baitCount = getPageVariable("user.bait_quantity");
 
     nextMHHornTimeInSeconds = undefined;
     trapCheckTimeOffsetInSeconds = undefined;
