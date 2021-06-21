@@ -699,16 +699,6 @@ function getTrapCheckTimeFromPage() {
     }
 }
 
-function resetTrapCheckTime() {
-    // No idea what to do at the moment
-    // The original purpose was to correct the trap check time in case that it's not correct
-    // But now it's always correct so I'll leave this function do nothing at the moment
-    /*
-    var tmp = getTrapCheckTimeFromPage();
-    alert(tmp);
-    */
-}
-
 function clickAndArmWeapon(weaponCode) {
     function ArmWeapon(weaponCode) {
         var armableWeaponElements = document.getElementsByClassName('campPage-trap-itemBrowser-tagGroup default')[0].getElementsByClassName('canArm');
@@ -803,17 +793,8 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.setAttribute('id', 'nextTrapCheckTimeElement');
         g_nextTrapCheckTimeDisplay.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
         g_nextTrapCheckTimeDisplay.width = 400;
-
-        var trapCheckResetTimeButtonCell = thirdRow.insertCell();
-        var trapCheckResetTimeButton = document.createElement('button');
-        trapCheckResetTimeButton.setAttribute('id', 'trapCheckResetTimeButton');
-        trapCheckResetTimeButton.onclick = resetTrapCheckTime
-        trapCheckResetTimeButton.style.fontSize = "10px";
-        var buttonTxt = document.createTextNode("Reset Time");
-        trapCheckResetTimeButton.appendChild(buttonTxt);
-        trapCheckResetTimeButtonCell.appendChild(trapCheckResetTimeButton);
         thirdRow = null;
-
+        /*
         // The forth row is very temporary just for testing
         var forthRow = timerDisplayTable.insertRow();
         var testButton1CellElement = forthRow.insertCell();
@@ -827,7 +808,7 @@ function embedUIStructure() {
         var demoTxt = document.createTextNode("test 1");
         demoTxt.id = "demo";
         testButton1CellElement.appendChild(demoTxt);
-
+        */
         timerSection.appendChild(timerDisplayTable);
         timerDisplayTable = null;
 
@@ -863,6 +844,16 @@ function embedUIStructure() {
                 }
                 reloadCampPage();
             }
+            function resetTrapCheckTime() {
+                // No idea what to do at the moment
+                // The original purpose was to correct the trap check time in case that it's not correct
+                // But now it's always correct so I'll leave this function do nothing at the moment
+                /*
+                var tmp = getTrapCheckTimeFromPage();
+                alert(tmp);
+                */
+            }
+
             var tmpTxt;
             var timerPreferencesTable = document.createElement('table');
             timerPreferencesTable.width = "100%";
@@ -880,6 +871,7 @@ function embedUIStructure() {
             nextBotHornTimePreferencesCaption.width = 250;
             nextBotHornTimePreferencesCaption = null;
             var nextBotHornTimePreferencesSettings = nextBotHornTimePreferencesRow.insertCell();
+            nextBotHornTimePreferencesSettings.width = 250;
             var botHornTimeDelayMinInput = document.createElement('INPUT');
             botHornTimeDelayMinInput.type = "number";
             botHornTimeDelayMinInput.min = "0";
@@ -937,6 +929,16 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode(" seconds");
             nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
             tmpTxt = null;
+            var trapCheckResetTimeButtonCell = nextTrapCheckTimePreferencesRow.insertCell();
+            var trapCheckResetTimeButton = document.createElement('button');
+            trapCheckResetTimeButton.onclick = resetTrapCheckTime
+            trapCheckResetTimeButton.style.fontSize = "10px";
+            tmpTxt = document.createTextNode("Reset Time");
+            trapCheckResetTimeButton.appendChild(tmpTxt);
+            tmpTxt = null;
+            trapCheckResetTimeButtonCell.appendChild(trapCheckResetTimeButton);
+            trapCheckResetTimeButtonCell = null;
+            trapCheckResetTimeButton = null;
             trapCheckTimeDelayMinInput = null;
             trapCheckTimeDelayMaxInput = null;
             nextTrapCheckTimePreferencesSettings = null;
@@ -979,7 +981,7 @@ function embedUIStructure() {
 
             var saveButtonRow = timerPreferencesTable.insertRow();
             var saveButtonCell = saveButtonRow.insertCell();
-            saveButtonCell.colSpan = 2;
+            saveButtonCell.colSpan = 3;
             saveButtonCell.style.textAlign = "right";
             tmpTxt = document.createTextNode("(Changes above this line only take place after user save the preference)  ");
             saveButtonCell.appendChild(tmpTxt);
@@ -1044,7 +1046,7 @@ function embedUIStructure() {
     var overlayContainerElement = document.getElementById('overlayContainer');
     if (overlayContainerElement) {
         var autobotDiv = document.createElement('div');
-//        autobotDiv.style.backgroundColor = "#fff2e6";
+        //        autobotDiv.style.backgroundColor = "#fff2e6";
         autobotDiv.style.whiteSpace = "pre";
 
         var timerSection = embedTimerDisplay();
