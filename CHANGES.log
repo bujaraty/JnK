@@ -1,3 +1,5 @@
+Version 1.1.1.1
+- Overhaul UI, changing most HTML strings into DOM
 Version 1.1.0.4
 - Check bait count after reloading page, if zero then halt
 
