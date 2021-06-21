@@ -1,2 +1,11 @@
+Version 1.1.0.4
+- Check bait count after reloading page, if zero then halt
+
+Version 1.1.0.3
+- Reload the page when horn is not found
+
+Version 1.1.0.2
+- Remove recursively calling "checkKRAnswer()"
+
 Version 1.1.0.1
 - Split timer for trap check and horn time
