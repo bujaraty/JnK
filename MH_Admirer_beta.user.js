@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.1.1.1
+// @version      1.1.1.2
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -455,7 +455,7 @@ function soundHorn() {
             // double check if the horn was already sounded
             window.setTimeout(function () {
                 afterSoundingHorn()
-            }, 5000);
+            }, 2000);
         } else if (headerClass.indexOf("hornsounding") != -1 || headerClass.indexOf("hornsounded") != -1) {
             // some one just sound the horn...
 
@@ -470,7 +470,7 @@ function soundHorn() {
             // load the new data
             window.setTimeout(function () {
                 afterSoundingHorn()
-            }, 5000);
+            }, 2000);
         } else if (headerClass.indexOf("hornwaiting") != -1) {
             // the horn is not appearing, let check the time again
 
@@ -1006,7 +1006,6 @@ function embedUIStructure() {
         var preferenceSection = document.createElement('div');
 
         var preferenceHeader = document.createElement('div');
-        preferenceHeader.id = 'preferenceHeader';
         preferenceHeader.style = 'text-align:right'
         preferenceSection.appendChild(preferenceHeader);
 
@@ -1023,22 +1022,47 @@ function embedUIStructure() {
         preferenceBox.setAttribute('id', 'preferenceBox');
         preferenceBox.setAttribute('style', 'display: none');
 
-        var topLine = document.createElement('div');
-        topLine.style.height = "1px";
-        topLine.style.borderBottom = "1px solid #ff0066";
-        preferenceBox.appendChild(topLine);
-        topLine = null;
+        var separationLine = document.createElement('div');
+        separationLine.style.height = "3px";
+        separationLine.style.borderBottom = "1px solid #ff0066";
+        preferenceBox.appendChild(separationLine);
+        separationLine = null;
+        var blankLine = document.createElement('div');
+        blankLine.style.height="8px"
+        preferenceBox.appendChild(blankLine);
+        blankLine = null;
+        var tmpTitle = document.createElement('div');
+        tmpTitle.style = 'text-align:center'
+        tmpTitle.style.fontWeight = "bold";
+        tmpTitle.style.fontSize = "small";
+        tmpTitle.innerHTML = 'Timer configuration';
+        preferenceBox.appendChild(tmpTitle);
+        tmpTitle = null;
 
         var timerPreferencesTable = embedTimerPreferences();
         preferenceBox.appendChild(timerPreferencesTable);
         timerPreferencesTable = null;
 
-        preferenceSection.appendChild(preferenceBox);
+        separationLine = document.createElement('div');
+        separationLine.style.height = "3px";
+        separationLine.style.borderBottom = "1px solid #ff0066";
+        preferenceBox.appendChild(separationLine);
+        separationLine = null;
+        /*
+        blankLine = document.createElement('div');
+        blankLine.style.height="8px"
+        preferenceBox.appendChild(blankLine);
+        blankLine = null;
+        tmpTitle = document.createElement('div');
+        tmpTitle.style = 'text-align:center'
+        tmpTitle.style.fontWeight = "bold";
+        tmpTitle.style.fontSize = "small";
+        tmpTitle.innerHTML = 'Location/event-based trap setup';
+        preferenceBox.appendChild(tmpTitle);
+        tmpTitle = null;
+        */
 
-        var hr3Element = document.createElement('hr');
-        preferenceBox.appendChild(hr3Element);
-        hr3Element = null;
-        preferenceBox = null;
+        preferenceSection.appendChild(preferenceBox);
 
         return preferenceSection;
     }
@@ -1046,7 +1070,7 @@ function embedUIStructure() {
     var overlayContainerElement = document.getElementById('overlayContainer');
     if (overlayContainerElement) {
         var autobotDiv = document.createElement('div');
-        //        autobotDiv.style.backgroundColor = "#fff2e6";
+        // autobotDiv.style.backgroundColor = "#fff2e6";
         autobotDiv.style.whiteSpace = "pre";
 
         var timerSection = embedTimerDisplay();
