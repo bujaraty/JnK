@@ -1,3 +1,16 @@
+Version 1.2.0.0
+- Auto send gifts and raffles
+
+Version 1.1.1.3
+- Display bot background status
+- Change all id attributes to constant
+
+Version 1.1.1.2
+- Reduce of calling after sounding horn to 2 secs
+
+Version 1.1.1.1
+- Overhaul UI, changing most HTML strings into DOM
+
 Version 1.1.0.4
 - Check bait count after reloading page, if zero then halt
 
