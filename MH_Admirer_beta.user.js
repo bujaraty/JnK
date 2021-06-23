@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.1.1.2
+// @version      1.1.1.3
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -31,11 +31,27 @@
 
 // // ERROR CHECKING ONLY: Script debug
 var DEBUG_MODE = true;
+
+// MH constant
 var ID_HEADER_ELEMENT = 'envHeaderImg';
 var HORNREADY_TXT = 'hornReady';
 var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
 var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
 var KR_SEPARATOR = "~";
+
+// JnK constant
+var HTTP_STR = 'https';
+var MOUSEHUNTGAME_WEBSITE_HOME = HTTP_STR + "://www.mousehuntgame.com/";
+var ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
+var ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
+var ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
+var ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT = "trapCheckTimeDelayMaxInput";
+var ID_AUTOSOLVE_KR_DELAY_MIN_INPUT = "autosolveKRDelayMinInput";
+var ID_AUTOSOLVE_KR_DELAY_MAX_INPUT = "autosolveKRDelayMaxInput";
+var ID_BOT_STATUS_TXT = "botStatusTxt";
+var ID_PREFERENCES_LINK = 'preferencesLink';
+var ID_PREFERENCES_BOX = 'preferencesBox';
+var ID_TMP_KR_FRAME = 'tmpKRFrame';
 
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 10-15
@@ -74,7 +90,6 @@ var KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
-var HTTP_STR = 'https';
 var g_nextBotHornTimeInSeconds;
 var g_botHornTimeDelayInSeconds;
 var g_nextTrapCheckTimeInSeconds = 0;
@@ -104,7 +119,7 @@ if (window.top != window.self) {
 }
 
 function processEventMsg(event) {
-    var tmpKRFrame = document.getElementById('tmpKRFrame');
+    var tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
 
     if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
     if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1) {
@@ -163,7 +178,7 @@ function validateImageAnswer(possibleAns) {
         fireEvent(puzzleSubmitButton, 'click');
         g_kingsRewardRetry = 0;
         setStorage("KingsRewardRetry", g_kingsRewardRetry);
-        var tmpKRFrame = document.getElementById('tmpKRFrame');
+        var tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
         if (tmpKRFrame) {
             document.body.removeChild(tmpKRFrame);
         }
@@ -210,7 +225,7 @@ function retryKRSolver(resetCaptcha) {
         if (resetCaptcha) {
             getNewKRCaptcha();
         }
-        var tmpKRFrame = document.getElementById('tmpKRFrame');
+        var tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
         if (!isNullOrUndefined(tmpKRFrame)) {
             document.body.removeChild(tmpKRFrame);
         }
@@ -311,7 +326,7 @@ function callKRSolver() {
     if (DEBUG_MODE) console.log("RUN CallKRSolver()");
 
     var frame = document.createElement('iframe');
-    frame.setAttribute("id", "tmpKRFrame");
+    frame.id = ID_TMP_KR_FRAME;
     var img;
 
     img = document.getElementsByClassName('mousehuntPage-puzzle-form-captcha-image')[0];
@@ -426,7 +441,7 @@ function trapCheck() {
 }
 
 function reloadCampPage() {
-    window.location.href = HTTP_STR + "://www.mousehuntgame.com/";
+    window.location.href = MOUSEHUNTGAME_WEBSITE_HOME;
 }
 
 function soundHorn() {
@@ -561,12 +576,12 @@ function updateTitleTxt(titleTxt) {
 }
 
 function updateNextBotHornTimeTxt(nextHornTimeTxt) {
-    g_nextBotHornTimeDisplay.innerHTML = "<b>Next Hunter Horn Time:</b> " + nextHornTimeTxt;
+    g_nextBotHornTimeDisplay.innerHTML = nextHornTimeTxt;
     nextHornTimeTxt = null;
 }
 
 function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
-    g_nextTrapCheckTimeDisplay.innerHTML = "<b>Next Trap Check Time:</b> " + trapCheckTimeTxt;
+    g_nextTrapCheckTimeDisplay.innerHTML = trapCheckTimeTxt;
     trapCheckTimeTxt = null;
 }
 
@@ -756,7 +771,57 @@ function displayDocumentStyles() {
     document.getElementById("demo").innerHTML = x[0].innerHTML;
 }
 
+function prepareSendingGiftsAndRaffles() {
+    function clickButton(button) {
+        fireEvent(button, "click");
+        button = null;
+    }
+    function sendGifts(nGifts) {
+        var sendGiftButtons = document.getElementsByClassName("sendGift");
+        var sendGiftButton;
+        for (var i = 0; (i < sendGiftButtons.length && i < nGifts); i++) {
+            sendGiftButton = sendGiftButtons[i]
+            window.setTimeout(clickButton(sendGiftButton) , 0.33 * (i+1) * 1000);
+        }
+    }
+    function gotoNextFriendList() {
+        // Got to the second frield list page
+        var nextFriendListLink = document.getElementsByClassName("next active pagerView-section")[0].getElementsByTagName("a")[0];
+        fireEvent(nextFriendListLink, "click");
+        /*
+        window.setTimeout(function () {
+            sendGifts(4);
+        }, 3 * 1000);
+        */
+    }
+    if (DEBUG_MODE) console.log('RUN sendRafflesAndGifts()');
+
+    // Goto friend list page
+    var friendListLink = document.getElementsByClassName("mousehuntHud-gameInfo")[0].getElementsByTagName("a")[0];
+    fireEvent(friendListLink, "click");
+
+    // Go through all sendGift and sendRaffle buttons in the first page
+    /*
+    window.setTimeout(function () {
+        sendGifts(20);
+    }, 3 * 1000);
+    */
+    window.setTimeout(function () {
+        gotoNextFriendList();
+    }, 10 * 1000);
+}
+
+function listAttributes(obj) {
+    var attrs = obj.attributes;
+    var tmpTxt = "";
+    for (var i = 0; i < attrs.length; i++) {
+        tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
+    }
+    alert(tmpTxt);
+}
+
 function test1() {
+    //sendGiftsAndRaffles();
     //displayDocumentStyles();
     //clickAndArmWeapon();
 }
@@ -771,35 +836,54 @@ function embedUIStructure() {
     function embedTimerDisplay() {
         var timerSection = document.createElement('div');
         var timerDisplayTable = document.createElement('table');
+        timerDisplayTable.width = "100%";
 
-        // The first row shows title and version
+        // The first row shows title and version (also some misc buttons)
         var firstRow = timerDisplayTable.insertRow();
         var timerDisplayTitle = firstRow.insertCell();
-        timerDisplayTitle.setAttribute('id', 'timerDisplayTitle');
+        timerDisplayTitle.colSpan = 2;
         timerDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
         timerDisplayTitle = null;
+        var miscButtonsCell = firstRow.insertCell();
+        miscButtonsCell.style.textAlign = "right";
+        var sendGiftsAndRafflesButton = document.createElement('button');
+        sendGiftsAndRafflesButton.onclick = prepareSendingGiftsAndRaffles
+        sendGiftsAndRafflesButton.style.fontSize = "8px";
+        var buttonTxt = document.createTextNode("Send Gifts & Raffles");
+        sendGiftsAndRafflesButton.appendChild(buttonTxt);
+        buttonTxt = null;
+        miscButtonsCell.appendChild(sendGiftsAndRafflesButton);
+        miscButtonsCell = null;
         firstRow = null;
 
         // The second row shows next bot horn time countdown
         var secondRow = timerDisplayTable.insertRow();
+        var nextBotHornTimeCaptionCell = secondRow.insertCell();
+        nextBotHornTimeCaptionCell.width = 20;
+        nextBotHornTimeCaptionCell.style.fontWeight = "bold";
+        nextBotHornTimeCaptionCell.innerHTML = "Next Hunter Horn Time : ";
         g_nextBotHornTimeDisplay = secondRow.insertCell();
-        g_nextBotHornTimeDisplay.setAttribute('id', 'nextBotHornTimeElement');
-        g_nextBotHornTimeDisplay.innerHTML = "<b>Next Hunter Horn Time:</b> Loading...";
+        g_nextBotHornTimeDisplay.style.textAlign = "left";
+        g_nextBotHornTimeDisplay.width = 260;
+        g_nextBotHornTimeDisplay.innerHTML = "Loading...";
+        nextBotHornTimeCaptionCell = null;
         secondRow = null;
 
         // The third row shows next trap check time countdown
         var thirdRow = timerDisplayTable.insertRow();
+        var nextTrapCheckTimeCaptionCell = thirdRow.insertCell();
+        nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
+        nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
         g_nextTrapCheckTimeDisplay = thirdRow.insertCell();
-        g_nextTrapCheckTimeDisplay.setAttribute('id', 'nextTrapCheckTimeElement');
-        g_nextTrapCheckTimeDisplay.innerHTML = "<b>Next Trap Check Time:</b> Loading...";
-        g_nextTrapCheckTimeDisplay.width = 400;
+        g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
+        nextTrapCheckTimeCaptionCell = null;
         thirdRow = null;
+
         /*
         // The forth row is very temporary just for testing
         var forthRow = timerDisplayTable.insertRow();
         var testButton1CellElement = forthRow.insertCell();
         var testButton1Element = document.createElement('button');
-        testButton1Element.setAttribute('id', 'testButton1Element');
         testButton1Element.onclick = test1
         testButton1Element.style.fontSize = "10px";
         var testbuttonTxt = document.createTextNode("test 1");
@@ -809,6 +893,7 @@ function embedUIStructure() {
         demoTxt.id = "demo";
         testButton1CellElement.appendChild(demoTxt);
         */
+
         timerSection.appendChild(timerDisplayTable);
         timerDisplayTable = null;
 
@@ -817,33 +902,34 @@ function embedUIStructure() {
 
     function embedPreferences() {
         function togglePreferences() {
-            var toggleLink = document.getElementById('preferenceLink');
-            var preferenceBox = document.getElementById('preferenceBox');
-            if (toggleLink.innerHTML == '[Show Preference]') {
-                toggleLink.innerHTML = '[Hide Preference]'
-                preferenceBox.style.display = 'block';
+            var toggleLink = document.getElementById(ID_PREFERENCES_LINK);
+            var preferencesBox = document.getElementById(ID_PREFERENCES_BOX);
+            if (toggleLink.innerHTML == '[Show Preferences]') {
+                toggleLink.innerHTML = '[Hide Preferences]'
+                preferencesBox.style.display = 'block';
             } else {
-                toggleLink.innerHTML = '[Show Preference]'
-                preferenceBox.style.display = 'none';
+                toggleLink.innerHTML = '[Show Preferences]'
+                preferencesBox.style.display = 'none';
             }
             toggleLink = null;
-            preferenceBox = null;
+            preferencesBox = null;
         }
 
         function embedTimerPreferences() {
             function saveTimerPreferences() {
                 try {
-                    setStorage('botHornTimeDelayMin', document.getElementById('botHornTimeDelayMinInput').value);
-                    setStorage('botHornTimeDelayMax', document.getElementById('botHornTimeDelayMaxInput').value);
-                    setStorage('trapCheckTimeDelayMin', document.getElementById('trapCheckTimeDelayMinInput').value);
-                    setStorage('trapCheckTimeDelayMax', document.getElementById('trapCheckTimeDelayMaxInput').value);
-                    setStorage('autosolveKRDelayMin', document.getElementById('autosolveKRDelayMinInput').value);
-                    setStorage('autosolveKRDelayMax', document.getElementById('autosolveKRDelayMaxInput').value);
+                    setStorage('botHornTimeDelayMin', document.getElementById(ID_BOT_HORN_TIME_DELAY_MIN_INPUT).value);
+                    setStorage('botHornTimeDelayMax', document.getElementById(ID_BOT_HORN_TIME_DELAY_MAX_INPUT).value);
+                    setStorage('trapCheckTimeDelayMin', document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT).value);
+                    setStorage('trapCheckTimeDelayMax', document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
+                    setStorage('autosolveKRDelayMin', document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
+                    setStorage('autosolveKRDelayMax', document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
                 } catch (e) {
                     console.log(e);
                 }
                 reloadCampPage();
             }
+
             function resetTrapCheckTime() {
                 // No idea what to do at the moment
                 // The original purpose was to correct the trap check time in case that it's not correct
@@ -877,7 +963,7 @@ function embedUIStructure() {
             botHornTimeDelayMinInput.min = "0";
             botHornTimeDelayMinInput.max = "600";
             botHornTimeDelayMinInput.size = "5";
-            botHornTimeDelayMinInput.id = "botHornTimeDelayMinInput";
+            botHornTimeDelayMinInput.id = ID_BOT_HORN_TIME_DELAY_MIN_INPUT;
             botHornTimeDelayMinInput.value = g_botHornTimeDelayMin.toString();
             nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
@@ -888,7 +974,7 @@ function embedUIStructure() {
             botHornTimeDelayMaxInput.min = "1";
             botHornTimeDelayMaxInput.max = "600";
             botHornTimeDelayMaxInput.size = "5";
-            botHornTimeDelayMaxInput.id = "botHornTimeDelayMaxInput";
+            botHornTimeDelayMaxInput.id = ID_BOT_HORN_TIME_DELAY_MAX_INPUT;
             botHornTimeDelayMaxInput.value = g_botHornTimeDelayMax.toString();
             nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
@@ -912,7 +998,7 @@ function embedUIStructure() {
             trapCheckTimeDelayMinInput.min = "0";
             trapCheckTimeDelayMinInput.max = "360";
             trapCheckTimeDelayMinInput.size = "5";
-            trapCheckTimeDelayMinInput.id = "trapCheckTimeDelayMinInput";
+            trapCheckTimeDelayMinInput.id = ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT;
             trapCheckTimeDelayMinInput.value = g_trapCheckTimeDelayMin.toString();
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
@@ -923,7 +1009,7 @@ function embedUIStructure() {
             trapCheckTimeDelayMaxInput.min = "1";
             trapCheckTimeDelayMaxInput.max = "600";
             trapCheckTimeDelayMaxInput.size = "5";
-            trapCheckTimeDelayMaxInput.id = "trapCheckTimeDelayMaxInput";
+            trapCheckTimeDelayMaxInput.id = ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT;
             trapCheckTimeDelayMaxInput.value = g_trapCheckTimeDelayMax.toString();
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
@@ -957,7 +1043,7 @@ function embedUIStructure() {
             autosolveKRDelayMinInput.min = "0";
             autosolveKRDelayMinInput.max = "360";
             autosolveKRDelayMinInput.size = "5";
-            autosolveKRDelayMinInput.id = "autosolveKRDelayMinInput";
+            autosolveKRDelayMinInput.id = ID_AUTOSOLVE_KR_DELAY_MIN_INPUT;
             autosolveKRDelayMinInput.value = g_autosolveKRDelayMin.toString();
             autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
@@ -968,7 +1054,7 @@ function embedUIStructure() {
             autosolveKRDelayMaxInput.min = "1";
             autosolveKRDelayMaxInput.max = "600";
             autosolveKRDelayMaxInput.size = "5";
-            autosolveKRDelayMaxInput.id = "autosolveKRDelayMaxInput";
+            autosolveKRDelayMaxInput.id = ID_AUTOSOLVE_KR_DELAY_MAX_INPUT;
             autosolveKRDelayMaxInput.value = g_autosolveKRDelayMax.toString();
             autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
@@ -1003,68 +1089,88 @@ function embedUIStructure() {
             return timerPreferencesTable;
         }
 
-        var preferenceSection = document.createElement('div');
+        function embedPreferencesHeaderTable() {
+            var preferencesHeaderTable = document.createElement('table');
+            preferencesHeaderTable.width = "100%";
+            var preferencesHeaderRow = preferencesHeaderTable.insertRow();
+            var botStatusCaptionCell = preferencesHeaderRow.insertCell();
+            botStatusCaptionCell.width = "140";
+            botStatusCaptionCell.style.fontWeight = "bold";
+            botStatusCaptionCell.innerHTML = "Bot Background Status :  ";
+            var botStatusTxtCell = preferencesHeaderRow.insertCell();
+            botStatusTxtCell.innerHTML = "Idle";
+            botStatusTxtCell.id = ID_BOT_STATUS_TXT;
+            botStatusCaptionCell = null;
+            botStatusTxtCell = null;
 
-        var preferenceHeader = document.createElement('div');
-        preferenceHeader.style = 'text-align:right'
-        preferenceSection.appendChild(preferenceHeader);
+            var preferencesHeaderCell = preferencesHeaderRow.insertCell();
+            preferencesHeaderCell.style = 'text-align:right'
+            var preferencesLink = document.createElement('a');
+            preferencesLink.id = ID_PREFERENCES_LINK;
+            preferencesLink.innerHTML = '[Show Preferences]';
+            preferencesLink.style.fontWeight = "bold";
+            preferencesLink.onclick = togglePreferences;
+            preferencesHeaderCell.appendChild(preferencesLink);
+            preferencesLink = null;
+            preferencesHeaderCell = null;
+            preferencesHeaderRow = null;
 
-        var preferenceLink = document.createElement('a');
-        preferenceLink.id = 'preferenceLink';
-        preferenceLink.innerHTML = '[Show Preference]';
-        preferenceLink.style.fontWeight = "bold";
-        preferenceLink.onclick = togglePreferences;
-        preferenceHeader.appendChild(preferenceLink);
-        preferenceLink = null;
-        preferenceHeader = null;
+            return preferencesHeaderTable;
+        }
 
-        var preferenceBox = document.createElement('div');
-        preferenceBox.setAttribute('id', 'preferenceBox');
-        preferenceBox.setAttribute('style', 'display: none');
+        var preferencesSection = document.createElement('div');
+
+        var preferencesHeaderTable = embedPreferencesHeaderTable();
+        preferencesSection.appendChild(preferencesHeaderTable);
+        preferencesHeaderTable = null;
+
+        var preferencesBox = document.createElement('div');
+        preferencesBox.id = "preferencesBox";
+        preferencesBox.style.display = "none";
 
         var separationLine = document.createElement('div');
         separationLine.style.height = "3px";
         separationLine.style.borderBottom = "1px solid #ff0066";
-        preferenceBox.appendChild(separationLine);
+        preferencesBox.appendChild(separationLine);
         separationLine = null;
         var blankLine = document.createElement('div');
         blankLine.style.height="8px"
-        preferenceBox.appendChild(blankLine);
+        preferencesBox.appendChild(blankLine);
         blankLine = null;
         var tmpTitle = document.createElement('div');
         tmpTitle.style = 'text-align:center'
         tmpTitle.style.fontWeight = "bold";
         tmpTitle.style.fontSize = "small";
         tmpTitle.innerHTML = 'Timer configuration';
-        preferenceBox.appendChild(tmpTitle);
+        preferencesBox.appendChild(tmpTitle);
         tmpTitle = null;
 
         var timerPreferencesTable = embedTimerPreferences();
-        preferenceBox.appendChild(timerPreferencesTable);
+        preferencesBox.appendChild(timerPreferencesTable);
         timerPreferencesTable = null;
 
         separationLine = document.createElement('div');
         separationLine.style.height = "3px";
         separationLine.style.borderBottom = "1px solid #ff0066";
-        preferenceBox.appendChild(separationLine);
+        preferencesBox.appendChild(separationLine);
         separationLine = null;
         /*
         blankLine = document.createElement('div');
         blankLine.style.height="8px"
-        preferenceBox.appendChild(blankLine);
+        preferencesBox.appendChild(blankLine);
         blankLine = null;
         tmpTitle = document.createElement('div');
         tmpTitle.style = 'text-align:center'
         tmpTitle.style.fontWeight = "bold";
         tmpTitle.style.fontSize = "small";
         tmpTitle.innerHTML = 'Location/event-based trap setup';
-        preferenceBox.appendChild(tmpTitle);
+        preferencesBox.appendChild(tmpTitle);
         tmpTitle = null;
         */
 
-        preferenceSection.appendChild(preferenceBox);
+        preferencesSection.appendChild(preferencesBox);
 
-        return preferenceSection;
+        return preferencesSection;
     }
 
     var overlayContainerElement = document.getElementById('overlayContainer');
@@ -1077,9 +1183,9 @@ function embedUIStructure() {
         autobotDiv.appendChild(timerSection);
         timerSection = null;
 
-        var preferenceSection = embedPreferences();
-        autobotDiv.appendChild(preferenceSection);
-        preferenceSection = null;
+        var preferencesSection = embedPreferences();
+        autobotDiv.appendChild(preferencesSection);
+        preferencesSection = null;
 
         overlayContainerElement.parentNode.insertBefore(autobotDiv, overlayContainerElement);
         autobotDiv = null;

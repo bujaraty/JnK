@@ -1,3 +1,7 @@
+Version 1.1.1.3
+- Display bot background status
+- Change all id attributes to constant
+
 Version 1.1.1.2
 - Reduce of calling after sounding horn to 2 secs
 
