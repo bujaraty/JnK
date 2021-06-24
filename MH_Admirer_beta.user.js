@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.1.1.3
+// @version      1.2.0.1
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -32,27 +32,6 @@
 // // ERROR CHECKING ONLY: Script debug
 var DEBUG_MODE = true;
 
-// MH constant
-var ID_HEADER_ELEMENT = 'envHeaderImg';
-var HORNREADY_TXT = 'hornReady';
-var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
-var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
-var KR_SEPARATOR = "~";
-
-// JnK constant
-var HTTP_STR = 'https';
-var MOUSEHUNTGAME_WEBSITE_HOME = HTTP_STR + "://www.mousehuntgame.com/";
-var ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
-var ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
-var ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
-var ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT = "trapCheckTimeDelayMaxInput";
-var ID_AUTOSOLVE_KR_DELAY_MIN_INPUT = "autosolveKRDelayMinInput";
-var ID_AUTOSOLVE_KR_DELAY_MAX_INPUT = "autosolveKRDelayMaxInput";
-var ID_BOT_STATUS_TXT = "botStatusTxt";
-var ID_PREFERENCES_LINK = 'preferencesLink';
-var ID_PREFERENCES_BOX = 'preferencesBox';
-var ID_TMP_KR_FRAME = 'tmpKRFrame';
-
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 10-15
 var g_botHornTimeDelayMin = 10;
@@ -72,6 +51,9 @@ var g_autosolveKRDelayMax = 10;
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
 var MAX_KR_RETRY = 5;
 
+// // Scheduler time that will start doing automated process
+var g_schedulerTime = "07:35";
+
 // == Basic User Preference Setting (End) ==
 
 // == Advance User Preference Setting (Begin) ==
@@ -86,10 +68,10 @@ var KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 
 // == Advance User Preference Setting (End) ==
 
-
 // WARNING - Do not modify the code below unless you know how to read and write the script.
 
 // All global variable declaration and default value
+var BOT_PROCESS_IDLE = "idle";
 var g_nextBotHornTimeInSeconds;
 var g_botHornTimeDelayInSeconds;
 var g_nextTrapCheckTimeInSeconds = 0;
@@ -101,11 +83,43 @@ var g_nextBotHornTime;
 var g_lastBotHornTimeRecorded = new Date();
 var g_lastTrapCheckTimeRecorded = new Date();
 var g_kingsRewardRetry = 0;
-
+var g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
 var g_isKingReward = false;
 var g_baitCount;
+
+// MH constant
+var ID_HEADER_ELEMENT = 'envHeaderImg';
+var HORNREADY_TXT = 'hornReady';
+var CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
+var CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
+var KR_SEPARATOR = "~";
+
+// JnK constant
+var HTTP_STR = 'https';
+var MOUSEHUNTGAME_WEBSITE_HOME = HTTP_STR + "://www.mousehuntgame.com/";
+var ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
+var ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
+var ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
+var ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT = "trapCheckTimeDelayMaxInput";
+var ID_AUTOSOLVE_KR_DELAY_MIN_INPUT = "autosolveKRDelayMinInput";
+var ID_AUTOSOLVE_KR_DELAY_MAX_INPUT = "autosolveKRDelayMaxInput";
+var ID_SCHEDULER_TIME_INPUT = "schedulerTimeInput";
+var ID_BOT_PROCESS_TXT = "botProcessTxt";
+var ID_BOT_STATUS_TXT = "botStatusTxt";
+var ID_PREFERENCES_LINK = 'preferencesLink';
+var ID_PREFERENCES_BOX = 'preferencesBox';
+var ID_TMP_KR_FRAME = 'tmpKRFrame';
+var STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
+var STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
+var STORAGE_TRAP_CHECK_TIME_DELAY_MIN = "trapCheckTimeDelayMin";
+var STORAGE_TRAP_CHECK_TIME_DELAY_MAX = "trapCheckTimeDelayMax";
+var STORAGE_AUTOSOLVE_KR_DELAY_MIN = "autosolveKRDelayMin";
+var STORAGE_AUTOSOLVE_KR_DELAY_MAX = "autosolveKRDelayMax";
+var STORAGE_SCHEDULER_TIME = "schedulerTime";
+var BOT_PROCESS_SCHEDULER = "Scheduler";
+var BOT_STATUS_IDLE = "Idle";
 
 // Start executing script
 window.addEventListener("message", processEventMsg, false);
@@ -356,29 +370,49 @@ function timeElapsedInSeconds(dateA, dateB) {
     }
 }
 
+function runScheduler() {
+    prepareSendingGiftsAndRaffles();
+    window.setTimeout(function () {
+        reloadCampPage();
+    }, 60 * 1000);
+}
+
 function countdownBotHornTimer() {
     // Update timer
     var dateNow = new Date();
     var intervalTime = timeElapsedInSeconds(g_lastBotHornTimeRecorded, dateNow);
     g_lastBotHornTimeRecorded = undefined;
     g_lastBotHornTimeRecorded = dateNow;
-    dateNow = undefined;
 
     g_nextBotHornTimeInSeconds -= intervalTime;
     intervalTime = undefined;
 
+    var beginSchedulerTime = new Date();
+    beginSchedulerTime.setHours(parseInt(g_schedulerTime.substring(0,2)), parseInt(g_schedulerTime.substring(3,5)), 0);
+    var endSchedulerTime = new Date();
+    endSchedulerTime.setHours(parseInt(g_schedulerTime.substring(0,2)), parseInt(g_schedulerTime.substring(3,5))+1, 0);
+
     if (g_nextBotHornTimeInSeconds <= 0) {
         soundHorn();
     } else {
+        if (g_botProcess == BOT_PROCESS_IDLE && beginSchedulerTime < dateNow && endSchedulerTime > dateNow) {
+            g_botProcess = BOT_PROCESS_SCHEDULER;
+            document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Running Scheduler";
+            runScheduler();
+        }
         updateTitleTxt("Horn: " + timeFormat(g_nextBotHornTimeInSeconds));
         updateNextBotHornTimeTxt(timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " delay)</i>");
 
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
         window.setTimeout(function () {
-            (countdownBotHornTimer)()
+            countdownBotHornTimer()
         }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
     }
+    dateNow = undefined;
+    beginSchedulerTime = undefined;
+    endSchedulerTime = undefined;
 }
 
 function countdownTrapCheckTimer() {
@@ -592,14 +626,17 @@ function updateUI(titleTxt, nextHornTimeTxt, trapCheckTimeTxt) {
 }
 
 function loadPreferenceSettingFromStorage() {
-    g_botHornTimeDelayMin = getStorageVarInt("botHornTimeDelayMin", g_botHornTimeDelayMin);
-    g_botHornTimeDelayMax = getStorageVarInt("botHornTimeDelayMax", g_botHornTimeDelayMax);
+    g_botHornTimeDelayMin = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MIN, g_botHornTimeDelayMin);
+    g_botHornTimeDelayMax = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MAX, g_botHornTimeDelayMax);
 
-    g_trapCheckTimeDelayMin = getStorageVarInt("trapCheckTimeDelayMin", g_trapCheckTimeDelayMin);
-    g_trapCheckTimeDelayMax = getStorageVarInt("trapCheckTimeDelayMax", g_trapCheckTimeDelayMax);
+    g_trapCheckTimeDelayMin = getStorageVarInt(STORAGE_TRAP_CHECK_TIME_DELAY_MIN, g_trapCheckTimeDelayMin);
+    g_trapCheckTimeDelayMax = getStorageVarInt(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, g_trapCheckTimeDelayMax);
 
-    g_autosolveKRDelayMin = getStorageVarInt("autosolveKRDelayMin", g_autosolveKRDelayMin);
-    g_autosolveKRDelayMax = getStorageVarInt("autosolveKRDelayMax", g_autosolveKRDelayMax);
+    g_autosolveKRDelayMin = getStorageVarInt(STORAGE_AUTOSOLVE_KR_DELAY_MIN, g_autosolveKRDelayMin);
+    g_autosolveKRDelayMax = getStorageVarInt(STORAGE_AUTOSOLVE_KR_DELAY_MAX, g_autosolveKRDelayMax);
+
+    var temp = getStorage(STORAGE_SCHEDULER_TIME);
+    g_schedulerTime = (isNullOrUndefined(temp)) ? g_schedulerTime : temp;
 }
 
 function getStorage(name) {
@@ -772,28 +809,57 @@ function displayDocumentStyles() {
 }
 
 function prepareSendingGiftsAndRaffles() {
-    function clickButton(button) {
-        fireEvent(button, "click");
-        button = null;
+    function clickActionButton(actionButton) {
+        fireEvent(actionButton.getElementsByClassName("userInteractionButtonsView-button")[0], "click");
+        actionButton = null;
     }
-    function sendGifts(nGifts) {
-        var sendGiftButtons = document.getElementsByClassName("sendGift");
+    function sendGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
+        var buttonAttributes;
         var sendGiftButton;
-        for (var i = 0; (i < sendGiftButtons.length && i < nGifts); i++) {
-            sendGiftButton = sendGiftButtons[i]
-            window.setTimeout(clickButton(sendGiftButton) , 0.33 * (i+1) * 1000);
+        var sendBallotButton;
+        var friendRow = friendRows[friendIndex];
+        var friendName = friendRow.getElementsByClassName("friendsPage-friendRow-content")[0].getElementsByClassName("friendsPage-friendRow-titleBar")[0].getElementsByTagName('a')[0].text;
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendName;
+        var actionButtons = friendRow.getElementsByClassName("friendsPage-friendRow-actions")[0].getElementsByClassName("userInteractionButtonsView")[0].children;
+        for (var i = 0; i < actionButtons.length; i++) {
+            buttonAttributes = actionButtons[i].attributes
+            for (var j = 0; j < buttonAttributes.length; j++) {
+                if (buttonAttributes[j].value == "send_daily_gift") {
+                    sendGiftButton = actionButtons[i]
+                }
+                if (buttonAttributes[j].value == "send_draw_ballot") {
+                    sendBallotButton = actionButtons[i]
+                }
+            }
+            buttonAttributes = null;
+        }
+        clickActionButton(sendGiftButton);
+        if (friendIndex < nRaffles) {
+            window.setTimeout(function () {
+                clickActionButton(sendBallotButton);
+            }, 0.75 * 1000);
+        }
+        friendName = null;
+        friendRow = null;
+        friendIndex++;
+        if (friendIndex < nGifts) {
+            window.setTimeout(function () {
+                sendGiftsAndRaffles(friendIndex, nGifts, nRaffles);
+            }, 1.5 * 1000);
         }
     }
     function gotoNextFriendList() {
         // Got to the second frield list page
         var nextFriendListLink = document.getElementsByClassName("next active pagerView-section")[0].getElementsByTagName("a")[0];
         fireEvent(nextFriendListLink, "click");
-        /*
+
+        // Go through all sendGift and sendRaffle buttons in the first page
+        friendRows = document.getElementsByClassName("friendsPage-friendRow");
         window.setTimeout(function () {
-            sendGifts(4);
+            sendGiftsAndRaffles(0, 4, 0);
         }, 3 * 1000);
-        */
     }
+    var friendRows;
     if (DEBUG_MODE) console.log('RUN sendRafflesAndGifts()');
 
     // Goto friend list page
@@ -801,14 +867,13 @@ function prepareSendingGiftsAndRaffles() {
     fireEvent(friendListLink, "click");
 
     // Go through all sendGift and sendRaffle buttons in the first page
-    /*
+    friendRows = document.getElementsByClassName("friendsPage-friendRow");
     window.setTimeout(function () {
-        sendGifts(20);
+        sendGiftsAndRaffles(0, 20, 20);
     }, 3 * 1000);
-    */
     window.setTimeout(function () {
         gotoNextFriendList();
-    }, 10 * 1000);
+    }, 37 * 1000);
 }
 
 function listAttributes(obj) {
@@ -821,7 +886,6 @@ function listAttributes(obj) {
 }
 
 function test1() {
-    //sendGiftsAndRaffles();
     //displayDocumentStyles();
     //clickAndArmWeapon();
 }
@@ -918,12 +982,13 @@ function embedUIStructure() {
         function embedTimerPreferences() {
             function saveTimerPreferences() {
                 try {
-                    setStorage('botHornTimeDelayMin', document.getElementById(ID_BOT_HORN_TIME_DELAY_MIN_INPUT).value);
-                    setStorage('botHornTimeDelayMax', document.getElementById(ID_BOT_HORN_TIME_DELAY_MAX_INPUT).value);
-                    setStorage('trapCheckTimeDelayMin', document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT).value);
-                    setStorage('trapCheckTimeDelayMax', document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
-                    setStorage('autosolveKRDelayMin', document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
-                    setStorage('autosolveKRDelayMax', document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MIN, document.getElementById(ID_BOT_HORN_TIME_DELAY_MIN_INPUT).value);
+                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MAX, document.getElementById(ID_BOT_HORN_TIME_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MIN, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT).value);
+                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
+                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_SCHEDULER_TIME, document.getElementById(ID_SCHEDULER_TIME_INPUT).value);
                 } catch (e) {
                     console.log(e);
                 }
@@ -964,7 +1029,7 @@ function embedUIStructure() {
             botHornTimeDelayMinInput.max = "600";
             botHornTimeDelayMinInput.size = "5";
             botHornTimeDelayMinInput.id = ID_BOT_HORN_TIME_DELAY_MIN_INPUT;
-            botHornTimeDelayMinInput.value = g_botHornTimeDelayMin.toString();
+            botHornTimeDelayMinInput.value = g_botHornTimeDelayMin;
             nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
             nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
@@ -975,7 +1040,7 @@ function embedUIStructure() {
             botHornTimeDelayMaxInput.max = "600";
             botHornTimeDelayMaxInput.size = "5";
             botHornTimeDelayMaxInput.id = ID_BOT_HORN_TIME_DELAY_MAX_INPUT;
-            botHornTimeDelayMaxInput.value = g_botHornTimeDelayMax.toString();
+            botHornTimeDelayMaxInput.value = g_botHornTimeDelayMax;
             nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
@@ -999,7 +1064,7 @@ function embedUIStructure() {
             trapCheckTimeDelayMinInput.max = "360";
             trapCheckTimeDelayMinInput.size = "5";
             trapCheckTimeDelayMinInput.id = ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT;
-            trapCheckTimeDelayMinInput.value = g_trapCheckTimeDelayMin.toString();
+            trapCheckTimeDelayMinInput.value = g_trapCheckTimeDelayMin;
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
             nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
@@ -1010,7 +1075,7 @@ function embedUIStructure() {
             trapCheckTimeDelayMaxInput.max = "600";
             trapCheckTimeDelayMaxInput.size = "5";
             trapCheckTimeDelayMaxInput.id = ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT;
-            trapCheckTimeDelayMaxInput.value = g_trapCheckTimeDelayMax.toString();
+            trapCheckTimeDelayMaxInput.value = g_trapCheckTimeDelayMax;
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
@@ -1035,7 +1100,7 @@ function embedUIStructure() {
             var autosolveKRPreferencesCaption = autosolveKRPreferencesRow.insertCell();
             autosolveKRPreferencesCaption.style.fontWeight = "bold";
             autosolveKRPreferencesCaption.style.textAlign = "right";
-            autosolveKRPreferencesCaption.innerHTML = "Auto Solve King Reward Delay  :  ";
+            autosolveKRPreferencesCaption.innerHTML = "Auto Solve King Reward Delay :  ";
             autosolveKRPreferencesCaption = null;
             var autosolveKRPreferencesSettings = autosolveKRPreferencesRow.insertCell();
             var autosolveKRDelayMinInput = document.createElement('INPUT');
@@ -1044,7 +1109,7 @@ function embedUIStructure() {
             autosolveKRDelayMinInput.max = "360";
             autosolveKRDelayMinInput.size = "5";
             autosolveKRDelayMinInput.id = ID_AUTOSOLVE_KR_DELAY_MIN_INPUT;
-            autosolveKRDelayMinInput.value = g_autosolveKRDelayMin.toString();
+            autosolveKRDelayMinInput.value = g_autosolveKRDelayMin;
             autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
             autosolveKRPreferencesSettings.appendChild(tmpTxt);
@@ -1055,7 +1120,7 @@ function embedUIStructure() {
             autosolveKRDelayMaxInput.max = "600";
             autosolveKRDelayMaxInput.size = "5";
             autosolveKRDelayMaxInput.id = ID_AUTOSOLVE_KR_DELAY_MAX_INPUT;
-            autosolveKRDelayMaxInput.value = g_autosolveKRDelayMax.toString();
+            autosolveKRDelayMaxInput.value = g_autosolveKRDelayMax;
             autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             autosolveKRPreferencesSettings.appendChild(tmpTxt);
@@ -1064,6 +1129,20 @@ function embedUIStructure() {
             autosolveKRDelayMaxInput = null;
             autosolveKRPreferencesSettings = null;
             autosolveKRPreferencesRow = null;
+
+            var schedulerPreferencesRow = timerPreferencesTable.insertRow();
+            schedulerPreferencesRow.style.height = "24px"
+            var schedulerPreferencesCaption = schedulerPreferencesRow.insertCell();
+            schedulerPreferencesCaption.style.fontWeight = "bold";
+            schedulerPreferencesCaption.style.textAlign = "right";
+            schedulerPreferencesCaption.innerHTML = "Scheduler Time :  ";
+            schedulerPreferencesCaption = null;
+            var schedulerPreferencesSettings = schedulerPreferencesRow.insertCell();
+            var schedulerBeginTime = document.createElement('INPUT');
+            schedulerBeginTime.type = "time";
+            schedulerBeginTime.id = ID_SCHEDULER_TIME_INPUT;
+            schedulerBeginTime.value = g_schedulerTime;
+            schedulerPreferencesSettings.appendChild(schedulerBeginTime);
 
             var saveButtonRow = timerPreferencesTable.insertRow();
             var saveButtonCell = saveButtonRow.insertCell();
@@ -1093,12 +1172,22 @@ function embedUIStructure() {
             var preferencesHeaderTable = document.createElement('table');
             preferencesHeaderTable.width = "100%";
             var preferencesHeaderRow = preferencesHeaderTable.insertRow();
+            var botProcessCaptionCell = preferencesHeaderRow.insertCell();
+            botProcessCaptionCell.width = "60";
+            botProcessCaptionCell.style.fontWeight = "bold";
+            botProcessCaptionCell.innerHTML = "Bot Process :  ";
+            var botProcessTxtCell = preferencesHeaderRow.insertCell();
+            botProcessTxtCell.width = 100;
+            botProcessTxtCell.innerHTML = g_botProcess;
+            botProcessTxtCell.id = ID_BOT_PROCESS_TXT;
+            botProcessCaptionCell = null;
+            botProcessTxtCell = null;
             var botStatusCaptionCell = preferencesHeaderRow.insertCell();
-            botStatusCaptionCell.width = "140";
+            botStatusCaptionCell.width = "50";
             botStatusCaptionCell.style.fontWeight = "bold";
-            botStatusCaptionCell.innerHTML = "Bot Background Status :  ";
+            botStatusCaptionCell.innerHTML = "Status :  ";
             var botStatusTxtCell = preferencesHeaderRow.insertCell();
-            botStatusTxtCell.innerHTML = "Idle";
+            botStatusTxtCell.innerHTML = BOT_STATUS_IDLE;
             botStatusTxtCell.id = ID_BOT_STATUS_TXT;
             botStatusCaptionCell = null;
             botStatusTxtCell = null;
