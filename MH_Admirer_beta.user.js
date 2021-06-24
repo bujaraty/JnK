@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.0.1
+// @version      1.2.0.2
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -432,7 +432,7 @@ function countdownTrapCheckTimer() {
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
-            (countdownTrapCheckTimer)()
+            countdownTrapCheckTimer()
         }, TRAP_CHECK_TIMER_COUNTDOWN_INTERVAL * 1000);
     }
 }
@@ -466,7 +466,7 @@ function timeFormat(time) {
 function trapCheck() {
     // Let user known that the script is going to check the trap
     updateTitleTxt("Checking The Trap...");
-    updateNextBotHornTimeTxt("Checking trap now...");
+    updateNextTrapCheckTimeTxt("Checking trap now...");
 
     // reload the page
     setTimeout(function () {
@@ -808,6 +808,12 @@ function displayDocumentStyles() {
     document.getElementById("demo").innerHTML = x[0].innerHTML;
 }
 
+function manualSendingGiftsAndRaffles() {
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual Gifts&Raffles";
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts and Raffles";
+    prepareSendingGiftsAndRaffles();
+}
+
 function prepareSendingGiftsAndRaffles() {
     function clickActionButton(actionButton) {
         fireEvent(actionButton.getElementsByClassName("userInteractionButtonsView-button")[0], "click");
@@ -911,7 +917,7 @@ function embedUIStructure() {
         var miscButtonsCell = firstRow.insertCell();
         miscButtonsCell.style.textAlign = "right";
         var sendGiftsAndRafflesButton = document.createElement('button');
-        sendGiftsAndRafflesButton.onclick = prepareSendingGiftsAndRaffles
+        sendGiftsAndRafflesButton.onclick = manualSendingGiftsAndRaffles
         sendGiftsAndRafflesButton.style.fontSize = "8px";
         var buttonTxt = document.createTextNode("Send Gifts & Raffles");
         sendGiftsAndRafflesButton.appendChild(buttonTxt);
@@ -1173,17 +1179,17 @@ function embedUIStructure() {
             preferencesHeaderTable.width = "100%";
             var preferencesHeaderRow = preferencesHeaderTable.insertRow();
             var botProcessCaptionCell = preferencesHeaderRow.insertCell();
-            botProcessCaptionCell.width = "60";
+            botProcessCaptionCell.width = 60;
             botProcessCaptionCell.style.fontWeight = "bold";
             botProcessCaptionCell.innerHTML = "Bot Process :  ";
             var botProcessTxtCell = preferencesHeaderRow.insertCell();
-            botProcessTxtCell.width = 100;
+            botProcessTxtCell.width = 130;
             botProcessTxtCell.innerHTML = g_botProcess;
             botProcessTxtCell.id = ID_BOT_PROCESS_TXT;
             botProcessCaptionCell = null;
             botProcessTxtCell = null;
             var botStatusCaptionCell = preferencesHeaderRow.insertCell();
-            botStatusCaptionCell.width = "50";
+            botStatusCaptionCell.width = 45;
             botStatusCaptionCell.style.fontWeight = "bold";
             botStatusCaptionCell.innerHTML = "Status :  ";
             var botStatusTxtCell = preferencesHeaderRow.insertCell();
