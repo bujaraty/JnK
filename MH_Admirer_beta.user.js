@@ -374,7 +374,7 @@ function runScheduler() {
     prepareSendingGiftsAndRaffles();
     window.setTimeout(function () {
         reloadCampPage();
-    }, 60 * 1000);
+    }, 70 * 1000);
 }
 
 function countdownBotHornTimer() {
@@ -843,7 +843,7 @@ function prepareSendingGiftsAndRaffles() {
         if (friendIndex < nRaffles) {
             window.setTimeout(function () {
                 clickActionButton(sendBallotButton);
-            }, 0.75 * 1000);
+            }, 1 * 1000);
         }
         friendName = null;
         friendRow = null;
@@ -851,7 +851,7 @@ function prepareSendingGiftsAndRaffles() {
         if (friendIndex < nGifts) {
             window.setTimeout(function () {
                 sendGiftsAndRaffles(friendIndex, nGifts, nRaffles);
-            }, 1.5 * 1000);
+            }, 2 * 1000);
         }
     }
     function gotoNextFriendList() {
@@ -863,7 +863,7 @@ function prepareSendingGiftsAndRaffles() {
         friendRows = document.getElementsByClassName("friendsPage-friendRow");
         window.setTimeout(function () {
             sendGiftsAndRaffles(0, 4, 0);
-        }, 3 * 1000);
+        }, 5 * 1000);
     }
     var friendRows;
     if (DEBUG_MODE) console.log('RUN sendRafflesAndGifts()');
@@ -876,10 +876,10 @@ function prepareSendingGiftsAndRaffles() {
     friendRows = document.getElementsByClassName("friendsPage-friendRow");
     window.setTimeout(function () {
         sendGiftsAndRaffles(0, 20, 20);
-    }, 3 * 1000);
+    }, 5 * 1000);
     window.setTimeout(function () {
         gotoNextFriendList();
-    }, 37 * 1000);
+    }, 50 * 1000);
 }
 
 function listAttributes(obj) {
