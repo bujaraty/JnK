@@ -1,3 +1,6 @@
+Version 1.2.0.3
+- Move retreiving Friend List to be 5 secs after clicking the button
+
 Version 1.2.0.2
 - Increase interval of clicking each button to 1 second
 

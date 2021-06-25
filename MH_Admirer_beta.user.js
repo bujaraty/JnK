@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.0.2
+// @version      1.2.0.3
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -808,6 +808,32 @@ function displayDocumentStyles() {
     document.getElementById("demo").innerHTML = x[0].innerHTML;
 }
 
+function listAttributes(obj) {
+    var attrs = obj.attributes;
+    var tmpTxt = "";
+    for (var i = 0; i < attrs.length; i++) {
+        tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
+    }
+    alert(tmpTxt);
+}
+
+function prepareClaimingGifts(fromTop) {
+    function claimGifts(fromTop) {
+        window.setTimeout(function () {
+            //clickActionButton(sendBallotButton);
+        }, 1 * 1000);
+    }
+    var tmp = document.getElementsByClassName("freeGifts")[0];
+    fireEvent(tmp, "click");
+    //alert(tmp.length);
+}
+
+function test1() {
+    prepareClaimingGifts(true);
+    //displayDocumentStyles();
+    //clickAndArmWeapon();
+}
+
 function manualSendingGiftsAndRaffles() {
     document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual Gifts&Raffles";
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts and Raffles";
@@ -820,39 +846,46 @@ function prepareSendingGiftsAndRaffles() {
         actionButton = null;
     }
     function sendGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
-        var buttonAttributes;
-        var sendGiftButton;
-        var sendBallotButton;
-        var friendRow = friendRows[friendIndex];
-        var friendName = friendRow.getElementsByClassName("friendsPage-friendRow-content")[0].getElementsByClassName("friendsPage-friendRow-titleBar")[0].getElementsByTagName('a')[0].text;
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendName;
-        var actionButtons = friendRow.getElementsByClassName("friendsPage-friendRow-actions")[0].getElementsByClassName("userInteractionButtonsView")[0].children;
-        for (var i = 0; i < actionButtons.length; i++) {
-            buttonAttributes = actionButtons[i].attributes
-            for (var j = 0; j < buttonAttributes.length; j++) {
-                if (buttonAttributes[j].value == "send_daily_gift") {
-                    sendGiftButton = actionButtons[i]
+        function sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
+            var buttonAttributes;
+            var sendGiftButton;
+            var sendBallotButton;
+            var friendRow = friendRows[friendIndex];
+            var friendName = friendRow.getElementsByClassName("friendsPage-friendRow-content")[0].getElementsByClassName("friendsPage-friendRow-titleBar")[0].getElementsByTagName('a')[0].text;
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendName;
+            var actionButtons = friendRow.getElementsByClassName("friendsPage-friendRow-actions")[0].getElementsByClassName("userInteractionButtonsView")[0].children;
+            for (var i = 0; i < actionButtons.length; i++) {
+                buttonAttributes = actionButtons[i].attributes
+                for (var j = 0; j < buttonAttributes.length; j++) {
+                    if (buttonAttributes[j].value == "send_daily_gift") {
+                        sendGiftButton = actionButtons[i]
+                    }
+                    if (buttonAttributes[j].value == "send_draw_ballot") {
+                        sendBallotButton = actionButtons[i]
+                    }
                 }
-                if (buttonAttributes[j].value == "send_draw_ballot") {
-                    sendBallotButton = actionButtons[i]
-                }
+                buttonAttributes = null;
             }
-            buttonAttributes = null;
+            clickActionButton(sendGiftButton);
+            if (friendIndex < nRaffles) {
+                window.setTimeout(function () {
+                    clickActionButton(sendBallotButton);
+                }, 1 * 1000);
+            }
+            friendName = null;
+            friendRow = null;
+            friendIndex++;
+            if (friendIndex < nGifts) {
+                window.setTimeout(function () {
+                    sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles);
+                }, 2 * 1000);
+            }
         }
-        clickActionButton(sendGiftButton);
-        if (friendIndex < nRaffles) {
-            window.setTimeout(function () {
-                clickActionButton(sendBallotButton);
-            }, 1 * 1000);
-        }
-        friendName = null;
-        friendRow = null;
-        friendIndex++;
-        if (friendIndex < nGifts) {
-            window.setTimeout(function () {
-                sendGiftsAndRaffles(friendIndex, nGifts, nRaffles);
-            }, 2 * 1000);
-        }
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving friend list";
+        var friendRows = document.getElementsByClassName("friendsPage-friendRow");
+        window.setTimeout(function () {
+            sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles);
+        }, 0.5 * 1000);
     }
     function gotoNextFriendList() {
         // Got to the second frield list page
@@ -860,7 +893,6 @@ function prepareSendingGiftsAndRaffles() {
         fireEvent(nextFriendListLink, "click");
 
         // Go through all sendGift and sendRaffle buttons in the first page
-        friendRows = document.getElementsByClassName("friendsPage-friendRow");
         window.setTimeout(function () {
             sendGiftsAndRaffles(0, 4, 0);
         }, 5 * 1000);
@@ -871,29 +903,14 @@ function prepareSendingGiftsAndRaffles() {
     // Goto friend list page
     var friendListLink = document.getElementsByClassName("mousehuntHud-gameInfo")[0].getElementsByTagName("a")[0];
     fireEvent(friendListLink, "click");
-
-    // Go through all sendGift and sendRaffle buttons in the first page
-    friendRows = document.getElementsByClassName("friendsPage-friendRow");
     window.setTimeout(function () {
         sendGiftsAndRaffles(0, 20, 20);
     }, 5 * 1000);
+
+    // Go through all sendGift and sendRaffle buttons in the first page
     window.setTimeout(function () {
         gotoNextFriendList();
     }, 50 * 1000);
-}
-
-function listAttributes(obj) {
-    var attrs = obj.attributes;
-    var tmpTxt = "";
-    for (var i = 0; i < attrs.length; i++) {
-        tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
-    }
-    alert(tmpTxt);
-}
-
-function test1() {
-    //displayDocumentStyles();
-    //clickAndArmWeapon();
 }
 
 function embedUIStructure() {
@@ -948,8 +965,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
         nextTrapCheckTimeCaptionCell = null;
         thirdRow = null;
-
-        /*
+/*
         // The forth row is very temporary just for testing
         var forthRow = timerDisplayTable.insertRow();
         var testButton1CellElement = forthRow.insertCell();
@@ -962,8 +978,7 @@ function embedUIStructure() {
         var demoTxt = document.createTextNode("test 1");
         demoTxt.id = "demo";
         testButton1CellElement.appendChild(demoTxt);
-        */
-
+*/
         timerSection.appendChild(timerDisplayTable);
         timerDisplayTable = null;
 
