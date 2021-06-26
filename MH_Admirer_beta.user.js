@@ -640,11 +640,7 @@ function loadPreferenceSettingFromStorage() {
 }
 
 function getStorage(name) {
-    // Check if the web browser support HTML5 storage
-    if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
-        return (window.localStorage.getItem(name));
-    }
-    name = undefined;
+    return JSON.parse(window.localStorage.getItem(name));
 }
 
 function getStorageVarBool(storageName, defaultBool) {
@@ -674,11 +670,7 @@ function getStorageVarInt(storageName, defaultInt) {
 }
 
 function setStorage(name, value) {
-    // Check if the web browser support HTML5 storage
-    if ('localStorage' in window && !isNullOrUndefined(window.localStorage)) {
-        window.localStorage.setItem(name, value);
-    }
-
+    window.localStorage.setItem(name, JSON.stringify(value));
     name = undefined;
     value = undefined;
 }
@@ -844,10 +836,34 @@ function prepareListingWeapons() {
     }, 3 * 1000);
 }
 
+function saveObjToStorage() {
+    alert("in saveObjToStorage");
+    var myObj = {"key1": ['a', 'b', 'c']};
+    //alert(myObj.key1);
+
+    for (var i = 0; i < myObj.key1.length; i++) {
+        alert(myObj.key1[i]);
+    }
+    setStorage("testObj", JSON.stringify(myObj));
+}
+
+function loadObjFromStorage() {
+    alert("in loadObjFromStorage");
+    var myObj = JSON.parse(getStorage("testObj"));
+    for (var i = 0; i < myObj.key1.length; i++) {
+        alert(myObj.key1[i]);
+    }
+}
+
 function test1() {
-    manualListingWeapons();
+    saveObjToStorage();
+    //manualListingWeapons();
     //displayDocumentStyles();
     //clickAndArmWeapon();
+}
+
+function test2() {
+    loadObjFromStorage();
 }
 
 function manualClaimingYesterdayGifts() {
@@ -1044,16 +1060,25 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
         nextTrapCheckTimeCaptionCell = null;
         thirdRow = null;
-/*
+
         // The forth row is very temporary just for testing
         var forthRow = timerDisplayTable.insertRow();
-        var testButton1CellElement = forthRow.insertCell();
-        var testButton1Element = document.createElement('button');
-        testButton1Element.onclick = test1
-        testButton1Element.style.fontSize = "10px";
-        var testbuttonTxt = document.createTextNode("test 1");
-        testButton1Element.appendChild(testbuttonTxt);
-        testButton1CellElement.appendChild(testButton1Element);
+        var testButtonsCell = forthRow.insertCell();
+        var test1Button = document.createElement('button');
+        test1Button.onclick = test1
+        test1Button.style.fontSize = "10px";
+        var tmpTxt = document.createTextNode("test 1");
+        test1Button.appendChild(tmpTxt);
+        tmpTxt = null;
+        testButtonsCell.appendChild(test1Button);
+        var test2Button = document.createElement('button');
+        test2Button.onclick = test2
+        test2Button.style.fontSize = "10px";
+        tmpTxt = document.createTextNode("test 2");
+        test2Button.appendChild(tmpTxt);
+        tmpTxt = null;
+        testButtonsCell.appendChild(test2Button);
+        /*
         var demoTxt = document.createTextNode("test 1");
         demoTxt.id = "demo";
         testButton1CellElement.appendChild(demoTxt);
