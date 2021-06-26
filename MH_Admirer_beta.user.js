@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.0.3
+// @version      1.2.0.4
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -817,25 +817,90 @@ function listAttributes(obj) {
     alert(tmpTxt);
 }
 
-function prepareClaimingGifts(fromTop) {
-    function claimGifts(fromTop) {
-        window.setTimeout(function () {
-            //clickActionButton(sendBallotButton);
-        }, 1 * 1000);
+function manualListingWeapons() {
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual listing Weapons";
+    prepareListingWeapons();
+}
+
+function prepareListingWeapons() {
+    function listingWeapons() {
+        var itemId;
+        var weaponName;
+        var armableWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-tagGroup default')[0].getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+        for (var i = 0; i < armableWeapons.length; ++i) {
+            itemId = armableWeapons[i].getAttribute("data-item-id");
+            weaponName = armableWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-content")[0].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+            alert(weaponName + " (data-item-id: " + itemId + ")");
+            //listAttributes(weaponName);
+            itemId = null;
+            weaponName = null;
+        }
     }
-    var tmp = document.getElementsByClassName("freeGifts")[0];
-    fireEvent(tmp, "click");
-    //alert(tmp.length);
+    var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
+    fireEvent(currentWeapon, 'click');
+    window.setTimeout(function () {
+        listingWeapons();
+    }, 3 * 1000);
 }
 
 function test1() {
-    prepareClaimingGifts(true);
+    manualListingWeapons();
     //displayDocumentStyles();
     //clickAndArmWeapon();
 }
 
+function manualClaimingYesterdayGifts() {
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
+    prepareClaimingGifts(false);
+}
+
+function manualClaimingTodayGifts() {
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
+    prepareClaimingGifts(true);
+}
+
+function prepareClaimingGifts(fromTop) {
+    function claimGifts(fromTop) {
+        function claimingGifts(fromTop, giftIndex) {
+            var giftRow;
+            if (fromTop) {
+                giftRow = giftRows[giftIndex];
+            } else {
+                giftRow = giftRows[nGiftRows-giftIndex-1];
+            }
+            var senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
+            var actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
+            if (!actionButton.classList.contains("disabled")) {
+                fireEvent(actionButton, "click");
+            }
+            giftIndex++;
+            if (giftIndex < 15 && giftIndex < nGiftRows) {
+                window.setTimeout(function () {
+                    claimingGifts(fromTop, giftIndex);
+                }, 1 * 1000);
+            }
+        }
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving gift list";
+        var giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
+        var nGiftRows = giftRows.length
+        var giftIndex = 0;
+        window.setTimeout(function () {
+            claimingGifts(fromTop, giftIndex);
+        }, 0.5 * 1000);
+    }
+    var giftButton = document.getElementsByClassName("freeGifts")[0];
+    fireEvent(giftButton, "click");
+    window.setTimeout(function () {
+        claimGifts(fromTop)
+    }, 4.5 * 1000);
+}
+
 function manualSendingGiftsAndRaffles() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual Gifts&Raffles";
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts and Raffles";
     prepareSendingGiftsAndRaffles();
 }
@@ -940,6 +1005,20 @@ function embedUIStructure() {
         sendGiftsAndRafflesButton.appendChild(buttonTxt);
         buttonTxt = null;
         miscButtonsCell.appendChild(sendGiftsAndRafflesButton);
+        var claimYesterdayGiftsButton = document.createElement('button');
+        claimYesterdayGiftsButton.onclick = manualClaimingYesterdayGifts
+        claimYesterdayGiftsButton.style.fontSize = "8px";
+        buttonTxt = document.createTextNode("Claim yesterday gifts");
+        claimYesterdayGiftsButton.appendChild(buttonTxt);
+        buttonTxt = null;
+        miscButtonsCell.appendChild(claimYesterdayGiftsButton);
+        var claimTodayGiftsButton = document.createElement('button');
+        claimTodayGiftsButton.onclick = manualClaimingTodayGifts
+        claimTodayGiftsButton.style.fontSize = "8px";
+        buttonTxt = document.createTextNode("Claim today gifts");
+        claimTodayGiftsButton.appendChild(buttonTxt);
+        buttonTxt = null;
+        miscButtonsCell.appendChild(claimTodayGiftsButton);
         miscButtonsCell = null;
         firstRow = null;
 
