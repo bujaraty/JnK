@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.0.4
+// @version      1.2.0.5
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -51,8 +51,14 @@ var g_autosolveKRDelayMax = 10;
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
 var MAX_KR_RETRY = 5;
 
-// // Scheduler time that will start doing automated process
-var g_schedulerTime = "07:35";
+// // Scheduler time that will start automatically
+var STATUS_GIFTS_AND_RAFFLES_INCOMPLETE = "Incomplete";
+var STATUS_GIFTS_AND_RAFFLES_COMPLETE = "Complete";
+var g_scheduledGiftsAndRafflesTime = "07:35";
+var g_beginScheduledGiftsAndRafflesTime = new Date();
+var g_scheduledResetTime = "07:02";
+var g_beginScheduledResetTime = new Date();
+var g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
 
 // == Basic User Preference Setting (End) ==
 
@@ -83,6 +89,7 @@ var g_nextBotHornTime;
 var g_lastBotHornTimeRecorded = new Date();
 var g_lastTrapCheckTimeRecorded = new Date();
 var g_kingsRewardRetry = 0;
+var g_weaponNames = [];
 var g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
@@ -105,7 +112,8 @@ var ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
 var ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT = "trapCheckTimeDelayMaxInput";
 var ID_AUTOSOLVE_KR_DELAY_MIN_INPUT = "autosolveKRDelayMinInput";
 var ID_AUTOSOLVE_KR_DELAY_MAX_INPUT = "autosolveKRDelayMaxInput";
-var ID_SCHEDULER_TIME_INPUT = "schedulerTimeInput";
+var ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT = "scheduledGiftAndRafflesTimeInput";
+var ID_SCHEDULED_RESET_TIME_INPUT = "scheduledResetTimeInput";
 var ID_BOT_PROCESS_TXT = "botProcessTxt";
 var ID_BOT_STATUS_TXT = "botStatusTxt";
 var ID_PREFERENCES_LINK = 'preferencesLink';
@@ -117,7 +125,10 @@ var STORAGE_TRAP_CHECK_TIME_DELAY_MIN = "trapCheckTimeDelayMin";
 var STORAGE_TRAP_CHECK_TIME_DELAY_MAX = "trapCheckTimeDelayMax";
 var STORAGE_AUTOSOLVE_KR_DELAY_MIN = "autosolveKRDelayMin";
 var STORAGE_AUTOSOLVE_KR_DELAY_MAX = "autosolveKRDelayMax";
-var STORAGE_SCHEDULER_TIME = "schedulerTime";
+var STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME = "scheduledGiftsAndRafflesTime";
+var STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
+var STORAGE_STATUS_GIFTS_AND_RAFFLES = "statusGiftsAndRaffles";
+var STORAGE_WEAPON_NAMES = "weaponNames";
 var BOT_PROCESS_SCHEDULER = "Scheduler";
 var BOT_STATUS_IDLE = "Idle";
 
@@ -370,11 +381,56 @@ function timeElapsedInSeconds(dateA, dateB) {
     }
 }
 
-function runScheduler() {
+function runScheduledGiftsAndRaffles() {
+    function getGiftsAndRafflesStatus() {
+        function gettingGiftsAndRafflesStatus() {
+            var sendActionRemaining = parseInt(document.getElementsByClassName("giftSelectorView-numSendActionsRemaining")[0].innerHTML);
+            if (sendActionRemaining <= 2) {
+                g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_COMPLETE;
+                setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
+            }
+        }
+        var giftButton = document.getElementsByClassName("freeGifts")[0];
+        fireEvent(giftButton, "click");
+        window.setTimeout(function () {
+            gettingGiftsAndRafflesStatus()
+        }, 4.5 * 1000);
+    }
+    g_botProcess = BOT_PROCESS_SCHEDULER;
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Scheduled Gifts and Raffles";
+
     prepareSendingGiftsAndRaffles();
     window.setTimeout(function () {
+        getGiftsAndRafflesStatus();
+    }, 80 * 1000);
+    window.setTimeout(function () {
         reloadCampPage();
-    }, 70 * 1000);
+    }, 90 * 1000);
+}
+
+function resetSchedule() {
+    g_botProcess = BOT_PROCESS_SCHEDULER;
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Resetting Scheduler";
+    g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
+    setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
+    window.setTimeout(function () {
+        reloadCampPage();
+    }, 60 * 1000);
+}
+
+function checkSchedule() {
+    var dateNow = new Date();
+    var g_endScheduledResetTime = new Date();
+    g_endScheduledResetTime.setHours(g_beginScheduledResetTime.getHours(), g_beginScheduledResetTime.getMinutes() + 1, 0);
+
+    if (g_beginScheduledResetTime < dateNow && g_endScheduledResetTime > dateNow) {
+        resetSchedule();
+    } else if (g_beginScheduledGiftsAndRafflesTime < dateNow && g_statusGiftsAndRaffles == STATUS_GIFTS_AND_RAFFLES_INCOMPLETE) {
+        runScheduledGiftsAndRaffles();
+    }
+    dateNow = null;
 }
 
 function countdownBotHornTimer() {
@@ -387,20 +443,27 @@ function countdownBotHornTimer() {
     g_nextBotHornTimeInSeconds -= intervalTime;
     intervalTime = undefined;
 
-    var beginSchedulerTime = new Date();
-    beginSchedulerTime.setHours(parseInt(g_schedulerTime.substring(0,2)), parseInt(g_schedulerTime.substring(3,5)), 0);
-    var endSchedulerTime = new Date();
-    endSchedulerTime.setHours(parseInt(g_schedulerTime.substring(0,2)), parseInt(g_schedulerTime.substring(3,5))+1, 0);
-
+    /*
+    var beginscheduledGiftsAndRafflesTime = new Date();
+    beginscheduledGiftsAndRafflesTime.setHours(parseInt(g_scheduledGiftsAndRafflesTime.substring(0,2)), parseInt(g_scheduledGiftsAndRafflesTime.substring(3,5)), 0);
+    var endscheduledGiftsAndRafflesTime = new Date();
+    endscheduledGiftsAndRafflesTime.setHours(parseInt(g_scheduledGiftsAndRafflesTime.substring(0,2)), parseInt(g_scheduledGiftsAndRafflesTime.substring(3,5))+1, 0);
+*/
     if (g_nextBotHornTimeInSeconds <= 0) {
         soundHorn();
     } else {
-        if (g_botProcess == BOT_PROCESS_IDLE && beginSchedulerTime < dateNow && endSchedulerTime > dateNow) {
+
+        if (g_botProcess == BOT_PROCESS_IDLE) {
+            checkSchedule();
+        }
+
+        /*
+        if (g_botProcess == BOT_PROCESS_IDLE && beginscheduledGiftsAndRafflesTime < dateNow && endscheduledGiftsAndRafflesTime > dateNow) {
             g_botProcess = BOT_PROCESS_SCHEDULER;
             document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Running Scheduler";
             runScheduler();
-        }
+        }*/
         updateTitleTxt("Horn: " + timeFormat(g_nextBotHornTimeInSeconds));
         updateNextBotHornTimeTxt(timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " delay)</i>");
 
@@ -411,8 +474,8 @@ function countdownBotHornTimer() {
         }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
     }
     dateNow = undefined;
-    beginSchedulerTime = undefined;
-    endSchedulerTime = undefined;
+    //beginscheduledGiftsAndRafflesTime = undefined;
+    //endscheduledGiftsAndRafflesTime = undefined;
 }
 
 function countdownTrapCheckTimer() {
@@ -635,12 +698,21 @@ function loadPreferenceSettingFromStorage() {
     g_autosolveKRDelayMin = getStorageVarInt(STORAGE_AUTOSOLVE_KR_DELAY_MIN, g_autosolveKRDelayMin);
     g_autosolveKRDelayMax = getStorageVarInt(STORAGE_AUTOSOLVE_KR_DELAY_MAX, g_autosolveKRDelayMax);
 
-    var temp = getStorage(STORAGE_SCHEDULER_TIME);
-    g_schedulerTime = (isNullOrUndefined(temp)) ? g_schedulerTime : temp;
+    g_scheduledGiftsAndRafflesTime = getStorage(STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME, g_scheduledGiftsAndRafflesTime);
+    g_beginScheduledGiftsAndRafflesTime.setHours(parseInt(g_scheduledGiftsAndRafflesTime.substring(0,2)), parseInt(g_scheduledGiftsAndRafflesTime.substring(3,5)), 0);
+    g_scheduledResetTime = getStorage(STORAGE_SCHEDULED_RESET_TIME, g_scheduledResetTime);
+    g_beginScheduledResetTime.setHours(parseInt(g_scheduledResetTime.substring(0,2)), parseInt(g_scheduledResetTime.substring(3,5)), 0);
+    g_statusGiftsAndRaffles = getStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
+    g_weaponNames = getStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
 }
 
-function getStorage(name) {
-    return JSON.parse(window.localStorage.getItem(name));
+function getStorage(name, defaultValue) {
+    var temp = JSON.parse(window.localStorage.getItem(name));
+    if (isNullOrUndefined(temp)) {
+        return defaultValue;
+    } else {
+        return temp;
+    }
 }
 
 function getStorageVarBool(storageName, defaultBool) {
@@ -716,7 +788,6 @@ function retrieveCampActiveData() {
 }
 
 function getTrapCheckTime() {
-    // I have to refactor the in this part as sometime, the TrapCheck time is incorrect
     // Check storage first
     var trapCheckTimeOffset = getStorageVarInt('trapCheckTimeOffset', -1);
     if (trapCheckTimeOffset != -1) {
@@ -809,34 +880,40 @@ function listAttributes(obj) {
     alert(tmpTxt);
 }
 
-function manualListingWeapons() {
+function manualUpdatingWeapons() {
     document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual listing Weapons";
-    prepareListingWeapons();
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Weapons";
+    prepareUpdatingWeapons();
 }
 
-function prepareListingWeapons() {
-    function listingWeapons() {
-        var itemId;
-        var weaponName;
-        var armableWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-tagGroup default')[0].getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-        for (var i = 0; i < armableWeapons.length; ++i) {
-            itemId = armableWeapons[i].getAttribute("data-item-id");
-            weaponName = armableWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-content")[0].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-            alert(weaponName + " (data-item-id: " + itemId + ")");
-            //listAttributes(weaponName);
-            itemId = null;
-            weaponName = null;
+function prepareUpdatingWeapons() {
+    function updateWeapons() {
+        function getCampPageWeaponNames () {
+            //var itemId;
+            var weaponName;
+            var weaponNames = [];
+            var campageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-tagGroup default')[0].getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+            for (var i = 0; i < campageWeapons.length; ++i) {
+                //itemId = campageWeapons[i].getAttribute("data-item-id");
+                weaponName = campageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-content")[0].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                weaponNames[weaponNames.length] = weaponName;
+                //itemId = null;
+                weaponName = null;
+            }
+            campageWeapons = null;
+            return weaponNames;
         }
+        var weaponNames = getCampPageWeaponNames();
+        setStorage(STORAGE_WEAPON_NAMES, weaponNames);
     }
     var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
     fireEvent(currentWeapon, 'click');
     window.setTimeout(function () {
-        listingWeapons();
+        updateWeapons();
     }, 3 * 1000);
 }
 
-function saveObjToStorage() {
+function testSaveObjToStorage() {
     alert("in saveObjToStorage");
     var myObj = {"key1": ['a', 'b', 'c']};
     //alert(myObj.key1);
@@ -847,7 +924,7 @@ function saveObjToStorage() {
     setStorage("testObj", JSON.stringify(myObj));
 }
 
-function loadObjFromStorage() {
+function testLoadObjFromStorage() {
     alert("in loadObjFromStorage");
     var myObj = JSON.parse(getStorage("testObj"));
     for (var i = 0; i < myObj.key1.length; i++) {
@@ -855,15 +932,44 @@ function loadObjFromStorage() {
     }
 }
 
+function testSetDropDownList () {
+    var testRow = document.getElementById("test row");
+    var testDropDownListCell = testRow.insertCell();
+    var itemList = g_weaponNames;
+    //var itemList = ["a", "b", "c"];
+    var dropDownList = document.createElement('select');
+    dropDownList.id = "test dropDownList";
+    dropDownList.style.width = "120px";
+    for (var i = 0; i < itemList.length; i++) {
+        var itemOption = document.createElement("option");
+        itemOption.value = itemList[i];
+        itemOption.text = itemList[i];
+        dropDownList.appendChild(itemOption);
+        itemOption = null;
+    }
+    testDropDownListCell.appendChild(dropDownList);
+    testDropDownListCell = null;
+    itemList = null;
+    dropDownList = null;
+    testRow = null;
+}
+
+function testSelectDropDownList() {
+    alert(document.getElementById("test dropDownList").value);
+}
+
 function test1() {
-    saveObjToStorage();
-    //manualListingWeapons();
+    getGiftsAndRafflesStatus();
+    //testSetDropDownList();
+    //testSaveObjToStorage();
+    //manualUpdatingWeapons();
     //displayDocumentStyles();
     //clickAndArmWeapon();
 }
 
 function test2() {
-    loadObjFromStorage();
+    //testSelectDropDownList();
+    //testLoadObjFromStorage();
 }
 
 function manualClaimingYesterdayGifts() {
@@ -999,19 +1105,25 @@ function embedUIStructure() {
     // The UI consist of 3 parts
     // 1. timer
     // 2. timer preferences
-    // 3. bot preferences in the circumstances that require a lot of attention
+    // 3. strategy preferences for setting up trap based on location and/or event
 
-    function embedTimerDisplay() {
-        var timerSection = document.createElement('div');
-        var timerDisplayTable = document.createElement('table');
-        timerDisplayTable.width = "100%";
+    function embedStatusTable() {
+        var tmpTxt;
+        var statusSection = document.createElement('div');
+        var statusDisplayTable = document.createElement('table');
+        statusDisplayTable.width = "100%";
 
         // The first row shows title and version (also some misc buttons)
-        var firstRow = timerDisplayTable.insertRow();
-        var timerDisplayTitle = firstRow.insertCell();
-        timerDisplayTitle.colSpan = 2;
-        timerDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
-        timerDisplayTitle = null;
+        var firstRow = statusDisplayTable.insertRow();
+        var statusDisplayTitle = firstRow.insertCell();
+        statusDisplayTitle.colSpan = 2;
+        statusDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
+        statusDisplayTitle = null;
+        var miscStatusCell = firstRow.insertCell();
+        miscStatusCell.style.fontSize = "9px";
+        tmpTxt = document.createTextNode("Gifts & Raffles status : " + g_statusGiftsAndRaffles + "  ");
+        miscStatusCell.appendChild(tmpTxt);
+        tmpTxt = null;
         var miscButtonsCell = firstRow.insertCell();
         miscButtonsCell.style.textAlign = "right";
         var sendGiftsAndRafflesButton = document.createElement('button');
@@ -1039,7 +1151,7 @@ function embedUIStructure() {
         firstRow = null;
 
         // The second row shows next bot horn time countdown
-        var secondRow = timerDisplayTable.insertRow();
+        var secondRow = statusDisplayTable.insertRow();
         var nextBotHornTimeCaptionCell = secondRow.insertCell();
         nextBotHornTimeCaptionCell.width = 20;
         nextBotHornTimeCaptionCell.style.fontWeight = "bold";
@@ -1052,7 +1164,7 @@ function embedUIStructure() {
         secondRow = null;
 
         // The third row shows next trap check time countdown
-        var thirdRow = timerDisplayTable.insertRow();
+        var thirdRow = statusDisplayTable.insertRow();
         var nextTrapCheckTimeCaptionCell = thirdRow.insertCell();
         nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
         nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
@@ -1061,8 +1173,10 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         thirdRow = null;
 
+
         // The forth row is very temporary just for testing
-        var forthRow = timerDisplayTable.insertRow();
+        var forthRow = statusDisplayTable.insertRow();
+        forthRow.id = "test row";
         var testButtonsCell = forthRow.insertCell();
         var test1Button = document.createElement('button');
         test1Button.onclick = test1
@@ -1078,15 +1192,12 @@ function embedUIStructure() {
         test2Button.appendChild(tmpTxt);
         tmpTxt = null;
         testButtonsCell.appendChild(test2Button);
-        /*
-        var demoTxt = document.createTextNode("test 1");
-        demoTxt.id = "demo";
-        testButton1CellElement.appendChild(demoTxt);
-*/
-        timerSection.appendChild(timerDisplayTable);
-        timerDisplayTable = null;
 
-        return timerSection;
+
+        statusSection.appendChild(statusDisplayTable);
+        statusDisplayTable = null;
+
+        return statusSection;
     }
 
     function embedPreferences() {
@@ -1104,6 +1215,45 @@ function embedUIStructure() {
             preferencesBox = null;
         }
 
+        function embedPreferencesHeaderTable() {
+            var preferencesHeaderTable = document.createElement('table');
+            preferencesHeaderTable.width = "100%";
+            var preferencesHeaderRow = preferencesHeaderTable.insertRow();
+            var botProcessCaptionCell = preferencesHeaderRow.insertCell();
+            botProcessCaptionCell.width = 60;
+            botProcessCaptionCell.style.fontWeight = "bold";
+            botProcessCaptionCell.innerHTML = "Bot Process :  ";
+            var botProcessTxtCell = preferencesHeaderRow.insertCell();
+            botProcessTxtCell.width = 130;
+            botProcessTxtCell.innerHTML = g_botProcess;
+            botProcessTxtCell.id = ID_BOT_PROCESS_TXT;
+            botProcessCaptionCell = null;
+            botProcessTxtCell = null;
+            var botStatusCaptionCell = preferencesHeaderRow.insertCell();
+            botStatusCaptionCell.width = 45;
+            botStatusCaptionCell.style.fontWeight = "bold";
+            botStatusCaptionCell.innerHTML = "Status :  ";
+            var botStatusTxtCell = preferencesHeaderRow.insertCell();
+            botStatusTxtCell.innerHTML = BOT_STATUS_IDLE;
+            botStatusTxtCell.id = ID_BOT_STATUS_TXT;
+            botStatusCaptionCell = null;
+            botStatusTxtCell = null;
+
+            var preferencesHeaderCell = preferencesHeaderRow.insertCell();
+            preferencesHeaderCell.style = 'text-align:right'
+            var preferencesLink = document.createElement('a');
+            preferencesLink.id = ID_PREFERENCES_LINK;
+            preferencesLink.innerHTML = '[Show Preferences]';
+            preferencesLink.style.fontWeight = "bold";
+            preferencesLink.onclick = togglePreferences;
+            preferencesHeaderCell.appendChild(preferencesLink);
+            preferencesLink = null;
+            preferencesHeaderCell = null;
+            preferencesHeaderRow = null;
+
+            return preferencesHeaderTable;
+        }
+
         function embedTimerPreferences() {
             function saveTimerPreferences() {
                 try {
@@ -1113,7 +1263,8 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
                     setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
                     setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_SCHEDULER_TIME, document.getElementById(ID_SCHEDULER_TIME_INPUT).value);
+                    setStorage(STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME, document.getElementById(ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT).value);
+                    setStorage(STORAGE_SCHEDULED_RESET_TIME, document.getElementById(ID_SCHEDULED_RESET_TIME_INPUT).value);
                 } catch (e) {
                     console.log(e);
                 }
@@ -1135,7 +1286,7 @@ function embedUIStructure() {
             timerPreferencesTable.width = "100%";
 
             var emptyRow = timerPreferencesTable.insertRow();
-            emptyRow.style.height="5px"
+            emptyRow.style.height = "5px"
             emptyRow = null;
 
             var nextBotHornTimePreferencesRow = timerPreferencesTable.insertRow();
@@ -1255,22 +1406,44 @@ function embedUIStructure() {
             autosolveKRPreferencesSettings = null;
             autosolveKRPreferencesRow = null;
 
-            var schedulerPreferencesRow = timerPreferencesTable.insertRow();
-            schedulerPreferencesRow.style.height = "24px"
-            var schedulerPreferencesCaption = schedulerPreferencesRow.insertCell();
-            schedulerPreferencesCaption.style.fontWeight = "bold";
-            schedulerPreferencesCaption.style.textAlign = "right";
-            schedulerPreferencesCaption.innerHTML = "Scheduler Time :  ";
-            schedulerPreferencesCaption = null;
-            var schedulerPreferencesSettings = schedulerPreferencesRow.insertCell();
-            var schedulerBeginTime = document.createElement('INPUT');
-            schedulerBeginTime.type = "time";
-            schedulerBeginTime.id = ID_SCHEDULER_TIME_INPUT;
-            schedulerBeginTime.value = g_schedulerTime;
-            schedulerPreferencesSettings.appendChild(schedulerBeginTime);
+            var scheduledGiftAndRafflesPreferencesRow = timerPreferencesTable.insertRow();
+            scheduledGiftAndRafflesPreferencesRow.style.height = "24px"
+            var scheduledGiftsAndRafflesPreferencesCaption = scheduledGiftAndRafflesPreferencesRow.insertCell();
+            scheduledGiftsAndRafflesPreferencesCaption.style.fontWeight = "bold";
+            scheduledGiftsAndRafflesPreferencesCaption.style.textAlign = "right";
+            scheduledGiftsAndRafflesPreferencesCaption.innerHTML = "Scheduled Time for Sending Gifts and Raffles :  ";
+            scheduledGiftsAndRafflesPreferencesCaption = null;
+            var scheduledGiftsAndRafflesPreferencesSettings = scheduledGiftAndRafflesPreferencesRow.insertCell();
+            var scheduledGiftsAndRafflesBeginTime = document.createElement('INPUT');
+            scheduledGiftsAndRafflesBeginTime.type = "time";
+            scheduledGiftsAndRafflesBeginTime.id = ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT;
+            scheduledGiftsAndRafflesBeginTime.value = g_scheduledGiftsAndRafflesTime;
+            scheduledGiftsAndRafflesPreferencesSettings.appendChild(scheduledGiftsAndRafflesBeginTime);
+            scheduledGiftsAndRafflesBeginTime = null;
+            scheduledGiftsAndRafflesPreferencesSettings = null;
+            scheduledGiftsAndRafflesPreferencesCaption = null;
+            scheduledGiftAndRafflesPreferencesRow = null;
 
-            var saveButtonRow = timerPreferencesTable.insertRow();
-            var saveButtonCell = saveButtonRow.insertCell();
+            var scheduledResetPreferencesRow = timerPreferencesTable.insertRow();
+            scheduledResetPreferencesRow.style.height = "24px"
+            var scheduledResetPreferencesCaption = scheduledResetPreferencesRow.insertCell();
+            scheduledResetPreferencesCaption.style.fontWeight = "bold";
+            scheduledResetPreferencesCaption.style.textAlign = "right";
+            scheduledResetPreferencesCaption.innerHTML = "Scheduled Time for New Date :  ";
+            scheduledResetPreferencesCaption = null;
+            var scheduledResetPreferencesSettings = scheduledResetPreferencesRow.insertCell();
+            var scheduledResetTime = document.createElement('INPUT');
+            scheduledResetTime.type = "time";
+            scheduledResetTime.id = ID_SCHEDULED_RESET_TIME_INPUT;
+            scheduledResetTime.value = g_scheduledResetTime;
+            scheduledResetPreferencesSettings.appendChild(scheduledResetTime);
+            scheduledResetTime = null;
+            scheduledResetPreferencesSettings = null;
+            scheduledResetPreferencesCaption = null;
+            scheduledResetPreferencesRow = null;
+
+            var lastRow = timerPreferencesTable.insertRow();
+            var saveButtonCell = lastRow.insertCell();
             saveButtonCell.colSpan = 3;
             saveButtonCell.style.textAlign = "right";
             tmpTxt = document.createTextNode("(Changes above this line only take place after user save the preference)  ");
@@ -1286,50 +1459,103 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode("  ");
             saveButtonCell.appendChild(tmpTxt);
             tmpTxt = null;
-            saveButtonRow = null;
+            lastRow = null;
             saveButtonCell = null;
             saveTimerPreferencesButton = null;
 
             return timerPreferencesTable;
         }
 
-        function embedPreferencesHeaderTable() {
-            var preferencesHeaderTable = document.createElement('table');
-            preferencesHeaderTable.width = "100%";
-            var preferencesHeaderRow = preferencesHeaderTable.insertRow();
-            var botProcessCaptionCell = preferencesHeaderRow.insertCell();
-            botProcessCaptionCell.width = 60;
-            botProcessCaptionCell.style.fontWeight = "bold";
-            botProcessCaptionCell.innerHTML = "Bot Process :  ";
-            var botProcessTxtCell = preferencesHeaderRow.insertCell();
-            botProcessTxtCell.width = 130;
-            botProcessTxtCell.innerHTML = g_botProcess;
-            botProcessTxtCell.id = ID_BOT_PROCESS_TXT;
-            botProcessCaptionCell = null;
-            botProcessTxtCell = null;
-            var botStatusCaptionCell = preferencesHeaderRow.insertCell();
-            botStatusCaptionCell.width = 45;
-            botStatusCaptionCell.style.fontWeight = "bold";
-            botStatusCaptionCell.innerHTML = "Status :  ";
-            var botStatusTxtCell = preferencesHeaderRow.insertCell();
-            botStatusTxtCell.innerHTML = BOT_STATUS_IDLE;
-            botStatusTxtCell.id = ID_BOT_STATUS_TXT;
-            botStatusCaptionCell = null;
-            botStatusTxtCell = null;
+        function embedStrategyPreferences() {
+            function saveStrategyPreferences() {
+                try {
+                    /*
+                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MIN, document.getElementById(ID_BOT_HORN_TIME_DELAY_MIN_INPUT).value);
+                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MAX, document.getElementById(ID_BOT_HORN_TIME_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MIN, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT).value);
+                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
+                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
+                    setStorage(STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME, document.getElementById(ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT).value);
+                    */
+                } catch (e) {
+                    console.log(e);
+                }
+                reloadCampPage();
+            }
 
-            var preferencesHeaderCell = preferencesHeaderRow.insertCell();
-            preferencesHeaderCell.style = 'text-align:right'
-            var preferencesLink = document.createElement('a');
-            preferencesLink.id = ID_PREFERENCES_LINK;
-            preferencesLink.innerHTML = '[Show Preferences]';
-            preferencesLink.style.fontWeight = "bold";
-            preferencesLink.onclick = togglePreferences;
-            preferencesHeaderCell.appendChild(preferencesLink);
-            preferencesLink = null;
-            preferencesHeaderCell = null;
-            preferencesHeaderRow = null;
+            function updateTraps() {
+                function updateWeapons() {
+                    function getCampPageWeaponNames() {
+                        //var itemId;
+                        var weaponName;
+                        g_weaponNames = [];
+                        var campageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-tagGroup default')[0].getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+                        for (var i = 0; i < campageWeapons.length; ++i) {
+                            //itemId = campageWeapons[i].getAttribute("data-item-id");
+                            weaponName = campageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-content")[0].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                            g_weaponNames[g_weaponNames.length] = weaponName;
+                            //itemId = null;
+                            weaponName = null;
+                        }
+                        campageWeapons = null;
+                        setStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
+                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating weapons";;
+                    }
+                    var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
+                    fireEvent(currentWeapon, 'click');
+                    window.setTimeout(function () {
+                        getCampPageWeaponNames();
+                    }, 4.5 * 1000);
+                }
 
-            return preferencesHeaderTable;
+                function updateBases() {
+                }
+
+                document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Weapons";
+                window.setTimeout(function () {
+                    updateWeapons();
+                }, 0.5 * 1000);
+                window.setTimeout(function () {
+                    updateBases();
+                }, 7 * 1000);
+            }
+
+            var tmpTxt;
+            var strategyPreferencesTable = document.createElement('table');
+            strategyPreferencesTable.width = "100%";
+
+            var emptyRow = strategyPreferencesTable.insertRow();
+            emptyRow.style.height = "5px"
+            emptyRow = null;
+
+            var lastRow = strategyPreferencesTable.insertRow();
+            var updateTrapsButtonCell = lastRow.insertCell();
+            var updateTrapsButton = document.createElement('button');
+            updateTrapsButton.onclick = updateTraps
+            updateTrapsButton.style.fontSize = "10px";
+            tmpTxt = document.createTextNode("Update traps");
+            updateTrapsButton.appendChild(tmpTxt);
+            tmpTxt = null;
+            updateTrapsButtonCell.appendChild(updateTrapsButton);
+            var applyButtonCell = lastRow.insertCell();
+            applyButtonCell.style.textAlign = "right";
+            var applyStrategyPreferencesButton = document.createElement('button');
+            applyStrategyPreferencesButton.onclick = saveStrategyPreferences
+            applyStrategyPreferencesButton.style.fontSize = "13px";
+            tmpTxt = document.createTextNode("Apply & Reload");
+            applyStrategyPreferencesButton.appendChild(tmpTxt);
+            tmpTxt = null;
+            applyButtonCell.appendChild(applyStrategyPreferencesButton);
+            tmpTxt = document.createTextNode("  ");
+            applyButtonCell.appendChild(tmpTxt);
+            tmpTxt = null;
+            lastRow = null;
+            applyButtonCell = null;
+            applyStrategyPreferencesButton = null;
+
+            return strategyPreferencesTable;
         }
 
         var preferencesSection = document.createElement('div');
@@ -1363,12 +1589,13 @@ function embedUIStructure() {
         preferencesBox.appendChild(timerPreferencesTable);
         timerPreferencesTable = null;
 
+        /*
         separationLine = document.createElement('div');
         separationLine.style.height = "3px";
         separationLine.style.borderBottom = "1px solid #ff0066";
         preferencesBox.appendChild(separationLine);
         separationLine = null;
-        /*
+
         blankLine = document.createElement('div');
         blankLine.style.height="8px"
         preferencesBox.appendChild(blankLine);
@@ -1380,8 +1607,11 @@ function embedUIStructure() {
         tmpTitle.innerHTML = 'Location/event-based trap setup';
         preferencesBox.appendChild(tmpTitle);
         tmpTitle = null;
-        */
 
+        var strategyPreferencesTable = embedStrategyPreferences();
+        preferencesBox.appendChild(strategyPreferencesTable);
+        strategyPreferencesTable = null;
+*/
         preferencesSection.appendChild(preferencesBox);
 
         return preferencesSection;
@@ -1393,9 +1623,9 @@ function embedUIStructure() {
         // autobotDiv.style.backgroundColor = "#fff2e6";
         autobotDiv.style.whiteSpace = "pre";
 
-        var timerSection = embedTimerDisplay();
-        autobotDiv.appendChild(timerSection);
-        timerSection = null;
+        var statusSection = embedStatusTable();
+        autobotDiv.appendChild(statusSection);
+        statusSection = null;
 
         var preferencesSection = embedPreferences();
         autobotDiv.appendChild(preferencesSection);
