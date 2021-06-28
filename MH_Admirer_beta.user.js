@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.0.5
+// @version      1.2.1.0
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -959,7 +959,6 @@ function testSelectDropDownList() {
 }
 
 function test1() {
-    getGiftsAndRafflesStatus();
     //testSetDropDownList();
     //testSaveObjToStorage();
     //manualUpdatingWeapons();
@@ -1173,7 +1172,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         thirdRow = null;
 
-
+        /*
         // The forth row is very temporary just for testing
         var forthRow = statusDisplayTable.insertRow();
         forthRow.id = "test row";
@@ -1192,7 +1191,7 @@ function embedUIStructure() {
         test2Button.appendChild(tmpTxt);
         tmpTxt = null;
         testButtonsCell.appendChild(test2Button);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
         statusDisplayTable = null;

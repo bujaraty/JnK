@@ -1,3 +1,6 @@
+Version 1.2.1.0
+- Integrate 1.2.0.x features into the main branch
+
 Version 1.2.0.5
 - Repeat schedule if not success
 
