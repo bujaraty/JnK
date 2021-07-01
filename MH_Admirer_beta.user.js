@@ -121,6 +121,8 @@ const ID_BOT_PROCESS_TXT = "botProcessTxt";
 const ID_BOT_STATUS_TXT = "botStatusTxt";
 const ID_PREFERENCES_LINK = 'preferencesLink';
 const ID_PREFERENCES_BOX = 'preferencesBox';
+const ID_TIMER_PREFERENCES_TABLE = 'timerPreferencesTable';
+const ID_TIMER_LINK = 'timerLink';
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -137,6 +139,7 @@ const STORAGE_BAIT_NAMES = "baitNames";
 const STORAGE_CHARM_NAMES = "charmNames";
 const STORAGE_TRAP_SETUP_SG = "trapSetupSG";
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
+//const STYLE_CLASS_NAME_JNK_NUMBER_INPUT = "JnKNumberInput";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_STATUS_IDLE = "Idle";
 const SG_SEASON_SPRING = "Spring";
@@ -377,6 +380,7 @@ function getNewKRCaptcha() {
 function setBotDocumentStyle () {
     var docStyle = document.getElementsByTagName("STYLE")[0];
     var botStyle = "." + STYLE_CLASS_NAME_JNK_CAPTION + " { text-align: right; font-weight: bold; }";
+    //    botStyle = "\n." + STYLE_CLASS_NAME_JNK_NUMBER_INPUT + " { font-size: 12px; type: number; size: 5 }";
     if (isNullOrUndefined(docStyle.length)) {
         docStyle.innerHTML = botStyle;
     } else {
@@ -1301,7 +1305,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-
+/*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -1320,7 +1324,7 @@ function embedUIStructure() {
         test2Button.appendChild(tmpTxt);
         tmpTxt = null;
         testButtonsCell.appendChild(test2Button);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
         statusDisplayTable = null;
@@ -1341,6 +1345,18 @@ function embedUIStructure() {
             }
             toggleLink = null;
             preferencesBox = null;
+        }
+
+        function toggleTimerPreferencesTable() {
+            var toggleLink = document.getElementById(ID_TIMER_LINK);
+            var preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
+            if (toggleLink.innerHTML == '[Show]') {
+                toggleLink.innerHTML = '[Hide]'
+                preferencesTable.style.display = 'table';
+            } else {
+                toggleLink.innerHTML = '[Show]'
+                preferencesTable.style.display = 'none';
+            }
         }
 
         function embedPreferencesHeaderTable() {
@@ -1412,23 +1428,25 @@ function embedUIStructure() {
             var tmpTxt;
             var captionCell;
             var timerPreferencesTable = document.createElement('table');
+            timerPreferencesTable.id = ID_TIMER_PREFERENCES_TABLE;
             timerPreferencesTable.width = "100%";
 
             var trEmpty = timerPreferencesTable.insertRow();
-            trEmpty.style.height = "5px"
+            trEmpty.style.height = "4px"
             trEmpty = null;
 
             var trNextBotHornTimePreferences = timerPreferencesTable.insertRow();
-            trNextBotHornTimePreferences.style.height = "24px"
+            trNextBotHornTimePreferences.style.height = "21px"
             captionCell = trNextBotHornTimePreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Bot Horn Time Delay :  ";
-            captionCell.width = 300;
+            captionCell.width = 270;
             captionCell = null;
             var nextBotHornTimePreferencesSettings = trNextBotHornTimePreferences.insertCell();
             nextBotHornTimePreferencesSettings.width = 250;
             var botHornTimeDelayMinInput = document.createElement('INPUT');
             botHornTimeDelayMinInput.type = "number";
+            botHornTimeDelayMinInput.style.fontSize = "12px";
             botHornTimeDelayMinInput.min = "0";
             botHornTimeDelayMinInput.max = "600";
             botHornTimeDelayMinInput.size = "5";
@@ -1440,6 +1458,7 @@ function embedUIStructure() {
             tmpTxt = null;
             var botHornTimeDelayMaxInput = document.createElement('INPUT');
             botHornTimeDelayMaxInput.type = "number";
+            botHornTimeDelayMaxInput.style.fontSize = "12px";
             botHornTimeDelayMaxInput.min = "1";
             botHornTimeDelayMaxInput.max = "600";
             botHornTimeDelayMaxInput.size = "5";
@@ -1455,7 +1474,7 @@ function embedUIStructure() {
             trNextBotHornTimePreferences = null;
 
             var trNextTrapCheckTimePreferences = timerPreferencesTable.insertRow();
-            trNextTrapCheckTimePreferences.style.height = "24px"
+            trNextTrapCheckTimePreferences.style.height = "21px"
             captionCell = trNextTrapCheckTimePreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Trap Check Time Delay :  ";
@@ -1463,6 +1482,7 @@ function embedUIStructure() {
             var nextTrapCheckTimePreferencesSettings = trNextTrapCheckTimePreferences.insertCell();
             var trapCheckTimeDelayMinInput = document.createElement('INPUT');
             trapCheckTimeDelayMinInput.type = "number";
+            trapCheckTimeDelayMinInput.style.fontSize = "12px";
             trapCheckTimeDelayMinInput.min = "0";
             trapCheckTimeDelayMinInput.max = "360";
             trapCheckTimeDelayMinInput.size = "5";
@@ -1474,6 +1494,7 @@ function embedUIStructure() {
             tmpTxt = null;
             var trapCheckTimeDelayMaxInput = document.createElement('INPUT');
             trapCheckTimeDelayMaxInput.type = "number";
+            trapCheckTimeDelayMaxInput.style.fontSize = "12px";
             trapCheckTimeDelayMaxInput.min = "1";
             trapCheckTimeDelayMaxInput.max = "600";
             trapCheckTimeDelayMaxInput.size = "5";
@@ -1507,6 +1528,7 @@ function embedUIStructure() {
             var autosolveKRPreferencesSettings = trAutosolveKRPreferences.insertCell();
             var autosolveKRDelayMinInput = document.createElement('INPUT');
             autosolveKRDelayMinInput.type = "number";
+            autosolveKRDelayMinInput.style.fontSize = "12px";
             autosolveKRDelayMinInput.min = "0";
             autosolveKRDelayMinInput.max = "360";
             autosolveKRDelayMinInput.size = "5";
@@ -1518,6 +1540,7 @@ function embedUIStructure() {
             tmpTxt = null;
             var autosolveKRDelayMaxInput = document.createElement('INPUT');
             autosolveKRDelayMaxInput.type = "number";
+            autosolveKRDelayMaxInput.style.fontSize = "12px";
             autosolveKRDelayMaxInput.min = "1";
             autosolveKRDelayMaxInput.max = "600";
             autosolveKRDelayMaxInput.size = "5";
@@ -1532,15 +1555,25 @@ function embedUIStructure() {
             autosolveKRPreferencesSettings = null;
             trAutosolveKRPreferences = null;
 
+            var trSchedulerTitle = timerPreferencesTable.insertRow();
+            trSchedulerTitle.style.height = "20px"
+            var schedulerTitle = trSchedulerTitle.insertCell();
+            schedulerTitle.colSpan = 3;
+            schedulerTitle.innerHTML = "Scheduler Time";
+            schedulerTitle.style.fontWeight = "bold";
+            schedulerTitle.style.fontSize = "12px";
+            schedulerTitle.style.textAlign = "center";
+
             var trScheduledGiftAndRafflesPreferences = timerPreferencesTable.insertRow();
-            trScheduledGiftAndRafflesPreferences.style.height = "28px"
+            trScheduledGiftAndRafflesPreferences.style.height = "24px"
             captionCell = trScheduledGiftAndRafflesPreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "Scheduled Time for Sending Gifts and Raffles :  ";
+            captionCell.innerHTML = "Sending Gifts and Raffles :  ";
             captionCell = null;
             var scheduledGiftsAndRafflesPreferencesSettings = trScheduledGiftAndRafflesPreferences.insertCell();
             var scheduledGiftsAndRafflesBeginTime = document.createElement('INPUT');
             scheduledGiftsAndRafflesBeginTime.type = "time";
+            scheduledGiftsAndRafflesBeginTime.style.fontSize = "12px";
             scheduledGiftsAndRafflesBeginTime.id = ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT;
             scheduledGiftsAndRafflesBeginTime.value = g_scheduledGiftsAndRafflesTime;
             scheduledGiftsAndRafflesPreferencesSettings.appendChild(scheduledGiftsAndRafflesBeginTime);
@@ -1549,14 +1582,15 @@ function embedUIStructure() {
             trScheduledGiftAndRafflesPreferences = null;
 
             var trScheduledResetPreferences = timerPreferencesTable.insertRow();
-            trScheduledResetPreferences.style.height = "28px"
+            trScheduledResetPreferences.style.height = "21px"
             captionCell = trScheduledResetPreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "Scheduled Time for New Date :  ";
+            captionCell.innerHTML = "New Date :  ";
             captionCell = null;
             var scheduledResetPreferencesSettings = trScheduledResetPreferences.insertCell();
             var scheduledResetTime = document.createElement('INPUT');
             scheduledResetTime.type = "time";
+            scheduledResetTime.style.fontSize = "12px";
             scheduledResetTime.id = ID_SCHEDULED_RESET_TIME_INPUT;
             scheduledResetTime.value = g_scheduledResetTime;
             scheduledResetPreferencesSettings.appendChild(scheduledResetTime);
@@ -1631,9 +1665,9 @@ function embedUIStructure() {
                         campageWeapons = null;
                         g_weaponNames.sort();
                         setStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating weapons";;
+                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Weapons";;
                     }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Weapons";
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Weapons";
                     var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
                     fireEvent(currentWeapon, 'click');
                     window.setTimeout(function () {
@@ -1656,9 +1690,9 @@ function embedUIStructure() {
                         campageBases = null;
                         g_baseNames.sort();
                         setStorage(STORAGE_BASE_NAMES, g_baseNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating bases";;
+                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Bases";;
                     }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Bases";
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Bases";
                     var currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
                     fireEvent(currentBase, 'click');
                     window.setTimeout(function () {
@@ -1681,9 +1715,9 @@ function embedUIStructure() {
                         campageBaits = null;
                         g_baitNames.sort();
                         setStorage(STORAGE_BAIT_NAMES, g_baitNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating baits";;
+                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Baits";;
                     }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Baits";
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Baits";
                     var currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
                     fireEvent(currentBait, 'click');
                     window.setTimeout(function () {
@@ -1706,9 +1740,9 @@ function embedUIStructure() {
                         campageCharms = null;
                         g_charmNames.sort();
                         setStorage(STORAGE_CHARM_NAMES, g_charmNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating Charms";;
+                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Charms";;
                     }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Charms";
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Charms";
                     var currentCharm = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
                     fireEvent(currentCharm, 'click');
                     window.setTimeout(function () {
@@ -1729,6 +1763,9 @@ function embedUIStructure() {
                 window.setTimeout(function () {
                     updateCharms();
                 }, 19 * 1000);
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, 25 * 1000);
             }
 
             function getSelectWeaponList() {
@@ -1797,7 +1834,7 @@ function embedUIStructure() {
                 var trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
                 captionCell = trSelectPolicy.insertCell();
-                captionCell.width = 300;
+                captionCell.width = 270;
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Select Location :  ";
                 captionCell = null;
@@ -1873,7 +1910,7 @@ function embedUIStructure() {
             policyPreferencesTable.width = "100%";
 
             var trEmpty = policyPreferencesTable.insertRow();
-            trEmpty.style.height = "5px"
+            trEmpty.style.height = "4px"
             trEmpty = null;
 
             insertSelectPolicyRow();
@@ -1923,19 +1960,27 @@ function embedUIStructure() {
         preferencesBox.appendChild(separationLine);
         separationLine = null;
         var blankLine = document.createElement('div');
-        blankLine.style.height="8px"
+        blankLine.style.height="2px"
         preferencesBox.appendChild(blankLine);
         blankLine = null;
         var tmpTitle = document.createElement('div');
-        tmpTitle.style = 'text-align:center'
+        tmpTitle.style.textAlign = "center";
         tmpTitle.style.fontWeight = "bold";
-        tmpTitle.style.fontSize = "small";
-        tmpTitle.innerHTML = 'Timer configuration';
+        tmpTitle.style.fontSize = "12px";
+        tmpTitle.innerHTML = 'Timer configuration ';
         preferencesBox.appendChild(tmpTitle);
+        var timerLink = document.createElement('a');
+        timerLink.id = ID_TIMER_LINK;
+        timerLink.innerHTML = '[Show]';
+        timerLink.style.fontWeight = "bold";
+        timerLink.onclick = toggleTimerPreferencesTable;
+        tmpTitle.appendChild(timerLink);
+        timerLink = null;
         tmpTitle = null;
 
         var timerPreferencesTable = embedTimerPreferences();
         preferencesBox.appendChild(timerPreferencesTable);
+        timerPreferencesTable.style.display = "none";
         timerPreferencesTable = null;
 
         separationLine = document.createElement('div');
@@ -1945,13 +1990,13 @@ function embedUIStructure() {
         separationLine = null;
 
         blankLine = document.createElement('div');
-        blankLine.style.height="8px"
+        blankLine.style.height="2px"
         preferencesBox.appendChild(blankLine);
         blankLine = null;
         tmpTitle = document.createElement('div');
-        tmpTitle.style = 'text-align:center'
+        tmpTitle.style.textAlign = "center";
         tmpTitle.style.fontWeight = "bold";
-        tmpTitle.style.fontSize = "small";
+        tmpTitle.style.fontSize = "12px";
         tmpTitle.innerHTML = 'Location/event-based trap setup';
         preferencesBox.appendChild(tmpTitle);
         tmpTitle = null;
@@ -1970,6 +2015,7 @@ function embedUIStructure() {
         var autobotDiv = document.createElement('div');
         // autobotDiv.style.backgroundColor = "#fff2e6";
         autobotDiv.style.whiteSpace = "pre";
+        autobotDiv.style.fontSize = "200%";
 
         var statusSection = embedStatusTable();
         autobotDiv.appendChild(statusSection);
