@@ -92,7 +92,7 @@ var g_kingsRewardRetry = 0;
 var g_weaponNames = [];
 var g_baseNames = [];
 var g_baitNames = [];
-var g_charmNames = [];
+var g_trinketNames = [];
 var g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
@@ -123,6 +123,12 @@ const ID_PREFERENCES_LINK = 'preferencesLink';
 const ID_PREFERENCES_BOX = 'preferencesBox';
 const ID_TIMER_PREFERENCES_TABLE = 'timerPreferencesTable';
 const ID_TIMER_LINK = 'timerLink';
+const ID_TR_SGA_SEASON_TRAP_SETUP = "trSGaSeasonTrapSetup";
+const ID_SELECT_SGA_SEASON = "selectSGaSeason";
+const ID_SELECT_SGA_WEAPON = "selectSGaWeapon";
+const ID_SELECT_SGA_BASE = "selectSGaBase";
+const ID_SELECT_SGA_BAIT = "selectSGaBait";
+const ID_SELECT_SGA_TRINKET = "selectSGaTrinket";
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -136,104 +142,86 @@ const STORAGE_STATUS_GIFTS_AND_RAFFLES = "statusGiftsAndRaffles";
 const STORAGE_WEAPON_NAMES = "weaponNames";
 const STORAGE_BASE_NAMES = "baseNames";
 const STORAGE_BAIT_NAMES = "baitNames";
-const STORAGE_CHARM_NAMES = "charmNames";
-const STORAGE_TRAP_SETUP_SG = "trapSetupSG";
+const STORAGE_TRINKET_NAMES = "trinketNames";
+const STORAGE_TRAP_SETUP_SGA = "trapSetupSG";
+const IDX_WEAPON = 0;
+const IDX_BASE = 1;
+const IDX_BAIT = 2;
+const IDX_TRINKET = 3;
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
-//const STYLE_CLASS_NAME_JNK_NUMBER_INPUT = "JnKNumberInput";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_STATUS_IDLE = "Idle";
-const SG_SEASON_SPRING = "Spring";
-const SG_SEASON_SUMMER = "Summer";
-const SG_SEASON_AUTUMN = "Autumn";
-const SG_SEASON_WINTER = "Winter";
-const SG_SEASONS = [SG_SEASON_SPRING, SG_SEASON_SUMMER, SG_SEASON_AUTUMN, SG_SEASON_WINTER];
-const POLICY_NAME_NONE = "Policy None";
+const SGA_SEASON_SPRING = "Spring";
+const SGA_SEASON_SUMMER = "Summer";
+const SGA_SEASON_AUTUMN = "Autumn";
+const SGA_SEASON_WINTER = "Winter";
+const SGA_SEASONS = [SGA_SEASON_SPRING, SGA_SEASON_SUMMER, SGA_SEASON_AUTUMN, SGA_SEASON_WINTER];
 const POLICY_NAME_FORT_ROX = "Policy Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Policy Seasonal Garden";
 
 // Policy description
-class TrapSetup {
-    constructor() {
-    }
-    setWeapon(weapon) {
-        this.weapon = weapon;
-    }
-    setBase(base) {
-        this.base = base;
-    }
-    setBait(bait) {
-        this.bait = bait;
-    }
-    setCharm(charm) {
-        this.charm = charm;
-    }
-}
 class Policy {
     constructor() {
-        this.trapSetups = {};
-    }
-    setSelectValue(value) {
-        this.selectValue = value;
+        this.trs = [];
     }
     setName(name) {
         this.name = name;
     }
     toString() {
-        return "{ selectValue : " + this.selectValue + ", name : " + this.name + " }";
+        return "{  name : " + this.name + " }";
     }
 }
 
-class PolicySG extends Policy {
+class PolicySGa extends Policy {
     constructor () {
         super();
-        this.setSelectValue("valueSeasonalGarden");
         this.setName("Seasonal Garden");
+        this.trs[0] = ID_TR_SGA_SEASON_TRAP_SETUP;
+    }
+    resetTrapSetups() {
+        this.trapSetups = {};
+        this.trapSetups[SGA_SEASON_SPRING] = [];
+        this.trapSetups[SGA_SEASON_SUMMER] = [];
+        this.trapSetups[SGA_SEASON_AUTUMN] = [];
+        this.trapSetups[SGA_SEASON_WINTER] = [];
     }
     initSelectTrapSetup() {
-        //alert(this.trapSetups);
         var tmpStorage;
-        if (Object.keys(this.trapSetups).length == 0) {
-            alert("Trap setup is null");
-            tmpStorage = getStorage(STORAGE_TRAP_SETUP_SG, null);
+        if (isNullOrUndefined(this.trapSetups)) {
+            tmpStorage = getStorage(STORAGE_TRAP_SETUP_SGA, null);
             if (isNullOrUndefined(tmpStorage)) {
-                alert("Tmp storage is null");
-                this.trapSetups[SG_SEASON_SPRING] = new TrapSetup();
-                this.trapSetups[SG_SEASON_SUMMER] = new TrapSetup();
-                this.trapSetups[SG_SEASON_AUTUMN] = new TrapSetup();
-                this.trapSetups[SG_SEASON_WINTER] = new TrapSetup();
+                this.resetTrapSetups();
+            } else {
+                this.trapSetups = tmpStorage;
             }
-            //if (this.trapSetups.length == 0 || isNullOrUndefined(this.trapSetups.length)) {
-        } else {
-            alert("Trap setup is not null");
-            alert(this.trapSetups.length);
         }
-        //alert("in initSelectTrapSetup");
+        var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+        document.getElementById(ID_SELECT_SGA_WEAPON).value = this.trapSetups[currentSeason][IDX_WEAPON];
+        document.getElementById(ID_SELECT_SGA_BASE).value = this.trapSetups[currentSeason][IDX_BASE];
+        document.getElementById(ID_SELECT_SGA_BAIT).value = this.trapSetups[currentSeason][IDX_BAIT];
+        document.getElementById(ID_SELECT_SGA_TRINKET).value = this.trapSetups[currentSeason][IDX_TRINKET];
+    }
+}
+
+class PolicyFR extends Policy {
+    constructor () {
+        super();
+        this.setName("Fort Rox");
+    }
+    resetTrapSetups() {
+        this.trapSetups = {};
+    }
+    initSelectTrapSetups() {
     }
 }
 
 const POLICY_DICT = {};
 function initPolicyDict() {
     var tmpPolicy;
-    tmpPolicy = new Policy();
-    tmpPolicy.setSelectValue("valueNone");
-    tmpPolicy.setName("Select policy");
-    POLICY_DICT[POLICY_NAME_NONE] = tmpPolicy;
-    tmpPolicy = new Policy();
-    tmpPolicy.setSelectValue("valueFortRox");
-    tmpPolicy.setName("Fort Rox");
+    tmpPolicy = new PolicyFR();
     POLICY_DICT[POLICY_NAME_FORT_ROX] = tmpPolicy;
-    tmpPolicy = new PolicySG();
+    tmpPolicy = new PolicySGa();
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = tmpPolicy;
-    /*
-    tmpPolicy = new Policy();
-    tmpPolicy.setSelectValue("valueSeasonalGarden");
-    tmpPolicy.setName("Seasonal Garden");
-    //tmpPolicy.trapSetups.Spring = new TrapSetup();
-    //tmpPolicy.trapSetups.Summer = new TrapSetup();
-    //tmpPolicy.trapSetups.Autumn = new TrapSetup();
-    //tmpPolicy.trapSetups.Winter = new TrapSetup();
-    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = tmpPolicy;
-    */
 }
 
 // Start executing script
@@ -816,7 +804,7 @@ function loadPreferenceSettingFromStorage() {
     g_weaponNames = getStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
     g_baseNames = getStorage(STORAGE_BASE_NAMES, g_baseNames);
     g_baitNames = getStorage(STORAGE_BAIT_NAMES, g_baitNames);
-    g_charmNames = getStorage(STORAGE_CHARM_NAMES, g_charmNames);
+    g_trinketNames = getStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
 }
 
 function getStorage(name, defaultValue) {
@@ -1000,38 +988,31 @@ function manualUpdatingTraps() {
 }
 
 function prepareUpdatingTraps() {
-    function updateCharms() {
-        function getCampPageCharmNames() {
-            var charmName;
-            g_charmNames = [];
-            var campageCharms = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-            for (var i = 0; i < campageCharms.length; ++i) {
-                charmName = campageCharms[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                if (g_charmNames.indexOf(charmName) == -1) {
-                    g_charmNames[g_charmNames.length] = charmName;
+    function updateTrinkets() {
+        function getCampPageTrinketNames() {
+            var trinketName;
+            g_trinketNames = [];
+            var campageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+            for (var i = 0; i < campageTrinkets.length; ++i) {
+                trinketName = campageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                if (g_trinketNames.indexOf(trinketName) == -1) {
+                    g_trinketNames[g_trinketNames.length] = trinketName;
                 }
-                charmName = null;
+                trinketName = null;
             }
-            campageCharms = null;
-            g_charmNames.sort();
-            setStorage(STORAGE_CHARM_NAMES, g_charmNames);
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating Charms";;
+            campageTrinkets = null;
+            g_trinketNames.sort();
+            setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating Trinkets";;
         }
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Charms";
-        var currentCharm = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
-        fireEvent(currentCharm, 'click');
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Trinkets";
+        var currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
+        fireEvent(currentTrinket, 'click');
         window.setTimeout(function () {
-            getCampPageCharmNames();
+            getCampPageTrinketNames();
         }, 4.5 * 1000);
     }
-    updateCharms();
-    /*
-    var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem base')[0];
-    fireEvent(currentWeapon, 'click');
-    window.setTimeout(function () {
-        updateBases();
-    }, 3 * 1000);
-    */
+    updateTrinkets();
 }
 
 function testSaveObjToStorage() {
@@ -1056,7 +1037,7 @@ function testLoadObjFromStorage() {
 function testSetDropDownList () {
     var testRow = document.getElementById("test row");
     var testDropDownListCell = testRow.insertCell();
-    var itemList = g_charmNames;
+    var itemList = g_trinketNames;
     //var itemList = ["a", "b", "c"];
     var dropDownList = document.createElement('select');
     dropDownList.id = "test dropDownList";
@@ -1081,7 +1062,8 @@ function testSelectDropDownList() {
 
 function testDict() {
     var tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
-    tmpPolicy.initSelectTrapSetup();
+    alert(tmpPolicy.trapSetups[SGA_SEASON_SPRING].weapon);
+    //tmpPolicy.initSelectTrapSetup();
     /*
     for (const [key, value] of Object.entries(POLICY_DICT)) {
         alert(key + ": " + value);
@@ -1090,10 +1072,10 @@ function testDict() {
 }
 
 function test1() {
-    //testDict();
+    testDict();
     //testSaveObjToStorage();
     //manualUpdatingTraps();
-    testSetDropDownList();
+    //testSetDropDownList();
     //displayDocumentStyles();
     //setBotDocumentStyle();
     //clickAndArmWeapon();
@@ -1559,7 +1541,7 @@ function embedUIStructure() {
             trSchedulerTitle.style.height = "20px"
             var schedulerTitle = trSchedulerTitle.insertCell();
             schedulerTitle.colSpan = 3;
-            schedulerTitle.innerHTML = "Scheduler Time";
+            schedulerTitle.innerHTML = "Scheduler time";
             schedulerTitle.style.fontWeight = "bold";
             schedulerTitle.style.fontSize = "12px";
             schedulerTitle.style.textAlign = "center";
@@ -1625,15 +1607,6 @@ function embedUIStructure() {
         function embedPolicyPreferences() {
             function savePolicyPreferences() {
                 try {
-                    /*
-                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MIN, document.getElementById(ID_BOT_HORN_TIME_DELAY_MIN_INPUT).value);
-                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MAX, document.getElementById(ID_BOT_HORN_TIME_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MIN, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT).value);
-                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
-                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME, document.getElementById(ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT).value);
-                    */
                 } catch (e) {
                     console.log(e);
                 }
@@ -1641,9 +1614,25 @@ function embedUIStructure() {
             }
 
             function onChangePolicy(event) {
-            }
-
-            function onChangeSGSelectSeason(event) {
+                var tmpDisplay;
+                var tmpPolicy
+                if (event.target.value == "Select policy") {
+                    return;
+                }
+                for (const [key, policyObj] of Object.entries(POLICY_DICT)) {
+                    tmpDisplay = (event.target.value == policyObj.name)? "table-row" : "none";
+                    tmpPolicy = POLICY_DICT[key];
+                    for (const tr of tmpPolicy.trs){
+                        document.getElementById(tr).style.display = tmpDisplay;
+                    }
+                    if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
+                        alert("Cannot find function initSelectTrapSetup for policy: " + policyObj.name);
+                    } else if (tmpDisplay == "table-row") {
+                        tmpPolicy.initSelectTrapSetup();
+                    }
+                    tmpPolicy = null;
+                    tmpDisplay = null;
+                }
             }
 
             function updateTraps() {
@@ -1725,28 +1714,28 @@ function embedUIStructure() {
                     }, 4.5 * 1000);
                 }
 
-                function updateCharms() {
-                    function getCampPageCharmNames() {
-                        var charmName;
-                        g_charmNames = [];
-                        var campageCharms = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                        for (var i = 0; i < campageCharms.length; ++i) {
-                            charmName = campageCharms[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                            if (g_charmNames.indexOf(charmName) == -1) {
-                                g_charmNames[g_charmNames.length] = charmName;
+                function updateTrinkets() {
+                    function getCampPageTrinketNames() {
+                        var trinketName;
+                        g_trinketNames = [];
+                        var campageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+                        for (var i = 0; i < campageTrinkets.length; ++i) {
+                            trinketName = campageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                            if (g_trinketNames.indexOf(trinketName) == -1) {
+                                g_trinketNames[g_trinketNames.length] = trinketName;
                             }
-                            charmName = null;
+                            trinketName = null;
                         }
-                        campageCharms = null;
-                        g_charmNames.sort();
-                        setStorage(STORAGE_CHARM_NAMES, g_charmNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Charms";;
+                        campageTrinkets = null;
+                        g_trinketNames.sort();
+                        setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
+                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Trinkets";;
                     }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Charms";
-                    var currentCharm = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
-                    fireEvent(currentCharm, 'click');
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Trinkets";
+                    var currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
+                    fireEvent(currentTrinket, 'click');
                     window.setTimeout(function () {
-                        getCampPageCharmNames();
+                        getCampPageTrinketNames();
                     }, 4.5 * 1000);
                 }
 
@@ -1761,71 +1750,71 @@ function embedUIStructure() {
                     updateBaits();
                 }, 13 * 1000);
                 window.setTimeout(function () {
-                    updateCharms();
+                    updateTrinkets();
                 }, 19 * 1000);
                 window.setTimeout(function () {
                     reloadCampPage();
                 }, 25 * 1000);
             }
 
-            function getSelectWeaponList() {
+            function getSelectWeapon() {
                 var itemOption;
-                var selectWeaponList = document.createElement('select');
-                selectWeaponList.style.width = "80px";
+                var selectWeapon = document.createElement('select');
+                selectWeapon.style.width = "80px";
                 for (var i = 0; i < g_weaponNames.length; i++) {
                     itemOption = document.createElement("option");
                     itemOption.value = g_weaponNames[i];
                     itemOption.text = g_weaponNames[i];
-                    selectWeaponList.appendChild(itemOption);
+                    selectWeapon.appendChild(itemOption);
                     itemOption = null;
                 }
-                selectWeaponList.selectedIndex = -1;
-                return selectWeaponList;
+                selectWeapon.selectedIndex = -1;
+                return selectWeapon;
             }
 
-            function getSelectBaseList() {
+            function getSelectBase() {
                 var itemOption;
-                var selectBaseList = document.createElement('select');
-                selectBaseList.style.width = "80px";
+                var selectBase = document.createElement('select');
+                selectBase.style.width = "80px";
                 for (var i = 0; i < g_baseNames.length; i++) {
                     itemOption = document.createElement("option");
                     itemOption.value = g_baseNames[i];
                     itemOption.text = g_baseNames[i];
-                    selectBaseList.appendChild(itemOption);
+                    selectBase.appendChild(itemOption);
                     itemOption = null;
                 }
-                selectBaseList.selectedIndex = -1;
-                return selectBaseList;
+                selectBase.selectedIndex = -1;
+                return selectBase;
             }
 
-            function getSelectBaitList() {
+            function getSelectBait() {
                 var itemOption;
-                var selectBaitList = document.createElement('select');
-                selectBaitList.style.width = "80px";
+                var selectBait = document.createElement('select');
+                selectBait.style.width = "80px";
                 for (var i = 0; i < g_baitNames.length; i++) {
                     itemOption = document.createElement("option");
                     itemOption.value = g_baitNames[i];
                     itemOption.text = g_baitNames[i];
-                    selectBaitList.appendChild(itemOption);
+                    selectBait.appendChild(itemOption);
                     itemOption = null;
                 }
-                selectBaitList.selectedIndex = -1;
-                return selectBaitList;
+                selectBait.selectedIndex = -1;
+                return selectBait;
             }
 
-            function getSelectCharmList() {
+            function getSelectTrinket() {
                 var itemOption;
-                var selectCharmList = document.createElement('select');
-                selectCharmList.style.width = "80px";
-                for (var i = 0; i < g_charmNames.length; i++) {
+                var selectTrinket = document.createElement('select');
+                selectTrinket.style.width = "80px";
+                for (var i = 0; i < g_trinketNames.length; i++) {
                     itemOption = document.createElement("option");
-                    itemOption.value = g_charmNames[i];
-                    itemOption.text = g_charmNames[i];
-                    selectCharmList.appendChild(itemOption);
+                    itemOption.value = g_trinketNames[i];
+                    itemOption.text = g_trinketNames[i];
+                    selectTrinket.appendChild(itemOption);
                     itemOption = null;
                 }
-                selectCharmList.selectedIndex = -1;
-                return selectCharmList;
+                selectTrinket.selectedIndex = -1;
+                return selectTrinket;
             }
 
             function insertSelectPolicyRow() {
@@ -1838,71 +1827,134 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Select Location :  ";
                 captionCell = null;
-                var selectPolicyListCell = trSelectPolicy.insertCell();
-                var selectPolicyList = document.createElement('select');
-                selectPolicyList.style.width = "120px";
-                selectPolicyList.onchange = onChangePolicy;
+                var selectPolicyCell = trSelectPolicy.insertCell();
+                var selectPolicy = document.createElement('select');
+                selectPolicy.style.width = "120px";
+                selectPolicy.onchange = onChangePolicy;
+                itemOption = document.createElement("option");
+                itemOption.value = "Select policy";
+                itemOption.text = "Select policy";
+                selectPolicy.appendChild(itemOption);
+                itemOption = null;
                 for (const [key, policyObj] of Object.entries(POLICY_DICT)) {
                     itemOption = document.createElement("option");
-                    itemOption.value = policyObj.selectValue;
+                    itemOption.value = policyObj.name;
                     itemOption.text = policyObj.name;
-                    selectPolicyList.appendChild(itemOption);
+                    selectPolicy.appendChild(itemOption);
                     itemOption = null;
                 }
-                selectPolicyListCell.appendChild(selectPolicyList);
-                selectPolicyList = null;
-                selectPolicyListCell = null;
+                selectPolicyCell.appendChild(selectPolicy);
+                selectPolicy = null;
+                selectPolicyCell = null;
                 trSelectPolicy = null;
             }
 
-            function insertSGPolicyPreferences() {
+            function insertSGaPolicyPreferences() {
+                function onChangeSGaSelectSeason(event) {
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
+                }
+
+                function saveSGaWeapon(event) {
+                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_WEAPON] = event.target.value;
+                    currentSeason = null;
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
+                function saveSGaBase(event) {
+                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_BASE] = event.target.value;
+                    currentSeason = null;
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
+                function saveSGaBait(event) {
+                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_BAIT] = event.target.value;
+                    currentSeason = null;
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
+                function saveSGaTrinket(event) {
+                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_TRINKET] = event.target.value;
+                    currentSeason = null;
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
+                function resetSGaTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
                 var captionCell;
                 var tmpTxt;
                 var itemOption;
-                var trSGSeasonTrapSetup = policyPreferencesTable.insertRow();
-                trSGSeasonTrapSetup.style.height = "24px"
-                captionCell = trSGSeasonTrapSetup.insertCell();
+                var trSGaSeasonTrapSetup = policyPreferencesTable.insertRow();
+                trSGaSeasonTrapSetup.id = ID_TR_SGA_SEASON_TRAP_SETUP;
+                trSGaSeasonTrapSetup.style.height = "24px";
+                trSGaSeasonTrapSetup.style.display = "none";
+                captionCell = trSGaSeasonTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                var selectSeasonList = document.createElement('select');
-                selectSeasonList.style.width = "70px";
-                selectSeasonList.onchange = onChangeSGSelectSeason;
-                for (const season of SG_SEASONS){
+                var selectSGaSeason = document.createElement('select');
+                selectSGaSeason.id = ID_SELECT_SGA_SEASON;
+                selectSGaSeason.style.width = "70px";
+                selectSGaSeason.onchange = onChangeSGaSelectSeason;
+                for (const season of SGA_SEASONS){
                     itemOption = document.createElement("option");
                     itemOption.value = season
                     itemOption.text = season
-                    selectSeasonList.appendChild(itemOption);
+                    selectSGaSeason.appendChild(itemOption);
                     itemOption = null;
                 }
-                captionCell.appendChild(selectSeasonList);
+                captionCell.appendChild(selectSGaSeason);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
                 captionCell = null;
                 tmpTxt = null;
-                selectSeasonList = null;
-                var trapSetupCell = trSGSeasonTrapSetup.insertCell();
-                var selectWeaponList = getSelectWeaponList();
-                trapSetupCell.appendChild(selectWeaponList);
-                selectWeaponList = null;
+                selectSGaSeason = null;
+                var trapSetupCell = trSGaSeasonTrapSetup.insertCell();
+                var selectWeapon = getSelectWeapon();
+                selectWeapon.id = ID_SELECT_SGA_WEAPON;
+                selectWeapon.onchange = saveSGaWeapon;
+                trapSetupCell.appendChild(selectWeapon);
+                selectWeapon = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 tmpTxt = null;
-                var selectBaseList = getSelectBaseList();
-                trapSetupCell.appendChild(selectBaseList);
-                selectBaseList = null;
+                var selectBase = getSelectBase();
+                selectBase.id = ID_SELECT_SGA_BASE;
+                selectBase.onchange = saveSGaBase;
+                trapSetupCell.appendChild(selectBase);
+                selectBase = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 tmpTxt = null;
-                var selectBaitList = getSelectBaitList();
-                trapSetupCell.appendChild(selectBaitList);
-                selectBaitList = null;
+                var selectBait = getSelectBait();
+                selectBait.id = ID_SELECT_SGA_BAIT;
+                selectBait.onchange = saveSGaBait;
+                trapSetupCell.appendChild(selectBait);
+                selectBait = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 tmpTxt = null;
-                var selectCharmList = getSelectCharmList();
-                trapSetupCell.appendChild(selectCharmList);
-                selectCharmList = null;
-                trSGSeasonTrapSetup = null;
+                var selectTrinket = getSelectTrinket();
+                selectTrinket.id = ID_SELECT_SGA_TRINKET;
+                selectTrinket.onchange = saveSGaTrinket;
+                trapSetupCell.appendChild(selectTrinket);
+                selectTrinket = null;
+                tmpTxt = document.createTextNode("   ");
+                trapSetupCell.appendChild(tmpTxt);
+                tmpTxt = null;
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetSGaTrapSetup;
+                resetButton.style.fontSize = "10px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                tmpTxt = null;
+                trapSetupCell.appendChild(resetButton);
+                trSGaSeasonTrapSetup = null;
             }
 
             var tmpTxt;
@@ -1914,7 +1966,7 @@ function embedUIStructure() {
             trEmpty = null;
 
             insertSelectPolicyRow();
-            insertSGPolicyPreferences();
+            insertSGaPolicyPreferences();
 
             var trLastRow = policyPreferencesTable.insertRow();
             var updateTrapsButtonCell = trLastRow.insertCell();
@@ -1956,7 +2008,8 @@ function embedUIStructure() {
 
         var separationLine = document.createElement('div');
         separationLine.style.height = "3px";
-        separationLine.style.borderBottom = "1px solid #ff0066";
+        //separationLine.style.borderBottom = "1px solid #ff0066";
+        separationLine.style.borderBottom = "1px solid #F122F6";
         preferencesBox.appendChild(separationLine);
         separationLine = null;
         var blankLine = document.createElement('div');
@@ -1985,7 +2038,8 @@ function embedUIStructure() {
 
         separationLine = document.createElement('div');
         separationLine.style.height = "3px";
-        separationLine.style.borderBottom = "1px solid #ff0066";
+        //separationLine.style.borderBottom = "1px solid #ff0066";
+        separationLine.style.borderBottom = "1px solid #F122F6";
         preferencesBox.appendChild(separationLine);
         separationLine = null;
 
