@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.1.1
+// @version      1.2.1.2
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -368,7 +368,6 @@ function getNewKRCaptcha() {
 function setBotDocumentStyle () {
     var docStyle = document.getElementsByTagName("STYLE")[0];
     var botStyle = "." + STYLE_CLASS_NAME_JNK_CAPTION + " { text-align: right; font-weight: bold; }";
-    //    botStyle = "\n." + STYLE_CLASS_NAME_JNK_NUMBER_INPUT + " { font-size: 12px; type: number; size: 5 }";
     if (isNullOrUndefined(docStyle.length)) {
         docStyle.innerHTML = botStyle;
     } else {
@@ -510,11 +509,11 @@ function runScheduledGiftsAndRaffles() {
     // Check if the sending is complete
     window.setTimeout(function () {
         getGiftsAndRafflesStatus();
-    }, 80 * 1000);
+    }, 90 * 1000);
     // Unlock bot
     window.setTimeout(function () {
         reloadCampPage();
-    }, 90 * 1000);
+    }, 100 * 1000);
 }
 
 function resetSchedule() {
@@ -572,8 +571,6 @@ function countdownBotHornTimer() {
         }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
     }
     dateNow = undefined;
-    //beginscheduledGiftsAndRafflesTime = undefined;
-    //endscheduledGiftsAndRafflesTime = undefined;
 }
 
 function countdownTrapCheckTimer() {
@@ -1063,7 +1060,6 @@ function testSelectDropDownList() {
 function testDict() {
     var tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
     alert(tmpPolicy.trapSetups[SGA_SEASON_SPRING].weapon);
-    //tmpPolicy.initSelectTrapSetup();
     /*
     for (const [key, value] of Object.entries(POLICY_DICT)) {
         alert(key + ": " + value);
@@ -1077,7 +1073,6 @@ function test1() {
     //manualUpdatingTraps();
     //testSetDropDownList();
     //displayDocumentStyles();
-    //setBotDocumentStyle();
     //clickAndArmWeapon();
 }
 
@@ -1211,7 +1206,7 @@ function prepareSendingGiftsAndRaffles() {
     // Go through all sendGift and sendRaffle buttons in the first page
     window.setTimeout(function () {
         gotoNextFriendList();
-    }, 50 * 1000);
+    }, 60 * 1000);
 }
 
 function embedUIStructure() {
@@ -1306,7 +1301,7 @@ function embedUIStructure() {
         test2Button.appendChild(tmpTxt);
         tmpTxt = null;
         testButtonsCell.appendChild(test2Button);
-*/
+        */
 
         statusSection.appendChild(statusDisplayTable);
         statusDisplayTable = null;
