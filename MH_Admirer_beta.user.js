@@ -150,6 +150,7 @@ const IDX_BAIT = 2;
 const IDX_TRINKET = 3;
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
+const BOT_PROCESS_Manual = "Manual";
 const BOT_STATUS_IDLE = "Idle";
 const SGA_SEASON_SPRING = "Spring";
 const SGA_SEASON_SUMMER = "Summer";
@@ -412,17 +413,26 @@ function operateBot() {
             updateNextBotHornTimeTxt("Cannot hunt without the cheese...");
             updateNextTrapCheckTimeTxt("Cannot hunt without the cheese...");
         } else {
-            window.setTimeout(function () {
-                (countdownBotHornTimer)()
-            }, 1000);
+            // Run counddown Trap Check Timer anyway
             window.setTimeout(function () {
                 (countdownTrapCheckTimer)()
             }, 1000);
+            // If the horn image exist, sound it, otherwise, countdown the timer
+            if (hornExist()) {
+                window.setTimeout(function () {
+                    soundHorn()
+                }, 500);
+            } else {
+                window.setTimeout(function () {
+                    (countdownBotHornTimer)()
+                }, 1000);
+            }
         }
     } catch (e) {
         console.log("operateBot() ERROR - " + e);
     }
 }
+
 
 function handleKingReward() {
     if (DEBUG_MODE) console.log("START AUTOSOLVE COUNTDOWN");
@@ -554,7 +564,7 @@ function countdownBotHornTimer() {
     intervalTime = undefined;
 
     if (g_nextBotHornTimeInSeconds <= 0) {
-        soundHorn();
+        prepareSoundingHorn();
     } else {
 
         if (g_botProcess == BOT_PROCESS_IDLE) {
@@ -636,93 +646,42 @@ function reloadCampPage() {
     window.location.href = MOUSEHUNTGAME_WEBSITE_HOME;
 }
 
-function soundHorn() {
-    var hornElement;
-    if (DEBUG_MODE) console.log("RUN %csoundHorn()", "color: #FF7700");
-
-    updateTitleTxt("Ready to Blow The Horn...");
-    updateNextBotHornTimeTxt("Ready to Blow The Horn...");
-
-    // safety mode, check the horn image is there or not before sound the horn
+function hornExist() {
     var headerElement = document.getElementById(ID_HEADER_ELEMENT);
-
     if (headerElement) {
         var headerClass = headerElement.getAttribute('class');
         if (headerClass.indexOf(HORNREADY_TXT) !== -1) {
-            // found the horn
-            // simulate mouse click on the horn
-            hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
-            fireEvent(hornElement, 'click');
-            hornElement = null;
-
-            // clean up
             headerElement = null;
             headerClass = null;
-
-            // double check if the horn was already sounded
-            window.setTimeout(function () {
-                afterSoundingHorn()
-            }, 2000);
-        } else if (headerClass.indexOf("hornsounding") != -1 || headerClass.indexOf("hornsounded") != -1) {
-            // some one just sound the horn...
-
-            // update timer
-            updateTitleTxt("Synchronizing Data...");
-            updateNextBotHornTimeTxt("Someone had just sound the horn. Synchronizing data...");
-
-            // clean up
-            headerElement = null;
-            headerClass = null;
-
-            // load the new data
-            window.setTimeout(function () {
-                afterSoundingHorn()
-            }, 2000);
-        } else if (headerClass.indexOf("hornwaiting") != -1) {
-            // the horn is not appearing, let check the time again
-
-            // update timer
-            updateTitleTxt("Synchronizing Data...");
-            updateNextBotHornTimeTxt("Hunter horn is not ready yet. Synchronizing data...");
-            /*
-            // sync the time again, maybe user already click the horn
-            retrieveData();
-
-            checkJournalDate();
-*/
-            // clean up
-            headerElement = null;
-            headerClass = null;
-            /*
-            // loop again
-            window.setTimeout(function () {
-                countdownTimer()
-            }, timerRefreshInterval * 1000);
-*/
-        } else {
-            // some one steal the horn!
-
-            // update timer
-            updateTitleTxt("Synchronizing Data...");
-            updateNextBotHornTimeTxt("Hunter horn is missing. Synchronizing data...");
-
-            // clean up
-            headerElement = null;
-            headerClass = null;
-
-            // I should double check if the horn was already sounded (not yet)
-            window.setTimeout(function () {
-                reloadCampPage();
-            }, 10000);
+            return true;
         }
+    }
+    return false;
+}
+
+function soundHorn() {
+    var hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
+    fireEvent(hornElement, 'click');
+    hornElement = null;
+
+    // double check if the horn was already sounded
+    window.setTimeout(function () {
+        afterSoundingHorn()
+    }, 1000);
+}
+
+function prepareSoundingHorn() {
+    if (DEBUG_MODE) console.log("RUN %csoundHorn()", "color: #FF7700");
+    if (hornExist()) {
+        soundHorn();
     } else {
-        // something wrong, can't even found the header...
+        // The horn is missing
+        updateTitleTxt("Synchronizing Data...");
+        updateNextBotHornTimeTxt("Hunter horn is missing. Synchronizing data...");
 
-        // clean up
-        headerElement = null;
-
-        // reload the page see if thing get fixed
-        reloadCampPage();
+        window.setTimeout(function () {
+            reloadCampPage();
+        }, 10000);
     }
 }
 
@@ -759,7 +718,7 @@ function afterSoundingHorn() {
     // script continue as normal
     window.setTimeout(function () {
         countdownBotHornTimer()
-    }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
+    }, 0.5 * 1000);
 }
 
 function updateTitleTxt(titleTxt) {
@@ -979,7 +938,7 @@ function listAttributes(obj) {
 }
 
 function manualUpdatingTraps() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Bases";
     prepareUpdatingTraps();
 }
@@ -1082,13 +1041,13 @@ function test2() {
 }
 
 function manualClaimingYesterdayGifts() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
     prepareClaimingGifts(false);
 }
 
 function manualClaimingTodayGifts() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
     prepareClaimingGifts(true);
 }
@@ -1131,7 +1090,7 @@ function prepareClaimingGifts(fromTop) {
 }
 
 function manualSendingGiftsAndRaffles() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts and Raffles";
     prepareSendingGiftsAndRaffles();
 }
@@ -1282,7 +1241,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-/*
+        /*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -1340,25 +1299,25 @@ function embedUIStructure() {
             var preferencesHeaderTable = document.createElement('table');
             preferencesHeaderTable.width = "100%";
             var preferencesHeaderRow = preferencesHeaderTable.insertRow();
-            var botProcessCaptionCell = preferencesHeaderRow.insertCell();
-            botProcessCaptionCell.width = 60;
-            botProcessCaptionCell.style.fontWeight = "bold";
-            botProcessCaptionCell.innerHTML = "Bot Process :  ";
-            var botProcessTxtCell = preferencesHeaderRow.insertCell();
-            botProcessTxtCell.width = 130;
-            botProcessTxtCell.innerHTML = g_botProcess;
-            botProcessTxtCell.id = ID_BOT_PROCESS_TXT;
-            botProcessCaptionCell = null;
-            botProcessTxtCell = null;
-            var botStatusCaptionCell = preferencesHeaderRow.insertCell();
-            botStatusCaptionCell.width = 45;
-            botStatusCaptionCell.style.fontWeight = "bold";
-            botStatusCaptionCell.innerHTML = "Status :  ";
-            var botStatusTxtCell = preferencesHeaderRow.insertCell();
-            botStatusTxtCell.innerHTML = BOT_STATUS_IDLE;
-            botStatusTxtCell.id = ID_BOT_STATUS_TXT;
-            botStatusCaptionCell = null;
-            botStatusTxtCell = null;
+            var botProcessCaption = preferencesHeaderRow.insertCell();
+            botProcessCaption.width = 60;
+            botProcessCaption.style.fontWeight = "bold";
+            botProcessCaption.innerHTML = "Bot Process :  ";
+            var botProcessTxt = preferencesHeaderRow.insertCell();
+            botProcessTxt.width = 130;
+            botProcessTxt.innerHTML = g_botProcess;
+            botProcessTxt.id = ID_BOT_PROCESS_TXT;
+            botProcessCaption = null;
+            botProcessTxt = null;
+            var botStatusCaption = preferencesHeaderRow.insertCell();
+            botStatusCaption.width = 45;
+            botStatusCaption.style.fontWeight = "bold";
+            botStatusCaption.innerHTML = "Status :  ";
+            var botStatusTxt = preferencesHeaderRow.insertCell();
+            botStatusTxt.innerHTML = BOT_STATUS_IDLE;
+            botStatusTxt.id = ID_BOT_STATUS_TXT;
+            botStatusCaption = null;
+            botStatusTxt = null;
 
             var preferencesHeaderCell = preferencesHeaderRow.insertCell();
             preferencesHeaderCell.style.textAlign = "right";
@@ -1734,7 +1693,7 @@ function embedUIStructure() {
                     }, 4.5 * 1000);
                 }
 
-                document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = "Manual";
+                document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
                 window.setTimeout(function () {
                     updateWeapons();
                 }, 0.5 * 1000);
