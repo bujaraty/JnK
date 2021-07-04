@@ -1318,7 +1318,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-
+/*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -1337,7 +1337,7 @@ function embedUIStructure() {
         test2Button.appendChild(tmpTxt);
         tmpTxt = null;
         testButtonsCell.appendChild(test2Button);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
         statusDisplayTable = null;
