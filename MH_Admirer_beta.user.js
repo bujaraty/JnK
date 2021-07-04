@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.1.2
+// @version      1.2.2.1
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -158,8 +158,12 @@ const SGA_SEASON_SUMMER = "Summer";
 const SGA_SEASON_AUTUMN = "Autumn";
 const SGA_SEASON_WINTER = "Winter";
 const SGA_SEASONS = [SGA_SEASON_SPRING, SGA_SEASON_SUMMER, SGA_SEASON_AUTUMN, SGA_SEASON_WINTER];
-const POLICY_NAME_FORT_ROX = "Policy Fort Rox";
-const POLICY_NAME_SEASONAL_GARDEN = "Policy Seasonal Garden";
+const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
+const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
+const POLICY_NAME_NONE = "None";
+const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
+const POLICY_NAME_FORT_ROX = "Fort Rox";
+const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
 
 // Policy description
 class Policy {
@@ -187,7 +191,20 @@ class PolicySGa extends Policy {
         this.trapSetups[SGA_SEASON_AUTUMN] = [];
         this.trapSetups[SGA_SEASON_WINTER] = [];
     }
+    getTrapSetups() {
+        var tmpStorage;
+        if (isNullOrUndefined(this.trapSetups)) {
+            tmpStorage = getStorage(STORAGE_TRAP_SETUP_SGA, null);
+            if (isNullOrUndefined(tmpStorage)) {
+                this.resetTrapSetups();
+            } else {
+                this.trapSetups = tmpStorage;
+            }
+        }
+        return this.trapSetups;
+    }
     initSelectTrapSetup() {
+        /*
         var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
             tmpStorage = getStorage(STORAGE_TRAP_SETUP_SGA, null);
@@ -202,6 +219,13 @@ class PolicySGa extends Policy {
         document.getElementById(ID_SELECT_SGA_BASE).value = this.trapSetups[currentSeason][IDX_BASE];
         document.getElementById(ID_SELECT_SGA_BAIT).value = this.trapSetups[currentSeason][IDX_BAIT];
         document.getElementById(ID_SELECT_SGA_TRINKET).value = this.trapSetups[currentSeason][IDX_TRINKET];
+        */
+        var trapSetups = this.getTrapSetups();
+        var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+        document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
+        document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
+        document.getElementById(ID_SELECT_SGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
+        document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
     }
 }
 
@@ -500,7 +524,7 @@ function runScheduledGiftsAndRaffles() {
     function getGiftsAndRafflesStatus() {
         function gettingGiftsAndRafflesStatus() {
             var sendActionRemaining = parseInt(document.getElementsByClassName("giftSelectorView-numSendActionsRemaining")[0].innerHTML);
-            if (sendActionRemaining <= 2) {
+            if (sendActionRemaining <= 1) {
                 g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_COMPLETE;
                 setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
             }
@@ -668,7 +692,7 @@ function soundHorn() {
     // double check if the horn was already sounded
     window.setTimeout(function () {
         afterSoundingHorn()
-    }, 1000);
+    }, 2000);
 }
 
 function prepareSoundingHorn() {
@@ -1027,8 +1051,101 @@ function testDict() {
     */
 }
 
+function checkLocation() {
+    function runDefaultLocation() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_NONE;
+    }
+
+    function armTraps(trapSetup) {
+        // not yet done
+        function getCurrentWeapon() {
+            return document.getElementById("campPage-trap-armedItem-floatingTooltip-weapon").innerHTML;
+        }
+
+        var currentWeapon = getCurrentWeapon();
+        alert(trapSetup[IDX_WEAPON]);
+        alert(currentWeapon);
+        if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != trapSetup[IDX_WEAPON] ) {
+        }
+    }
+
+    function runCSCPolicy() {
+        function claimReward() {
+            var claimButton = document.getElementsByClassName("mousehuntActionButton treasureMapView-claimRewardButton")[0];
+            fireEvent(claimButton, "click");
+        }
+        var poster;
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
+        var phase = getPageVariable("user.quests.QuestClawShotCity.phase");
+        switch(phase) {
+            case "need_poster":
+                break;
+            case "has_poster":
+                poster = document.getElementsByClassName("open has_poster")[0];
+                fireEvent(poster, "click");
+                break;
+            case "active_poster":
+                break;
+            case "has_reward":
+                poster = document.getElementsByClassName("open has_reward")[0];
+                fireEvent(poster, "click");
+                window.setTimeout(function () {
+                    claimReward();
+                }, 5 * 1000);
+                break;
+            default:
+        }
+        poster = null;
+        window.setTimeout(function () {
+            reloadCampPage();
+        }, 10 * 1000);
+
+    }
+
+    function runSGaPolicy() {
+        // not yet done
+
+        function getSGaSeason() {
+            var nTimeStamp = Date.parse(new Date()) / 1000;
+            var nFirstSeasonTimeStamp = 1283328000;
+            var nSeasonLength = 288000; // 80hr
+            var seasonIdx = Math.floor((nTimeStamp - nFirstSeasonTimeStamp) / nSeasonLength) % SGA_SEASONS.length;
+            nTimeStamp = null;
+            nFirstSeasonTimeStamp = null;
+            nSeasonLength = null;
+            return SGA_SEASONS[seasonIdx];
+        }
+
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
+        var currentSeason = getSGaSeason();
+        var trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
+        var trapSetupPolicy = trapSetups[currentSeason];
+        armTraps(trapSetups[currentSeason]);
+        currentSeason = null;
+        trapSetups = null;
+        trapSetupPolicy = null;
+    }
+
+    if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
+        return;
+    }
+    var currentLocation = getPageVariable("user.environment_name");
+    switch(currentLocation) {
+        case LOCATION_SEASONAL_GARDEN:
+            runSGaPolicy();
+            break;
+        case LOCATION_CLAW_SHOT_CITY:
+            runCSCPolicy();
+            break;
+        default:
+            runDefaultLocation();
+    }
+    currentLocation = null;
+}
+
 function test1() {
-    testDict();
+    checkLocation();
+    //testDict();
     //testSaveObjToStorage();
     //manualUpdatingTraps();
     //testSetDropDownList();
@@ -1242,7 +1359,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-        /*
+
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -1261,7 +1378,7 @@ function embedUIStructure() {
         test2Button.appendChild(tmpTxt);
         tmpTxt = null;
         testButtonsCell.appendChild(test2Button);
-        */
+
 
         statusSection.appendChild(statusDisplayTable);
         statusDisplayTable = null;
@@ -1318,7 +1435,7 @@ function embedUIStructure() {
             botStatusCaption.style.fontWeight = "bold";
             botStatusCaption.innerHTML = "Status :  ";
             var botStatusTxt = preferencesHeaderRow.insertCell();
-            botStatusTxt.width = 260;
+            botStatusTxt.width = 295;
             botStatusTxt.style.fontSize = "10px";
             botStatusTxt.innerHTML = BOT_STATUS_IDLE;
             botStatusTxt.id = ID_BOT_STATUS_TXT;
@@ -1333,7 +1450,7 @@ function embedUIStructure() {
             var policyTxt = preferencesHeaderRow.insertCell();
             policyTxt.id = ID_POLICY_TXT;
             policyTxt.style.fontSize = "10px";
-            policyTxt.innerHTML = "None";
+            policyTxt.innerHTML = POLICY_NAME_NONE;
 
             var preferencesHeaderCell = preferencesHeaderRow.insertCell();
             preferencesHeaderCell.style.textAlign = "right";
@@ -1577,10 +1694,6 @@ function embedUIStructure() {
 
         function embedPolicyPreferences() {
             function savePolicyPreferences() {
-                try {
-                } catch (e) {
-                    console.log(e);
-                }
                 reloadCampPage();
             }
 
@@ -1856,6 +1969,7 @@ function embedUIStructure() {
                 function resetSGaTrapSetup() {
                     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].resetTrapSetups();
                     setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                    reloadCampPage();
                 }
 
                 var captionCell;
@@ -1928,6 +2042,78 @@ function embedUIStructure() {
                 trSGaSeasonTrapSetup = null;
             }
 
+            function insertZToPolicyPreferences() {
+                var captionCell;
+                var itemOption;
+                var trZToStrategy = policyPreferencesTable.insertRow();
+                //trZToStrategy.id = ID_TR_SGA_SEASON_TRAP_SETUP;
+                trZToStrategy.style.height = "24px";
+                //trZToStrategy.style.display = "none";
+                captionCell = trZToStrategy.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Strategy :  ";
+                var selectStrategyCell = trZToStrategy.insertCell();
+                var selectStrategy = document.createElement('select');
+                selectStrategy.style.width = "120px";
+                selectStrategy.onchange = onChangePolicy;
+                itemOption = document.createElement("option");
+                itemOption.value = "Select policy";
+                itemOption.text = "Select policy";
+                /*
+                selectPolicy.appendChild(itemOption);
+                itemOption = null;
+                for (const [key, policyObj] of Object.entries(POLICY_DICT)) {
+                    itemOption = document.createElement("option");
+                    itemOption.value = policyObj.name;
+                    itemOption.text = policyObj.name;
+                    selectPolicy.appendChild(itemOption);
+                    itemOption = null;
+                }
+                selectPolicyCell.appendChild(selectPolicy);
+                /*
+                var selectWeapon = getSelectWeapon();
+                selectWeapon.id = ID_SELECT_SGA_WEAPON;
+                selectWeapon.onchange = saveSGaWeapon;
+                trapSetupCell.appendChild(selectWeapon);
+                selectWeapon = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                tmpTxt = null;
+                var selectBase = getSelectBase();
+                selectBase.id = ID_SELECT_SGA_BASE;
+                selectBase.onchange = saveSGaBase;
+                trapSetupCell.appendChild(selectBase);
+                selectBase = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                tmpTxt = null;
+                var selectBait = getSelectBait();
+                selectBait.id = ID_SELECT_SGA_BAIT;
+                selectBait.onchange = saveSGaBait;
+                trapSetupCell.appendChild(selectBait);
+                selectBait = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                tmpTxt = null;
+                var selectTrinket = getSelectTrinket();
+                selectTrinket.id = ID_SELECT_SGA_TRINKET;
+                selectTrinket.onchange = saveSGaTrinket;
+                trapSetupCell.appendChild(selectTrinket);
+                selectTrinket = null;
+                tmpTxt = document.createTextNode("   ");
+                trapSetupCell.appendChild(tmpTxt);
+                tmpTxt = null;
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetSGaTrapSetup;
+                resetButton.style.fontSize = "10px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                tmpTxt = null;
+                trapSetupCell.appendChild(resetButton);
+                trSGaSeasonTrapSetup = null;
+                */
+            }
+
             var tmpTxt;
             var policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
@@ -1938,6 +2124,7 @@ function embedUIStructure() {
 
             insertSelectPolicyRow();
             insertSGaPolicyPreferences();
+            insertZToPolicyPreferences();
 
             var trLastRow = policyPreferencesTable.insertRow();
             var updateTrapsButtonCell = trLastRow.insertCell();
@@ -2068,6 +2255,10 @@ function getPageVariable(name) {
             return unsafeWindow.user.has_puzzle;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
+        } else if (name == "user.environment_name") {
+            return unsafeWindow.user.environment_name;
+        } else if (name == "user.quests.QuestClawShotCity.phase") {
+            return unsafeWindow.user.quests.QuestClawShotCity.phase;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
