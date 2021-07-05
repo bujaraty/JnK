@@ -1078,8 +1078,15 @@ function checkLocation() {
 
     function runCSCPolicy() {
         function claimReward() {
+            function openChest() {
+                var openButton = document.getElementsByClassName("mousehuntActionButton openReward")[0];
+                fireEvent(openButton, "click");
+            }
             var claimButton = document.getElementsByClassName("mousehuntActionButton treasureMapView-claimRewardButton")[0];
             fireEvent(claimButton, "click");
+            window.setTimeout(function () {
+                openChest();
+            }, 5 * 1000);
         }
         var poster;
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
@@ -1105,7 +1112,7 @@ function checkLocation() {
                 }, 5 * 1000);
                 window.setTimeout(function () {
                     reloadCampPage();
-                }, 10 * 1000);
+                }, 15 * 1000);
                 break;
             default:
         }
@@ -1280,7 +1287,7 @@ function prepareSendingGiftsAndRaffles() {
 
         // Go through all sendGift and sendRaffle buttons in the first page
         window.setTimeout(function () {
-            sendGiftsAndRaffles(0, 4, 0);
+            sendGiftsAndRaffles(0, 5, 0);
         }, 5 * 1000);
     }
     var friendRows;
@@ -1373,7 +1380,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-/*
+        /*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
