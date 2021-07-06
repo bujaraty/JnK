@@ -628,7 +628,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        //checkLocation();
+        checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
