@@ -1,3 +1,7 @@
+Version 1.2.2.3
+- Add openChest to the CSC policy
+- Increase duration of CSC policy
+
 Version 1.2.2.2
 - Embed checkLocation into countDownTrapCheck
 

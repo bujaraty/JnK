@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.2
+// @version      1.2.2.3
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -628,7 +628,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        checkLocation();
+        //checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1069,10 +1069,51 @@ function checkLocation() {
             return document.getElementById("campPage-trap-armedItem-floatingTooltip-weapon").innerHTML;
         }
 
+        function getCurrentBase() {
+            return document.getElementById("campPage-trap-armedItem-floatingTooltip-base").innerHTML;
+        }
+
+        function getCurrentBait() {
+            return document.getElementsByClassName("campPage-trap-baitName")[0].innerHTML;
+        }
+
+        function getCurrentTrinket() {
+            return document.getElementById("campPage-trap-armedItem-floatingTooltip-trinket").innerHTML;
+        }
+
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
+        var tmpTxt;
+        // Check weapon
         var currentWeapon = getCurrentWeapon();
-        alert(trapSetup[IDX_WEAPON]);
-        alert(currentWeapon);
         if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != trapSetup[IDX_WEAPON] ) {
+            tmpTxt = "Current weapon: " + currentWeapon;
+            tmpTxt += "\nExpected weapon: " + trapSetup[IDX_WEAPON];
+            tmpTxt += "\n\nThey are not the same. Do something";
+            alert(tmpTxt);
+        }
+        // Check Base
+        var currentBase = getCurrentBase();
+        if( !isNullOrUndefined(trapSetup[IDX_BASE]) && currentBase != trapSetup[IDX_BASE] ) {
+            tmpTxt = "Current base: " + currentBase;
+            tmpTxt += "\nExpected base: " + trapSetup[IDX_BASE];
+            tmpTxt += "\n\nThey are not the same. Do something";
+            alert(tmpTxt);
+        }
+        // Check Bait
+        var currentBait = getCurrentBait();
+        if( !isNullOrUndefined(trapSetup[IDX_BAIT]) && currentBait != trapSetup[IDX_BAIT] ) {
+            tmpTxt = "Current bait: " + currentBait;
+            tmpTxt += "\nExpected bait: " + trapSetup[IDX_BAIT];
+            tmpTxt += "\n\nThey are not the same. Do something";
+            alert(tmpTxt);
+        }
+        // Check Trinket
+        var currentTrinket = getCurrentTrinket();
+        if( !isNullOrUndefined(trapSetup[IDX_TRINKET]) && currentTrinket != trapSetup[IDX_TRINKET] ) {
+            tmpTxt = "Current trinket: " + currentTrinket;
+            tmpTxt += "\nExpected trinket: " + trapSetup[IDX_TRINKET];
+            tmpTxt += "\n\nThey are not the same. Do something";
+            alert(tmpTxt);
         }
     }
 
@@ -1088,8 +1129,8 @@ function checkLocation() {
                 openChest();
             }, 5 * 1000);
         }
-        var poster;
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
+        var poster;
         var phase = getPageVariable("user.quests.QuestClawShotCity.phase");
         switch(phase) {
             case "need_poster":
@@ -1112,7 +1153,7 @@ function checkLocation() {
                 }, 5 * 1000);
                 window.setTimeout(function () {
                     reloadCampPage();
-                }, 15 * 1000);
+                }, 20 * 1000);
                 break;
             default:
         }
@@ -1150,7 +1191,7 @@ function checkLocation() {
     var currentLocation = getPageVariable("user.environment_name");
     switch(currentLocation) {
         case LOCATION_SEASONAL_GARDEN:
-            //runSGaPolicy();
+            runSGaPolicy();
             break;
         case LOCATION_CLAW_SHOT_CITY:
             runCSCPolicy();
@@ -1380,7 +1421,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-        /*
+/*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
