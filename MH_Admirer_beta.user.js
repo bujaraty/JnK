@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.3
+// @version      1.2.2.4
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -526,6 +526,18 @@ function timeElapsedInSeconds(dateA, dateB) {
     }
 }
 
+function lockBot(processName) {
+    if ((g_botProcess != BOT_PROCESS_IDLE) && (g_botProcess != processName)) {
+        return false;
+    }
+    g_botProcess = processName;
+    if (g_botProcess == processName) {
+        document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
+        return true;
+    }
+    return false;
+}
+
 function runScheduledGiftsAndRaffles() {
     function getGiftsAndRafflesStatus() {
         function gettingGiftsAndRafflesStatus() {
@@ -541,9 +553,9 @@ function runScheduledGiftsAndRaffles() {
             gettingGiftsAndRafflesStatus()
         }, 4.5 * 1000);
     }
-    // Lock bot
-    g_botProcess = BOT_PROCESS_SCHEDULER;
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
+    if (!lockBot(BOT_PROCESS_SCHEDULER)) {
+        return;
+    }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Scheduled Gifts and Raffles";
     // Send gifts and raffles
     prepareSendingGiftsAndRaffles();
@@ -558,9 +570,9 @@ function runScheduledGiftsAndRaffles() {
 }
 
 function resetSchedule() {
-    // Lock bot
-    g_botProcess = BOT_PROCESS_SCHEDULER;
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = g_botProcess;
+    if (!lockBot(BOT_PROCESS_SCHEDULER)) {
+        return;
+    }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Resetting Scheduler";
     // Actual reset schedule
     g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
@@ -970,7 +982,9 @@ function listAttributes(obj) {
 }
 
 function manualUpdatingTraps() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
+    if (!lockBot(BOT_PROCESS_Manual)) {
+        return;
+    }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Bases";
     prepareUpdatingTraps();
 }
@@ -1145,7 +1159,9 @@ function checkLocation() {
             case "active_poster":
                 break;
             case "has_reward":
-                document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_POLICY;
+                if (!lockBot(BOT_PROCESS_POLICY)) {
+                    return;
+                }
                 poster = document.getElementsByClassName("open has_reward")[0];
                 fireEvent(poster, "click");
                 window.setTimeout(function () {
@@ -1218,13 +1234,17 @@ function test2() {
 }
 
 function manualClaimingYesterdayGifts() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
+    if (!lockBot(BOT_PROCESS_Manual)) {
+        return;
+    }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
     prepareClaimingGifts(false);
 }
 
 function manualClaimingTodayGifts() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
+    if (!lockBot(BOT_PROCESS_Manual)) {
+        return;
+    }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
     prepareClaimingGifts(true);
 }
@@ -1268,7 +1288,9 @@ function prepareClaimingGifts(fromTop) {
 }
 
 function manualSendingGiftsAndRaffles() {
-    document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
+    if (!lockBot(BOT_PROCESS_Manual)) {
+        return;
+    }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts and Raffles";
     prepareSendingGiftsAndRaffles();
 }
@@ -1421,7 +1443,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-/*
+        /*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -1881,7 +1903,9 @@ function embedUIStructure() {
                     }, 4.5 * 1000);
                 }
 
-                document.getElementById(ID_BOT_PROCESS_TXT).innerHTML = BOT_PROCESS_Manual;
+                if (!lockBot(BOT_PROCESS_Manual)) {
+                    return;
+                }
                 window.setTimeout(function () {
                     updateWeapons();
                 }, 0.5 * 1000);
