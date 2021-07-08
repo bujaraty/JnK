@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.4
+// @version      1.2.2.5
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -22,7 +22,6 @@
 // Issue list
 // - Auto check manual horn
 // - Auto change trap setting
-// - Auto claim/send gifts and raffles
 // - Check valid location
 
 // == Basic User Preference Setting (Begin) ==
@@ -124,12 +123,22 @@ const ID_PREFERENCES_BOX = 'preferencesBox';
 const ID_TIMER_PREFERENCES_TABLE = 'timerPreferencesTable';
 const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
-const ID_TR_SGA_SEASON_TRAP_SETUP = "trSGaSeasonTrapSetup";
+const ID_TR_FRO_PHASES_TRAP_SETUP = "trFRoPhasesTrapSetup";
+const ID_SELECT_FRO_PHASE = "selectFRoPhase";
+const ID_SELECT_FRO_WEAPON = "selectFRoWeapon";
+const ID_SELECT_FRO_BASE = "selectFRoBase";
+const ID_SELECT_FRO_BAIT = "selectFRoBait";
+const ID_SELECT_FRO_TRINKET = "selectFRoTrinket";
+const ID_SELECT_FRO_TOWER = "selectFRoTower";
+const ID_TR_FRO_TOWER_HP_FULL = "trFRoTowerHPFull";
+const ID_SELECT_FRO_ACTIVATION_HP_FULL = "selctFRoActivationHPFull";
+const ID_TR_SGA_SEASONS_TRAP_SETUP = "trSGaSeasonsTrapSetup";
 const ID_SELECT_SGA_SEASON = "selectSGaSeason";
 const ID_SELECT_SGA_WEAPON = "selectSGaWeapon";
 const ID_SELECT_SGA_BASE = "selectSGaBase";
 const ID_SELECT_SGA_BAIT = "selectSGaBait";
 const ID_SELECT_SGA_TRINKET = "selectSGaTrinket";
+const ID_TR_ZTO_STRATEGY = "trZToStrategy";
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -144,16 +153,30 @@ const STORAGE_WEAPON_NAMES = "weaponNames";
 const STORAGE_BASE_NAMES = "baseNames";
 const STORAGE_BAIT_NAMES = "baitNames";
 const STORAGE_TRINKET_NAMES = "trinketNames";
-const STORAGE_TRAP_SETUP_SGA = "trapSetupSG";
+const STORAGE_TRAP_SETUP_FRO = "trapSetupFRo";
+const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
 const IDX_TRINKET = 3;
+const IDX_TOWER = 4;
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_PROCESS_Manual = "Manual";
 const BOT_STATUS_IDLE = "Idle";
+const FRO_PHASE_DAY = "Day";
+const FRO_PHASE_TWILIGHT = "Twilight";
+const FRO_PHASE_MIDNIGHT = "Midnight";
+const FRO_PHASE_PITCH = "Pitch";
+const FRO_PHASE_UTTER_DARKNESS = "Utter Darkness";
+const FRO_PHASE_FIRST_LIGHT = "First Light";
+const FRO_PHASE_DAWN = "Dawn";
+const FRO_PHASES = [FRO_PHASE_DAY, FRO_PHASE_TWILIGHT, FRO_PHASE_MIDNIGHT, FRO_PHASE_PITCH, FRO_PHASE_UTTER_DARKNESS, FRO_PHASE_FIRST_LIGHT, FRO_PHASE_DAWN];
+const FRO_TOWER_HP_FULL = "HP Full";
+const FRO_TOWER_ACTIVATE = "Activate";
+const FRO_TOWER_DEACTIVATE = "Deactivate";
+const FRO_TOWER_ACTIVATION = [FRO_TOWER_ACTIVATE, FRO_TOWER_DEACTIVATE];
 const SGA_SEASON_SPRING = "Spring";
 const SGA_SEASON_SUMMER = "Summer";
 const SGA_SEASON_AUTUMN = "Autumn";
@@ -170,37 +193,22 @@ const POLICY_NAME_NONE = "None";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
+const POLICY_NAME_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 
 // Policy description
 class Policy {
     constructor() {
         this.trs = [];
     }
+
     setName(name) {
         this.name = name;
     }
-    toString() {
-        return "{  name : " + this.name + " }";
-    }
-}
 
-class PolicySGa extends Policy {
-    constructor () {
-        super();
-        this.setName("Seasonal Garden");
-        this.trs[0] = ID_TR_SGA_SEASON_TRAP_SETUP;
-    }
-    resetTrapSetups() {
-        this.trapSetups = {};
-        this.trapSetups[SGA_SEASON_SPRING] = [];
-        this.trapSetups[SGA_SEASON_SUMMER] = [];
-        this.trapSetups[SGA_SEASON_AUTUMN] = [];
-        this.trapSetups[SGA_SEASON_WINTER] = [];
-    }
-    getTrapSetups() {
+    getTrapSetups(storageName) {
         var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
-            tmpStorage = getStorage(STORAGE_TRAP_SETUP_SGA, null);
+            tmpStorage = getStorage(storageName, null);
             if (isNullOrUndefined(tmpStorage)) {
                 this.resetTrapSetups();
             } else {
@@ -209,24 +217,77 @@ class PolicySGa extends Policy {
         }
         return this.trapSetups;
     }
+
+    toString() {
+        return "{  name : " + this.name + " }";
+    }
+}
+
+class PolicyFRo extends Policy {
+    constructor () {
+        super();
+        this.setName("Fort Rox");
+        this.trs[0] = ID_TR_FRO_PHASES_TRAP_SETUP;
+        this.trs[1] = ID_TR_FRO_TOWER_HP_FULL;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = {};
+        this.trapSetups[FRO_PHASE_DAY] = [];
+        this.trapSetups[FRO_PHASE_TWILIGHT] = [];
+        this.trapSetups[FRO_PHASE_MIDNIGHT] = [];
+        this.trapSetups[FRO_PHASE_PITCH] = [];
+        this.trapSetups[FRO_PHASE_UTTER_DARKNESS] = [];
+        this.trapSetups[FRO_PHASE_FIRST_LIGHT] = [];
+        this.trapSetups[FRO_PHASE_DAWN] = [];
+        this.trapSetups[FRO_TOWER_HP_FULL] = FRO_TOWER_DEACTIVATE;
+    }
+
     initSelectTrapSetup() {
-        /*
+        var trapSetups = this.getTrapSetups(STORAGE_TRAP_SETUP_FRO);
+        var currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
+        document.getElementById(ID_SELECT_FRO_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
+        document.getElementById(ID_SELECT_FRO_BASE).value = trapSetups[currentPhase][IDX_BASE];
+        document.getElementById(ID_SELECT_FRO_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
+        document.getElementById(ID_SELECT_FRO_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
+        if (isNullOrUndefined(trapSetups[currentPhase][IDX_TOWER])) {
+            trapSetups[currentPhase][IDX_TOWER] = FRO_TOWER_DEACTIVATE;
+        }
+        document.getElementById(ID_SELECT_FRO_TOWER).value = trapSetups[currentPhase][IDX_TOWER];
+        document.getElementById(ID_SELECT_FRO_ACTIVATION_HP_FULL).value = trapSetups[FRO_TOWER_HP_FULL];
+    }
+}
+
+class PolicySGa extends Policy {
+    constructor () {
+        super();
+        this.setName("Seasonal Garden");
+        this.trs[0] = ID_TR_SGA_SEASONS_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = {};
+        this.trapSetups[SGA_SEASON_SPRING] = [];
+        this.trapSetups[SGA_SEASON_SUMMER] = [];
+        this.trapSetups[SGA_SEASON_AUTUMN] = [];
+        this.trapSetups[SGA_SEASON_WINTER] = [];
+    }
+/*
+    getTrapSetups(storageName) {
         var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
-            tmpStorage = getStorage(STORAGE_TRAP_SETUP_SGA, null);
+            tmpStorage = getStorage(storageName, null);
             if (isNullOrUndefined(tmpStorage)) {
                 this.resetTrapSetups();
             } else {
                 this.trapSetups = tmpStorage;
             }
         }
-        var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-        document.getElementById(ID_SELECT_SGA_WEAPON).value = this.trapSetups[currentSeason][IDX_WEAPON];
-        document.getElementById(ID_SELECT_SGA_BASE).value = this.trapSetups[currentSeason][IDX_BASE];
-        document.getElementById(ID_SELECT_SGA_BAIT).value = this.trapSetups[currentSeason][IDX_BAIT];
-        document.getElementById(ID_SELECT_SGA_TRINKET).value = this.trapSetups[currentSeason][IDX_TRINKET];
-        */
-        var trapSetups = this.getTrapSetups();
+        return this.trapSetups;
+    }
+*/
+    initSelectTrapSetup() {
+        var trapSetups = this.getTrapSetups(STORAGE_TRAP_SETUP_SGA);
         var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
         document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
         document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
@@ -235,25 +296,44 @@ class PolicySGa extends Policy {
     }
 }
 
-class PolicyFR extends Policy {
+class PolicyZTo extends Policy {
     constructor () {
         super();
-        this.setName("Fort Rox");
+        this.setName("Zugzwang's Tower");
+        this.trs[0] = ID_TR_ZTO_STRATEGY;
     }
+
     resetTrapSetups() {
+        /*
         this.trapSetups = {};
+        this.trapSetups[SGA_SEASON_SPRING] = [];
+        this.trapSetups[SGA_SEASON_SUMMER] = [];
+        this.trapSetups[SGA_SEASON_AUTUMN] = [];
+        this.trapSetups[SGA_SEASON_WINTER] = [];
+        */
     }
+
     initSelectTrapSetups() {
+        /*
+        var trapSetups = this.getTrapSetups();
+        var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+        document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
+        document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
+        document.getElementById(ID_SELECT_SGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
+        document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
+        */
     }
 }
 
 const POLICY_DICT = {};
 function initPolicyDict() {
     var tmpPolicy;
-    tmpPolicy = new PolicyFR();
+    tmpPolicy = new PolicyFRo();
     POLICY_DICT[POLICY_NAME_FORT_ROX] = tmpPolicy;
     tmpPolicy = new PolicySGa();
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = tmpPolicy;
+    tmpPolicy = new PolicyZTo();
+    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = tmpPolicy;
 }
 
 // Start executing script
@@ -463,7 +543,6 @@ function operateBot() {
         console.log("operateBot() ERROR - " + e);
     }
 }
-
 
 function handleKingReward() {
     if (DEBUG_MODE) console.log("START AUTOSOLVE COUNTDOWN");
@@ -711,7 +790,7 @@ function soundHorn() {
     // double check if the horn was already sounded
     window.setTimeout(function () {
         afterSoundingHorn()
-    }, 2000);
+    }, 4000);
 }
 
 function prepareSoundingHorn() {
@@ -1169,7 +1248,7 @@ function checkLocation() {
                 }, 5 * 1000);
                 window.setTimeout(function () {
                     reloadCampPage();
-                }, 20 * 1000);
+                }, 25 * 1000);
                 break;
             default:
         }
@@ -1207,7 +1286,7 @@ function checkLocation() {
     var currentLocation = getPageVariable("user.environment_name");
     switch(currentLocation) {
         case LOCATION_SEASONAL_GARDEN:
-            runSGaPolicy();
+            //runSGaPolicy();
             break;
         case LOCATION_CLAW_SHOT_CITY:
             runCSCPolicy();
@@ -1577,16 +1656,6 @@ function embedUIStructure() {
                 reloadCampPage();
             }
 
-            function resetTrapCheckTime() {
-                // No idea what to do at the moment
-                // The original purpose was to correct the trap check time in case that it's not correct
-                // But now it's always correct so I'll leave this function do nothing at the moment
-                /*
-                var tmp = getTrapCheckTimeFromPage();
-                alert(tmp);
-                */
-            }
-
             var tmpTxt;
             var captionCell;
             var timerPreferencesTable = document.createElement('table');
@@ -1602,7 +1671,7 @@ function embedUIStructure() {
             captionCell = trNextBotHornTimePreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Bot Horn Time Delay :  ";
-            captionCell.width = 270;
+            captionCell.width = 240;
             var nextBotHornTimePreferencesSettings = trNextBotHornTimePreferences.insertCell();
             nextBotHornTimePreferencesSettings.width = 250;
             var botHornTimeDelayMinInput = document.createElement('INPUT');
@@ -1660,15 +1729,6 @@ function embedUIStructure() {
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
-            var trapCheckResetTimeButtonCell = trNextTrapCheckTimePreferences.insertCell();
-            var trapCheckResetTimeButton = document.createElement('button');
-            trapCheckResetTimeButton.onclick = resetTrapCheckTime
-            trapCheckResetTimeButton.style.fontSize = "10px";
-            tmpTxt = document.createTextNode("Reset Time");
-            trapCheckResetTimeButton.appendChild(tmpTxt);
-            trapCheckResetTimeButtonCell.appendChild(trapCheckResetTimeButton);
-            trapCheckResetTimeButtonCell = null;
-            trapCheckResetTimeButton = null;
             trapCheckTimeDelayMinInput = null;
             trapCheckTimeDelayMaxInput = null;
             nextTrapCheckTimePreferencesSettings = null;
@@ -2020,32 +2080,27 @@ function embedUIStructure() {
                     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
                 }
 
-                function saveSGaWeapon(event) {
+                function saveSGaSetup(itemIndex, value) {
                     var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_WEAPON] = event.target.value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
                     currentSeason = null;
                     setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
+                function saveSGaWeapon(event) {
+                    saveSGaSetup(IDX_WEAPON, event.target.value);
                 }
 
                 function saveSGaBase(event) {
-                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_BASE] = event.target.value;
-                    currentSeason = null;
-                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                    saveSGaSetup(IDX_BASE, event.target.value);
                 }
 
                 function saveSGaBait(event) {
-                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_BAIT] = event.target.value;
-                    currentSeason = null;
-                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                    saveSGaSetup(IDX_BAIT, event.target.value);
                 }
 
                 function saveSGaTrinket(event) {
-                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][IDX_TRINKET] = event.target.value;
-                    currentSeason = null;
-                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                    saveSGaSetup(IDX_TRINKET, event.target.value);
                 }
 
                 function resetSGaTrapSetup() {
@@ -2057,11 +2112,11 @@ function embedUIStructure() {
                 var captionCell;
                 var tmpTxt;
                 var itemOption;
-                var trSGaSeasonTrapSetup = policyPreferencesTable.insertRow();
-                trSGaSeasonTrapSetup.id = ID_TR_SGA_SEASON_TRAP_SETUP;
-                trSGaSeasonTrapSetup.style.height = "24px";
-                trSGaSeasonTrapSetup.style.display = "none";
-                captionCell = trSGaSeasonTrapSetup.insertCell();
+                var trSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
+                trSGaSeasonsTrapSetup.id = ID_TR_SGA_SEASONS_TRAP_SETUP;
+                trSGaSeasonsTrapSetup.style.height = "24px";
+                trSGaSeasonsTrapSetup.style.display = "none";
+                captionCell = trSGaSeasonsTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
                 var selectSeason = document.createElement('select');
@@ -2080,7 +2135,7 @@ function embedUIStructure() {
                 captionCell.appendChild(tmpTxt);
                 captionCell = null;
                 selectSeason = null;
-                var trapSetupCell = trSGaSeasonTrapSetup.insertCell();
+                var trapSetupCell = trSGaSeasonsTrapSetup.insertCell();
                 var selectWeapon = getSelectWeapon();
                 selectWeapon.id = ID_SELECT_SGA_WEAPON;
                 selectWeapon.onchange = saveSGaWeapon;
@@ -2118,16 +2173,19 @@ function embedUIStructure() {
                 resetButton = null;
                 tmpTxt = null;
                 trapSetupCell = null;
-                trSGaSeasonTrapSetup = null;
+                trSGaSeasonsTrapSetup = null;
             }
 
             function insertZToPolicyPreferences() {
+                function onChangeZToStrategy(event) {
+                }
+
                 var captionCell;
                 var itemOption;
                 var trZToStrategy = policyPreferencesTable.insertRow();
-                //trZToStrategy.id = ID_TR_SGA_SEASON_TRAP_SETUP;
+                trZToStrategy.id = ID_TR_ZTO_STRATEGY;
                 trZToStrategy.style.height = "24px";
-                //trZToStrategy.style.display = "none";
+                trZToStrategy.style.display = "none";
                 captionCell = trZToStrategy.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Strategy :  ";
@@ -2135,7 +2193,7 @@ function embedUIStructure() {
                 var selectStrategy = document.createElement('select');
                 //selectStrategy.id = ID_SELECT_SGA_SEASON;
                 selectStrategy.style.width = "120px";
-                //selectStrategy.onchange = onChangeSGaSelectSeason;
+                selectStrategy.onchange = onChangeZToStrategy;
                 itemOption = document.createElement("option");
                 itemOption.value = "Select strategy";
                 itemOption.text = "Select strategy";
@@ -2150,61 +2208,158 @@ function embedUIStructure() {
                 selectStrategy = null;
                 selectStrategyCell = null;
                 trZToStrategy = null;
+
                 captionCell = null;
                 itemOption = null;
+            }
 
-                /*
-                selectPolicy.appendChild(itemOption);
-                itemOption = null;
-                for (const [key, policyObj] of Object.entries(POLICY_DICT)) {
-                    itemOption = document.createElement("option");
-                    itemOption.value = policyObj.name;
-                    itemOption.text = policyObj.name;
-                    selectPolicy.appendChild(itemOption);
-                    itemOption = null;
+            function insertFRoPolicyPreferences() {
+                function onChangeFRoSelectPhase(event) {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].initSelectTrapSetup();
                 }
-                /*
+
+                function saveFRoSetup(itemIndex, value) {
+                    var currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[currentPhase][itemIndex] = value;
+                    currentPhase = null;
+                    setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                }
+
+                function saveFRoWeapon(event) {
+                    saveFRoSetup(IDX_WEAPON, event.target.value);
+                }
+
+                function saveFRoBase(event) {
+                    saveFRoSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFRoBait(event) {
+                    saveFRoSetup(IDX_BAIT, event.target.value);
+                }
+
+                function saveFRoTrinket(event) {
+                    saveFRoSetup(IDX_TRINKET, event.target.value);
+                }
+
+                function saveFRoTower(event) {
+                    saveFRoSetup(IDX_TOWER, event.target.value);
+                }
+
+                function resetFRoTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    reloadCampPage();
+                }
+
+                function saveFRoActivationHPFull(event) {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[FRO_TOWER_HP_FULL] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                }
+
+                var captionCell;
+                var itemOption;
+                var tmpTxt;
+
+                var trFRoPhasesTrapSetup = policyPreferencesTable.insertRow();
+                trFRoPhasesTrapSetup.id = ID_TR_FRO_PHASES_TRAP_SETUP;
+                trFRoPhasesTrapSetup.style.height = "24px";
+                trFRoPhasesTrapSetup.style.display = "none";
+                captionCell = trFRoPhasesTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                var selectPhase = document.createElement('select');
+                selectPhase.id = ID_SELECT_FRO_PHASE;
+                selectPhase.style.width = "70px";
+                selectPhase.onchange = onChangeFRoSelectPhase;
+                for (const phase of FRO_PHASES){
+                    itemOption = document.createElement("option");
+                    itemOption.value = phase
+                    itemOption.text = phase
+                    selectPhase.appendChild(itemOption);
+                }
+                captionCell.appendChild(selectPhase);
+                tmpTxt = document.createTextNode(" :  ");
+                captionCell.appendChild(tmpTxt);
+                selectPhase = null;
+                var trapSetupCell = trFRoPhasesTrapSetup.insertCell();
                 var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_SGA_WEAPON;
-                selectWeapon.onchange = saveSGaWeapon;
+                selectWeapon.id = ID_SELECT_FRO_WEAPON;
+                selectWeapon.onchange = saveFRoWeapon;
                 trapSetupCell.appendChild(selectWeapon);
                 selectWeapon = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                tmpTxt = null;
                 var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_SGA_BASE;
-                selectBase.onchange = saveSGaBase;
+                selectBase.id = ID_SELECT_FRO_BASE;
+                selectBase.onchange = saveFRoBase;
                 trapSetupCell.appendChild(selectBase);
                 selectBase = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                tmpTxt = null;
                 var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_SGA_BAIT;
-                selectBait.onchange = saveSGaBait;
+                selectBait.id = ID_SELECT_FRO_BAIT;
+                selectBait.onchange = saveFRoBait;
                 trapSetupCell.appendChild(selectBait);
                 selectBait = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                tmpTxt = null;
                 var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_SGA_TRINKET;
-                selectTrinket.onchange = saveSGaTrinket;
+                selectTrinket.id = ID_SELECT_FRO_TRINKET;
+                selectTrinket.onchange = saveFRoTrinket;
                 trapSetupCell.appendChild(selectTrinket);
                 selectTrinket = null;
-                tmpTxt = document.createTextNode("   ");
+                tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                tmpTxt = null;
+                var selectTower = document.createElement('select');
+                selectTower.id = ID_SELECT_FRO_TOWER;
+                selectTower.style.width = "80px";
+                selectTower.onchange = saveFRoTower;
+                for (const phase of FRO_TOWER_ACTIVATION){
+                    itemOption = document.createElement("option");
+                    itemOption.value = phase
+                    itemOption.text = phase
+                    selectTower.appendChild(itemOption);
+                }
+                trapSetupCell.appendChild(selectTower);
+                selectTower = null;
+                trapSetupCell = null;
+                trFRoPhasesTrapSetup = null;
+
+                var trFRoTowerHPFull = policyPreferencesTable.insertRow();
+                trFRoTowerHPFull.id = ID_TR_FRO_TOWER_HP_FULL;
+                trFRoTowerHPFull.style.height = "24px";
+                trFRoTowerHPFull.style.display = "none";
+                captionCell = trFRoTowerHPFull.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Tower Activation When HP Full :  ";
+                var selectActivationCell = trFRoTowerHPFull.insertCell();
+                var selectActivation = document.createElement('select');
+                selectActivation.id = ID_SELECT_FRO_ACTIVATION_HP_FULL;
+                selectActivation.style.width = "60px";
+                selectActivation.onchange = saveFRoActivationHPFull;
+                for (const phase of FRO_TOWER_ACTIVATION){
+                    itemOption = document.createElement("option");
+                    itemOption.value = phase
+                    itemOption.text = phase
+                    selectActivation.appendChild(itemOption);
+                }
+                selectActivationCell.appendChild(selectActivation);
+                tmpTxt = document.createTextNode("   ");
+                selectActivationCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
-                resetButton.onclick = resetSGaTrapSetup;
+                resetButton.onclick = resetFRoTrapSetup;
                 resetButton.style.fontSize = "10px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
+                selectActivationCell.appendChild(resetButton);
+                resetButton = null;
+                selectActivation = null;
+                selectActivationCell = null;
+                trFRoTowerHPFull = null;
+
                 tmpTxt = null;
-                trapSetupCell.appendChild(resetButton);
-                trSGaSeasonTrapSetup = null;
-                */
+                captionCell = null;
+                itemOption = null;
             }
 
             var tmpTxt;
@@ -2216,6 +2371,7 @@ function embedUIStructure() {
             trEmpty = null;
 
             insertSelectPolicyRow();
+            insertFRoPolicyPreferences();
             insertSGaPolicyPreferences();
             insertZToPolicyPreferences();
 
@@ -2289,7 +2445,6 @@ function embedUIStructure() {
 
         separationLine = document.createElement('div');
         separationLine.style.height = "3px";
-        //separationLine.style.borderBottom = "1px solid #ff0066";
         separationLine.style.borderBottom = "1px solid #F122F6";
         preferencesBox.appendChild(separationLine);
         separationLine = null;
