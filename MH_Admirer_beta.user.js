@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.5
+// @version      1.2.2.6
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -769,7 +769,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        //checkLocation();
+        checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1303,15 +1303,22 @@ function checkLocation() {
             function armingTrinket(policyTrinketName) {
                 var camppageTrinketName;
                 var armButton;
+                var disarmButton;
                 var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                for (var i = 0; i < camppageTrinkets.length; ++i) {
-                    camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                    if (camppageTrinketName == policyTrinketName) {
-                        armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
-                        fireEvent(armButton, 'click');
+                if (policyTrinketName == DISARM_TRINKET) {
+                    disarmButton = document.getElementsByClassName("campPage-trap-itemBrowser-item-disarmButton")[0];
+                    fireEvent(disarmButton, 'click');
+                } else {
+                    for (var i = 0; i < camppageTrinkets.length; ++i) {
+                        camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        if (camppageTrinketName == policyTrinketName) {
+                            armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton")[0];
+                            fireEvent(armButton, 'click');
+                        }
                     }
                 }
                 armButton = null;
+                disarmButton = null;
                 camppageTrinketName = null;
                 camppageTrinkets = null;
                 document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Trinket";;
@@ -1329,7 +1336,14 @@ function checkLocation() {
         var delayTime = 0;
         // Check weapon
         var currentWeapon = getCurrentWeapon();
-        if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != trapSetup[IDX_WEAPON] ) {
+        if (currentWeapon.endsWith("Trap")) {
+            currentWeapon = currentWeapon.slice(0, -5);
+        }
+        var policyWeapon = trapSetup[IDX_WEAPON];
+        if (policyWeapon.endsWith("Trap")) {
+            policyWeapon = policyWeapon.slice(0, -5);
+        }
+        if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != policyWeapon ) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
             }
@@ -1362,6 +1376,9 @@ function checkLocation() {
         }
         // Check Trinket
         var currentTrinket = getCurrentTrinket();
+        if (currentTrinket == "") {
+            currentTrinket = DISARM_TRINKET;
+        }
         if( !isNullOrUndefined(trapSetup[IDX_TRINKET]) && currentTrinket != trapSetup[IDX_TRINKET] ) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
