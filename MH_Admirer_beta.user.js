@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.6
+// @version      1.2.2.7
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -139,6 +139,7 @@ const ID_SELECT_SGA_BASE = "selectSGaBase";
 const ID_SELECT_SGA_BAIT = "selectSGaBait";
 const ID_SELECT_SGA_TRINKET = "selectSGaTrinket";
 const ID_TR_ZTO_STRATEGY = "trZToStrategy";
+const ID_SELECT_ZTO_STRATEGY = "selectZToStrategy";
 const ID_TR_ZTO_CHESS_TRAP_SETUP = "trZToChessTrapSetup";
 const ID_SELECT_ZTO_CHESS = "selectZToChess";
 const ID_SELECT_ZTO_WEAPON = "selectZToWeapon";
@@ -161,6 +162,7 @@ const STORAGE_BAIT_NAMES = "baitNames";
 const STORAGE_TRINKET_NAMES = "trinketNames";
 const STORAGE_TRAP_SETUP_FRO = "trapSetupFRo";
 const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
+const STORAGE_TRAP_SETUP_ZTO = "trapSetupZTo";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
@@ -189,11 +191,12 @@ const SGA_SEASON_SUMMER = "Summer";
 const SGA_SEASON_AUTUMN = "Autumn";
 const SGA_SEASON_WINTER = "Winter";
 const SGA_SEASONS = [SGA_SEASON_SPRING, SGA_SEASON_SUMMER, SGA_SEASON_AUTUMN, SGA_SEASON_WINTER];
-const ZTO_STRATEGY_TECHNIC_ONLY = "Technic Only";
 const ZTO_STRATEGY_MYSTIC_ONLY = "Mystic Only";
-const ZTO_STRATEGY_TECHNIC_FIRST = "Technic First";
+const ZTO_STRATEGY_TECHNIC_ONLY = "Technic Only";
 const ZTO_STRATEGY_MYSTIC_FIRST = "Mystic First";
-const ZTO_STRATEGIES = [ZTO_STRATEGY_TECHNIC_ONLY, ZTO_STRATEGY_MYSTIC_ONLY, ZTO_STRATEGY_TECHNIC_FIRST, ZTO_STRATEGY_MYSTIC_FIRST];
+const ZTO_STRATEGY_TECHNIC_FIRST = "Technic First";
+const ZTO_STRATEGY = "ZTo Strategy"
+const ZTO_STRATEGIES = [ZTO_STRATEGY_MYSTIC_ONLY, ZTO_STRATEGY_TECHNIC_ONLY, ZTO_STRATEGY_MYSTIC_FIRST, ZTO_STRATEGY_TECHNIC_FIRST];
 const ZTO_CHESS_MYSTIC_PAWN = "Mystic Pawn";
 const ZTO_CHESS_MYSTIC_KNIGHT = "Mystic Knight";
 const ZTO_CHESS_MYSTIC_BISHOP = "Mystic Bishop";
@@ -210,9 +213,11 @@ const ZTO_CHESS_MASTER = "Chess Master";
 const ZTO_CHESS_PROGRESS = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_CHESS_MYSTIC_BISHOP, ZTO_CHESS_MYSTIC_ROOK, ZTO_CHESS_MYSTIC_QUEEN, ZTO_CHESS_MYSTIC_KING,
                             ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING,
                             ZTO_CHESS_MASTER];
-const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
+const LOCATION_HARBOUR = "Harbour";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
+const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_NONE = "None";
+const POLICY_NAME_HARBOUR = "Harbour";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
@@ -227,26 +232,8 @@ class Policy {
     setName(name) {
         this.name = name;
     }
-    /*
+
     getTrapSetups(storageName) {
-        alert("hello 2");
-        var tmpStorage;
-        if (isNullOrUndefined(this.trapSetups)) {
-            tmpStorage = getStorage(storageName, null);
-            if (isNullOrUndefined(tmpStorage)) {
-                this.resetTrapSetups();
-            } else {
-                this.trapSetups = tmpStorage;
-            }
-        }
-        return this.trapSetups;
-    }
-*/
-    getTrapSetups(storageName) {
-        /*
-        alert("inside func1() of class parent");
-        alert(storageName);
-        */
         var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
             tmpStorage = getStorage(storageName, null);
@@ -321,20 +308,7 @@ class PolicySGa extends Policy {
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_SGA);
     }
-    /*
-    getTrapSetups(storageName) {
-        var tmpStorage;
-        if (isNullOrUndefined(this.trapSetups)) {
-            tmpStorage = getStorage(storageName, null);
-            if (isNullOrUndefined(tmpStorage)) {
-                this.resetTrapSetups();
-            } else {
-                this.trapSetups = tmpStorage;
-            }
-        }
-        return this.trapSetups;
-    }
-*/
+
     initSelectTrapSetup() {
         var trapSetups = this.getTrapSetups();
         var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
@@ -354,24 +328,35 @@ class PolicyZTo extends Policy {
     }
 
     resetTrapSetups() {
-        /*
         this.trapSetups = {};
-        this.trapSetups[SGA_SEASON_SPRING] = [];
-        this.trapSetups[SGA_SEASON_SUMMER] = [];
-        this.trapSetups[SGA_SEASON_AUTUMN] = [];
-        this.trapSetups[SGA_SEASON_WINTER] = [];
-        */
+        this.trapSetups[ZTO_CHESS_MYSTIC_PAWN] = [];
+        this.trapSetups[ZTO_CHESS_MYSTIC_KNIGHT] = [];
+        this.trapSetups[ZTO_CHESS_MYSTIC_BISHOP] = [];
+        this.trapSetups[ZTO_CHESS_MYSTIC_ROOK] = [];
+        this.trapSetups[ZTO_CHESS_MYSTIC_QUEEN] = [];
+        this.trapSetups[ZTO_CHESS_MYSTIC_KING] = [];
+        this.trapSetups[ZTO_CHESS_TECHNIC_PAWN] = [];
+        this.trapSetups[ZTO_CHESS_TECHNIC_KNIGHT] = [];
+        this.trapSetups[ZTO_CHESS_TECHNIC_BISHOP] = [];
+        this.trapSetups[ZTO_CHESS_TECHNIC_ROOK] = [];
+        this.trapSetups[ZTO_CHESS_TECHNIC_QUEEN] = [];
+        this.trapSetups[ZTO_CHESS_TECHNIC_KING] = [];
+        this.trapSetups[ZTO_CHESS_MASTER] = [];
+        this.trapSetups[ZTO_STRATEGY] = ZTO_STRATEGY_MYSTIC_ONLY;
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_ZTO);
     }
 
     initSelectTrapSetup() {
-        /*
         var trapSetups = this.getTrapSetups();
-        var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-        document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
-        document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
-        document.getElementById(ID_SELECT_SGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
-        document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
-        */
+        var currentChess = document.getElementById(ID_SELECT_ZTO_CHESS).value;
+        document.getElementById(ID_SELECT_ZTO_WEAPON).value = trapSetups[currentChess][IDX_WEAPON];
+        document.getElementById(ID_SELECT_ZTO_BASE).value = trapSetups[currentChess][IDX_BASE];
+        document.getElementById(ID_SELECT_ZTO_BAIT).value = trapSetups[currentChess][IDX_BAIT];
+        document.getElementById(ID_SELECT_ZTO_TRINKET).value = trapSetups[currentChess][IDX_TRINKET];
+        document.getElementById(ID_SELECT_ZTO_STRATEGY).value = trapSetups[ZTO_STRATEGY];
     }
 }
 
@@ -392,7 +377,6 @@ window.addEventListener("message", processEventMsg, false);
 if (DEBUG_MODE) console.log('STARTING SCRIPT - ver: ' + g_strScriptVersion);
 if (window.top != window.self) {
     if (DEBUG_MODE) console.log('In IFRAME - may cause firefox to error, location: ' + window.location.href);
-    //return;
 } else {
     if (DEBUG_MODE) console.log('NOT IN IFRAME - will not work in fb MH');
 }
@@ -1044,170 +1028,12 @@ function getTrapCheckTimeFromPage() {
     }
 }
 
-function clickAndArmWeapon(weaponCode) {
-    function ArmWeapon(weaponCode) {
-        var armableWeaponElements = document.getElementsByClassName('campPage-trap-itemBrowser-tagGroup default')[0].getElementsByClassName('canArm');
-        if (armableWeaponElements) {
-            alert("found defaultWeapon");
-            alert(armableWeaponElements.length);
-            for (var i = 0; i < armableWeaponElements.length; ++i) {
-                alert(armableWeaponElements[i].getAttribute('class'));
-                /*
-                var attrs = armableWeaponElements[i].attributes;
-                for (var j = 0; j < attrs.length; ++j) {
-                    alert(attrs[j].name);
-                }
-                attrs = null;
-                */
-            }
-        } else {
-            alert("not found defaultWeapon");
-        }
-    }
-
-    if (DEBUG_MODE) console.log("RUN clickAndArmWeapon()", "color: #bada55");
-    alert("in function armWeapon()");
-    var weaponElement = document.getElementsByClassName('campPage-trap-armedItem weapon');
-    if (weaponElement) {
-        window.setTimeout(function () {
-            fireEvent(weaponElement[0], 'click');
-        }, 1 * 1000);
-        window.setTimeout(function () {
-            ArmWeapon(weaponCode);
-        }, 3 * 1000);
-        /*
-        window.setTimeout(function () {
-            fireEvent(weaponElement[0], 'click');
-        }, 10 * 1000);*/
-    } else {
-    }
-}
-
-function displayDocumentStyles() {
-    alert("styling");
-    //var autobotStyle = document.createElement("style");
-    //alert("afdter document.createElement(\"style\");");
-    //var header = document.getElementsByTagName('head');
-    //alert("after getting head");
-    //.appendChild(autobotStyle);
-    //alert("afeter appending to head");
-    var x = document.getElementsByTagName("STYLE");
-    alert(x[0].lentgh);
-    x[0].innerHTML = ".autoBotTxt { background-color: yellow; color: red; }";
-    alert(x[0].innerHTML);
-    for (var i=0; i<x.length; x++) {
-        alert(x[i].tagName);
-    }
-    document.getElementById("demo").innerHTML = x[0].innerHTML;
-}
-
-function listAttributes(obj) {
-    var attrs = obj.attributes;
-    var tmpTxt = "";
-    for (var i = 0; i < attrs.length; i++) {
-        tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
-    }
-    alert(tmpTxt);
-}
-
-function manualUpdatingTraps() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Bases";
-    prepareUpdatingTraps();
-}
-
-function prepareUpdatingTraps() {
-    function updateTrinkets() {
-        function getCampPageTrinketNames() {
-            var trinketName;
-            g_trinketNames = [];
-            var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-            for (var i = 0; i < camppageTrinkets.length; ++i) {
-                trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                if (g_trinketNames.indexOf(trinketName) == -1) {
-                    g_trinketNames[g_trinketNames.length] = trinketName;
-                }
-                trinketName = null;
-            }
-            camppageTrinkets = null;
-            g_trinketNames.sort();
-            setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating Trinkets";;
-        }
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual updating Trinkets";
-        var currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
-        fireEvent(currentTrinket, 'click');
-        window.setTimeout(function () {
-            getCampPageTrinketNames();
-        }, 4.5 * 1000);
-    }
-    updateTrinkets();
-}
-
-function testSaveObjToStorage() {
-    alert("in saveObjToStorage");
-    var myObj = {"key1": ['a', 'b', 'c']};
-    //alert(myObj.key1);
-
-    for (var i = 0; i < myObj.key1.length; i++) {
-        alert(myObj.key1[i]);
-    }
-    setStorage("testObj", JSON.stringify(myObj));
-}
-
-function testLoadObjFromStorage() {
-    alert("in loadObjFromStorage");
-    var myObj = JSON.parse(getStorage("testObj"));
-    for (var i = 0; i < myObj.key1.length; i++) {
-        alert(myObj.key1[i]);
-    }
-}
-
-function testSetDropDownList () {
-    var testRow = document.getElementById("test row");
-    var testDropDownListCell = testRow.insertCell();
-    var itemList = g_trinketNames;
-    //var itemList = ["a", "b", "c"];
-    var dropDownList = document.createElement('select');
-    dropDownList.id = "test dropDownList";
-    dropDownList.style.width = "120px";
-    for (var i = 0; i < itemList.length; i++) {
-        var itemOption = document.createElement("option");
-        itemOption.value = itemList[i];
-        itemOption.text = itemList[i];
-        dropDownList.appendChild(itemOption);
-        itemOption = null;
-    }
-    testDropDownListCell.appendChild(dropDownList);
-    testDropDownListCell = null;
-    itemList = null;
-    dropDownList = null;
-    testRow = null;
-}
-
-function testSelectDropDownList() {
-    alert(document.getElementById("test dropDownList").value);
-}
-
-function testDict() {
-    var tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
-    alert(tmpPolicy.trapSetups[SGA_SEASON_SPRING].weapon);
-    /*
-    for (const [key, value] of Object.entries(POLICY_DICT)) {
-        alert(key + ": " + value);
-    }
-    */
-}
-
 function checkLocation() {
     function runDefaultLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_NONE;
     }
 
     function armTraps(trapSetup) {
-        // not yet done
         function getCurrentWeapon() {
             return document.getElementById("campPage-trap-armedItem-floatingTooltip-weapon").innerHTML;
         }
@@ -1395,6 +1221,27 @@ function checkLocation() {
         }
     }
 
+    function runHarPolicy() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
+        var status = getPageVariable("user.quests.QuestHarbour.status");
+        var button;
+        switch(status) {
+            case "noShip":
+                break;
+            case "canBeginSearch":
+                button = document.getElementsByClassName("harbourHUD-beginSearch")[0];
+                fireEvent(button, "click");
+                break;
+            case "searchStarted":
+                break;
+            case "has_reward":
+                break;
+            default:
+        }
+        status = null;
+        button = null;
+    }
+
     function runCSCPolicy() {
         function claimReward() {
             function openChest() {
@@ -1438,7 +1285,7 @@ function checkLocation() {
             default:
         }
         poster = null;
-
+        phase = null;
     }
 
     function runSGaPolicy() {
@@ -1470,11 +1317,14 @@ function checkLocation() {
     }
     var currentLocation = getPageVariable("user.environment_name");
     switch(currentLocation) {
-        case LOCATION_SEASONAL_GARDEN:
-            runSGaPolicy();
+        case LOCATION_HARBOUR:
+            runHarPolicy();
             break;
         case LOCATION_CLAW_SHOT_CITY:
             runCSCPolicy();
+            break;
+        case LOCATION_SEASONAL_GARDEN:
+            runSGaPolicy();
             break;
         default:
             runDefaultLocation();
@@ -1482,46 +1332,70 @@ function checkLocation() {
     currentLocation = null;
 }
 
-class Parent {
-    func1(abc) {
-        alert("inside func1() of class parent");
-        alert(abc);
+function displayDocumentStyles() {
+    alert("styling");
+    //var autobotStyle = document.createElement("style");
+    //alert("afdter document.createElement(\"style\");");
+    //var header = document.getElementsByTagName('head');
+    //alert("after getting head");
+    //.appendChild(autobotStyle);
+    //alert("afeter appending to head");
+    var x = document.getElementsByTagName("STYLE");
+    alert(x[0].lentgh);
+    x[0].innerHTML = ".autoBotTxt { background-color: yellow; color: red; }";
+    alert(x[0].innerHTML);
+    for (var i=0; i<x.length; x++) {
+        alert(x[i].tagName);
     }
+    document.getElementById("demo").innerHTML = x[0].innerHTML;
+}
 
-    func2() {
-        alert("inside func2() of class parent");
+function listAttributes(obj) {
+    var attrs = obj.attributes;
+    var tmpTxt = "";
+    for (var i = 0; i < attrs.length; i++) {
+        tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
+    }
+    alert(tmpTxt);
+}
+
+function testSaveObjToStorage() {
+    alert("in saveObjToStorage");
+    var myObj = {"key1": ['a', 'b', 'c']};
+    //alert(myObj.key1);
+
+    for (var i = 0; i < myObj.key1.length; i++) {
+        alert(myObj.key1[i]);
+    }
+    setStorage("testObj", JSON.stringify(myObj));
+}
+
+function testLoadObjFromStorage() {
+    alert("in loadObjFromStorage");
+    var myObj = JSON.parse(getStorage("testObj"));
+    for (var i = 0; i < myObj.key1.length; i++) {
+        alert(myObj.key1[i]);
     }
 }
 
-class Child extends Parent {
-    // Overloaded function
-    func1() {
-        alert("inside func1() of class Child ");
-        alert("calling func1() of parent class");
-
-        // Calling for parent's version of func1()
-        super.func1("d");
+function testDict() {
+    var tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
+    alert(tmpPolicy.trapSetups[SGA_SEASON_SPRING].weapon);
+    /*
+    for (const [key, value] of Object.entries(POLICY_DICT)) {
+        alert(key + ": " + value);
     }
-}
-
-function testClass() {
-    var a = new PolicySGa()
-    a.getTrapSetups();
+    */
 }
 
 function test1() {
     checkLocation();
-    //testClass();
     //testDict();
     //testSaveObjToStorage();
-    //manualUpdatingTraps();
-    //testSetDropDownList();
     //displayDocumentStyles();
-    //clickAndArmWeapon();
 }
 
 function test2() {
-    //testSelectDropDownList();
     //testLoadObjFromStorage();
 }
 
@@ -2526,24 +2400,41 @@ function embedUIStructure() {
 
             function insertZToPolicyPreferences() {
                 function onChangeZToStrategy(event) {
+                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[ZTO_STRATEGY] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
                 }
 
                 function onChangeZToSelectChess(event) {
+                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].initSelectTrapSetup();
+                }
+
+                function saveZToSetup(itemIndex, value) {
+                    var currentChess = document.getElementById(ID_SELECT_ZTO_CHESS).value;
+                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[currentChess][itemIndex] = value;
+                    currentChess = null;
+                    setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
                 }
 
                 function saveZToWeapon(event) {
+                    saveZToSetup(IDX_WEAPON, event.target.value);
                 }
 
                 function saveZToBase(event) {
+                    saveZToSetup(IDX_BASE, event.target.value);
                 }
 
                 function saveZToBait(event) {
+                    saveZToSetup(IDX_BAIT, event.target.value);
                 }
 
                 function saveZToTrinket(event) {
+                    saveZToSetup(IDX_TRINKET, event.target.value);
                 }
 
                 function resetZToTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
+                    reloadCampPage();
                 }
 
                 var captionCell;
@@ -2558,7 +2449,7 @@ function embedUIStructure() {
                 captionCell.innerHTML = "Strategy :  ";
                 var selectStrategyCell = trZToStrategy.insertCell();
                 var selectStrategy = document.createElement('select');
-                //selectStrategy.id = ID_SELECT_SGA_SEASON;
+                selectStrategy.id = ID_SELECT_ZTO_STRATEGY;
                 selectStrategy.style.width = "120px";
                 selectStrategy.onchange = onChangeZToStrategy;
                 itemOption = document.createElement("option");
@@ -2694,7 +2585,6 @@ function embedUIStructure() {
 
         var separationLine = document.createElement('div');
         separationLine.style.height = "3px";
-        //separationLine.style.borderBottom = "1px solid #ff0066";
         separationLine.style.borderBottom = "1px solid #F122F6";
         preferencesBox.appendChild(separationLine);
         separationLine = null;
@@ -2752,7 +2642,6 @@ function embedUIStructure() {
     var overlayContainerElement = document.getElementById('overlayContainer');
     if (overlayContainerElement) {
         var autobotDiv = document.createElement('div');
-        // autobotDiv.style.backgroundColor = "#fff2e6";
         autobotDiv.style.whiteSpace = "pre";
         autobotDiv.style.fontSize = "200%";
 
@@ -2786,6 +2675,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.environment_name;
         } else if (name == "user.quests.QuestClawShotCity.phase") {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
+        } else if (name == "user.quests.QuestHarbour.status") {
+            return unsafeWindow.user.quests.QuestHarbour.status;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
