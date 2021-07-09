@@ -139,6 +139,12 @@ const ID_SELECT_SGA_BASE = "selectSGaBase";
 const ID_SELECT_SGA_BAIT = "selectSGaBait";
 const ID_SELECT_SGA_TRINKET = "selectSGaTrinket";
 const ID_TR_ZTO_STRATEGY = "trZToStrategy";
+const ID_TR_ZTO_CHESS_TRAP_SETUP = "trZToChessTrapSetup";
+const ID_SELECT_ZTO_CHESS = "selectZToChess";
+const ID_SELECT_ZTO_WEAPON = "selectZToWeapon";
+const ID_SELECT_ZTO_BASE = "selectZToBase";
+const ID_SELECT_ZTO_BAIT = "selectZToBait";
+const ID_SELECT_ZTO_TRINKET = "selectZToTrinket";
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -160,6 +166,7 @@ const IDX_BASE = 1;
 const IDX_BAIT = 2;
 const IDX_TRINKET = 3;
 const IDX_TOWER = 4;
+const DISARM_TRINKET = "Disarm";
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
@@ -187,6 +194,22 @@ const ZTO_STRATEGY_MYSTIC_ONLY = "Mystic Only";
 const ZTO_STRATEGY_TECHNIC_FIRST = "Technic First";
 const ZTO_STRATEGY_MYSTIC_FIRST = "Mystic First";
 const ZTO_STRATEGIES = [ZTO_STRATEGY_TECHNIC_ONLY, ZTO_STRATEGY_MYSTIC_ONLY, ZTO_STRATEGY_TECHNIC_FIRST, ZTO_STRATEGY_MYSTIC_FIRST];
+const ZTO_CHESS_MYSTIC_PAWN = "Mystic Pawn";
+const ZTO_CHESS_MYSTIC_KNIGHT = "Mystic Knight";
+const ZTO_CHESS_MYSTIC_BISHOP = "Mystic Bishop";
+const ZTO_CHESS_MYSTIC_ROOK = "Mystic Rook";
+const ZTO_CHESS_MYSTIC_QUEEN = "Mystic Queen";
+const ZTO_CHESS_MYSTIC_KING = "Mystic King";
+const ZTO_CHESS_TECHNIC_PAWN = "Technic Pawn";
+const ZTO_CHESS_TECHNIC_KNIGHT = "Technic Knight";
+const ZTO_CHESS_TECHNIC_BISHOP = "Technic Bishop";
+const ZTO_CHESS_TECHNIC_ROOK = "Technic Rook";
+const ZTO_CHESS_TECHNIC_QUEEN = "Technic Queen";
+const ZTO_CHESS_TECHNIC_KING = "Technic King";
+const ZTO_CHESS_MASTER = "Chess Master";
+const ZTO_CHESS_PROGRESS = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_CHESS_MYSTIC_BISHOP, ZTO_CHESS_MYSTIC_ROOK, ZTO_CHESS_MYSTIC_QUEEN, ZTO_CHESS_MYSTIC_KING,
+                            ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING,
+                            ZTO_CHESS_MASTER];
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_NONE = "None";
@@ -204,8 +227,26 @@ class Policy {
     setName(name) {
         this.name = name;
     }
-
+    /*
     getTrapSetups(storageName) {
+        alert("hello 2");
+        var tmpStorage;
+        if (isNullOrUndefined(this.trapSetups)) {
+            tmpStorage = getStorage(storageName, null);
+            if (isNullOrUndefined(tmpStorage)) {
+                this.resetTrapSetups();
+            } else {
+                this.trapSetups = tmpStorage;
+            }
+        }
+        return this.trapSetups;
+    }
+*/
+    getTrapSetups(storageName) {
+        /*
+        alert("inside func1() of class parent");
+        alert(storageName);
+        */
         var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
             tmpStorage = getStorage(storageName, null);
@@ -243,8 +284,12 @@ class PolicyFRo extends Policy {
         this.trapSetups[FRO_TOWER_HP_FULL] = FRO_TOWER_DEACTIVATE;
     }
 
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_FRO);
+    }
+
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups(STORAGE_TRAP_SETUP_FRO);
+        var trapSetups = this.getTrapSetups();
         var currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
         document.getElementById(ID_SELECT_FRO_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
         document.getElementById(ID_SELECT_FRO_BASE).value = trapSetups[currentPhase][IDX_BASE];
@@ -272,7 +317,11 @@ class PolicySGa extends Policy {
         this.trapSetups[SGA_SEASON_AUTUMN] = [];
         this.trapSetups[SGA_SEASON_WINTER] = [];
     }
-/*
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_SGA);
+    }
+    /*
     getTrapSetups(storageName) {
         var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
@@ -287,7 +336,7 @@ class PolicySGa extends Policy {
     }
 */
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups(STORAGE_TRAP_SETUP_SGA);
+        var trapSetups = this.getTrapSetups();
         var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
         document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
         document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
@@ -301,6 +350,7 @@ class PolicyZTo extends Policy {
         super();
         this.setName("Zugzwang's Tower");
         this.trs[0] = ID_TR_ZTO_STRATEGY;
+        this.trs[1] = ID_TR_ZTO_CHESS_TRAP_SETUP;
     }
 
     resetTrapSetups() {
@@ -313,7 +363,7 @@ class PolicyZTo extends Policy {
         */
     }
 
-    initSelectTrapSetups() {
+    initSelectTrapSetup() {
         /*
         var trapSetups = this.getTrapSetups();
         var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
@@ -719,7 +769,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        checkLocation();
+        //checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1073,15 +1123,15 @@ function prepareUpdatingTraps() {
         function getCampPageTrinketNames() {
             var trinketName;
             g_trinketNames = [];
-            var campageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-            for (var i = 0; i < campageTrinkets.length; ++i) {
-                trinketName = campageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+            var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+            for (var i = 0; i < camppageTrinkets.length; ++i) {
+                trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                 if (g_trinketNames.indexOf(trinketName) == -1) {
                     g_trinketNames[g_trinketNames.length] = trinketName;
                 }
                 trinketName = null;
             }
-            campageTrinkets = null;
+            camppageTrinkets = null;
             g_trinketNames.sort();
             setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating Trinkets";;
@@ -1174,39 +1224,157 @@ function checkLocation() {
             return document.getElementById("campPage-trap-armedItem-floatingTooltip-trinket").innerHTML;
         }
 
+        function armWeapon(policyWeaponName) {
+            function armingWeapon(policyWeaponName) {
+                var camppageWeaponName;
+                var armButton;
+                var camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+                for (var i = 0; i < camppageWeapons.length; ++i) {
+                    camppageWeaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                    if (camppageWeaponName == policyWeaponName) {
+                        armButton = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        fireEvent(armButton, 'click');
+                    }
+                }
+                armButton = null;
+                camppageWeaponName = null;
+                camppageWeapons = null;
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Weapon";;
+            }
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Weapon";
+            var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
+            fireEvent(currentWeapon, 'click');
+            window.setTimeout(function () {
+                armingWeapon(policyWeaponName);
+            }, 4.5 * 1000);
+        }
+
+        function armBase(policyBaseName) {
+            function armingBase(policyBaseName) {
+                var camppageBaseName;
+                var armButton;
+                var camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
+                for (var i = 0; i < camppageBases.length; ++i) {
+                    camppageBaseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                    if (camppageBaseName == policyBaseName) {
+                        armButton = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        fireEvent(armButton, 'click');
+                    }
+                }
+                armButton = null;
+                camppageBaseName = null;
+                camppageBases = null;
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Base";;
+            }
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Base";
+            var currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
+            fireEvent(currentBase, 'click');
+            window.setTimeout(function () {
+                armingBase(policyBaseName);
+            }, 4.5 * 1000);
+        }
+
+        function armBait(policyBaitName) {
+            function armingBait(policyBaitName) {
+                var camppageBaitName;
+                var armButton;
+                var camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
+                for (var i = 0; i < camppageBaits.length; ++i) {
+                    camppageBaitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                    if (camppageBaitName == policyBaitName) {
+                        armButton = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        fireEvent(armButton, 'click');
+                    }
+                }
+                armButton = null;
+                camppageBaitName = null;
+                camppageBaits = null;
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Bait";;
+            }
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Bait";
+            var currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
+            fireEvent(currentBait, 'click');
+            window.setTimeout(function () {
+                armingBait(policyBaitName);
+            }, 4.5 * 1000);
+        }
+
+        function armTrinket(policyTrinketName) {
+            function armingTrinket(policyTrinketName) {
+                var camppageTrinketName;
+                var armButton;
+                var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+                for (var i = 0; i < camppageTrinkets.length; ++i) {
+                    camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                    if (camppageTrinketName == policyTrinketName) {
+                        armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        fireEvent(armButton, 'click');
+                    }
+                }
+                armButton = null;
+                camppageTrinketName = null;
+                camppageTrinkets = null;
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Trinket";;
+            }
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Trinket";
+            var currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
+            fireEvent(currentTrinket, 'click');
+            window.setTimeout(function () {
+                armingTrinket(policyTrinketName);
+            }, 4.5 * 1000);
+        }
+
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
         var tmpTxt;
+        var delayTime = 0;
         // Check weapon
         var currentWeapon = getCurrentWeapon();
         if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != trapSetup[IDX_WEAPON] ) {
-            tmpTxt = "Current weapon: " + currentWeapon;
-            tmpTxt += "\nExpected weapon: " + trapSetup[IDX_WEAPON];
-            tmpTxt += "\n\nThey are not the same. Do something";
-            alert(tmpTxt);
+            if (!lockBot(BOT_PROCESS_POLICY)) {
+                return;
+            }
+            window.setTimeout(function () {
+                armWeapon(trapSetup[IDX_WEAPON]);
+            }, delayTime * 1000);
+            delayTime += 10;
         }
         // Check Base
         var currentBase = getCurrentBase();
         if( !isNullOrUndefined(trapSetup[IDX_BASE]) && currentBase != trapSetup[IDX_BASE] ) {
-            tmpTxt = "Current base: " + currentBase;
-            tmpTxt += "\nExpected base: " + trapSetup[IDX_BASE];
-            tmpTxt += "\n\nThey are not the same. Do something";
-            alert(tmpTxt);
+            if (!lockBot(BOT_PROCESS_POLICY)) {
+                return;
+            }
+            window.setTimeout(function () {
+                armBase(trapSetup[IDX_BASE]);
+            }, delayTime * 1000);
+            delayTime += 10;
         }
         // Check Bait
         var currentBait = getCurrentBait();
         if( !isNullOrUndefined(trapSetup[IDX_BAIT]) && currentBait != trapSetup[IDX_BAIT] ) {
-            tmpTxt = "Current bait: " + currentBait;
-            tmpTxt += "\nExpected bait: " + trapSetup[IDX_BAIT];
-            tmpTxt += "\n\nThey are not the same. Do something";
-            alert(tmpTxt);
+            if (!lockBot(BOT_PROCESS_POLICY)) {
+                return;
+            }
+            window.setTimeout(function () {
+                armBait(trapSetup[IDX_BAIT]);
+            }, delayTime * 1000);
+            delayTime += 10;
         }
         // Check Trinket
         var currentTrinket = getCurrentTrinket();
         if( !isNullOrUndefined(trapSetup[IDX_TRINKET]) && currentTrinket != trapSetup[IDX_TRINKET] ) {
-            tmpTxt = "Current trinket: " + currentTrinket;
-            tmpTxt += "\nExpected trinket: " + trapSetup[IDX_TRINKET];
-            tmpTxt += "\n\nThey are not the same. Do something";
-            alert(tmpTxt);
+            if (!lockBot(BOT_PROCESS_POLICY)) {
+                return;
+            }
+            window.setTimeout(function () {
+                armTrinket(trapSetup[IDX_TRINKET]);
+            }, delayTime * 1000);
+            delayTime += 10;
+        }
+        if (delayTime > 0) {
+            window.setTimeout(function () {
+                reloadCampPage();
+            }, delayTime * 1000);
         }
     }
 
@@ -1286,7 +1454,7 @@ function checkLocation() {
     var currentLocation = getPageVariable("user.environment_name");
     switch(currentLocation) {
         case LOCATION_SEASONAL_GARDEN:
-            //runSGaPolicy();
+            runSGaPolicy();
             break;
         case LOCATION_CLAW_SHOT_CITY:
             runCSCPolicy();
@@ -1297,8 +1465,36 @@ function checkLocation() {
     currentLocation = null;
 }
 
+class Parent {
+    func1(abc) {
+        alert("inside func1() of class parent");
+        alert(abc);
+    }
+
+    func2() {
+        alert("inside func2() of class parent");
+    }
+}
+
+class Child extends Parent {
+    // Overloaded function
+    func1() {
+        alert("inside func1() of class Child ");
+        alert("calling func1() of parent class");
+
+        // Calling for parent's version of func1()
+        super.func1("d");
+    }
+}
+
+function testClass() {
+    var a = new PolicySGa()
+    a.getTrapSetups();
+}
+
 function test1() {
     checkLocation();
+    //testClass();
     //testDict();
     //testSaveObjToStorage();
     //manualUpdatingTraps();
@@ -1522,7 +1718,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-        /*
+/*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -1866,15 +2062,15 @@ function embedUIStructure() {
                     function getCampPageWeaponNames() {
                         var weaponName;
                         g_weaponNames = [];
-                        var campageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                        for (var i = 0; i < campageWeapons.length; ++i) {
-                            weaponName = campageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        var camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+                        for (var i = 0; i < camppageWeapons.length; ++i) {
+                            weaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_weaponNames.indexOf(weaponName) == -1) {
                                 g_weaponNames[g_weaponNames.length] = weaponName;
                             }
                         }
                         weaponName = null;
-                        campageWeapons = null;
+                        camppageWeapons = null;
                         g_weaponNames.sort();
                         setStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Weapons";;
@@ -1891,15 +2087,15 @@ function embedUIStructure() {
                     function getCampPageBaseNames() {
                         var baseName;
                         g_baseNames = [];
-                        var campageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                        for (var i = 0; i < campageBases.length; ++i) {
-                            baseName = campageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        var camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
+                        for (var i = 0; i < camppageBases.length; ++i) {
+                            baseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_baseNames.indexOf(baseName) == -1) {
                                 g_baseNames[g_baseNames.length] = baseName;
                             }
                         }
                         baseName = null;
-                        campageBases = null;
+                        camppageBases = null;
                         g_baseNames.sort();
                         setStorage(STORAGE_BASE_NAMES, g_baseNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Bases";;
@@ -1916,15 +2112,15 @@ function embedUIStructure() {
                     function getCampPageBaitNames() {
                         var baitName;
                         g_baitNames = [];
-                        var campageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                        for (var i = 0; i < campageBaits.length; ++i) {
-                            baitName = campageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        var camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
+                        for (var i = 0; i < camppageBaits.length; ++i) {
+                            baitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_baitNames.indexOf(baitName) == -1) {
                                 g_baitNames[g_baitNames.length] = baitName;
                             }
                         }
                         baitName = null;
-                        campageBaits = null;
+                        camppageBaits = null;
                         g_baitNames.sort();
                         setStorage(STORAGE_BAIT_NAMES, g_baitNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Baits";;
@@ -1941,15 +2137,15 @@ function embedUIStructure() {
                     function getCampPageTrinketNames() {
                         var trinketName;
                         g_trinketNames = [];
-                        var campageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                        for (var i = 0; i < campageTrinkets.length; ++i) {
-                            trinketName = campageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+                        for (var i = 0; i < camppageTrinkets.length; ++i) {
+                            trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_trinketNames.indexOf(trinketName) == -1) {
                                 g_trinketNames[g_trinketNames.length] = trinketName;
                             }
                         }
                         trinketName = null;
-                        campageTrinkets = null;
+                        camppageTrinkets = null;
                         g_trinketNames.sort();
                         setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Trinkets";;
@@ -1983,55 +2179,41 @@ function embedUIStructure() {
                 }, 25 * 1000);
             }
 
-            function getSelectWeapon() {
+            function getSelectItem(items) {
                 var itemOption;
-                var selectWeapon = document.createElement('select');
-                selectWeapon.style.width = "80px";
-                for (var i = 0; i < g_weaponNames.length; i++) {
+                var selectItem = document.createElement('select');
+                selectItem.style.width = "80px";
+                for (var i = 0; i < items.length; i++) {
                     itemOption = document.createElement("option");
-                    itemOption.value = g_weaponNames[i];
-                    itemOption.text = g_weaponNames[i];
-                    selectWeapon.appendChild(itemOption);
+                    itemOption.value = items[i];
+                    itemOption.text = items[i];
+                    selectItem.appendChild(itemOption);
                 }
                 itemOption = null;
-                selectWeapon.selectedIndex = -1;
-                return selectWeapon;
+                selectItem.selectedIndex = -1;
+                return selectItem;
+            }
+
+            function getSelectWeapon() {
+                return getSelectItem(g_weaponNames);
             }
 
             function getSelectBase() {
-                var itemOption;
-                var selectBase = document.createElement('select');
-                selectBase.style.width = "80px";
-                for (var i = 0; i < g_baseNames.length; i++) {
-                    itemOption = document.createElement("option");
-                    itemOption.value = g_baseNames[i];
-                    itemOption.text = g_baseNames[i];
-                    selectBase.appendChild(itemOption);
-                }
-                itemOption = null;
-                selectBase.selectedIndex = -1;
-                return selectBase;
+                return getSelectItem(g_baseNames);
             }
 
             function getSelectBait() {
-                var itemOption;
-                var selectBait = document.createElement('select');
-                selectBait.style.width = "80px";
-                for (var i = 0; i < g_baitNames.length; i++) {
-                    itemOption = document.createElement("option");
-                    itemOption.value = g_baitNames[i];
-                    itemOption.text = g_baitNames[i];
-                    selectBait.appendChild(itemOption);
-                }
-                itemOption = null;
-                selectBait.selectedIndex = -1;
-                return selectBait;
+                return getSelectItem(g_baitNames);
             }
 
             function getSelectTrinket() {
                 var itemOption;
                 var selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
+                itemOption = document.createElement("option");
+                itemOption.value = DISARM_TRINKET;
+                itemOption.text = DISARM_TRINKET;
+                selectTrinket.appendChild(itemOption);
                 for (var i = 0; i < g_trinketNames.length; i++) {
                     itemOption = document.createElement("option");
                     itemOption.value = g_trinketNames[i];
@@ -2073,144 +2255,6 @@ function embedUIStructure() {
                 selectPolicy = null;
                 selectPolicyCell = null;
                 trSelectPolicy = null;
-            }
-
-            function insertSGaPolicyPreferences() {
-                function onChangeSGaSelectSeason(event) {
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
-                }
-
-                function saveSGaSetup(itemIndex, value) {
-                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
-                    currentSeason = null;
-                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                }
-
-                function saveSGaWeapon(event) {
-                    saveSGaSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveSGaBase(event) {
-                    saveSGaSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveSGaBait(event) {
-                    saveSGaSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveSGaTrinket(event) {
-                    saveSGaSetup(IDX_TRINKET, event.target.value);
-                }
-
-                function resetSGaTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                    reloadCampPage();
-                }
-
-                var captionCell;
-                var tmpTxt;
-                var itemOption;
-                var trSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
-                trSGaSeasonsTrapSetup.id = ID_TR_SGA_SEASONS_TRAP_SETUP;
-                trSGaSeasonsTrapSetup.style.height = "24px";
-                trSGaSeasonsTrapSetup.style.display = "none";
-                captionCell = trSGaSeasonsTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                var selectSeason = document.createElement('select');
-                selectSeason.id = ID_SELECT_SGA_SEASON;
-                selectSeason.style.width = "70px";
-                selectSeason.onchange = onChangeSGaSelectSeason;
-                for (const season of SGA_SEASONS){
-                    itemOption = document.createElement("option");
-                    itemOption.value = season
-                    itemOption.text = season
-                    selectSeason.appendChild(itemOption);
-                }
-                itemOption = null;
-                captionCell.appendChild(selectSeason);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                captionCell = null;
-                selectSeason = null;
-                var trapSetupCell = trSGaSeasonsTrapSetup.insertCell();
-                var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_SGA_WEAPON;
-                selectWeapon.onchange = saveSGaWeapon;
-                trapSetupCell.appendChild(selectWeapon);
-                selectWeapon = null;
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_SGA_BASE;
-                selectBase.onchange = saveSGaBase;
-                trapSetupCell.appendChild(selectBase);
-                selectBase = null;
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_SGA_BAIT;
-                selectBait.onchange = saveSGaBait;
-                trapSetupCell.appendChild(selectBait);
-                selectBait = null;
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_SGA_TRINKET;
-                selectTrinket.onchange = saveSGaTrinket;
-                trapSetupCell.appendChild(selectTrinket);
-                selectTrinket = null;
-                tmpTxt = document.createTextNode("   ");
-                trapSetupCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
-                resetButton.onclick = resetSGaTrapSetup;
-                resetButton.style.fontSize = "10px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(resetButton);
-                resetButton = null;
-                tmpTxt = null;
-                trapSetupCell = null;
-                trSGaSeasonsTrapSetup = null;
-            }
-
-            function insertZToPolicyPreferences() {
-                function onChangeZToStrategy(event) {
-                }
-
-                var captionCell;
-                var itemOption;
-                var trZToStrategy = policyPreferencesTable.insertRow();
-                trZToStrategy.id = ID_TR_ZTO_STRATEGY;
-                trZToStrategy.style.height = "24px";
-                trZToStrategy.style.display = "none";
-                captionCell = trZToStrategy.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Strategy :  ";
-                var selectStrategyCell = trZToStrategy.insertCell();
-                var selectStrategy = document.createElement('select');
-                //selectStrategy.id = ID_SELECT_SGA_SEASON;
-                selectStrategy.style.width = "120px";
-                selectStrategy.onchange = onChangeZToStrategy;
-                itemOption = document.createElement("option");
-                itemOption.value = "Select strategy";
-                itemOption.text = "Select strategy";
-                selectStrategy.appendChild(itemOption);
-                for (const strategy of ZTO_STRATEGIES){
-                    itemOption = document.createElement("option");
-                    itemOption.value = strategy
-                    itemOption.text = strategy
-                    selectStrategy.appendChild(itemOption);
-                }
-                selectStrategyCell.appendChild(selectStrategy);
-                selectStrategy = null;
-                selectStrategyCell = null;
-                trZToStrategy = null;
-
-                captionCell = null;
-                itemOption = null;
             }
 
             function insertFRoPolicyPreferences() {
@@ -2360,6 +2404,224 @@ function embedUIStructure() {
                 tmpTxt = null;
                 captionCell = null;
                 itemOption = null;
+            }
+
+            function insertSGaPolicyPreferences() {
+                function onChangeSGaSelectSeason(event) {
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
+                }
+
+                function saveSGaSetup(itemIndex, value) {
+                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
+                    currentSeason = null;
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
+                function saveSGaWeapon(event) {
+                    saveSGaSetup(IDX_WEAPON, event.target.value);
+                }
+
+                function saveSGaBase(event) {
+                    saveSGaSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveSGaBait(event) {
+                    saveSGaSetup(IDX_BAIT, event.target.value);
+                }
+
+                function saveSGaTrinket(event) {
+                    saveSGaSetup(IDX_TRINKET, event.target.value);
+                }
+
+                function resetSGaTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                    reloadCampPage();
+                }
+
+                var captionCell;
+                var tmpTxt;
+                var itemOption;
+                var trSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
+                trSGaSeasonsTrapSetup.id = ID_TR_SGA_SEASONS_TRAP_SETUP;
+                trSGaSeasonsTrapSetup.style.height = "24px";
+                trSGaSeasonsTrapSetup.style.display = "none";
+                captionCell = trSGaSeasonsTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                var selectSeason = document.createElement('select');
+                selectSeason.id = ID_SELECT_SGA_SEASON;
+                selectSeason.style.width = "70px";
+                selectSeason.onchange = onChangeSGaSelectSeason;
+                for (const season of SGA_SEASONS){
+                    itemOption = document.createElement("option");
+                    itemOption.value = season
+                    itemOption.text = season
+                    selectSeason.appendChild(itemOption);
+                }
+                itemOption = null;
+                captionCell.appendChild(selectSeason);
+                tmpTxt = document.createTextNode(" :  ");
+                captionCell.appendChild(tmpTxt);
+                captionCell = null;
+                selectSeason = null;
+                var trapSetupCell = trSGaSeasonsTrapSetup.insertCell();
+                var selectWeapon = getSelectWeapon();
+                selectWeapon.id = ID_SELECT_SGA_WEAPON;
+                selectWeapon.onchange = saveSGaWeapon;
+                trapSetupCell.appendChild(selectWeapon);
+                selectWeapon = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBase = getSelectBase();
+                selectBase.id = ID_SELECT_SGA_BASE;
+                selectBase.onchange = saveSGaBase;
+                trapSetupCell.appendChild(selectBase);
+                selectBase = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBait = getSelectBait();
+                selectBait.id = ID_SELECT_SGA_BAIT;
+                selectBait.onchange = saveSGaBait;
+                trapSetupCell.appendChild(selectBait);
+                selectBait = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectTrinket = getSelectTrinket();
+                selectTrinket.id = ID_SELECT_SGA_TRINKET;
+                selectTrinket.onchange = saveSGaTrinket;
+                trapSetupCell.appendChild(selectTrinket);
+                selectTrinket = null;
+                tmpTxt = document.createTextNode("   ");
+                trapSetupCell.appendChild(tmpTxt);
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetSGaTrapSetup;
+                resetButton.style.fontSize = "10px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(resetButton);
+                resetButton = null;
+                tmpTxt = null;
+                trapSetupCell = null;
+                trSGaSeasonsTrapSetup = null;
+            }
+
+            function insertZToPolicyPreferences() {
+                function onChangeZToStrategy(event) {
+                }
+
+                function onChangeZToSelectChess(event) {
+                }
+
+                function saveZToWeapon(event) {
+                }
+
+                function saveZToBase(event) {
+                }
+
+                function saveZToBait(event) {
+                }
+
+                function saveZToTrinket(event) {
+                }
+
+                function resetZToTrapSetup() {
+                }
+
+                var captionCell;
+                var itemOption;
+                var tmpTxt;
+                var trZToStrategy = policyPreferencesTable.insertRow();
+                trZToStrategy.id = ID_TR_ZTO_STRATEGY;
+                trZToStrategy.style.height = "24px";
+                trZToStrategy.style.display = "none";
+                captionCell = trZToStrategy.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Strategy :  ";
+                var selectStrategyCell = trZToStrategy.insertCell();
+                var selectStrategy = document.createElement('select');
+                //selectStrategy.id = ID_SELECT_SGA_SEASON;
+                selectStrategy.style.width = "120px";
+                selectStrategy.onchange = onChangeZToStrategy;
+                itemOption = document.createElement("option");
+                itemOption.value = "Select strategy";
+                itemOption.text = "Select strategy";
+                selectStrategy.appendChild(itemOption);
+                for (const strategy of ZTO_STRATEGIES){
+                    itemOption = document.createElement("option");
+                    itemOption.value = strategy
+                    itemOption.text = strategy
+                    selectStrategy.appendChild(itemOption);
+                }
+                selectStrategyCell.appendChild(selectStrategy);
+                tmpTxt = document.createTextNode("   ");
+                selectStrategyCell.appendChild(tmpTxt);
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetZToTrapSetup;
+                resetButton.style.fontSize = "10px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                selectStrategyCell.appendChild(resetButton);
+                resetButton = null;
+                selectStrategy = null;
+                selectStrategyCell = null;
+                trZToStrategy = null;
+
+                var trZToChessTrapSetup = policyPreferencesTable.insertRow();
+                trZToChessTrapSetup.id = ID_TR_ZTO_CHESS_TRAP_SETUP;
+                trZToChessTrapSetup.style.height = "24px";
+                trZToChessTrapSetup.style.display = "none";
+                captionCell = trZToChessTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                var selectChess = document.createElement('select');
+                selectChess.id = ID_SELECT_ZTO_CHESS;
+                selectChess.style.width = "70px";
+                selectChess.onchange = onChangeZToSelectChess;
+                for (const name of ZTO_CHESS_PROGRESS){
+                    itemOption = document.createElement("option");
+                    itemOption.value = name
+                    itemOption.text = name
+                    selectChess.appendChild(itemOption);
+                }
+                captionCell.appendChild(selectChess);
+                tmpTxt = document.createTextNode(" :  ");
+                captionCell.appendChild(tmpTxt);
+                selectChess = null;
+                var trapSetupCell = trZToChessTrapSetup.insertCell();
+                var selectWeapon = getSelectWeapon();
+                selectWeapon.id = ID_SELECT_ZTO_WEAPON;
+                selectWeapon.onchange = saveZToWeapon;
+                trapSetupCell.appendChild(selectWeapon);
+                selectWeapon = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBase = getSelectBase();
+                selectBase.id = ID_SELECT_ZTO_BASE;
+                selectBase.onchange = saveZToBase;
+                trapSetupCell.appendChild(selectBase);
+                selectBase = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBait = getSelectBait();
+                selectBait.id = ID_SELECT_ZTO_BAIT;
+                selectBait.onchange = saveZToBait;
+                trapSetupCell.appendChild(selectBait);
+                selectBait = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectTrinket = getSelectTrinket();
+                selectTrinket.id = ID_SELECT_ZTO_TRINKET;
+                selectTrinket.onchange = saveZToTrinket;
+                trapSetupCell.appendChild(selectTrinket);
+                selectTrinket = null;
+                trapSetupCell = null;
+                trZToChessTrapSetup = null;
+
+                captionCell = null;
+                itemOption = null;
+                tmpTxt = null;
             }
 
             var tmpTxt;
