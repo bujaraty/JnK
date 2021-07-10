@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.9
+// @version      1.2.2.10
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -151,6 +151,8 @@ const ID_SELECT_ZTO_WEAPON = "selectZToWeapon";
 const ID_SELECT_ZTO_BASE = "selectZToBase";
 const ID_SELECT_ZTO_BAIT = "selectZToBait";
 const ID_SELECT_ZTO_TRINKET = "selectZToTrinket";
+const ID_TR_CLI_CATALOG_MICE = "trCLiCatalogMice";
+const ID_CHECKBOX_CLI_CATALOG_MICE = "checkboxCLiCatalogMice";
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -169,6 +171,7 @@ const STORAGE_TRAP_SETUP_ARE = "trapSetupARe";
 const STORAGE_TRAP_SETUP_FRO = "trapSetupFRo";
 const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
 const STORAGE_TRAP_SETUP_ZTO = "trapSetupZTo";
+const STORAGE_TRAP_SETUP_CLI = "trapSetupCLi";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
@@ -219,11 +222,13 @@ const ZTO_CHESS_MASTER = "Chess Master";
 const ZTO_CHESS_PROGRESS = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_CHESS_MYSTIC_BISHOP, ZTO_CHESS_MYSTIC_ROOK, ZTO_CHESS_MYSTIC_QUEEN, ZTO_CHESS_MYSTIC_KING,
                             ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING,
                             ZTO_CHESS_MASTER];
+const CLI_CATALOG_MICE = "Catalog Mice";
 const LOCATION_HARBOUR = "Harbour";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
+const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
@@ -231,6 +236,7 @@ const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_ZUGZWANGS_TOWER = "Zugzwang's Tower";
+const POLICY_NAME_CRYSTAL_LIBRARY = "Crystal Library";
 
 // Policy description
 class Policy {
@@ -400,6 +406,29 @@ class PolicyZTo extends Policy {
     }
 }
 
+class PolicyCLi extends Policy {
+    constructor () {
+        super();
+        this.setName("Crystal Library");
+        this.trs[0] = ID_TR_CLI_CATALOG_MICE;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = {};
+        this.trapSetups[CLI_CATALOG_MICE] = false;
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_CLI);
+    }
+
+    initSelectTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        document.getElementById(ID_CHECKBOX_CLI_CATALOG_MICE).checked = trapSetups[CLI_CATALOG_MICE];
+        trapSetups = null;
+    }
+}
+
 const POLICY_DICT = {};
 function initPolicyDict() {
     var tmpPolicy;
@@ -411,6 +440,8 @@ function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = tmpPolicy;
     tmpPolicy = new PolicyZTo();
     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = tmpPolicy;
+    tmpPolicy = new PolicyCLi();
+    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = tmpPolicy;
 }
 
 // Start executing script
@@ -1346,7 +1377,7 @@ function checkLocation() {
         var currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
         var trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
         switch(currentStage) {
-            case "DAY":
+            case false:
                 armTraps(trapSetups[FRO_PHASE_DAY]);
                 break;
             case "stage_one":
@@ -2235,6 +2266,84 @@ function embedUIStructure() {
                 trSelectPolicy = null;
             }
 
+            function insertARePolicyPreferences() {
+                function saveAReWeapon(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_WEAPON] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function saveAReBase(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BASE] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function saveAReBait(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BAIT] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function saveAReTrinket(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_TRINKET] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function resetAReTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                    reloadCampPage();
+                }
+
+                var captionCell;
+                var tmpTxt;
+                var itemOption;
+                var trAReTrapSetup = policyPreferencesTable.insertRow();
+                trAReTrapSetup.id = ID_TR_ARE_TRAP_SETUP;
+                trAReTrapSetup.style.height = "24px";
+                trAReTrapSetup.style.display = "none";
+                captionCell = trAReTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup :  ";
+                var trapSetupCell = trAReTrapSetup.insertCell();
+                var selectWeapon = getSelectWeapon();
+                selectWeapon.id = ID_SELECT_ARE_WEAPON;
+                selectWeapon.onchange = saveAReWeapon;
+                trapSetupCell.appendChild(selectWeapon);
+                selectWeapon = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBase = getSelectBase();
+                selectBase.id = ID_SELECT_ARE_BASE;
+                selectBase.onchange = saveAReBase;
+                trapSetupCell.appendChild(selectBase);
+                selectBase = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBait = getSelectBait();
+                selectBait.id = ID_SELECT_ARE_BAIT;
+                selectBait.onchange = saveAReBait;
+                trapSetupCell.appendChild(selectBait);
+                selectBait = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectTrinket = getSelectTrinket();
+                selectTrinket.id = ID_SELECT_ARE_TRINKET;
+                selectTrinket.onchange = saveAReTrinket;
+                trapSetupCell.appendChild(selectTrinket);
+                selectTrinket = null;
+                tmpTxt = document.createTextNode("   ");
+                trapSetupCell.appendChild(tmpTxt);
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetAReTrapSetup;
+                resetButton.style.fontSize = "10px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(resetButton);
+                resetButton = null;
+                tmpTxt = null;
+                trapSetupCell = null;
+                trAReTrapSetup = null;
+            }
+
             function insertFRoPolicyPreferences() {
                 function onChangeFRoSelectPhase(event) {
                     POLICY_DICT[POLICY_NAME_FORT_ROX].initSelectTrapSetup();
@@ -2619,90 +2728,31 @@ function embedUIStructure() {
                 tmpTxt = null;
             }
 
-            function insertARePolicyPreferences() {
-                /*
-                function saveAReSetup(itemIndex, value) {
-                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
-                    currentSeason = null;
-                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                }*/
-
-                function saveAReWeapon(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_WEAPON] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function saveAReBase(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BASE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function saveAReBait(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function saveAReTrinket(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_TRINKET] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function resetAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                    reloadCampPage();
+            function insertCLiPolicyPreferences() {
+                function saveCLiCheckbox(event) {
+                    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups[CLI_CATALOG_MICE] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_CLI, POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups);
                 }
 
                 var captionCell;
-                var tmpTxt;
-                var itemOption;
-                var trAReTrapSetup = policyPreferencesTable.insertRow();
-                trAReTrapSetup.id = ID_TR_ARE_TRAP_SETUP;
-                trAReTrapSetup.style.height = "24px";
-                trAReTrapSetup.style.display = "none";
-                captionCell = trAReTrapSetup.insertCell();
+                var trCLiCatalogMice = policyPreferencesTable.insertRow();
+                trCLiCatalogMice.id = ID_TR_CLI_CATALOG_MICE;
+                trCLiCatalogMice.style.height = "24px";
+                trCLiCatalogMice.style.display = "none";
+                captionCell = trCLiCatalogMice.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup :  ";
-                var trapSetupCell = trAReTrapSetup.insertCell();
-                var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_ARE_WEAPON;
-                selectWeapon.onchange = saveAReWeapon;
-                trapSetupCell.appendChild(selectWeapon);
-                selectWeapon = null;
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_ARE_BASE;
-                selectBase.onchange = saveAReBase;
-                trapSetupCell.appendChild(selectBase);
-                selectBase = null;
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_ARE_BAIT;
-                selectBait.onchange = saveAReBait;
-                trapSetupCell.appendChild(selectBait);
-                selectBait = null;
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_ARE_TRINKET;
-                selectTrinket.onchange = saveAReTrinket;
-                trapSetupCell.appendChild(selectTrinket);
-                selectTrinket = null;
-                tmpTxt = document.createTextNode("   ");
-                trapSetupCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
-                resetButton.onclick = resetAReTrapSetup;
-                resetButton.style.fontSize = "10px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(resetButton);
-                resetButton = null;
-                tmpTxt = null;
-                trapSetupCell = null;
-                trAReTrapSetup = null;
+                captionCell.innerHTML = "Catalog Library Mice :  ";
+                var checkboxCell = trCLiCatalogMice.insertCell();
+                var checkbox = document.createElement('input');
+                checkbox.id = ID_CHECKBOX_CLI_CATALOG_MICE;
+                checkbox.type = "checkbox";
+                checkbox.onchange = saveCLiCheckbox;
+                checkboxCell.appendChild(checkbox);
+                checkboxCell = null;
+                checkbox = null;
+                trCLiCatalogMice = null;
+
+                captionCell = null;
             }
 
             var tmpTxt;
@@ -2718,6 +2768,7 @@ function embedUIStructure() {
             insertFRoPolicyPreferences();
             insertSGaPolicyPreferences();
             insertZToPolicyPreferences();
+            insertCLiPolicyPreferences();
 
             var trLastRow = policyPreferencesTable.insertRow();
             var updateTrapsButtonCell = trLastRow.insertCell();
