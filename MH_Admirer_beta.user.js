@@ -1225,6 +1225,7 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
         var status = getPageVariable("user.quests.QuestHarbour.status");
         var button;
+        var canClaim;
         switch(status) {
             case "noShip":
                 break;
@@ -1233,11 +1234,15 @@ function checkLocation() {
                 fireEvent(button, "click");
                 break;
             case "searchStarted":
-                break;
-            case "has_reward":
+                canClaim = getPageVariable("user.quests.QuestHarbour.can_claim");
+                if (canClaim) {
+                    button = document.getElementsByClassName("harbourHUD-claimBootyButton active")[0];
+                    fireEvent(button, "click");
+                }
                 break;
             default:
         }
+        canClaim = null;
         status = null;
         button = null;
     }
@@ -1609,7 +1614,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-/*
+        /*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2677,6 +2682,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestHarbour.status") {
             return unsafeWindow.user.quests.QuestHarbour.status;
+        } else if (name == "user.quests.QuestHarbour.can_claim") {
+            return unsafeWindow.user.quests.QuestHarbour.can_claim;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
