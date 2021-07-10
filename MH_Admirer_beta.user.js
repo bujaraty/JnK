@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.7
+// @version      1.2.2.9
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -123,6 +123,11 @@ const ID_PREFERENCES_BOX = 'preferencesBox';
 const ID_TIMER_PREFERENCES_TABLE = 'timerPreferencesTable';
 const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
+const ID_TR_ARE_TRAP_SETUP = "trAReTrapSetup";
+const ID_SELECT_ARE_WEAPON = "selectAReWeapon";
+const ID_SELECT_ARE_BASE = "selectAReBase";
+const ID_SELECT_ARE_BAIT = "selectAReBait";
+const ID_SELECT_ARE_TRINKET = "selectAReTrinket";
 const ID_TR_FRO_PHASES_TRAP_SETUP = "trFRoPhasesTrapSetup";
 const ID_SELECT_FRO_PHASE = "selectFRoPhase";
 const ID_SELECT_FRO_WEAPON = "selectFRoWeapon";
@@ -160,6 +165,7 @@ const STORAGE_WEAPON_NAMES = "weaponNames";
 const STORAGE_BASE_NAMES = "baseNames";
 const STORAGE_BAIT_NAMES = "baitNames";
 const STORAGE_TRINKET_NAMES = "trinketNames";
+const STORAGE_TRAP_SETUP_ARE = "trapSetupARe";
 const STORAGE_TRAP_SETUP_FRO = "trapSetupFRo";
 const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
 const STORAGE_TRAP_SETUP_ZTO = "trapSetupZTo";
@@ -214,10 +220,13 @@ const ZTO_CHESS_PROGRESS = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_
                             ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING,
                             ZTO_CHESS_MASTER];
 const LOCATION_HARBOUR = "Harbour";
+const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
+const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
+const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
@@ -248,6 +257,31 @@ class Policy {
 
     toString() {
         return "{  name : " + this.name + " }";
+    }
+}
+
+class PolicyARe extends Policy {
+    constructor () {
+        super();
+        this.setName("Acolyte Realm");
+        this.trs[0] = ID_TR_ARE_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = [];
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_ARE);
+    }
+
+    initSelectTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        document.getElementById(ID_SELECT_ARE_WEAPON).value = trapSetups[IDX_WEAPON];
+        document.getElementById(ID_SELECT_ARE_BASE).value = trapSetups[IDX_BASE];
+        document.getElementById(ID_SELECT_ARE_BAIT).value = trapSetups[IDX_BAIT];
+        document.getElementById(ID_SELECT_ARE_TRINKET).value = trapSetups[IDX_TRINKET];
+        trapSetups = null;
     }
 }
 
@@ -287,6 +321,8 @@ class PolicyFRo extends Policy {
         }
         document.getElementById(ID_SELECT_FRO_TOWER).value = trapSetups[currentPhase][IDX_TOWER];
         document.getElementById(ID_SELECT_FRO_ACTIVATION_HP_FULL).value = trapSetups[FRO_TOWER_HP_FULL];
+        currentPhase = null;
+        trapSetups = null;
     }
 }
 
@@ -316,6 +352,8 @@ class PolicySGa extends Policy {
         document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
         document.getElementById(ID_SELECT_SGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
         document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
+        currentSeason = null;
+        trapSetups = null;
     }
 }
 
@@ -357,12 +395,16 @@ class PolicyZTo extends Policy {
         document.getElementById(ID_SELECT_ZTO_BAIT).value = trapSetups[currentChess][IDX_BAIT];
         document.getElementById(ID_SELECT_ZTO_TRINKET).value = trapSetups[currentChess][IDX_TRINKET];
         document.getElementById(ID_SELECT_ZTO_STRATEGY).value = trapSetups[ZTO_STRATEGY];
+        currentChess = null;
+        trapSetups = null;
     }
 }
 
 const POLICY_DICT = {};
 function initPolicyDict() {
     var tmpPolicy;
+    tmpPolicy = new PolicyARe();
+    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = tmpPolicy;
     tmpPolicy = new PolicyFRo();
     POLICY_DICT[POLICY_NAME_FORT_ROX] = tmpPolicy;
     tmpPolicy = new PolicySGa();
@@ -1157,7 +1199,6 @@ function checkLocation() {
             }, 4.5 * 1000);
         }
 
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
         var tmpTxt;
         var delayTime = 0;
         // Check weapon
@@ -1247,6 +1288,13 @@ function checkLocation() {
         button = null;
     }
 
+    function runARePolicy() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ACOLYTE_REALM;
+        var trapSetups = POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].getTrapSetups();
+        armTraps(trapSetups);
+        trapSetups = null;
+    }
+
     function runCSCPolicy() {
         function claimReward() {
             function openChest() {
@@ -1293,9 +1341,39 @@ function checkLocation() {
         phase = null;
     }
 
-    function runSGaPolicy() {
-        // not yet done
+    function runFRoPolicy() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
+        var currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
+        var trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
+        switch(currentStage) {
+            case "DAY":
+                armTraps(trapSetups[FRO_PHASE_DAY]);
+                break;
+            case "stage_one":
+                armTraps(trapSetups[FRO_PHASE_TWILIGHT]);
+                break;
+            case "stage_two":
+                armTraps(trapSetups[FRO_PHASE_MIDNIGHT]);
+                break;
+            case "stage_three":
+                armTraps(trapSetups[FRO_PHASE_PITCH]);
+                break;
+            case "stage_four":
+                armTraps(trapSetups[FRO_PHASE_UTTER_DARKNESS]);
+                break;
+            case "stage_five":
+                armTraps(trapSetups[FRO_PHASE_FIRST_LIGHT]);
+                break;
+            case "DAWN":
+                armTraps(trapSetups[FRO_PHASE_DAWN]);
+                break;
+            default:
+        }
+        trapSetups = null;
+        currentStage = null;
+    }
 
+    function runSGaPolicy() {
         function getSGaSeason() {
             var nTimeStamp = Date.parse(new Date()) / 1000;
             var nFirstSeasonTimeStamp = 1283328000;
@@ -1310,11 +1388,9 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
         var currentSeason = getSGaSeason();
         var trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
-        var trapSetupPolicy = trapSetups[currentSeason];
         armTraps(trapSetups[currentSeason]);
         currentSeason = null;
         trapSetups = null;
-        trapSetupPolicy = null;
     }
 
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
@@ -1324,6 +1400,12 @@ function checkLocation() {
     switch(currentLocation) {
         case LOCATION_HARBOUR:
             runHarPolicy();
+            break;
+        case LOCATION_ACOLYTE_REALM:
+            runARePolicy();
+            break;
+        case LOCATION_FORT_ROX:
+            runFRoPolicy();
             break;
         case LOCATION_CLAW_SHOT_CITY:
             runCSCPolicy();
@@ -1614,7 +1696,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-        /*
+/*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2537,6 +2619,92 @@ function embedUIStructure() {
                 tmpTxt = null;
             }
 
+            function insertARePolicyPreferences() {
+                /*
+                function saveAReSetup(itemIndex, value) {
+                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
+                    currentSeason = null;
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }*/
+
+                function saveAReWeapon(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_WEAPON] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function saveAReBase(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BASE] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function saveAReBait(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BAIT] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function saveAReTrinket(event) {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_TRINKET] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
+                function resetAReTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                    reloadCampPage();
+                }
+
+                var captionCell;
+                var tmpTxt;
+                var itemOption;
+                var trAReTrapSetup = policyPreferencesTable.insertRow();
+                trAReTrapSetup.id = ID_TR_ARE_TRAP_SETUP;
+                trAReTrapSetup.style.height = "24px";
+                trAReTrapSetup.style.display = "none";
+                captionCell = trAReTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup :  ";
+                var trapSetupCell = trAReTrapSetup.insertCell();
+                var selectWeapon = getSelectWeapon();
+                selectWeapon.id = ID_SELECT_ARE_WEAPON;
+                selectWeapon.onchange = saveAReWeapon;
+                trapSetupCell.appendChild(selectWeapon);
+                selectWeapon = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBase = getSelectBase();
+                selectBase.id = ID_SELECT_ARE_BASE;
+                selectBase.onchange = saveAReBase;
+                trapSetupCell.appendChild(selectBase);
+                selectBase = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectBait = getSelectBait();
+                selectBait.id = ID_SELECT_ARE_BAIT;
+                selectBait.onchange = saveAReBait;
+                trapSetupCell.appendChild(selectBait);
+                selectBait = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var selectTrinket = getSelectTrinket();
+                selectTrinket.id = ID_SELECT_ARE_TRINKET;
+                selectTrinket.onchange = saveAReTrinket;
+                trapSetupCell.appendChild(selectTrinket);
+                selectTrinket = null;
+                tmpTxt = document.createTextNode("   ");
+                trapSetupCell.appendChild(tmpTxt);
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetAReTrapSetup;
+                resetButton.style.fontSize = "10px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(resetButton);
+                resetButton = null;
+                tmpTxt = null;
+                trapSetupCell = null;
+                trAReTrapSetup = null;
+            }
+
             var tmpTxt;
             var policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
@@ -2546,6 +2714,7 @@ function embedUIStructure() {
             trEmpty = null;
 
             insertSelectPolicyRow();
+            insertARePolicyPreferences();
             insertFRoPolicyPreferences();
             insertSGaPolicyPreferences();
             insertZToPolicyPreferences();
@@ -2678,12 +2847,14 @@ function getPageVariable(name) {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.environment_name") {
             return unsafeWindow.user.environment_name;
-        } else if (name == "user.quests.QuestClawShotCity.phase") {
-            return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestHarbour.status") {
             return unsafeWindow.user.quests.QuestHarbour.status;
         } else if (name == "user.quests.QuestHarbour.can_claim") {
             return unsafeWindow.user.quests.QuestHarbour.can_claim;
+        } else if (name == "user.quests.QuestClawShotCity.phase") {
+            return unsafeWindow.user.quests.QuestClawShotCity.phase;
+        } else if (name == "user.quests.QuestFortRox.current_stage") {
+            return unsafeWindow.user.quests.QuestFortRox.current_stage;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
