@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.10
+// @version      1.2.2.11
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -2188,7 +2188,7 @@ function embedUIStructure() {
                 }, 25 * 1000);
             }
 
-            function getSelectItem(items) {
+            function getSelectItem(items, itemId, onchangeFunction) {
                 var itemOption;
                 var selectItem = document.createElement('select');
                 selectItem.style.width = "80px";
@@ -2200,22 +2200,24 @@ function embedUIStructure() {
                 }
                 itemOption = null;
                 selectItem.selectedIndex = -1;
+                selectItem.id = itemId;
+                selectItem.onchange = onchangeFunction;
                 return selectItem;
             }
 
-            function getSelectWeapon() {
-                return getSelectItem(g_weaponNames);
+            function getSelectWeapon(itemId, onchangeFunction) {
+                return getSelectItem(g_weaponNames, itemId, onchangeFunction);
             }
 
-            function getSelectBase() {
-                return getSelectItem(g_baseNames);
+            function getSelectBase(itemId, onchangeFunction) {
+                return getSelectItem(g_baseNames, itemId, onchangeFunction);
             }
 
-            function getSelectBait() {
-                return getSelectItem(g_baitNames);
+            function getSelectBait(itemId, onchangeFunction) {
+                return getSelectItem(g_baitNames, itemId, onchangeFunction);
             }
 
-            function getSelectTrinket() {
+            function getSelectTrinket(itemId, onchangeFunction) {
                 var itemOption;
                 var selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
@@ -2231,6 +2233,8 @@ function embedUIStructure() {
                 }
                 itemOption = null;
                 selectTrinket.selectedIndex = -1;
+                selectTrinket.id = itemId;
+                selectTrinket.onchange = onchangeFunction;
                 return selectTrinket;
             }
 
@@ -2304,32 +2308,16 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup :  ";
                 var trapSetupCell = trAReTrapSetup.insertCell();
-                var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_ARE_WEAPON;
-                selectWeapon.onchange = saveAReWeapon;
-                trapSetupCell.appendChild(selectWeapon);
-                selectWeapon = null;
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_ARE_WEAPON, saveAReWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_ARE_BASE;
-                selectBase.onchange = saveAReBase;
-                trapSetupCell.appendChild(selectBase);
-                selectBase = null;
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_ARE_BASE, saveAReBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_ARE_BAIT;
-                selectBait.onchange = saveAReBait;
-                trapSetupCell.appendChild(selectBait);
-                selectBait = null;
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_ARE_BAIT, saveAReBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_ARE_TRINKET;
-                selectTrinket.onchange = saveAReTrinket;
-                trapSetupCell.appendChild(selectTrinket);
-                selectTrinket = null;
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ARE_TRINKET, saveAReTrinket));
                 tmpTxt = document.createTextNode("   ");
                 trapSetupCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
@@ -2413,32 +2401,16 @@ function embedUIStructure() {
                 captionCell.appendChild(tmpTxt);
                 selectPhase = null;
                 var trapSetupCell = trFRoPhasesTrapSetup.insertCell();
-                var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_FRO_WEAPON;
-                selectWeapon.onchange = saveFRoWeapon;
-                trapSetupCell.appendChild(selectWeapon);
-                selectWeapon = null;
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_FRO_WEAPON, saveFRoWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_FRO_BASE;
-                selectBase.onchange = saveFRoBase;
-                trapSetupCell.appendChild(selectBase);
-                selectBase = null;
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_FRO_BASE, saveFRoBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_FRO_BAIT;
-                selectBait.onchange = saveFRoBait;
-                trapSetupCell.appendChild(selectBait);
-                selectBait = null;
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_FRO_BAIT, saveFRoBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_FRO_TRINKET;
-                selectTrinket.onchange = saveFRoTrinket;
-                trapSetupCell.appendChild(selectTrinket);
-                selectTrinket = null;
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_FRO_TRINKET, saveFRoTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 var selectTower = document.createElement('select');
@@ -2554,32 +2526,16 @@ function embedUIStructure() {
                 captionCell = null;
                 selectSeason = null;
                 var trapSetupCell = trSGaSeasonsTrapSetup.insertCell();
-                var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_SGA_WEAPON;
-                selectWeapon.onchange = saveSGaWeapon;
-                trapSetupCell.appendChild(selectWeapon);
-                selectWeapon = null;
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_SGA_WEAPON, saveSGaWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_SGA_BASE;
-                selectBase.onchange = saveSGaBase;
-                trapSetupCell.appendChild(selectBase);
-                selectBase = null;
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_SGA_BASE, saveSGaBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_SGA_BAIT;
-                selectBait.onchange = saveSGaBait;
-                trapSetupCell.appendChild(selectBait);
-                selectBait = null;
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_SGA_BAIT, saveSGaBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_SGA_TRINKET;
-                selectTrinket.onchange = saveSGaTrinket;
-                trapSetupCell.appendChild(selectTrinket);
-                selectTrinket = null;
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SGA_TRINKET, saveSGaTrinket));
                 tmpTxt = document.createTextNode("   ");
                 trapSetupCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
@@ -2694,32 +2650,16 @@ function embedUIStructure() {
                 captionCell.appendChild(tmpTxt);
                 selectChess = null;
                 var trapSetupCell = trZToChessTrapSetup.insertCell();
-                var selectWeapon = getSelectWeapon();
-                selectWeapon.id = ID_SELECT_ZTO_WEAPON;
-                selectWeapon.onchange = saveZToWeapon;
-                trapSetupCell.appendChild(selectWeapon);
-                selectWeapon = null;
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_ZTO_WEAPON, saveZToWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBase = getSelectBase();
-                selectBase.id = ID_SELECT_ZTO_BASE;
-                selectBase.onchange = saveZToBase;
-                trapSetupCell.appendChild(selectBase);
-                selectBase = null;
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_ZTO_BASE, saveZToBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectBait = getSelectBait();
-                selectBait.id = ID_SELECT_ZTO_BAIT;
-                selectBait.onchange = saveZToBait;
-                trapSetupCell.appendChild(selectBait);
-                selectBait = null;
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_ZTO_BAIT, saveZToBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectTrinket = getSelectTrinket();
-                selectTrinket.id = ID_SELECT_ZTO_TRINKET;
-                selectTrinket.onchange = saveZToTrinket;
-                trapSetupCell.appendChild(selectTrinket);
-                selectTrinket = null;
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ZTO_TRINKET, saveZToTrinket));
                 trapSetupCell = null;
                 trZToChessTrapSetup = null;
 
@@ -2916,4 +2856,3 @@ function getPageVariable(name) {
         name = undefined;
     }
 }
-
