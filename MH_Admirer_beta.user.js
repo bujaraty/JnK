@@ -139,6 +139,8 @@ const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Int
 const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
 const BAIT_RUNIC = "Runic Cheese";
+const BAIT_MOON = "Moon Cheese";
+const BAIT_CRESCENT = "Crescent Cheese";
 const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
 const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
 const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
@@ -291,9 +293,59 @@ class Policy {
         }
         return this.trapSetups;
     }
+    getDefaultTrapSetup(trapSetup, baitName, trinketName) {
+        trapSetup[IDX_BASE] = g_bestBase;
+        if ( !isNullOrUndefined(baitName)) {
+            trapSetup[IDX_BAIT] = baitName;
+        }
+        if ( !isNullOrUndefined(trinketName)) {
+            trapSetup[IDX_TRINKET] = trinketName;
+        }
+    }
 
-    toString() {
-        return "{  name : " + this.name + " }";
+    getArcaneTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestArcaneWeapon;
+    }
+
+    getDraconicTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestDraconicWeapon;
+    }
+
+    getForgottenTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestForgottenWeapon;
+    }
+
+    getHydroTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestHydroWeapon;
+    }
+
+    getLawTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestLawWeapon;
+    }
+
+    getPhysicalTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestPhysicalWeapon;
+    }
+
+    getRiftTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestRiftWeapon;
+    }
+
+    getShadowTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestShadowWeapon;
+    }
+
+    getTacticalTrapSetup(trapSetup, baitName, trinketName) {
+        this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
+        trapSetup[IDX_WEAPON] = g_bestTacticalWeapon;
     }
 }
 
@@ -320,15 +372,13 @@ class PolicyARe extends Policy {
         document.getElementById(ID_SELECT_ARE_TRINKET).value = trapSetups[IDX_TRINKET];
         trapSetups = null;
     }
+
     recommendTrapSetup() {
         var trapSetups = this.getTrapSetups();
         if (g_baitNames.includes(BAIT_RUNIC)) {
-            trapSetups[IDX_WEAPON] = g_bestForgottenWeapon;
-            trapSetups[IDX_BASE] = g_bestBase;
-            trapSetups[IDX_BAIT] = BAIT_RUNIC;
+            this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
         } else {
-            trapSetups[IDX_WEAPON] = g_bestArcaneWeapon;
-            trapSetups[IDX_BASE] = g_bestBase;
+            this.getArcaneTrapSetup(trapSetups);
         }
         trapSetups = null;
         this.initSelectTrapSetup();
@@ -373,6 +423,26 @@ class PolicyFRo extends Policy {
         document.getElementById(ID_SELECT_FRO_ACTIVATION_HP_FULL).value = trapSetups[FRO_TOWER_HP_FULL];
         currentPhase = null;
         trapSetups = null;
+    }
+
+    recommendTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        var baitName;
+        if (g_baitNames.includes(BAIT_MOON)) {
+            baitName = BAIT_MOON;
+        } else if (g_baitNames.includes(BAIT_CRESCENT)) {
+            baitName = BAIT_CRESCENT;
+        }
+        this.getLawTrapSetup(trapSetups[FRO_PHASE_DAY], baitName);
+        this.getShadowTrapSetup(trapSetups[FRO_PHASE_TWILIGHT], baitName);
+        this.getShadowTrapSetup(trapSetups[FRO_PHASE_MIDNIGHT], baitName);
+        this.getArcaneTrapSetup(trapSetups[FRO_PHASE_PITCH], baitName);
+        this.getArcaneTrapSetup(trapSetups[FRO_PHASE_UTTER_DARKNESS], baitName);
+        this.getArcaneTrapSetup(trapSetups[FRO_PHASE_FIRST_LIGHT], baitName);
+        this.getArcaneTrapSetup(trapSetups[FRO_PHASE_DAWN], baitName);
+        baitName = null;
+        trapSetups = null;
+        this.initSelectTrapSetup();
     }
 }
 
@@ -2381,6 +2451,7 @@ function embedUIStructure() {
                 function resetAReTrapSetup() {
                     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
                     setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                    reloadCampPage();
                 }
 
                 var captionCell;
@@ -2418,8 +2489,7 @@ function embedUIStructure() {
                 var resetButton = document.createElement('button');
                 resetButton.onclick = resetAReTrapSetup;
                 resetButton.style.fontSize = "9px";
-                resetButton.style.width = "50px";
-                tmpTxt = document.createTextNode("Reset");
+                tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(resetButton);
                 resetButton = null;
@@ -2460,6 +2530,11 @@ function embedUIStructure() {
                     saveFRoSetup(IDX_TOWER, event.target.value);
                 }
 
+                function recommendFRoTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].recommendTrapSetup();
+                    setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                }
+
                 function resetFRoTrapSetup() {
                     POLICY_DICT[POLICY_NAME_FORT_ROX].resetTrapSetups();
                     setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
@@ -2485,6 +2560,7 @@ function embedUIStructure() {
                 var selectPhase = document.createElement('select');
                 selectPhase.id = ID_SELECT_FRO_PHASE;
                 selectPhase.style.width = "70px";
+                selectPhase.style.fontSize = "90%";
                 selectPhase.onchange = onChangeFRoSelectPhase;
                 for (const phase of FRO_PHASES){
                     itemOption = document.createElement("option");
@@ -2511,6 +2587,7 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(tmpTxt);
                 var selectTower = document.createElement('select');
                 selectTower.id = ID_SELECT_FRO_TOWER;
+                selectTower.style.fontSize = "90%";
                 selectTower.style.width = "80px";
                 selectTower.onchange = saveFRoTower;
                 for (const phase of FRO_TOWER_ACTIVATION){
@@ -2534,6 +2611,7 @@ function embedUIStructure() {
                 var selectActivationCell = trFRoTowerHPFull.insertCell();
                 var selectActivation = document.createElement('select');
                 selectActivation.id = ID_SELECT_FRO_ACTIVATION_HP_FULL;
+                selectActivation.style.fontSize = "90%";
                 selectActivation.style.width = "60px";
                 selectActivation.onchange = saveFRoActivationHPFull;
                 for (const phase of FRO_TOWER_ACTIVATION){
@@ -2543,11 +2621,20 @@ function embedUIStructure() {
                     selectActivation.appendChild(itemOption);
                 }
                 selectActivationCell.appendChild(selectActivation);
-                tmpTxt = document.createTextNode("   ");
+                tmpTxt = document.createTextNode(" ");
+                selectActivationCell.appendChild(tmpTxt);
+                var recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendFRoTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                selectActivationCell.appendChild(recommendButton);
+                recommendButton = null;
+                tmpTxt = document.createTextNode(" ");
                 selectActivationCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
                 resetButton.onclick = resetFRoTrapSetup;
-                resetButton.style.fontSize = "10px";
+                resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 selectActivationCell.appendChild(resetButton);
