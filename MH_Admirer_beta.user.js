@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.12
+// @version      1.2.2.13
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -138,10 +138,21 @@ const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance",
 const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
 const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
+const BASE_WOODEN_BASE_WITH_TARGET = "Wooden Base with Target";
+const BASE_CHEESECAKE = "Cheesecake Base";
+const BAIT_CHECKMATE = "Checkmate Cheese";
 const BAIT_CRESCENT = "Crescent Cheese";
 const BAIT_GOUDA = "Gouda Cheese";
 const BAIT_MOON = "Moon Cheese";
 const BAIT_RUNIC = "Runic Cheese";
+const TRINKET_ATTRACTION = "Attraction Charm";
+const TRINKET_POWER = "Power Charm";
+const TRINKET_ROOK_CRUMBLE = "Rook Crumble Charm";
+const TRINKET_VALENTINE = "Valentine Charm";
+const WEAPON_MYSTIC_PAWN_PINCHER = "Mystic Pawn Pincher";
+const WEAPON_TECHNIC_PAWN_PINCHER = "Technic Pawn Pincher";
+const WEAPON_BLACKSTONE_PASS = "Blackstone Pass";
+const WEAPON_OBVIOUS_AMBUSH = "Obvious Ambush";
 const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
 const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
 const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
@@ -533,6 +544,132 @@ class PolicyZTo extends Policy {
         document.getElementById(ID_SELECT_ZTO_STRATEGY).value = trapSetups[ZTO_STRATEGY];
         currentChess = null;
         trapSetups = null;
+    }
+
+    recommendTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        var mysticPawnWeapon;
+        var mysticOnlyWeapon;
+        var technicPawnWeapon;
+        var technicOnlyWeapon;
+        var attractionBase;
+        var attractionCharm;
+        var powerCharm;
+        var rookCrumbleCharm;
+        var checkmateCheese;
+        var baitName;
+        if (g_weaponNames.includes(WEAPON_MYSTIC_PAWN_PINCHER)) {
+            mysticPawnWeapon = WEAPON_MYSTIC_PAWN_PINCHER;
+        } else {
+            mysticPawnWeapon = g_bestTacticalWeapon;
+        }
+        if (g_weaponNames.includes(WEAPON_BLACKSTONE_PASS)) {
+            mysticOnlyWeapon = WEAPON_BLACKSTONE_PASS;
+        } else {
+            mysticOnlyWeapon = g_bestTacticalWeapon;
+        }
+        if (g_weaponNames.includes(WEAPON_TECHNIC_PAWN_PINCHER)) {
+            technicPawnWeapon = WEAPON_TECHNIC_PAWN_PINCHER;
+        } else {
+            technicPawnWeapon = g_bestTacticalWeapon;
+        }
+        if (g_weaponNames.includes(WEAPON_OBVIOUS_AMBUSH)) {
+            technicOnlyWeapon = WEAPON_OBVIOUS_AMBUSH;
+        } else {
+            technicOnlyWeapon = g_bestTacticalWeapon;
+        }
+        if (g_baseNames.includes(BASE_CHEESECAKE)) {
+            attractionBase = BASE_CHEESECAKE;
+        } else if (g_baseNames.includes(BASE_WOODEN_BASE_WITH_TARGET)) {
+            attractionBase = BASE_WOODEN_BASE_WITH_TARGET;
+        } else {
+            attractionBase = g_bestBase;
+        }
+        if (g_baitNames.includes(BAIT_GOUDA)) {
+            baitName = BAIT_GOUDA;
+        }
+        if (g_baitNames.includes(BAIT_CHECKMATE)) {
+            checkmateCheese = BAIT_CHECKMATE;
+        }
+        if (g_trinketNames.includes(TRINKET_VALENTINE)) {
+            attractionCharm = TRINKET_VALENTINE;
+        } else if (g_trinketNames.includes(TRINKET_ATTRACTION)) {
+            attractionCharm = TRINKET_ATTRACTION;
+        }
+        if (g_trinketNames.includes(TRINKET_POWER)) {
+            powerCharm = TRINKET_POWER;
+        } else {
+            powerCharm = attractionCharm;
+        }
+        if (g_trinketNames.includes(TRINKET_ROOK_CRUMBLE)) {
+            rookCrumbleCharm = TRINKET_ROOK_CRUMBLE;
+        } else {
+            rookCrumbleCharm = powerCharm;
+        }
+        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_WEAPON] = mysticPawnWeapon;
+        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_BASE] = attractionBase;
+        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_TRINKET] = attractionCharm;
+        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_WEAPON] = mysticOnlyWeapon;
+        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_TRINKET] = powerCharm;
+        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_WEAPON] = mysticOnlyWeapon;
+        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_TRINKET] = powerCharm;
+        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_WEAPON] = mysticOnlyWeapon;
+        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_TRINKET] = rookCrumbleCharm;
+        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_WEAPON] = mysticOnlyWeapon;
+        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_TRINKET] = powerCharm;
+        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_WEAPON] = mysticOnlyWeapon;
+        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_BASE] = attractionBase;
+        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_TRINKET] = attractionCharm;
+        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_WEAPON] = technicPawnWeapon;
+        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_BASE] = attractionBase;
+        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_TRINKET] = attractionCharm;
+        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_WEAPON] = technicOnlyWeapon;
+        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_TRINKET] = powerCharm;
+        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_WEAPON] = technicOnlyWeapon;
+        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_TRINKET] = powerCharm;
+        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_WEAPON] = technicOnlyWeapon;
+        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_TRINKET] = rookCrumbleCharm;
+        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_WEAPON] = technicOnlyWeapon;
+        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_TRINKET] = powerCharm;
+        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_WEAPON] = technicOnlyWeapon;
+        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_BASE] = attractionBase;
+        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_BAIT] = baitName;
+        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_TRINKET] = attractionCharm;
+        trapSetups[ZTO_CHESS_MASTER][IDX_WEAPON] = g_bestTacticalWeapon;
+        trapSetups[ZTO_CHESS_MASTER][IDX_BASE] = g_bestBase;
+        trapSetups[ZTO_CHESS_MASTER][IDX_BAIT] = checkmateCheese;
+        trapSetups[ZTO_CHESS_MASTER][IDX_TRINKET] = powerCharm;
+        mysticPawnWeapon = null;
+        mysticOnlyWeapon = null;
+        technicPawnWeapon = null;
+        technicOnlyWeapon = null;
+        attractionBase = null;
+        attractionCharm = null;
+        powerCharm = null;
+        rookCrumbleCharm = null;
+        checkmateCheese = null;
+        baitName = null;
+        trapSetups = null;
+        this.initSelectTrapSetup();
     }
 }
 
@@ -1026,9 +1163,14 @@ function soundHorn() {
     hornElement = null;
 
     // double check if the horn was already sounded
+    /*
     window.setTimeout(function () {
         afterSoundingHorn()
     }, 4000);
+    */
+    window.setTimeout(function () {
+        afterSoundingHorn()
+    }, 1000);
 }
 
 function prepareSoundingHorn() {
@@ -2797,6 +2939,11 @@ function embedUIStructure() {
                     saveZToSetup(IDX_TRINKET, event.target.value);
                 }
 
+                function recommendZToTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].recommendTrapSetup();
+                    setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
+                }
+
                 function resetZToTrapSetup() {
                     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].resetTrapSetups();
                     setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
@@ -2816,6 +2963,7 @@ function embedUIStructure() {
                 var selectStrategyCell = trZToStrategy.insertCell();
                 var selectStrategy = document.createElement('select');
                 selectStrategy.id = ID_SELECT_ZTO_STRATEGY;
+                selectStrategy.style.fontSize = "90%";
                 selectStrategy.style.width = "120px";
                 selectStrategy.onchange = onChangeZToStrategy;
                 itemOption = document.createElement("option");
@@ -2831,9 +2979,18 @@ function embedUIStructure() {
                 selectStrategyCell.appendChild(selectStrategy);
                 tmpTxt = document.createTextNode("   ");
                 selectStrategyCell.appendChild(tmpTxt);
+                var recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendZToTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                selectStrategyCell.appendChild(recommendButton);
+                recommendButton = null;
+                tmpTxt = document.createTextNode(" ");
+                selectStrategyCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
                 resetButton.onclick = resetZToTrapSetup;
-                resetButton.style.fontSize = "10px";
+                resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 selectStrategyCell.appendChild(resetButton);
@@ -2851,6 +3008,7 @@ function embedUIStructure() {
                 captionCell.innerHTML = "Trap Setup for ";
                 var selectChess = document.createElement('select');
                 selectChess.id = ID_SELECT_ZTO_CHESS;
+                selectChess.style.fontSize = "90%";
                 selectChess.style.width = "70px";
                 selectChess.onchange = onChangeZToSelectChess;
                 for (const name of ZTO_CHESS_PROGRESS){
