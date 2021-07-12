@@ -1983,6 +1983,7 @@ function embedUIStructure() {
         statusDisplayTitle = null;
         var miscStatusCell = trFirst.insertCell();
         miscStatusCell.style.fontSize = "9px";
+        miscStatusCell.style.textAlign = "right";
         tmpTxt = document.createTextNode("Gifts & Raffles status : " + g_statusGiftsAndRaffles + "  ");
         miscStatusCell.appendChild(tmpTxt);
         var miscButtonsCell = trFirst.insertCell();
@@ -2019,8 +2020,9 @@ function embedUIStructure() {
         nextBotHornTimeCaptionCell.style.fontWeight = "bold";
         nextBotHornTimeCaptionCell.innerHTML = "Next Hunter Horn Time : ";
         g_nextBotHornTimeDisplay = trSecond.insertCell();
+        g_nextBotHornTimeDisplay.colSpan = 2;
         g_nextBotHornTimeDisplay.style.textAlign = "left";
-        g_nextBotHornTimeDisplay.width = 260;
+        g_nextBotHornTimeDisplay.width = 320;
         g_nextBotHornTimeDisplay.innerHTML = "Loading...";
         nextBotHornTimeCaptionCell = null;
         trSecond = null;
@@ -2031,6 +2033,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
         nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
         g_nextTrapCheckTimeDisplay = trThird.insertCell();
+        g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;

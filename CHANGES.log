@@ -1,5 +1,6 @@
 Version 1.2.2.13
 - Add recommendTrapSetup for ZTo Policy
+- Fix status display issue
 
 Version 1.2.2.12
 - Add recommendTrapSetup for ARe, FRo and SGa Policy
