@@ -138,9 +138,10 @@ const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance",
 const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
 const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
-const BAIT_RUNIC = "Runic Cheese";
-const BAIT_MOON = "Moon Cheese";
 const BAIT_CRESCENT = "Crescent Cheese";
+const BAIT_GOUDA = "Gouda Cheese";
+const BAIT_MOON = "Moon Cheese";
+const BAIT_RUNIC = "Runic Cheese";
 const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
 const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
 const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
@@ -474,6 +475,21 @@ class PolicySGa extends Policy {
         document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
         currentSeason = null;
         trapSetups = null;
+    }
+
+    recommendTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        var baitName;
+        if (g_baitNames.includes(BAIT_GOUDA)) {
+            baitName = BAIT_GOUDA;
+        }
+        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
+        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
+        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
+        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
+        baitName = null;
+        trapSetups = null;
+        this.initSelectTrapSetup();
     }
 }
 
@@ -2676,6 +2692,11 @@ function embedUIStructure() {
                     saveSGaSetup(IDX_TRINKET, event.target.value);
                 }
 
+                function recommendSGaTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].recommendTrapSetup();
+                    setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
+                }
+
                 function resetSGaTrapSetup() {
                     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].resetTrapSetups();
                     setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
@@ -2694,6 +2715,7 @@ function embedUIStructure() {
                 captionCell.innerHTML = "Trap Setup for ";
                 var selectSeason = document.createElement('select');
                 selectSeason.id = ID_SELECT_SGA_SEASON;
+                selectSeason.style.fontSize = "90%";
                 selectSeason.style.width = "70px";
                 selectSeason.onchange = onChangeSGaSelectSeason;
                 for (const season of SGA_SEASONS){
@@ -2719,11 +2741,20 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SGA_TRINKET, saveSGaTrinket));
-                tmpTxt = document.createTextNode("   ");
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendSGaTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(recommendButton);
+                recommendButton = null;
+                tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
                 resetButton.onclick = resetSGaTrapSetup;
-                resetButton.style.fontSize = "10px";
+                resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(resetButton);
