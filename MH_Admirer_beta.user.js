@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.11
+// @version      1.2.2.12
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -138,6 +138,7 @@ const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance",
 const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
 const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
+const BAIT_RUNIC = "Runic Cheese";
 const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
 const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
 const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
@@ -318,6 +319,19 @@ class PolicyARe extends Policy {
         document.getElementById(ID_SELECT_ARE_BAIT).value = trapSetups[IDX_BAIT];
         document.getElementById(ID_SELECT_ARE_TRINKET).value = trapSetups[IDX_TRINKET];
         trapSetups = null;
+    }
+    recommendTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        if (g_baitNames.includes(BAIT_RUNIC)) {
+            trapSetups[IDX_WEAPON] = g_bestForgottenWeapon;
+            trapSetups[IDX_BASE] = g_bestBase;
+            trapSetups[IDX_BAIT] = BAIT_RUNIC;
+        } else {
+            trapSetups[IDX_WEAPON] = g_bestArcaneWeapon;
+            trapSetups[IDX_BASE] = g_bestBase;
+        }
+        trapSetups = null;
+        this.initSelectTrapSetup();
     }
 }
 
@@ -616,7 +630,7 @@ function getNewKRCaptcha() {
 
 function setBotDocumentStyle () {
     var docStyle = document.getElementsByTagName("STYLE")[0];
-    var botStyle = "." + STYLE_CLASS_NAME_JNK_CAPTION + " { text-align: right; font-weight: bold; }";
+    var botStyle = "." + STYLE_CLASS_NAME_JNK_CAPTION + " { text-align: right; font-weight: bold; font-size:48%; }";
     if (isNullOrUndefined(docStyle.length)) {
         docStyle.innerHTML = botStyle;
     } else {
@@ -1793,7 +1807,7 @@ function embedUIStructure() {
         nextTrapCheckTimeCaptionCell = null;
         trThird = null;
 
-/*
+        /*
         // The forth row is very temporary just for testing
         var trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2258,6 +2272,7 @@ function embedUIStructure() {
                 var itemOption;
                 var selectItem = document.createElement('select');
                 selectItem.style.width = "80px";
+                selectItem.style.fontSize = "90%";
                 for (var i = 0; i < items.length; i++) {
                     itemOption = document.createElement("option");
                     itemOption.value = items[i];
@@ -2310,13 +2325,14 @@ function embedUIStructure() {
                 var trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
                 captionCell = trSelectPolicy.insertCell();
-                captionCell.width = 270;
+                captionCell.width = 260;
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Select Location :  ";
                 captionCell = null;
                 var selectPolicyCell = trSelectPolicy.insertCell();
                 var selectPolicy = document.createElement('select');
                 selectPolicy.style.width = "120px";
+                selectPolicy.style.fontSize = "90%";
                 selectPolicy.onchange = onChangePolicy;
                 itemOption = document.createElement("option");
                 itemOption.value = "Select policy";
@@ -2357,10 +2373,14 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
                 }
 
+                function recommendAReTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].recommendTrapSetup();
+                    setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                }
+
                 function resetAReTrapSetup() {
                     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
                     setStorage(STORAGE_TRAP_SETUP_ARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                    reloadCampPage();
                 }
 
                 var captionCell;
@@ -2384,12 +2404,22 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ARE_TRINKET, saveAReTrinket));
-                tmpTxt = document.createTextNode("   ");
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendAReTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(recommendButton);
+                recommendButton = null;
+                tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 var resetButton = document.createElement('button');
                 resetButton.onclick = resetAReTrapSetup;
-                resetButton.style.fontSize = "10px";
-                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.style.fontSize = "9px";
+                resetButton.style.width = "50px";
+                tmpTxt = document.createTextNode("Reset");
                 resetButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(resetButton);
                 resetButton = null;
