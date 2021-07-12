@@ -93,6 +93,16 @@ var g_baseNames = [];
 var g_baitNames = [];
 var g_trinketNames = [];
 var g_botProcess = BOT_PROCESS_IDLE;
+var g_bestBase;
+var g_bestArcaneWeapon;
+var g_bestDraconicWeapon;
+var g_bestForgottenWeapon;
+var g_bestHydroWeapon;
+var g_bestLawWeapon;
+var g_bestPhysicalWeapon;
+var g_bestRiftWeapon;
+var g_bestShadowWeapon;
+var g_bestTacticalWeapon;
 
 // I have to re-define the default value of the following variables somewhere else
 var g_isKingReward = false;
@@ -108,6 +118,26 @@ const KR_SEPARATOR = "~";
 // JnK constant
 const HTTP_STR = 'https';
 const MOUSEHUNTGAME_WEBSITE_HOME = HTTP_STR + "://www.mousehuntgame.com/";
+const HUNTER_TITLES = ["Novice", "Recruit", "Apprentice", "Initiate", "Journeyman", "Journeywoman", "Master", "Grandmaster", "Legendary", "Hero", "Knight",
+                       "Lord", "Lady", "Baron", "Baroness", "Count", "Countess", "Duke", "Duchess", "Grand Duke", "Grand Duchess", "Archduke", "Archduchess",
+                       "Viceroy", "Elder", "Sage", "Fabled"];
+const BASE_THIEF = "Thief Base";
+const BEST_BASES = ["Chocolate Bar Base", "Aqua Base", "Fan Base", "Explosive Base"];
+const BEST_ARCANE_WEAPONS = ["Circlet of Pursuing", "Circlet of Seeking", "Event Horizon", "Grand Arcanum", "Droid Archmagus", "Arcane Blast",
+                             "Arcane Capturing Rod Of Never Yielding Mystery"];
+const BEST_DRACONIC_WEAPONS = ["Dragon Slayer Cannon", "Chrome Storm Wrought Ballista", "Storm Wrought Ballista", "Dragonvine Ballista", "Blazing Ember Spear",
+                               "Ice Maiden"];
+const BEST_FORGOTTEN_WEAPONS = ["Thought Obliterator ", "Thought Manipulator", "Infinite Labyrinth", "Endless Labyrinth", "Crystal Crucible", "Scarlet Ember Root",
+                                "Ancient Box"];
+const BEST_HYDRO_WEAPONS = ["Queso Fount", "School of Sharks", "Oasis Water Node", "Steam Laser Mk. I", "Ancient Spear Gun"];
+const BEST_LAW_WEAPONS = ["S.T.I.N.G.E.R.", "Ember Prison Core", "Meteor Prison Core", "S.L.A.C. II"];
+const BEST_PHYSICAL_WEAPONS = ["Smoldering Stone Sentinel", "Chrome MonstroBot", "Sandstorm MonstroBot", "Enraged RhinoBot"];
+const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance", "Timesplit Dissonance",
+                          "Mysteriously unYielding Null-Onyx Rampart of Cascading Amperes", "Darkest Chocolate Bunny", "Focused Crystal Laser", "Multi-Crystal",
+                          "Crystal Tower"];
+const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
+const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
+const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
 const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
 const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
 const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
@@ -603,6 +633,7 @@ function execScript() {
         initPolicyDict();
         setBotDocumentStyle();
         loadPreferenceSettingFromStorage();
+        rankWeapons();
         retrieveCampActiveData();
         if (isNullOrUndefined(g_baitCount)) {
             setTimeout(function () {
@@ -991,6 +1022,41 @@ function loadPreferenceSettingFromStorage() {
     g_baseNames = getStorage(STORAGE_BASE_NAMES, g_baseNames);
     g_baitNames = getStorage(STORAGE_BAIT_NAMES, g_baitNames);
     g_trinketNames = getStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
+}
+
+function rankWeapons() {
+    function getBestWeapon(BestWeapons) {
+        var bestWeapon;
+        for (const weaponName of BestWeapons){
+            if (g_weaponNames.includes(weaponName)) {
+                bestWeapon = weaponName;
+                break;
+            }
+        }
+        return bestWeapon;
+    }
+
+    var hunterTitle = getPageVariable("user.title_name");
+    if (HUNTER_TITLES.indexOf(hunterTitle) > 16 && g_baseNames.includes(BASE_THIEF)) {
+        g_bestBase = BASE_THIEF;
+    } else {
+        for (const baseName of BEST_BASES){
+            if (g_baseNames.includes(baseName)) {
+                g_bestBase = baseName;
+                break;
+            }
+        }
+    }
+    hunterTitle = null;
+    g_bestArcaneWeapon = getBestWeapon(BEST_ARCANE_WEAPONS);
+    g_bestDraconicWeapon = getBestWeapon(BEST_DRACONIC_WEAPONS);
+    g_bestForgottenWeapon = getBestWeapon(BEST_FORGOTTEN_WEAPONS);
+    g_bestHydroWeapon = getBestWeapon(BEST_HYDRO_WEAPONS);
+    g_bestLawWeapon = getBestWeapon(BEST_LAW_WEAPONS);
+    g_bestPhysicalWeapon = getBestWeapon(BEST_PHYSICAL_WEAPONS);
+    g_bestRiftWeapon = getBestWeapon(BEST_RIFT_WEAPONS);
+    g_bestShadowWeapon = getBestWeapon(BEST_SHADOW_WEAPONS);
+    g_bestTacticalWeapon = getBestWeapon(BEST_TACTICAL_WEAPONS);
 }
 
 function getStorage(name, defaultValue) {
@@ -1507,7 +1573,7 @@ function testDict() {
 }
 
 function test1() {
-    checkLocation();
+    //checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -2838,6 +2904,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.environment_name") {
             return unsafeWindow.user.environment_name;
+        } else if (name == "user.title_name") {
+            return unsafeWindow.user.title_name;
         } else if (name == "user.quests.QuestHarbour.status") {
             return unsafeWindow.user.quests.QuestHarbour.status;
         } else if (name == "user.quests.QuestHarbour.can_claim") {
