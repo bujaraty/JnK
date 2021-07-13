@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.16
+// @version      1.2.2.17
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -21,6 +21,7 @@
 // ==/UserScript==
 // Issue list
 // - Auto change trap setting
+//   - ZToPolicy
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
 //   - CLiPolicy
 //   - Iceberg Policy Preferences
@@ -124,7 +125,16 @@ const MOUSEHUNTGAME_WEBSITE_HOME = HTTP_STR + "://www.mousehuntgame.com/";
 const HUNTER_TITLES = ["Novice", "Recruit", "Apprentice", "Initiate", "Journeyman", "Journeywoman", "Master", "Grandmaster", "Legendary", "Hero", "Knight",
                        "Lord", "Lady", "Baron", "Baroness", "Count", "Countess", "Duke", "Duchess", "Grand Duke", "Grand Duchess", "Archduke", "Archduchess",
                        "Viceroy", "Elder", "Sage", "Fabled"];
+const WEAPON_OASIS_WATER_NODE = "Oasis Water Node";
+const WEAPON_STEAM_LASER_MK_I = "Steam Laser Mk. I";
+const BASE_CHEESECAKE = "Cheesecake Base";
+const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
+const BASE_HEARTHSTONE = "Hearthstone Base";
+const BASE_MAGNET = "Magnet Base";
+const BASE_REMOTE_DETONATOR = "Remote Detonator Base";
+const BASE_SPIKED = "Spiked Base";
 const BASE_THIEF = "Thief Base";
+const BASE_WOODEN_BASE_WITH_TARGET = "Wooden Base with Target";
 const BEST_BASES = ["Chocolate Bar Base", "Aqua Base", "Fan Base", "Explosive Base"];
 const BEST_ARCANE_WEAPONS = ["Circlet of Pursuing", "Circlet of Seeking", "Event Horizon", "Grand Arcanum", "Droid Archmagus", "Arcane Blast",
                              "Arcane Capturing Rod Of Never Yielding Mystery"];
@@ -132,7 +142,7 @@ const BEST_DRACONIC_WEAPONS = ["Dragon Slayer Cannon", "Chrome Storm Wrought Bal
                                "Ice Maiden"];
 const BEST_FORGOTTEN_WEAPONS = ["Thought Obliterator ", "Thought Manipulator", "Infinite Labyrinth", "Endless Labyrinth", "Crystal Crucible", "Scarlet Ember Root",
                                 "Ancient Box"];
-const BEST_HYDRO_WEAPONS = ["Queso Fount", "School of Sharks", "Oasis Water Node", "Steam Laser Mk. I", "Ancient Spear Gun"];
+const BEST_HYDRO_WEAPONS = ["Queso Fount", "School of Sharks", WEAPON_OASIS_WATER_NODE, WEAPON_STEAM_LASER_MK_I, "Ancient Spear Gun"];
 const BEST_LAW_WEAPONS = ["S.T.I.N.G.E.R.", "Ember Prison Core", "Meteor Prison Core", "S.L.A.C. II"];
 const BEST_PHYSICAL_WEAPONS = ["Smoldering Stone Sentinel", "Chrome MonstroBot", "Sandstorm MonstroBot", "Enraged RhinoBot"];
 const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance", "Timesplit Dissonance",
@@ -140,9 +150,6 @@ const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance",
                           "Crystal Tower"];
 const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
 const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
-const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
-const BASE_WOODEN_BASE_WITH_TARGET = "Wooden Base with Target";
-const BASE_CHEESECAKE = "Cheesecake Base";
 const BAIT_CHECKMATE = "Checkmate Cheese";
 const BAIT_CRESCENT = "Crescent Cheese";
 const BAIT_GOUDA = "Gouda Cheese";
@@ -201,6 +208,12 @@ const ID_SELECT_ZTO_BAIT = "selectZToBait";
 const ID_SELECT_ZTO_TRINKET = "selectZToTrinket";
 const ID_TR_CLI_CATALOG_MICE = "trCLiCatalogMice";
 const ID_CHECKBOX_CLI_CATALOG_MICE = "checkboxCLiCatalogMice";
+const ID_TR_ICE_SUBLOCATIONS_TRAP_SETUP = "trIceSublocationTrapSetup";
+const ID_SELECT_ICE_SUBLOCATION = "selectIceSublocation";
+const ID_SELECT_ICE_WEAPON = "selectIceWeapon";
+const ID_SELECT_ICE_BASE = "selectIceBase";
+const ID_SELECT_ICE_BAIT = "selectIceBait";
+const ID_SELECT_ICE_TRINKET = "selectIceTrinket";
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -220,6 +233,7 @@ const STORAGE_TRAP_SETUP_FRO = "trapSetupFRo";
 const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
 const STORAGE_TRAP_SETUP_ZTO = "trapSetupZTo";
 const STORAGE_TRAP_SETUP_CLI = "trapSetupCLi";
+const STORAGE_TRAP_SETUP_ICE = "trapSetupIce";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
@@ -271,6 +285,18 @@ const ZTO_CHESS_PROGRESS = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_
                             ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING,
                             ZTO_CHESS_MASTER];
 const CLI_CATALOG_MICE = "Catalog Mice";
+const ICE_SUBLOCATION_ICEBERG_GENERAL = "Iceberg General";
+const ICE_SUBLOCATION_TREACHEROUS_TUNNELS = "Treacherous Tunnels";
+const ICE_SUBLOCATION_BRUTAL_BULWARK = "Brutal Bulwark";
+const ICE_SUBLOCATION_BOMBING_RUN = "Bombing Run";
+const ICE_SUBLOCATION_THE_MAD_DEPTHS = "The Mad Depths";
+const ICE_SUBLOCATION_ICEWINGS_LAIR = "Icewing's Lair";
+const ICE_SUBLOCATION_HIDDEN_DEPTHS = "Hidden Depths";
+const ICE_SUBLOCATION_THE_DEEP_LAIR = "The Deep Lair";
+const ICE_SUBLOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
+const ICE_SUBLOCATIONS = [ICE_SUBLOCATION_ICEBERG_GENERAL, ICE_SUBLOCATION_TREACHEROUS_TUNNELS, ICE_SUBLOCATION_BRUTAL_BULWARK,
+                          ICE_SUBLOCATION_BOMBING_RUN, ICE_SUBLOCATION_THE_MAD_DEPTHS, ICE_SUBLOCATION_ICEWINGS_LAIR,
+                          ICE_SUBLOCATION_HIDDEN_DEPTHS, ICE_SUBLOCATION_THE_DEEP_LAIR, ICE_SUBLOCATION_SLUSHY_SHORELINE];
 const LOCATION_HARBOUR = "Harbour";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
@@ -285,6 +311,7 @@ const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const POLICY_NAME_CRYSTAL_LIBRARY = "Crystal Library";
+const POLICY_NAME_ICEBERG = "Iceberg";
 
 // Policy description
 class Policy {
@@ -367,7 +394,7 @@ class Policy {
 class PolicyARe extends Policy {
     constructor () {
         super();
-        this.setName("Acolyte Realm");
+        this.setName(POLICY_NAME_ACOLYTE_REALM);
         this.trs[0] = ID_TR_ARE_TRAP_SETUP;
     }
 
@@ -403,20 +430,16 @@ class PolicyARe extends Policy {
 class PolicyFRo extends Policy {
     constructor () {
         super();
-        this.setName("Fort Rox");
+        this.setName(POLICY_NAME_FORT_ROX);
         this.trs[0] = ID_TR_FRO_PHASES_TRAP_SETUP;
         this.trs[1] = ID_TR_FRO_TOWER_HP_FULL;
     }
 
     resetTrapSetups() {
         this.trapSetups = {};
-        this.trapSetups[FRO_PHASE_DAY] = [];
-        this.trapSetups[FRO_PHASE_TWILIGHT] = [];
-        this.trapSetups[FRO_PHASE_MIDNIGHT] = [];
-        this.trapSetups[FRO_PHASE_PITCH] = [];
-        this.trapSetups[FRO_PHASE_UTTER_DARKNESS] = [];
-        this.trapSetups[FRO_PHASE_FIRST_LIGHT] = [];
-        this.trapSetups[FRO_PHASE_DAWN] = [];
+        for (const phase of FRO_PHASES){
+            this.trapSetups[phase] = [];
+        }
         this.trapSetups[FRO_TOWER_HP_FULL] = FRO_TOWER_DEACTIVATE;
     }
 
@@ -464,16 +487,15 @@ class PolicyFRo extends Policy {
 class PolicySGa extends Policy {
     constructor () {
         super();
-        this.setName("Seasonal Garden");
+        this.setName(POLICY_NAME_SEASONAL_GARDEN);
         this.trs[0] = ID_TR_SGA_SEASONS_TRAP_SETUP;
     }
 
     resetTrapSetups() {
         this.trapSetups = {};
-        this.trapSetups[SGA_SEASON_SPRING] = [];
-        this.trapSetups[SGA_SEASON_SUMMER] = [];
-        this.trapSetups[SGA_SEASON_AUTUMN] = [];
-        this.trapSetups[SGA_SEASON_WINTER] = [];
+        for (const season of SGA_SEASONS){
+            this.trapSetups[season] = [];
+        }
     }
 
     getTrapSetups() {
@@ -510,26 +532,16 @@ class PolicySGa extends Policy {
 class PolicyZTo extends Policy {
     constructor () {
         super();
-        this.setName("Zugzwang's Tower");
+        this.setName(POLICY_NAME_ZUGZWANGS_TOWER);
         this.trs[0] = ID_TR_ZTO_STRATEGY;
         this.trs[1] = ID_TR_ZTO_CHESS_TRAP_SETUP;
     }
 
     resetTrapSetups() {
         this.trapSetups = {};
-        this.trapSetups[ZTO_CHESS_MYSTIC_PAWN] = [];
-        this.trapSetups[ZTO_CHESS_MYSTIC_KNIGHT] = [];
-        this.trapSetups[ZTO_CHESS_MYSTIC_BISHOP] = [];
-        this.trapSetups[ZTO_CHESS_MYSTIC_ROOK] = [];
-        this.trapSetups[ZTO_CHESS_MYSTIC_QUEEN] = [];
-        this.trapSetups[ZTO_CHESS_MYSTIC_KING] = [];
-        this.trapSetups[ZTO_CHESS_TECHNIC_PAWN] = [];
-        this.trapSetups[ZTO_CHESS_TECHNIC_KNIGHT] = [];
-        this.trapSetups[ZTO_CHESS_TECHNIC_BISHOP] = [];
-        this.trapSetups[ZTO_CHESS_TECHNIC_ROOK] = [];
-        this.trapSetups[ZTO_CHESS_TECHNIC_QUEEN] = [];
-        this.trapSetups[ZTO_CHESS_TECHNIC_KING] = [];
-        this.trapSetups[ZTO_CHESS_MASTER] = [];
+        for (const chessPiece of ZTO_CHESS_PROGRESS){
+            this.trapSetups[chessPiece] = [];
+        }
         this.trapSetups[ZTO_STRATEGY] = ZTO_STRATEGY_MYSTIC_ONLY;
     }
 
@@ -679,7 +691,7 @@ class PolicyZTo extends Policy {
 class PolicyCLi extends Policy {
     constructor () {
         super();
-        this.setName("Crystal Library");
+        this.setName(POLICY_NAME_CRYSTAL_LIBRARY);
         this.trs[0] = ID_TR_CLI_CATALOG_MICE;
     }
 
@@ -699,19 +711,70 @@ class PolicyCLi extends Policy {
     }
 }
 
+class PolicyIce extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_ICEBERG);
+        this.trs[0] = ID_TR_ICE_SUBLOCATIONS_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = {};
+        for (const sublocation of ICE_SUBLOCATIONS){
+            this.trapSetups[sublocation] = [];
+        }
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_ICE);
+    }
+
+    initSelectTrapSetup() {
+        var trapSetups = this.getTrapSetups();
+        var sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
+        document.getElementById(ID_SELECT_ICE_WEAPON).value = trapSetups[sublocation][IDX_WEAPON];
+        document.getElementById(ID_SELECT_ICE_BASE).value = trapSetups[sublocation][IDX_BASE];
+        document.getElementById(ID_SELECT_ICE_BAIT).value = trapSetups[sublocation][IDX_BAIT];
+        document.getElementById(ID_SELECT_ICE_TRINKET).value = trapSetups[sublocation][IDX_TRINKET];
+        sublocation = null;
+        trapSetups = null;
+    }
+
+    recommendTrapSetup() {
+        function getIceTrapSetup() {
+        }
+        /*
+const WEAPON_OASIS_WATER_NODE = "Oasis Water Node";
+const WEAPON_STEAM_LASER_MK_I = "Steam Laser Mk. I";
+const BASE_HEARTHSTONE = "Hearthstone Base";
+const BASE_MAGNET = "Magnet Base";
+const BASE_REMOTE_DETONATOR = "Remote Detonator Base";
+const BASE_SPIKED = "Spiked Base";
+
+        var trapSetups = this.getTrapSetups();
+        var baitName;
+        if (g_baitNames.includes(BAIT_GOUDA)) {
+            baitName = BAIT_GOUDA;
+        }
+        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
+        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
+        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
+        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
+        baitName = null;
+        trapSetups = null;
+        this.initSelectTrapSetup();
+        */
+    }
+}
+
 const POLICY_DICT = {};
 function initPolicyDict() {
-    var tmpPolicy;
-    tmpPolicy = new PolicyARe();
-    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = tmpPolicy;
-    tmpPolicy = new PolicyFRo();
-    POLICY_DICT[POLICY_NAME_FORT_ROX] = tmpPolicy;
-    tmpPolicy = new PolicySGa();
-    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = tmpPolicy;
-    tmpPolicy = new PolicyZTo();
-    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = tmpPolicy;
-    tmpPolicy = new PolicyCLi();
-    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = tmpPolicy;
+    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyARe();
+    POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyFRo();
+    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicySGa();
+    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyZTo();
+    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyCLi();
+    POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyIce();
 }
 
 // Start executing script
@@ -2397,14 +2460,14 @@ function embedUIStructure() {
                 if (event.target.value == "Select policy") {
                     return;
                 }
-                for (const [key, policyObj] of Object.entries(POLICY_DICT)) {
-                    tmpDisplay = (event.target.value == policyObj.name)? "table-row" : "none";
-                    tmpPolicy = POLICY_DICT[key];
+                for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
+                    tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
+                    tmpPolicy = POLICY_DICT[policyName];
                     for (const tr of tmpPolicy.trs){
                         document.getElementById(tr).style.display = tmpDisplay;
                     }
                     if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
-                        alert("Cannot find function initSelectTrapSetup for policy: " + policyObj.name);
+                        alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
                     } else if (tmpDisplay == "table-row") {
                         tmpPolicy.initSelectTrapSetup();
                     }
@@ -2606,10 +2669,10 @@ function embedUIStructure() {
                 itemOption.text = "Select policy";
                 selectPolicy.appendChild(itemOption);
                 itemOption = null;
-                for (const [key, policyObj] of Object.entries(POLICY_DICT)) {
+                for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
                     itemOption = document.createElement("option");
-                    itemOption.value = policyObj.name;
-                    itemOption.text = policyObj.name;
+                    itemOption.value = policyName;
+                    itemOption.text = policyName;
                     selectPolicy.appendChild(itemOption);
                 }
                 itemOption = null;
@@ -3106,6 +3169,107 @@ function embedUIStructure() {
                 captionCell = null;
             }
 
+            function insertIcePolicyPreferences() {
+                function onChangeIceSelectSublocation(event) {
+                    POLICY_DICT[POLICY_NAME_ICEBERG].initSelectTrapSetup();
+                }
+
+                function saveIceSetup(itemIndex, value) {
+                    alert(value);
+                    var sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
+                    POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups[sublocation][itemIndex] = value;
+                    sublocation = null;
+                    setStorage(STORAGE_TRAP_SETUP_ICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
+                }
+
+                function saveIceWeapon(event) {
+                    saveIceSetup(IDX_WEAPON, event.target.value);
+                }
+
+                function saveIceBase(event) {
+                    saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveIceBait(event) {
+                    saveIceSetup(IDX_BAIT, event.target.value);
+                }
+
+                function saveIceTrinket(event) {
+                    saveIceSetup(IDX_TRINKET, event.target.value);
+                }
+
+                function recommendIceTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ICEBERG].recommendTrapSetup();
+                    setStorage(STORAGE_TRAP_SETUP_ICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
+                }
+
+                function resetIceTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_ICEBERG].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_ICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
+                    reloadCampPage();
+                }
+
+                var captionCell;
+                var tmpTxt;
+                var itemOption;
+                var trIceSublocationTrapSetup = policyPreferencesTable.insertRow();
+                trIceSublocationTrapSetup.id = ID_TR_ICE_SUBLOCATIONS_TRAP_SETUP;
+                trIceSublocationTrapSetup.style.height = "24px";
+                trIceSublocationTrapSetup.style.display = "none";
+                captionCell = trIceSublocationTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                var selectSublocation = document.createElement('select');
+                selectSublocation.id = ID_SELECT_ICE_SUBLOCATION;
+                selectSublocation.style.fontSize = "90%";
+                selectSublocation.style.width = "70px";
+                selectSublocation.onchange = onChangeIceSelectSublocation;
+                for (const sublocation of ICE_SUBLOCATIONS){
+                    itemOption = document.createElement("option");
+                    itemOption.value = sublocation
+                    itemOption.text = sublocation
+                    selectSublocation.appendChild(itemOption);
+                }
+                itemOption = null;
+                captionCell.appendChild(selectSublocation);
+                tmpTxt = document.createTextNode(" :  ");
+                captionCell.appendChild(tmpTxt);
+                captionCell = null;
+                selectSublocation = null;
+                var trapSetupCell = trIceSublocationTrapSetup.insertCell();
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_ICE_WEAPON, saveIceWeapon));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_ICE_BASE, saveIceBase));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_ICE_BAIT, saveIceBait));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ICE_TRINKET, saveIceTrinket));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendIceTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(recommendButton);
+                recommendButton = null;
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                var resetButton = document.createElement('button');
+                resetButton.onclick = resetIceTrapSetup;
+                resetButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                trapSetupCell.appendChild(resetButton);
+                resetButton = null;
+                tmpTxt = null;
+                trapSetupCell = null;
+                trIceSublocationTrapSetup = null;
+            }
+
             var tmpTxt;
             var policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
@@ -3120,6 +3284,7 @@ function embedUIStructure() {
             insertSGaPolicyPreferences();
             insertZToPolicyPreferences();
             insertCLiPolicyPreferences();
+            insertIcePolicyPreferences();
 
             var trLastRow = policyPreferencesTable.insertRow();
             var updateTrapsButtonCell = trLastRow.insertCell();
