@@ -1262,7 +1262,7 @@ function soundHorn() {
     */
     window.setTimeout(function () {
         afterSoundingHorn()
-    }, 1000);
+    }, 2000);
 }
 
 function prepareSoundingHorn() {
