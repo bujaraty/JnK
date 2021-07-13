@@ -1094,7 +1094,6 @@ function countdownTrapCheckTimer() {
     intervalTime = undefined;
 
     if (g_nextTrapCheckTimeInSeconds <= 0) {
-        alert(g_nextTrapCheckTimeInSeconds);
         trapCheck();
     } else {
         checkLocation();
