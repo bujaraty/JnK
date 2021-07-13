@@ -1,3 +1,6 @@
+Version 1.2.2.15
+- Check KR prompt in afterSoundingHorn
+
 Version 1.2.2.14
 - Fix issue 'countdownTrapCheck doesn't work on non-camp pages'
 

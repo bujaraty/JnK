@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.14
+// @version      1.2.2.15
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,7 +20,6 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Check after sounding horn if it is KR
 // - Auto change trap setting
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
 //   - CLiPolicy
@@ -115,6 +114,8 @@ const ID_HEADER_ELEMENT = 'envHeaderImg';
 const HORNREADY_TXT = 'hornReady';
 const CLASS_HORNBUTTON_ELEMENT = 'hornbutton';
 const CLASS_HUNTERHORN_ELEMENT = 'mousehuntHud-huntersHorn-container';
+const USER_NEXT_ACTIVETURN_SECONDS = "user.next_activeturn_seconds";
+const USER_HAS_PUZZLE = "user.has_puzzle";
 const KR_SEPARATOR = "~";
 
 // JnK constant
@@ -1160,6 +1161,33 @@ function hornExist() {
 }
 
 function soundHorn() {
+    function afterSoundingHorn() {
+        function checkKRPrompt() {
+            if (parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS)) == 0 ||
+                getPageVariable(USER_HAS_PUZZLE)) {
+                updateTitleTxt("KR found. Prepare to Solve...");
+                updateNextBotHornTimeTxt("KR found. Prepare to Solve...");
+                window.setTimeout(function () {
+                    reloadCampPage()
+                }, 0.5 * 1000);
+            }
+        }
+
+        if (DEBUG_MODE) console.log("RUN %cafterSoundingHorn()", "color: #bada55");
+        checkKRPrompt();
+        // update timer
+        updateTitleTxt("Horn sounded. Synchronizing Data...");
+        updateNextBotHornTimeTxt("Horn sounded. Synchronizing Data...");
+
+        // reload data
+        retrieveCampActiveData();
+
+        // script continue as normal
+        window.setTimeout(function () {
+            countdownBotHornTimer()
+        }, 0.5 * 1000);
+    }
+
     var hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
     fireEvent(hornElement, 'click');
     hornElement = null;
@@ -1209,21 +1237,6 @@ function fireEvent(element, event) {
         event = null;
         evt = null;
     }
-}
-
-function afterSoundingHorn() {
-    if (DEBUG_MODE) console.log("RUN %cafterSoundingHorn()", "color: #bada55");
-    // update timer
-    updateTitleTxt("Horn sounded. Synchronizing Data...");
-    updateNextBotHornTimeTxt("Horn sounded. Synchronizing Data...");
-
-    // reload data
-    retrieveCampActiveData();
-
-    // script continue as normal
-    window.setTimeout(function () {
-        countdownBotHornTimer()
-    }, 0.5 * 1000);
 }
 
 function updateTitleTxt(titleTxt) {
@@ -1359,7 +1372,7 @@ function retrieveCampActiveData() {
     g_lastBotHornTimeRecorded = new Date();
 
     // Get MH horn time and use it to calculate next bot horn time
-    var nextMHHornTimeInSeconds = parseInt(getPageVariable("user.next_activeturn_seconds"));
+    var nextMHHornTimeInSeconds = parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
     g_botHornTimeDelayInSeconds = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
     g_nextBotHornTimeInSeconds = nextMHHornTimeInSeconds + g_botHornTimeDelayInSeconds;
     if (g_nextBotHornTimeInSeconds <= 0){
@@ -1375,7 +1388,7 @@ function retrieveCampActiveData() {
     g_nextTrapCheckTimeInSeconds += g_nextTrapCheckTimeDelayInSeconds;
 
     // Check if there is King Reward ongoing
-    g_isKingReward = getPageVariable("user.has_puzzle");
+    g_isKingReward = getPageVariable(USER_HAS_PUZZLE);
 
     g_baitCount = getPageVariable("user.bait_quantity");
 
@@ -3229,9 +3242,9 @@ function embedUIStructure() {
 function getPageVariable(name) {
     if (DEBUG_MODE) console.log('RUN GPV(' + name + ')');
     try {
-        if (name == "user.next_activeturn_seconds") {
+        if (name == USER_NEXT_ACTIVETURN_SECONDS) {
             return unsafeWindow.user.next_activeturn_seconds;
-        } else if (name == "user.has_puzzle") {
+        } else if (name == USER_HAS_PUZZLE) {
             return unsafeWindow.user.has_puzzle;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
