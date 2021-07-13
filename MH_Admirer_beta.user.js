@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.15
+// @version      1.2.2.16
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
