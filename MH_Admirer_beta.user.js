@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.13
+// @version      1.2.2.14
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,9 +20,11 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Auto check manual horn
+// - Check after sounding horn if it is KR
 // - Auto change trap setting
-// - Check valid location
+//   - Activate-Deactivate FRo tower (After I get tower lvl 3)
+//   - CLiPolicy
+//   - Iceberg Policy Preferences
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -1084,7 +1086,6 @@ function countdownTrapCheckTimer() {
     // Update timer
     var dateNow = new Date();
     var intervalTime = timeElapsedInSeconds(g_lastTrapCheckTimeRecorded, dateNow);
-    g_lastTrapCheckTimeRecorded = undefined;
     g_lastTrapCheckTimeRecorded = dateNow;
     dateNow = undefined;
 
@@ -1092,6 +1093,7 @@ function countdownTrapCheckTimer() {
     intervalTime = undefined;
 
     if (g_nextTrapCheckTimeInSeconds <= 0) {
+        alert(g_nextTrapCheckTimeInSeconds);
         trapCheck();
     } else {
         checkLocation();
@@ -1407,6 +1409,24 @@ function getTrapCheckTimeFromPage() {
         console.perror('GetTrapCheckTime', e.message);
         return null;
     }
+}
+
+function isAtCampPage() {
+    if (window.location.href == "http://www.mousehuntgame.com/" ||
+        window.location.href == "https://www.mousehuntgame.com/" ||
+        window.location.href == "http://www.mousehuntgame.com/#" ||
+        window.location.href == "https://www.mousehuntgame.com/#" ||
+        window.location.href == "http://www.mousehuntgame.com/?switch_to=standard" ||
+        window.location.href == "https://www.mousehuntgame.com/?switch_to=standard" ||
+        window.location.href == "http://www.mousehuntgame.com/index.php" ||
+        window.location.href == "https://www.mousehuntgame.com/index.php" ||
+        window.location.href == "http://www.mousehuntgame.com/camp.php" ||
+        window.location.href == "https://www.mousehuntgame.com/camp.php" ||
+        window.location.href == "http://www.mousehuntgame.com/camp.php#" ||
+        window.location.href == "https://www.mousehuntgame.com/camp.php#") {
+        return true;
+    }
+    return false;
 }
 
 function checkLocation() {
@@ -1735,6 +1755,9 @@ function checkLocation() {
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
         return;
     }
+    if (!isAtCampPage()){
+        return;
+    }
     var currentLocation = getPageVariable("user.environment_name");
     switch(currentLocation) {
         case LOCATION_HARBOUR:
@@ -1815,6 +1838,7 @@ function testDict() {
 }
 
 function test1() {
+    alert(isAtCampPage())
     //checkLocation();
     //testDict();
     //testSaveObjToStorage();
