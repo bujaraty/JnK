@@ -689,14 +689,14 @@ if (window.top != window.self) {
 }
 
 function processEventMsg(event) {
-    var tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
+    const tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
 
     if (DEBUG_MODE) console.debug("Event origin: " + event.origin);
     if (event.origin.indexOf("mhcdn") > -1 || event.origin.indexOf("mousehuntgame") > -1 || event.origin.indexOf("dropbox") > -1) {
         if (event.data.indexOf("~") > -1) {
-            var possibleAns = event.data.substring(0, event.data.indexOf("~"));
-            var processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
-            var strKR = "KR" + KR_SEPARATOR;
+            const possibleAns = event.data.substring(0, event.data.indexOf("~"));
+            const processedImg = event.data.substring(event.data.indexOf("~") + 1, event.data.length);
+            let strKR = "KR" + KR_SEPARATOR;
             strKR += Date.now() + KR_SEPARATOR;
             strKR += possibleAns + KR_SEPARATOR;
             strKR += "RETRY" + g_kingsRewardRetry;
@@ -729,16 +729,15 @@ function validateImageAnswer(possibleAns) {
         if (DEBUG_MODE) console.log("Submitting captcha answer: " + possibleAns);
 
         //Submit answer
-        var puzzleAns = document.getElementsByClassName("mousehuntPage-puzzle-form-code")[0];
+        const puzzleAns = document.getElementsByClassName("mousehuntPage-puzzle-form-code")[0];
 
         if (!puzzleAns) {
             if (DEBUG_MODE) console.plog("puzzleAns: " + puzzleAns);
             return;
         }
-        puzzleAns.value = "";
         puzzleAns.value = possibleAns.toLowerCase();
 
-        var puzzleSubmitButton = document.getElementsByClassName("mousehuntPage-puzzle-form-code-button")[0];
+        const puzzleSubmitButton = document.getElementsByClassName("mousehuntPage-puzzle-form-code-button")[0];
 
         if (!puzzleSubmitButton) {
             if (DEBUG_MODE) console.plog("puzzleSubmit: " + puzzleSubmitButton);
@@ -748,7 +747,7 @@ function validateImageAnswer(possibleAns) {
         fireEvent(puzzleSubmitButton, 'click');
         g_kingsRewardRetry = 0;
         setStorage("KingsRewardRetry", g_kingsRewardRetry);
-        var tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
+        const tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
         if (tmpKRFrame) {
             document.body.removeChild(tmpKRFrame);
         }
@@ -760,16 +759,15 @@ function validateImageAnswer(possibleAns) {
 }
 
 function checkKRAnswer() {
-    var puzzleForm = document.getElementsByClassName("mousehuntPage-puzzle-formContainer")[0];
+    const puzzleForm = document.getElementsByClassName("mousehuntPage-puzzle-formContainer")[0];
     if (puzzleForm.classList.contains("noPuzzle")) {
         // KR is solved clicking continue now
         location.reload(true)
         return;
     }
 
-    var strTemp = '';
-    var codeError = document.getElementsByClassName("mousehuntPage-puzzle-form-code-error");
-    for (var i = 0; i < codeError.length; i++) {
+    const codeError = document.getElementsByClassName("mousehuntPage-puzzle-form-code-error");
+    for (const i = 0; i < codeError.length; i++) {
         if (codeError[i].innerText.toLowerCase().indexOf("incorrect claim code") > -1) {
             retryKRSolver(false);
         }
@@ -785,7 +783,7 @@ function retryKRSolver(resetCaptcha) {
     if (g_kingsRewardRetry >= MAX_KR_RETRY) {
         g_kingsRewardRetry = 0;
         setStorage("KingsRewardRetry", g_kingsRewardRetry);
-        var strTemp = 'Max ' + MAX_KR_RETRY + 'retries. Pls solve it manually ASAP.';
+        const strTemp = 'Max ' + MAX_KR_RETRY + 'retries. Pls solve it manually ASAP.';
         updateTitleTxt(strTemp);
         updateNextBotHornTimeTxt(strTemp);
         console.perror(strTemp);
@@ -795,7 +793,7 @@ function retryKRSolver(resetCaptcha) {
         if (resetCaptcha) {
             getNewKRCaptcha();
         }
-        var tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
+        const tmpKRFrame = document.getElementById(ID_TMP_KR_FRAME);
         if (!isNullOrUndefined(tmpKRFrame)) {
             document.body.removeChild(tmpKRFrame);
         }
@@ -809,8 +807,8 @@ function retryKRSolver(resetCaptcha) {
 function getNewKRCaptcha() {
     if (DEBUG_MODE) console.log("RUN getNewKRCaptcha()");
 
-    var tagName = document.getElementsByTagName("a");
-    for (var i = 0; i < tagName.length; i++) {
+    const tagName = document.getElementsByTagName("a");
+    for (const i = 0; i < tagName.length; i++) {
         if (tagName[i].innerText == "Click here to get a new one!") {
             // TODO IMPORTANT: Find another time to fetch new puzzle
             fireEvent(tagName[i], 'click');
@@ -819,8 +817,8 @@ function getNewKRCaptcha() {
 }
 
 function setBotDocumentStyle () {
-    var docStyle = document.getElementsByTagName("STYLE")[0];
-    var botStyle = "." + STYLE_CLASS_NAME_JNK_CAPTION + " { text-align: right; font-weight: bold; font-size:48%; }";
+    const docStyle = document.getElementsByTagName("STYLE")[0];
+    const botStyle = "." + STYLE_CLASS_NAME_JNK_CAPTION + " { text-align: right; font-weight: bold; font-size:48%; }";
     if (isNullOrUndefined(docStyle.length)) {
         docStyle.innerHTML = botStyle;
     } else {
@@ -889,15 +887,13 @@ function operateBot() {
 function handleKingReward() {
     if (DEBUG_MODE) console.log("START AUTOSOLVE COUNTDOWN");
 
-    var krDelaySec = g_autosolveKRDelayMin + Math.floor(Math.random() * (g_autosolveKRDelayMax - g_autosolveKRDelayMin));
+    const krDelaySec = g_autosolveKRDelayMin + Math.floor(Math.random() * (g_autosolveKRDelayMax - g_autosolveKRDelayMin));
 
     kingRewardCountdownTimer(krDelaySec);
 }
 
 function kingRewardCountdownTimer(krDelaySec) {
-    var strTemp = "Solve KR in ";
-    strTemp += timeFormat(krDelaySec);
-    strTemp += " second(s)";
+    const strTemp = "Solve KR in " + timeFormat(krDelaySec) + " second(s)";
     updateTitleTxt(strTemp);
     updateNextBotHornTimeTxt(strTemp);
     updateNextTrapCheckTimeTxt(strTemp);
@@ -916,11 +912,10 @@ function kingRewardCountdownTimer(krDelaySec) {
 function callKRSolver() {
     if (DEBUG_MODE) console.log("RUN CallKRSolver()");
 
-    var frame = document.createElement('iframe');
+    const frame = document.createElement('iframe');
     frame.id = ID_TMP_KR_FRAME;
-    var img;
+    const img = document.getElementsByClassName('mousehuntPage-puzzle-form-captcha-image')[0];
 
-    img = document.getElementsByClassName('mousehuntPage-puzzle-form-captcha-image')[0];
     if (DEBUG_MODE) console.log("Captcha Image fetched:")
     if (DEBUG_MODE) console.log(img);
 
@@ -929,22 +924,10 @@ function callKRSolver() {
 }
 
 function timeElapsedInSeconds(dateA, dateB) {
-    var elapsed = 0;
+    const secondA = Date.UTC(dateA.getFullYear(), dateA.getMonth(), dateA.getDate(), dateA.getHours(), dateA.getMinutes(), dateA.getSeconds());
+    const secondB = Date.UTC(dateB.getFullYear(), dateB.getMonth(), dateB.getDate(), dateB.getHours(), dateB.getMinutes(), dateB.getSeconds());
 
-    var secondA = Date.UTC(dateA.getFullYear(), dateA.getMonth(), dateA.getDate(), dateA.getHours(), dateA.getMinutes(), dateA.getSeconds());
-    var secondB = Date.UTC(dateB.getFullYear(), dateB.getMonth(), dateB.getDate(), dateB.getHours(), dateB.getMinutes(), dateB.getSeconds());
-    elapsed = (secondB - secondA) / 1000;
-
-    secondA = null;
-    secondB = null;
-    dateA = null;
-    dateB = null;
-
-    try {
-        return (elapsed);
-    } finally {
-        elapsed = null;
-    }
+    return (secondB - secondA) / 1000;
 }
 
 function lockBot(processName) {
@@ -962,13 +945,13 @@ function lockBot(processName) {
 function runScheduledGiftsAndRaffles() {
     function getGiftsAndRafflesStatus() {
         function gettingGiftsAndRafflesStatus() {
-            var sendActionRemaining = parseInt(document.getElementsByClassName("giftSelectorView-numSendActionsRemaining")[0].innerHTML);
+            const sendActionRemaining = parseInt(document.getElementsByClassName("giftSelectorView-numSendActionsRemaining")[0].innerHTML);
             if (sendActionRemaining <= 1) {
                 g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_COMPLETE;
                 setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
             }
         }
-        var giftButton = document.getElementsByClassName("freeGifts")[0];
+        const giftButton = document.getElementsByClassName("freeGifts")[0];
         fireEvent(giftButton, "click");
         window.setTimeout(function () {
             gettingGiftsAndRafflesStatus()
@@ -1005,8 +988,8 @@ function resetSchedule() {
 }
 
 function checkSchedule() {
-    var dateNow = new Date();
-    var g_endScheduledResetTime = new Date();
+    const dateNow = new Date();
+    const g_endScheduledResetTime = new Date();
     g_endScheduledResetTime.setHours(g_beginScheduledResetTime.getHours(), g_beginScheduledResetTime.getMinutes() + 1, 0);
 
     if (g_beginScheduledResetTime < dateNow && g_endScheduledResetTime > dateNow) {
@@ -1014,18 +997,16 @@ function checkSchedule() {
     } else if (g_beginScheduledGiftsAndRafflesTime < dateNow && g_statusGiftsAndRaffles == STATUS_GIFTS_AND_RAFFLES_INCOMPLETE) {
         runScheduledGiftsAndRaffles();
     }
-    dateNow = null;
 }
 
 function countdownBotHornTimer() {
     // Update timer
-    var dateNow = new Date();
-    var intervalTime = timeElapsedInSeconds(g_lastBotHornTimeRecorded, dateNow);
+    const dateNow = new Date();
+    const intervalTime = timeElapsedInSeconds(g_lastBotHornTimeRecorded, dateNow);
     g_lastBotHornTimeRecorded = undefined;
     g_lastBotHornTimeRecorded = dateNow;
 
     g_nextBotHornTimeInSeconds -= intervalTime;
-    intervalTime = undefined;
 
     if (g_nextBotHornTimeInSeconds <= 0) {
         prepareSoundingHorn();
@@ -1044,18 +1025,15 @@ function countdownBotHornTimer() {
             countdownBotHornTimer()
         }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
     }
-    dateNow = undefined;
 }
 
 function countdownTrapCheckTimer() {
     // Update timer
-    var dateNow = new Date();
-    var intervalTime = timeElapsedInSeconds(g_lastTrapCheckTimeRecorded, dateNow);
+    const dateNow = new Date();
+    const intervalTime = timeElapsedInSeconds(g_lastTrapCheckTimeRecorded, dateNow);
     g_lastTrapCheckTimeRecorded = dateNow;
-    dateNow = undefined;
 
     g_nextTrapCheckTimeInSeconds -= intervalTime;
-    intervalTime = undefined;
 
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
@@ -1070,28 +1048,16 @@ function countdownTrapCheckTimer() {
 }
 
 function timeFormat(time) {
-    var timeString;
-    var hr = Math.floor(time / 3600);
-    var min = Math.floor((time % 3600) / 60);
-    var sec = (time % 3600 % 60) % 60;
+    const hr = Math.floor(time / 3600);
+    const min = Math.floor((time % 3600) / 60);
+    const sec = (time % 3600 % 60) % 60;
 
     if (hr > 0) {
-        timeString = hr.toString() + " hr " + min.toString() + " min " + sec.toString() + " sec";
+        return hr.toString() + " hr " + min.toString() + " min " + sec.toString() + " sec";
     } else if (min > 0) {
-        timeString = min.toString() + " min " + sec.toString() + " sec";
+        return min.toString() + " min " + sec.toString() + " sec";
     } else {
-        timeString = sec.toString() + " sec";
-    }
-
-    time = null;
-    hr = null;
-    min = null;
-    sec = null;
-
-    try {
-        return (timeString);
-    } finally {
-        timeString = null;
+        return sec.toString() + " sec";
     }
 }
 
@@ -1111,12 +1077,10 @@ function reloadCampPage() {
 }
 
 function hornExist() {
-    var headerElement = document.getElementById(ID_HEADER_ELEMENT);
+    const headerElement = document.getElementById(ID_HEADER_ELEMENT);
     if (headerElement) {
-        var headerClass = headerElement.getAttribute('class');
+        const headerClass = headerElement.getAttribute('class');
         if (headerClass.indexOf(HORNREADY_TXT) !== -1) {
-            headerElement = null;
-            headerClass = null;
             return true;
         }
     }
@@ -1151,9 +1115,8 @@ function soundHorn() {
         }, 0.5 * 1000);
     }
 
-    var hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
+    const hornElement = document.getElementsByClassName(CLASS_HUNTERHORN_ELEMENT)[0].firstChild;
     fireEvent(hornElement, 'click');
-    hornElement = null;
 
     // double check if the horn was already sounded
     /*
@@ -1188,33 +1151,22 @@ function fireEvent(element, event) {
         console.log(element);
     }
 
-    var evt;
-    // dispatch for firefox + others
-    evt = document.createEvent("HTMLEvents");
+    const evt = document.createEvent("HTMLEvents");
     evt.initEvent(event, true, true); // event type,bubbling,cancelable
 
-    try {
-        return !element.dispatchEvent(evt);
-    } finally {
-        element = null;
-        event = null;
-        evt = null;
-    }
+    return !element.dispatchEvent(evt);
 }
 
 function updateTitleTxt(titleTxt) {
     document.title = titleTxt;
-    titleTxt = null;
 }
 
 function updateNextBotHornTimeTxt(nextHornTimeTxt) {
     g_nextBotHornTimeDisplay.innerHTML = nextHornTimeTxt;
-    nextHornTimeTxt = null;
 }
 
 function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
     g_nextTrapCheckTimeDisplay.innerHTML = trapCheckTimeTxt;
-    trapCheckTimeTxt = null;
 }
 
 function updateUI(titleTxt, nextHornTimeTxt, trapCheckTimeTxt) {
@@ -1246,17 +1198,14 @@ function loadPreferenceSettingFromStorage() {
 
 function rankWeapons() {
     function getBestWeapon(BestWeapons) {
-        var bestWeapon;
         for (const weaponName of BestWeapons){
             if (g_weaponNames.includes(weaponName)) {
-                bestWeapon = weaponName;
-                break;
+                return weaponName;
             }
         }
-        return bestWeapon;
     }
 
-    var hunterTitle = getPageVariable("user.title_name");
+    const hunterTitle = getPageVariable("user.title_name");
     if (HUNTER_TITLES.indexOf(hunterTitle) > 16 && g_baseNames.includes(BASE_THIEF)) {
         g_bestBase = BASE_THIEF;
     } else {
@@ -1267,7 +1216,6 @@ function rankWeapons() {
             }
         }
     }
-    hunterTitle = null;
     g_bestArcaneWeapon = getBestWeapon(BEST_ARCANE_WEAPONS);
     g_bestDraconicWeapon = getBestWeapon(BEST_DRACONIC_WEAPONS);
     g_bestForgottenWeapon = getBestWeapon(BEST_FORGOTTEN_WEAPONS);
@@ -1280,7 +1228,7 @@ function rankWeapons() {
 }
 
 function getStorage(name, defaultValue) {
-    var temp = JSON.parse(window.localStorage.getItem(name));
+    const temp = JSON.parse(window.localStorage.getItem(name));
     if (isNullOrUndefined(temp)) {
         return defaultValue;
     } else {
@@ -1289,7 +1237,7 @@ function getStorage(name, defaultValue) {
 }
 
 function getStorageVarBool(storageName, defaultBool) {
-    var temp = getStorage(storageName);
+    const temp = getStorage(storageName);
     if (isNullOrUndefined(temp)) {
         setStorage(storageName, defaultBool.toString());
         return defaultBool;
@@ -1301,8 +1249,8 @@ function getStorageVarBool(storageName, defaultBool) {
 }
 
 function getStorageVarInt(storageName, defaultInt) {
-    var temp = getStorage(storageName);
-    var tempInt = defaultInt;
+    const temp = getStorage(storageName);
+    let tempInt = defaultInt;
     if (temp == undefined || temp == null) {
         setStorage(storageName, defaultInt);
     } else {
@@ -1316,8 +1264,6 @@ function getStorageVarInt(storageName, defaultInt) {
 
 function setStorage(name, value) {
     window.localStorage.setItem(name, JSON.stringify(value));
-    name = undefined;
-    value = undefined;
 }
 
 function isNullOrUndefined(obj) {
@@ -1335,7 +1281,7 @@ function retrieveCampActiveData() {
     g_lastBotHornTimeRecorded = new Date();
 
     // Get MH horn time and use it to calculate next bot horn time
-    var nextMHHornTimeInSeconds = parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
+    const nextMHHornTimeInSeconds = parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
     g_botHornTimeDelayInSeconds = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
     g_nextBotHornTimeInSeconds = nextMHHornTimeInSeconds + g_botHornTimeDelayInSeconds;
     if (g_nextBotHornTimeInSeconds <= 0){
@@ -1343,8 +1289,8 @@ function retrieveCampActiveData() {
         // K_Todo_014
         //eventLocationCheck();
     }
-    var trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
-    var now = new Date();
+    const trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
+    const now = new Date();
     g_nextTrapCheckTimeInSeconds = trapCheckTimeOffsetInSeconds - (now.getMinutes() * 60 + now.getSeconds());
     g_nextTrapCheckTimeDelayInSeconds = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
     g_nextTrapCheckTimeInSeconds = (g_nextTrapCheckTimeInSeconds <= 0) ? 3600 + g_nextTrapCheckTimeInSeconds : g_nextTrapCheckTimeInSeconds;
@@ -1354,15 +1300,11 @@ function retrieveCampActiveData() {
     g_isKingReward = getPageVariable(USER_HAS_PUZZLE);
 
     g_baitCount = getPageVariable("user.bait_quantity");
-
-    nextMHHornTimeInSeconds = undefined;
-    trapCheckTimeOffsetInSeconds = undefined;
-    now = undefined;
 }
 
 function getTrapCheckTime() {
     // Check storage first
-    var trapCheckTimeOffset = getStorageVarInt('trapCheckTimeOffset', -1);
+    const trapCheckTimeOffset = getStorageVarInt('trapCheckTimeOffset', -1);
     if (trapCheckTimeOffset != -1) {
         return trapCheckTimeOffset;
     }
@@ -1371,11 +1313,11 @@ function getTrapCheckTime() {
 
 function getTrapCheckTimeFromPage() {
     try {
-        var passiveElement = document.getElementsByClassName('passive');
+        const passiveElement = document.getElementsByClassName('passive');
         if (passiveElement.length > 0) {
-            var time = passiveElement[0].textContent;
+            let time = passiveElement[0].textContent;
             time = time.substr(time.indexOf('m -') - 4, 2);
-            var trapCheckTimeOffset = parseInt(time);
+            const trapCheckTimeOffset = parseInt(time);
             setStorage("trapCheckTimeOffset", time);
             return trapCheckTimeOffset;
         } else {
@@ -1429,23 +1371,18 @@ function checkLocation() {
 
         function armWeapon(policyWeaponName) {
             function armingWeapon(policyWeaponName) {
-                var camppageWeaponName;
-                var armButton;
-                var camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                for (var i = 0; i < camppageWeapons.length; ++i) {
-                    camppageWeaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                const camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+                for (const i = 0; i < camppageWeapons.length; ++i) {
+                    const camppageWeaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                     if (camppageWeaponName == policyWeaponName) {
-                        armButton = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        const armButton = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
                         fireEvent(armButton, 'click');
                     }
                 }
-                armButton = null;
-                camppageWeaponName = null;
-                camppageWeapons = null;
                 document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Weapon";;
             }
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Weapon";
-            var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
+            const currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
             fireEvent(currentWeapon, 'click');
             window.setTimeout(function () {
                 armingWeapon(policyWeaponName);
@@ -1454,23 +1391,18 @@ function checkLocation() {
 
         function armBase(policyBaseName) {
             function armingBase(policyBaseName) {
-                var camppageBaseName;
-                var armButton;
-                var camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                for (var i = 0; i < camppageBases.length; ++i) {
-                    camppageBaseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                const camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
+                for (const i = 0; i < camppageBases.length; ++i) {
+                    const camppageBaseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                     if (camppageBaseName == policyBaseName) {
-                        armButton = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        const armButton = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
                         fireEvent(armButton, 'click');
                     }
                 }
-                armButton = null;
-                camppageBaseName = null;
-                camppageBases = null;
                 document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Base";;
             }
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Base";
-            var currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
+            const currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
             fireEvent(currentBase, 'click');
             window.setTimeout(function () {
                 armingBase(policyBaseName);
@@ -1479,23 +1411,18 @@ function checkLocation() {
 
         function armBait(policyBaitName) {
             function armingBait(policyBaitName) {
-                var camppageBaitName;
-                var armButton;
-                var camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                for (var i = 0; i < camppageBaits.length; ++i) {
-                    camppageBaitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                const camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
+                for (const i = 0; i < camppageBaits.length; ++i) {
+                    const camppageBaitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                     if (camppageBaitName == policyBaitName) {
-                        armButton = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
+                        const armButton = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
                         fireEvent(armButton, 'click');
                     }
                 }
-                armButton = null;
-                camppageBaitName = null;
-                camppageBaits = null;
                 document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Bait";;
             }
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Bait";
-            var currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
+            const currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
             fireEvent(currentBait, 'click');
             window.setTimeout(function () {
                 armingBait(policyBaitName);
@@ -1504,44 +1431,36 @@ function checkLocation() {
 
         function armTrinket(policyTrinketName) {
             function armingTrinket(policyTrinketName) {
-                var camppageTrinketName;
-                var armButton;
-                var disarmButton;
-                var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+                const camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
                 if (policyTrinketName == DISARM_TRINKET) {
-                    disarmButton = document.getElementsByClassName("campPage-trap-itemBrowser-item-disarmButton")[0];
+                    const disarmButton = document.getElementsByClassName("campPage-trap-itemBrowser-item-disarmButton")[0];
                     fireEvent(disarmButton, 'click');
                 } else {
-                    for (var i = 0; i < camppageTrinkets.length; ++i) {
-                        camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                    for (const i = 0; i < camppageTrinkets.length; ++i) {
+                        const camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                         if (camppageTrinketName == policyTrinketName) {
-                            armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton")[0];
+                            const armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton")[0];
                             fireEvent(armButton, 'click');
                         }
                     }
                 }
-                armButton = null;
-                disarmButton = null;
-                camppageTrinketName = null;
-                camppageTrinkets = null;
                 document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Trinket";;
             }
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Trinket";
-            var currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
+            const currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
             fireEvent(currentTrinket, 'click');
             window.setTimeout(function () {
                 armingTrinket(policyTrinketName);
             }, 4.5 * 1000);
         }
 
-        var tmpTxt;
-        var delayTime = 0;
+        let delayTime = 0;
         // Check weapon
-        var currentWeapon = getCurrentWeapon();
+        let currentWeapon = getCurrentWeapon();
         if (currentWeapon.endsWith("Trap")) {
             currentWeapon = currentWeapon.slice(0, -5);
         }
-        var policyWeapon = trapSetup[IDX_WEAPON];
+        let policyWeapon = trapSetup[IDX_WEAPON];
         if (policyWeapon.endsWith("Trap")) {
             policyWeapon = policyWeapon.slice(0, -5);
         }
@@ -1555,7 +1474,7 @@ function checkLocation() {
             delayTime += 10;
         }
         // Check Base
-        var currentBase = getCurrentBase();
+        const currentBase = getCurrentBase();
         if( !isNullOrUndefined(trapSetup[IDX_BASE]) && currentBase != trapSetup[IDX_BASE] ) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
@@ -1566,7 +1485,7 @@ function checkLocation() {
             delayTime += 10;
         }
         // Check Bait
-        var currentBait = getCurrentBait();
+        const currentBait = getCurrentBait();
         if( !isNullOrUndefined(trapSetup[IDX_BAIT]) && currentBait != trapSetup[IDX_BAIT] ) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
@@ -1577,7 +1496,7 @@ function checkLocation() {
             delayTime += 10;
         }
         // Check Trinket
-        var currentTrinket = getCurrentTrinket();
+        let currentTrinket = getCurrentTrinket();
         if (currentTrinket == "") {
             currentTrinket = DISARM_TRINKET;
         }
@@ -1599,9 +1518,9 @@ function checkLocation() {
 
     function runHarPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
-        var status = getPageVariable("user.quests.QuestHarbour.status");
-        var button;
-        var canClaim;
+        const status = getPageVariable("user.quests.QuestHarbour.status");
+        let button;
+        let canClaim;
         switch(status) {
             case "noShip":
                 break;
@@ -1619,32 +1538,31 @@ function checkLocation() {
             default:
         }
         canClaim = null;
-        status = null;
         button = null;
     }
 
     function runARePolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ACOLYTE_REALM;
-        var trapSetups = POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].getTrapSetups();
+        const trapSetups = POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].getTrapSetups();
         armTraps(trapSetups);
-        trapSetups = null;
     }
 
     function runCSCPolicy() {
         function claimReward() {
             function openChest() {
-                var openButton = document.getElementsByClassName("mousehuntActionButton openReward")[0];
+                const openButton = document.getElementsByClassName("mousehuntActionButton openReward")[0];
                 fireEvent(openButton, "click");
             }
-            var claimButton = document.getElementsByClassName("mousehuntActionButton treasureMapView-claimRewardButton")[0];
+
+            const claimButton = document.getElementsByClassName("mousehuntActionButton treasureMapView-claimRewardButton")[0];
             fireEvent(claimButton, "click");
             window.setTimeout(function () {
                 openChest();
             }, 5 * 1000);
         }
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
-        var poster;
-        var phase = getPageVariable("user.quests.QuestClawShotCity.phase");
+        let poster;
+        const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
         switch(phase) {
             case "need_poster":
                 break;
@@ -1673,13 +1591,12 @@ function checkLocation() {
             default:
         }
         poster = null;
-        phase = null;
     }
 
     function runFRoPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
-        var currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
-        var trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
+        const currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
+        const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
         switch(currentStage) {
             case false:
                 armTraps(trapSetups[FRO_PHASE_DAY]);
@@ -1704,28 +1621,21 @@ function checkLocation() {
                 break;
             default:
         }
-        trapSetups = null;
-        currentStage = null;
     }
 
     function runSGaPolicy() {
         function getSGaSeason() {
-            var nTimeStamp = Date.parse(new Date()) / 1000;
-            var nFirstSeasonTimeStamp = 1283328000;
-            var nSeasonLength = 288000; // 80hr
-            var seasonIdx = Math.floor((nTimeStamp - nFirstSeasonTimeStamp) / nSeasonLength) % SGA_SEASONS.length;
-            nTimeStamp = null;
-            nFirstSeasonTimeStamp = null;
-            nSeasonLength = null;
+            const nTimeStamp = Date.parse(new Date()) / 1000;
+            const nFirstSeasonTimeStamp = 1283328000;
+            const nSeasonLength = 288000; // 80hr
+            const seasonIdx = Math.floor((nTimeStamp - nFirstSeasonTimeStamp) / nSeasonLength) % SGA_SEASONS.length;
             return SGA_SEASONS[seasonIdx];
         }
 
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
-        var currentSeason = getSGaSeason();
-        var trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
+        const currentSeason = getSGaSeason();
+        const trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
         armTraps(trapSetups[currentSeason]);
-        currentSeason = null;
-        trapSetups = null;
     }
 
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
@@ -1734,7 +1644,7 @@ function checkLocation() {
     if (!isAtCampPage()){
         return;
     }
-    var currentLocation = getPageVariable("user.environment_name");
+    const currentLocation = getPageVariable("user.environment_name");
     switch(currentLocation) {
         case LOCATION_HARBOUR:
             runHarPolicy();
@@ -1754,7 +1664,6 @@ function checkLocation() {
         default:
             runDefaultLocation();
     }
-    currentLocation = null;
 }
 
 function displayDocumentStyles() {
@@ -1765,7 +1674,7 @@ function displayDocumentStyles() {
     //alert("after getting head");
     //.appendChild(autobotStyle);
     //alert("afeter appending to head");
-    var x = document.getElementsByTagName("STYLE");
+    const x = document.getElementsByTagName("STYLE");
     alert(x[0].lentgh);
     x[0].innerHTML = ".autoBotTxt { background-color: yellow; color: red; }";
     alert(x[0].innerHTML);
@@ -1776,8 +1685,8 @@ function displayDocumentStyles() {
 }
 
 function listAttributes(obj) {
-    var attrs = obj.attributes;
-    var tmpTxt = "";
+    const attrs = obj.attributes;
+    let tmpTxt = "";
     for (var i = 0; i < attrs.length; i++) {
         tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
     }
@@ -1786,10 +1695,10 @@ function listAttributes(obj) {
 
 function testSaveObjToStorage() {
     alert("in saveObjToStorage");
-    var myObj = {"key1": ['a', 'b', 'c']};
+    const myObj = {"key1": ['a', 'b', 'c']};
     //alert(myObj.key1);
 
-    for (var i = 0; i < myObj.key1.length; i++) {
+    for (const i = 0; i < myObj.key1.length; i++) {
         alert(myObj.key1[i]);
     }
     setStorage("testObj", JSON.stringify(myObj));
@@ -1804,7 +1713,7 @@ function testLoadObjFromStorage() {
 }
 
 function testDict() {
-    var tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
+    const tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
     alert(tmpPolicy.trapSetups[SGA_SEASON_SPRING].weapon);
     /*
     for (const [key, value] of Object.entries(POLICY_DICT)) {
@@ -1844,13 +1753,8 @@ function manualClaimingTodayGifts() {
 function prepareClaimingGifts(fromTop) {
     function claimGifts(fromTop) {
         function claimingGifts(fromTop, giftIndex) {
-            var giftRow;
-            if (fromTop) {
-                giftRow = giftRows[giftIndex];
-            } else {
-                giftRow = giftRows[nGiftRows-giftIndex-1];
-            }
-            var senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
+            const giftRow = fromTop? giftRows[giftIndex]: giftRows[nGiftRows-giftIndex-1];
+            const senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
             var actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
             if (!actionButton.classList.contains("disabled")) {
@@ -1864,16 +1768,14 @@ function prepareClaimingGifts(fromTop) {
             }
         }
         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving gift list";
-        var giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
-        var nGiftRows = giftRows.length
-        var giftIndex = 0;
+        const giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
+        const nGiftRows = giftRows.length
         window.setTimeout(function () {
-            claimingGifts(fromTop, giftIndex);
+            claimingGifts(fromTop, 0);
         }, 0.5 * 1000);
     }
-    var giftButton = document.getElementsByClassName("freeGifts")[0];
+    const giftButton = document.getElementsByClassName("freeGifts")[0];
     fireEvent(giftButton, "click");
-    giftButton = null;
     window.setTimeout(function () {
         claimGifts(fromTop)
     }, 4.5 * 1000);
@@ -1889,38 +1791,23 @@ function manualSendingGiftsAndRaffles() {
 
 function prepareSendingGiftsAndRaffles() {
     function clickActionButton(actionButton) {
-        fireEvent(actionButton.getElementsByClassName("userInteractionButtonsView-button")[0], "click");
+        fireEvent(actionButton, "click");
         actionButton = null;
     }
     function sendGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
         function sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
-            var buttonAttributes;
-            var sendGiftButton;
-            var sendBallotButton;
-            var friendRow = friendRows[friendIndex];
-            var friendName = friendRow.getElementsByClassName("friendsPage-friendRow-content")[0].getElementsByClassName("friendsPage-friendRow-titleBar")[0].getElementsByTagName('a')[0].text;
+            const friendRow = friendRows[friendIndex];
+            const friendName = friendRow.getElementsByClassName("friendsPage-friendRow-titleBar")[0].getElementsByTagName('a')[0].text;
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendName;
-            var actionButtons = friendRow.getElementsByClassName("friendsPage-friendRow-actions")[0].getElementsByClassName("userInteractionButtonsView")[0].children;
-            for (var i = 0; i < actionButtons.length; i++) {
-                buttonAttributes = actionButtons[i].attributes
-                for (var j = 0; j < buttonAttributes.length; j++) {
-                    if (buttonAttributes[j].value == "send_daily_gift") {
-                        sendGiftButton = actionButtons[i]
-                    }
-                    if (buttonAttributes[j].value == "send_draw_ballot") {
-                        sendBallotButton = actionButtons[i]
-                    }
-                }
-                buttonAttributes = null;
-            }
+            const sendGiftButton = friendRow.getElementsByClassName("userInteractionButtonsView-button sendGift")[0];
+            const sendBallotButton = friendRow.getElementsByClassName("userInteractionButtonsView-button sendTicket")[0];
+
             clickActionButton(sendGiftButton);
             if (friendIndex < nRaffles) {
                 window.setTimeout(function () {
                     clickActionButton(sendBallotButton);
                 }, 1 * 1000);
             }
-            friendName = null;
-            friendRow = null;
             friendIndex++;
             if (friendIndex < nGifts) {
                 window.setTimeout(function () {
@@ -1928,30 +1815,29 @@ function prepareSendingGiftsAndRaffles() {
                 }, 2 * 1000);
             }
         }
+
         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving friend list";
-        var friendRows = document.getElementsByClassName("friendsPage-friendRow");
+        const friendRows = document.getElementsByClassName("friendsPage-friendRow");
         window.setTimeout(function () {
             sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles);
         }, 0.5 * 1000);
     }
     function gotoNextFriendList() {
         // Got to the second frield list page
-        var nextFriendListLink = document.getElementsByClassName("next active pagerView-section")[0].getElementsByTagName("a")[0];
+        const nextFriendListLink = document.getElementsByClassName("next active pagerView-section")[0].getElementsByTagName("a")[0];
         fireEvent(nextFriendListLink, "click");
-        nextFriendListLink = null;
 
         // Go through all sendGift and sendRaffle buttons in the first page
         window.setTimeout(function () {
             sendGiftsAndRaffles(0, 5, 0);
         }, 5 * 1000);
     }
-    var friendRows;
+    let friendRows;
     if (DEBUG_MODE) console.log('RUN sendRafflesAndGifts()');
 
     // Goto friend list page
-    var friendListLink = document.getElementsByClassName("mousehuntHud-gameInfo")[0].getElementsByTagName("a")[0];
+    const friendListLink = document.getElementsByClassName("mousehuntHud-gameInfo")[0].getElementsByTagName("a")[0];
     fireEvent(friendListLink, "click");
-    friendListLink = null;
     window.setTimeout(function () {
         sendGiftsAndRaffles(0, 20, 20);
     }, 5 * 1000);
