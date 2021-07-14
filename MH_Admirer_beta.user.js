@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.18
+// @version      1.2.2.19
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -24,7 +24,8 @@
 //   - ZToPolicy
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
 //   - CLiPolicy
-//   - Iceberg Policy Preferences
+//   - IcePolicy and test
+//   - Refactoring code (removing var)
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -35,18 +36,18 @@ const DEBUG_MODE = true;
 
 // // Extra delay time before sounding the horn. (in seconds)
 // // Default: 10-15
-var g_botHornTimeDelayMin = 10;
-var g_botHornTimeDelayMax = 15;
+let g_botHornTimeDelayMin = 10;
+let g_botHornTimeDelayMax = 15;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
-var g_trapCheckTimeDelayMin = 10;
-var g_trapCheckTimeDelayMax = 60;
+let g_trapCheckTimeDelayMin = 10;
+let g_trapCheckTimeDelayMax = 60;
 
 // // Extra delay time before solving KR. (in seconds)
 // // Default: 3 - 10
-var g_autosolveKRDelayMin = 3;
-var g_autosolveKRDelayMax = 10;
+let g_autosolveKRDelayMin = 3;
+let g_autosolveKRDelayMax = 10;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
@@ -55,11 +56,11 @@ const MAX_KR_RETRY = 5;
 // // Scheduler time that will start automatically
 const STATUS_GIFTS_AND_RAFFLES_INCOMPLETE = "Incomplete";
 const STATUS_GIFTS_AND_RAFFLES_COMPLETE = "Complete";
-var g_scheduledGiftsAndRafflesTime = "07:35";
-var g_beginScheduledGiftsAndRafflesTime = new Date();
-var g_scheduledResetTime = "07:02";
-var g_beginScheduledResetTime = new Date();
-var g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
+let g_scheduledGiftsAndRafflesTime = "07:35";
+let g_beginScheduledGiftsAndRafflesTime = new Date();
+let g_scheduledResetTime = "07:02";
+let g_beginScheduledResetTime = new Date();
+let g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
 
 // == Basic User Preference Setting (End) ==
 
@@ -79,36 +80,36 @@ const KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 
 // All global variable declaration and default value
 const BOT_PROCESS_IDLE = "idle";
-var g_nextBotHornTimeInSeconds;
-var g_botHornTimeDelayInSeconds;
-var g_nextTrapCheckTimeInSeconds = 0;
-var g_nextTrapCheckTimeDelayInSeconds = 0;
-var g_strScriptVersion = GM_info.script.version;
-var g_nextBotHornTimeDisplay;
-var g_nextTrapCheckTimeDisplay;
-var g_nextBotHornTime;
-var g_lastBotHornTimeRecorded = new Date();
-var g_lastTrapCheckTimeRecorded = new Date();
-var g_kingsRewardRetry = 0;
-var g_weaponNames = [];
-var g_baseNames = [];
-var g_baitNames = [];
-var g_trinketNames = [];
-var g_botProcess = BOT_PROCESS_IDLE;
-var g_bestBase;
-var g_bestArcaneWeapon;
-var g_bestDraconicWeapon;
-var g_bestForgottenWeapon;
-var g_bestHydroWeapon;
-var g_bestLawWeapon;
-var g_bestPhysicalWeapon;
-var g_bestRiftWeapon;
-var g_bestShadowWeapon;
-var g_bestTacticalWeapon;
+let g_nextBotHornTimeInSeconds;
+let g_botHornTimeDelayInSeconds;
+let g_nextTrapCheckTimeInSeconds = 0;
+let g_nextTrapCheckTimeDelayInSeconds = 0;
+let g_strScriptVersion = GM_info.script.version;
+let g_nextBotHornTimeDisplay;
+let g_nextTrapCheckTimeDisplay;
+let g_nextBotHornTime;
+let g_lastBotHornTimeRecorded = new Date();
+let g_lastTrapCheckTimeRecorded = new Date();
+let g_kingsRewardRetry = 0;
+let g_weaponNames = [];
+let g_baseNames = [];
+let g_baitNames = [];
+let g_trinketNames = [];
+let g_botProcess = BOT_PROCESS_IDLE;
+let g_bestBase;
+let g_bestArcaneWeapon;
+let g_bestDraconicWeapon;
+let g_bestForgottenWeapon;
+let g_bestHydroWeapon;
+let g_bestLawWeapon;
+let g_bestPhysicalWeapon;
+let g_bestRiftWeapon;
+let g_bestShadowWeapon;
+let g_bestTacticalWeapon;
 
 // I have to re-define the default value of the following variables somewhere else
-var g_isKingReward = false;
-var g_baitCount;
+let g_isKingReward = false;
+let g_baitCount;
 
 // MH constant
 const ID_HEADER_ELEMENT = 'envHeaderImg';
@@ -328,9 +329,8 @@ class Policy {
     }
 
     getTrapSetups(storageName) {
-        var tmpStorage;
         if (isNullOrUndefined(this.trapSetups)) {
-            tmpStorage = getStorage(storageName, null);
+            const tmpStorage = getStorage(storageName, null);
             if (isNullOrUndefined(tmpStorage)) {
                 this.resetTrapSetups();
             } else {
@@ -411,22 +411,20 @@ class PolicyARe extends Policy {
     }
 
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups();
+        const trapSetups = this.getTrapSetups();
         document.getElementById(ID_SELECT_ARE_WEAPON).value = trapSetups[IDX_WEAPON];
         document.getElementById(ID_SELECT_ARE_BASE).value = trapSetups[IDX_BASE];
         document.getElementById(ID_SELECT_ARE_BAIT).value = trapSetups[IDX_BAIT];
         document.getElementById(ID_SELECT_ARE_TRINKET).value = trapSetups[IDX_TRINKET];
-        trapSetups = null;
     }
 
     recommendTrapSetup() {
-        var trapSetups = this.getTrapSetups();
+        const trapSetups = this.getTrapSetups();
         if (g_baitNames.includes(BAIT_RUNIC)) {
             this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
         } else {
             this.getArcaneTrapSetup(trapSetups);
         }
-        trapSetups = null;
         this.initSelectTrapSetup();
     }
 }
@@ -452,8 +450,8 @@ class PolicyFRo extends Policy {
     }
 
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
+        const trapSetups = this.getTrapSetups();
+        const currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
         document.getElementById(ID_SELECT_FRO_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
         document.getElementById(ID_SELECT_FRO_BASE).value = trapSetups[currentPhase][IDX_BASE];
         document.getElementById(ID_SELECT_FRO_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
@@ -468,13 +466,8 @@ class PolicyFRo extends Policy {
     }
 
     recommendTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var baitName;
-        if (g_baitNames.includes(BAIT_MOON)) {
-            baitName = BAIT_MOON;
-        } else if (g_baitNames.includes(BAIT_CRESCENT)) {
-            baitName = BAIT_CRESCENT;
-        }
+        const trapSetups = this.getTrapSetups();
+        const baitName = g_baitNames.includes(BAIT_MOON)? BAIT_MOON: g_baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
         this.getLawTrapSetup(trapSetups[FRO_PHASE_DAY], baitName);
         this.getShadowTrapSetup(trapSetups[FRO_PHASE_TWILIGHT], baitName);
         this.getShadowTrapSetup(trapSetups[FRO_PHASE_MIDNIGHT], baitName);
@@ -482,8 +475,6 @@ class PolicyFRo extends Policy {
         this.getArcaneTrapSetup(trapSetups[FRO_PHASE_UTTER_DARKNESS], baitName);
         this.getArcaneTrapSetup(trapSetups[FRO_PHASE_FIRST_LIGHT], baitName);
         this.getArcaneTrapSetup(trapSetups[FRO_PHASE_DAWN], baitName);
-        baitName = null;
-        trapSetups = null;
         this.initSelectTrapSetup();
     }
 }
@@ -507,28 +498,21 @@ class PolicySGa extends Policy {
     }
 
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+        const trapSetups = this.getTrapSetups();
+        const currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
         document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
         document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
         document.getElementById(ID_SELECT_SGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
         document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
-        currentSeason = null;
-        trapSetups = null;
     }
 
     recommendTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var baitName;
-        if (g_baitNames.includes(BAIT_GOUDA)) {
-            baitName = BAIT_GOUDA;
-        }
+        const trapSetups = this.getTrapSetups();
+        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
         this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
         this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
         this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
         this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
-        baitName = null;
-        trapSetups = null;
         this.initSelectTrapSetup();
     }
 }
@@ -554,140 +538,48 @@ class PolicyZTo extends Policy {
     }
 
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var currentChess = document.getElementById(ID_SELECT_ZTO_CHESS).value;
+        const trapSetups = this.getTrapSetups();
+        const currentChess = document.getElementById(ID_SELECT_ZTO_CHESS).value;
         document.getElementById(ID_SELECT_ZTO_WEAPON).value = trapSetups[currentChess][IDX_WEAPON];
         document.getElementById(ID_SELECT_ZTO_BASE).value = trapSetups[currentChess][IDX_BASE];
         document.getElementById(ID_SELECT_ZTO_BAIT).value = trapSetups[currentChess][IDX_BAIT];
         document.getElementById(ID_SELECT_ZTO_TRINKET).value = trapSetups[currentChess][IDX_TRINKET];
         document.getElementById(ID_SELECT_ZTO_STRATEGY).value = trapSetups[ZTO_STRATEGY];
-        currentChess = null;
-        trapSetups = null;
     }
 
     recommendTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var mysticPawnWeapon;
-        var mysticOnlyWeapon;
-        var technicPawnWeapon;
-        var technicOnlyWeapon;
-        var attractionBase;
-        var attractionCharm;
-        var powerCharm;
-        var rookCrumbleCharm;
-        var checkmateCheese;
-        var baitName;
-        if (g_weaponNames.includes(WEAPON_MYSTIC_PAWN_PINCHER)) {
-            mysticPawnWeapon = WEAPON_MYSTIC_PAWN_PINCHER;
-        } else {
-            mysticPawnWeapon = g_bestTacticalWeapon;
+        function getZToTrapSetup(trapSetup, weaponName, baseName, baitName, trinketName) {
+            trapSetup[IDX_WEAPON] = weaponName;
+            trapSetup[IDX_BASE] = baseName;
+            trapSetup[IDX_BAIT] = baitName;
+            trapSetup[IDX_TRINKET] = trinketName;
         }
-        if (g_weaponNames.includes(WEAPON_BLACKSTONE_PASS)) {
-            mysticOnlyWeapon = WEAPON_BLACKSTONE_PASS;
-        } else {
-            mysticOnlyWeapon = g_bestTacticalWeapon;
-        }
-        if (g_weaponNames.includes(WEAPON_TECHNIC_PAWN_PINCHER)) {
-            technicPawnWeapon = WEAPON_TECHNIC_PAWN_PINCHER;
-        } else {
-            technicPawnWeapon = g_bestTacticalWeapon;
-        }
-        if (g_weaponNames.includes(WEAPON_OBVIOUS_AMBUSH)) {
-            technicOnlyWeapon = WEAPON_OBVIOUS_AMBUSH;
-        } else {
-            technicOnlyWeapon = g_bestTacticalWeapon;
-        }
-        if (g_baseNames.includes(BASE_CHEESECAKE)) {
-            attractionBase = BASE_CHEESECAKE;
-        } else if (g_baseNames.includes(BASE_WOODEN_BASE_WITH_TARGET)) {
-            attractionBase = BASE_WOODEN_BASE_WITH_TARGET;
-        } else {
-            attractionBase = g_bestBase;
-        }
-        if (g_baitNames.includes(BAIT_GOUDA)) {
-            baitName = BAIT_GOUDA;
-        }
-        if (g_baitNames.includes(BAIT_CHECKMATE)) {
-            checkmateCheese = BAIT_CHECKMATE;
-        }
-        if (g_trinketNames.includes(TRINKET_VALENTINE)) {
-            attractionCharm = TRINKET_VALENTINE;
-        } else if (g_trinketNames.includes(TRINKET_ATTRACTION)) {
-            attractionCharm = TRINKET_ATTRACTION;
-        }
-        if (g_trinketNames.includes(TRINKET_POWER)) {
-            powerCharm = TRINKET_POWER;
-        } else {
-            powerCharm = attractionCharm;
-        }
-        if (g_trinketNames.includes(TRINKET_ROOK_CRUMBLE)) {
-            rookCrumbleCharm = TRINKET_ROOK_CRUMBLE;
-        } else {
-            rookCrumbleCharm = powerCharm;
-        }
-        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_WEAPON] = mysticPawnWeapon;
-        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_BASE] = attractionBase;
-        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_MYSTIC_PAWN][IDX_TRINKET] = attractionCharm;
-        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_WEAPON] = mysticOnlyWeapon;
-        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_MYSTIC_KNIGHT][IDX_TRINKET] = powerCharm;
-        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_WEAPON] = mysticOnlyWeapon;
-        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_MYSTIC_BISHOP][IDX_TRINKET] = powerCharm;
-        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_WEAPON] = mysticOnlyWeapon;
-        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_MYSTIC_ROOK][IDX_TRINKET] = rookCrumbleCharm;
-        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_WEAPON] = mysticOnlyWeapon;
-        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_MYSTIC_QUEEN][IDX_TRINKET] = powerCharm;
-        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_WEAPON] = mysticOnlyWeapon;
-        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_BASE] = attractionBase;
-        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_MYSTIC_KING][IDX_TRINKET] = attractionCharm;
-        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_WEAPON] = technicPawnWeapon;
-        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_BASE] = attractionBase;
-        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_TECHNIC_PAWN][IDX_TRINKET] = attractionCharm;
-        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_WEAPON] = technicOnlyWeapon;
-        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_TECHNIC_KNIGHT][IDX_TRINKET] = powerCharm;
-        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_WEAPON] = technicOnlyWeapon;
-        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_TECHNIC_BISHOP][IDX_TRINKET] = powerCharm;
-        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_WEAPON] = technicOnlyWeapon;
-        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_TECHNIC_ROOK][IDX_TRINKET] = rookCrumbleCharm;
-        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_WEAPON] = technicOnlyWeapon;
-        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_TECHNIC_QUEEN][IDX_TRINKET] = powerCharm;
-        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_WEAPON] = technicOnlyWeapon;
-        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_BASE] = attractionBase;
-        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_BAIT] = baitName;
-        trapSetups[ZTO_CHESS_TECHNIC_KING][IDX_TRINKET] = attractionCharm;
-        trapSetups[ZTO_CHESS_MASTER][IDX_WEAPON] = g_bestTacticalWeapon;
-        trapSetups[ZTO_CHESS_MASTER][IDX_BASE] = g_bestBase;
-        trapSetups[ZTO_CHESS_MASTER][IDX_BAIT] = checkmateCheese;
-        trapSetups[ZTO_CHESS_MASTER][IDX_TRINKET] = powerCharm;
-        mysticPawnWeapon = null;
-        mysticOnlyWeapon = null;
-        technicPawnWeapon = null;
-        technicOnlyWeapon = null;
-        attractionBase = null;
-        attractionCharm = null;
-        powerCharm = null;
-        rookCrumbleCharm = null;
-        checkmateCheese = null;
-        baitName = null;
-        trapSetups = null;
+
+        const trapSetups = this.getTrapSetups();
+        const mysticPawnWeapon = g_weaponNames.includes(WEAPON_MYSTIC_PAWN_PINCHER)? WEAPON_MYSTIC_PAWN_PINCHER: g_bestTacticalWeapon;
+        const mysticOnlyWeapon = g_weaponNames.includes(WEAPON_BLACKSTONE_PASS)? WEAPON_BLACKSTONE_PASS: g_bestTacticalWeapon;
+        const technicPawnWeapon = g_weaponNames.includes(WEAPON_TECHNIC_PAWN_PINCHER)? WEAPON_TECHNIC_PAWN_PINCHER: g_bestTacticalWeapon;
+        const technicOnlyWeapon = g_weaponNames.includes(WEAPON_OBVIOUS_AMBUSH)? WEAPON_OBVIOUS_AMBUSH: g_bestTacticalWeapon;
+        const attractionBase = g_baseNames.includes(BASE_CHEESECAKE)? BASE_CHEESECAKE: g_baseNames.includes(BASE_WOODEN_BASE_WITH_TARGET)? BASE_WOODEN_BASE_WITH_TARGET: g_bestBase;
+        const attractionCharm = g_trinketNames.includes(TRINKET_VALENTINE)? TRINKET_VALENTINE: g_trinketNames.includes(TRINKET_ATTRACTION)? TRINKET_ATTRACTION: undefined;
+        const powerCharm = g_trinketNames.includes(TRINKET_POWER)? TRINKET_POWER: attractionCharm;
+        const rookCrumbleCharm = g_trinketNames.includes(TRINKET_ROOK_CRUMBLE)? TRINKET_ROOK_CRUMBLE: powerCharm;
+        const checkmateCheese = g_baitNames.includes(BAIT_CHECKMATE)? BAIT_CHECKMATE: undefined;
+        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_PAWN], mysticPawnWeapon, attractionBase, baitName, attractionCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_KNIGHT], mysticOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_BISHOP], mysticOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_ROOK], mysticOnlyWeapon, g_bestBase, baitName, rookCrumbleCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_QUEEN], mysticOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_KING], mysticOnlyWeapon, attractionBase, baitName, attractionCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_PAWN], technicPawnWeapon, attractionBase, baitName, attractionCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_KNIGHT], technicOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_BISHOP], technicOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_ROOK], technicOnlyWeapon, g_bestBase, baitName, rookCrumbleCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_QUEEN], technicOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_KING], technicOnlyWeapon, attractionBase, baitName, attractionCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MASTER], g_bestTacticalWeapon, g_bestBase, checkmateCheese, powerCharm);
         this.initSelectTrapSetup();
     }
 }
@@ -709,9 +601,8 @@ class PolicyCLi extends Policy {
     }
 
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups();
+        const trapSetups = this.getTrapSetups();
         document.getElementById(ID_CHECKBOX_CLI_CATALOG_MICE).checked = trapSetups[CLI_CATALOG_MICE];
-        trapSetups = null;
     }
 }
 
@@ -734,14 +625,12 @@ class PolicyIce extends Policy {
     }
 
     initSelectTrapSetup() {
-        var trapSetups = this.getTrapSetups();
-        var sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
+        const trapSetups = this.getTrapSetups();
+        const sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
         document.getElementById(ID_SELECT_ICE_WEAPON).value = trapSetups[sublocation][IDX_WEAPON];
         document.getElementById(ID_SELECT_ICE_BASE).value = trapSetups[sublocation][IDX_BASE];
         document.getElementById(ID_SELECT_ICE_BAIT).value = trapSetups[sublocation][IDX_BAIT];
         document.getElementById(ID_SELECT_ICE_TRINKET).value = trapSetups[sublocation][IDX_TRINKET];
-        sublocation = null;
-        trapSetups = null;
     }
 
     recommendTrapSetup() {
@@ -751,61 +640,20 @@ class PolicyIce extends Policy {
             trapSetup[IDX_BAIT] = baitName;
             trapSetup[IDX_TRINKET] = trinketName;
         }
+
         const trapSetups = this.getTrapSetups();
-        var deepFreezeBase;
-        var hearthstoneBase;
-        var magnetBase;
-        var remoteDetonatorBase;
-        var spikedBase;
-        var brieCheese;
-        var powerCharm;
-        var weaponName;
-        var baitName;
-        var trinketName;
-        if (g_weaponNames.includes(WEAPON_STEAM_LASER_MK_III) && g_bestHydroWeapon == WEAPON_OASIS_WATER_NODE) {
-            weaponName = WEAPON_STEAM_LASER_MK_III;
-        } else {
-            weaponName = g_bestHydroWeapon;
-        }
-        if (g_baseNames.includes(BASE_DEEP_FREEZE)) {
-            deepFreezeBase = BASE_DEEP_FREEZE;
-        } else {
-            deepFreezeBase = g_bestBase;
-        }
-        if (g_baseNames.includes(BASE_HEARTHSTONE)) {
-            hearthstoneBase = BASE_HEARTHSTONE;
-        } else {
-            hearthstoneBase = g_bestBase;
-        }
-        if (g_baseNames.includes(BASE_MAGNET)) {
-            magnetBase = BASE_MAGNET;
-        } else {
-            magnetBase = g_bestBase;
-        }
-        if (g_baseNames.includes(BASE_REMOTE_DETONATOR)) {
-            remoteDetonatorBase = BASE_REMOTE_DETONATOR;
-        } else {
-            remoteDetonatorBase = g_bestBase;
-        }
-        if (g_baseNames.includes(BASE_SPIKED)) {
-            spikedBase = BASE_SPIKED;
-        } else {
-            spikedBase = g_bestBase;
-        }
-        if (g_baitNames.includes(BAIT_BRIE)) {
-            brieCheese = BAIT_BRIE;
-        }
-        if (g_baitNames.includes(BAIT_GOUDA)) {
-            baitName = BAIT_GOUDA;
-        }
-        if (g_weaponNames.indexOf(g_bestHydroWeapon) < 2) {
-            trinketName = TRINKET_WAX;
-        } else {
-            trinketName = TRINKET_STICKY;
-        }
-        if (g_trinketNames.includes(TRINKET_POWER)) {
-            powerCharm = TRINKET_POWER;
-        }
+        const deepFreezeBase = g_baseNames.includes(BASE_DEEP_FREEZE)? BASE_DEEP_FREEZE: g_bestBase;
+        const hearthstoneBase = g_baseNames.includes(BASE_HEARTHSTONE)? BASE_HEARTHSTONE: g_bestBase;
+        const magnetBase = g_baseNames.includes(BASE_MAGNET)? BASE_MAGNET: g_bestBase;
+        const remoteDetonatorBase = g_baseNames.includes(BASE_REMOTE_DETONATOR)? BASE_REMOTE_DETONATOR: g_bestBase;
+        const spikedBase = g_baseNames.includes(BASE_SPIKED)? BASE_SPIKED: g_bestBase;
+        const brieCheese = g_baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        const powerCharm = g_trinketNames.includes(TRINKET_POWER)? TRINKET_POWER: undefined;
+        const stickyCharm = g_trinketNames.includes(TRINKET_STICKY)? TRINKET_STICKY: undefined;
+        const waxCharm = g_trinketNames.includes(TRINKET_WAX)? TRINKET_WAX: undefined;
+        const weaponName = (g_weaponNames.includes(WEAPON_STEAM_LASER_MK_III) && g_bestHydroWeapon == WEAPON_OASIS_WATER_NODE)? WEAPON_STEAM_LASER_MK_III: g_bestHydroWeapon;
+        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        const trinketName = g_weaponNames.indexOf(g_bestHydroWeapon) < 2? waxCharm: stickyCharm;
 
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_ICEBERG_GENERAL], g_bestBase, baitName, powerCharm);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_TREACHEROUS_TUNNELS], magnetBase, baitName, trinketName);
@@ -816,16 +664,6 @@ class PolicyIce extends Policy {
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_HIDDEN_DEPTHS], g_bestBase, baitName, powerCharm);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_THE_DEEP_LAIR], g_bestBase, baitName, powerCharm);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_SLUSHY_SHORELINE], g_bestBase, brieCheese, powerCharm);
-        deepFreezeBase = null;
-        hearthstoneBase = null;
-        magnetBase = null;
-        remoteDetonatorBase = null;
-        spikedBase = null;
-        brieCheese = null;
-        powerCharm = null;
-        weaponName = null;
-        baitName = null;
-        trinketName = null;
         this.initSelectTrapSetup();
     }
 }
