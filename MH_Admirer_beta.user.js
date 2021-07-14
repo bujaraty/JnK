@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.17
+// @version      1.2.2.18
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -126,9 +126,10 @@ const HUNTER_TITLES = ["Novice", "Recruit", "Apprentice", "Initiate", "Journeyma
                        "Lord", "Lady", "Baron", "Baroness", "Count", "Countess", "Duke", "Duchess", "Grand Duke", "Grand Duchess", "Archduke", "Archduchess",
                        "Viceroy", "Elder", "Sage", "Fabled"];
 const WEAPON_OASIS_WATER_NODE = "Oasis Water Node";
-const WEAPON_STEAM_LASER_MK_I = "Steam Laser Mk. I";
+const WEAPON_STEAM_LASER_MK_III = "Steam Laser Mk. III";
 const BASE_CHEESECAKE = "Cheesecake Base";
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
+const BASE_DEEP_FREEZE = "Deep Freeze Base";
 const BASE_HEARTHSTONE = "Hearthstone Base";
 const BASE_MAGNET = "Magnet Base";
 const BASE_REMOTE_DETONATOR = "Remote Detonator Base";
@@ -142,7 +143,7 @@ const BEST_DRACONIC_WEAPONS = ["Dragon Slayer Cannon", "Chrome Storm Wrought Bal
                                "Ice Maiden"];
 const BEST_FORGOTTEN_WEAPONS = ["Thought Obliterator ", "Thought Manipulator", "Infinite Labyrinth", "Endless Labyrinth", "Crystal Crucible", "Scarlet Ember Root",
                                 "Ancient Box"];
-const BEST_HYDRO_WEAPONS = ["Queso Fount", "School of Sharks", WEAPON_OASIS_WATER_NODE, WEAPON_STEAM_LASER_MK_I, "Ancient Spear Gun"];
+const BEST_HYDRO_WEAPONS = ["Queso Fount", "School of Sharks", WEAPON_OASIS_WATER_NODE, "Steam Laser Mk. I", "Ancient Spear Gun"];
 const BEST_LAW_WEAPONS = ["S.T.I.N.G.E.R.", "Ember Prison Core", "Meteor Prison Core", "S.L.A.C. II"];
 const BEST_PHYSICAL_WEAPONS = ["Smoldering Stone Sentinel", "Chrome MonstroBot", "Sandstorm MonstroBot", "Enraged RhinoBot"];
 const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance", "Timesplit Dissonance",
@@ -150,6 +151,7 @@ const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance",
                           "Crystal Tower"];
 const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
 const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
+const BAIT_BRIE = "Brie Cheese";
 const BAIT_CHECKMATE = "Checkmate Cheese";
 const BAIT_CRESCENT = "Crescent Cheese";
 const BAIT_GOUDA = "Gouda Cheese";
@@ -158,7 +160,9 @@ const BAIT_RUNIC = "Runic Cheese";
 const TRINKET_ATTRACTION = "Attraction Charm";
 const TRINKET_POWER = "Power Charm";
 const TRINKET_ROOK_CRUMBLE = "Rook Crumble Charm";
+const TRINKET_STICKY = "Sticky Charm";
 const TRINKET_VALENTINE = "Valentine Charm";
+const TRINKET_WAX = "Wax Charm";
 const WEAPON_MYSTIC_PAWN_PINCHER = "Mystic Pawn Pincher";
 const WEAPON_TECHNIC_PAWN_PINCHER = "Technic Pawn Pincher";
 const WEAPON_BLACKSTONE_PASS = "Blackstone Pass";
@@ -741,29 +745,88 @@ class PolicyIce extends Policy {
     }
 
     recommendTrapSetup() {
-        function getIceTrapSetup() {
+        function getIceTrapSetup(trapSetup, baseName, baitName, trinketName) {
+            trapSetup[IDX_WEAPON] = weaponName;
+            trapSetup[IDX_BASE] = baseName;
+            trapSetup[IDX_BAIT] = baitName;
+            trapSetup[IDX_TRINKET] = trinketName;
         }
-        /*
-const WEAPON_OASIS_WATER_NODE = "Oasis Water Node";
-const WEAPON_STEAM_LASER_MK_I = "Steam Laser Mk. I";
-const BASE_HEARTHSTONE = "Hearthstone Base";
-const BASE_MAGNET = "Magnet Base";
-const BASE_REMOTE_DETONATOR = "Remote Detonator Base";
-const BASE_SPIKED = "Spiked Base";
-
-        var trapSetups = this.getTrapSetups();
+        const trapSetups = this.getTrapSetups();
+        var deepFreezeBase;
+        var hearthstoneBase;
+        var magnetBase;
+        var remoteDetonatorBase;
+        var spikedBase;
+        var brieCheese;
+        var powerCharm;
+        var weaponName;
         var baitName;
+        var trinketName;
+        if (g_weaponNames.includes(WEAPON_STEAM_LASER_MK_III) && g_bestHydroWeapon == WEAPON_OASIS_WATER_NODE) {
+            weaponName = WEAPON_STEAM_LASER_MK_III;
+        } else {
+            weaponName = g_bestHydroWeapon;
+        }
+        if (g_baseNames.includes(BASE_DEEP_FREEZE)) {
+            deepFreezeBase = BASE_DEEP_FREEZE;
+        } else {
+            deepFreezeBase = g_bestBase;
+        }
+        if (g_baseNames.includes(BASE_HEARTHSTONE)) {
+            hearthstoneBase = BASE_HEARTHSTONE;
+        } else {
+            hearthstoneBase = g_bestBase;
+        }
+        if (g_baseNames.includes(BASE_MAGNET)) {
+            magnetBase = BASE_MAGNET;
+        } else {
+            magnetBase = g_bestBase;
+        }
+        if (g_baseNames.includes(BASE_REMOTE_DETONATOR)) {
+            remoteDetonatorBase = BASE_REMOTE_DETONATOR;
+        } else {
+            remoteDetonatorBase = g_bestBase;
+        }
+        if (g_baseNames.includes(BASE_SPIKED)) {
+            spikedBase = BASE_SPIKED;
+        } else {
+            spikedBase = g_bestBase;
+        }
+        if (g_baitNames.includes(BAIT_BRIE)) {
+            brieCheese = BAIT_BRIE;
+        }
         if (g_baitNames.includes(BAIT_GOUDA)) {
             baitName = BAIT_GOUDA;
         }
-        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
-        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
-        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
-        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
+        if (g_weaponNames.indexOf(g_bestHydroWeapon) < 2) {
+            trinketName = TRINKET_WAX;
+        } else {
+            trinketName = TRINKET_STICKY;
+        }
+        if (g_trinketNames.includes(TRINKET_POWER)) {
+            powerCharm = TRINKET_POWER;
+        }
+
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_ICEBERG_GENERAL], g_bestBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_TREACHEROUS_TUNNELS], magnetBase, baitName, trinketName);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_BRUTAL_BULWARK], spikedBase, baitName, trinketName);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_BOMBING_RUN], remoteDetonatorBase, baitName, trinketName);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_THE_MAD_DEPTHS], hearthstoneBase, baitName, trinketName);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_ICEWINGS_LAIR], deepFreezeBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_HIDDEN_DEPTHS], g_bestBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_THE_DEEP_LAIR], g_bestBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_SLUSHY_SHORELINE], g_bestBase, brieCheese, powerCharm);
+        deepFreezeBase = null;
+        hearthstoneBase = null;
+        magnetBase = null;
+        remoteDetonatorBase = null;
+        spikedBase = null;
+        brieCheese = null;
+        powerCharm = null;
+        weaponName = null;
         baitName = null;
-        trapSetups = null;
+        trinketName = null;
         this.initSelectTrapSetup();
-        */
     }
 }
 
