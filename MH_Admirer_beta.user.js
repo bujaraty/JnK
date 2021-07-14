@@ -1678,7 +1678,7 @@ function displayDocumentStyles() {
     alert(x[0].lentgh);
     x[0].innerHTML = ".autoBotTxt { background-color: yellow; color: red; }";
     alert(x[0].innerHTML);
-    for (var i=0; i<x.length; x++) {
+    for (let i=0; i<x.length; x++) {
         alert(x[i].tagName);
     }
     document.getElementById("demo").innerHTML = x[0].innerHTML;
@@ -1687,7 +1687,7 @@ function displayDocumentStyles() {
 function listAttributes(obj) {
     const attrs = obj.attributes;
     let tmpTxt = "";
-    for (var i = 0; i < attrs.length; i++) {
+    for (const i = 0; i < attrs.length; i++) {
         tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
     }
     alert(tmpTxt);
@@ -1706,8 +1706,8 @@ function testSaveObjToStorage() {
 
 function testLoadObjFromStorage() {
     alert("in loadObjFromStorage");
-    var myObj = JSON.parse(getStorage("testObj"));
-    for (var i = 0; i < myObj.key1.length; i++) {
+    const myObj = JSON.parse(getStorage("testObj"));
+    for (const i = 0; i < myObj.key1.length; i++) {
         alert(myObj.key1[i]);
     }
 }
@@ -1756,7 +1756,7 @@ function prepareClaimingGifts(fromTop) {
             const giftRow = fromTop? giftRows[giftIndex]: giftRows[nGiftRows-giftIndex-1];
             const senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
-            var actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
+            const actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
             if (!actionButton.classList.contains("disabled")) {
                 fireEvent(actionButton, "click");
             }
@@ -1856,52 +1856,45 @@ function embedUIStructure() {
     // 3. policy preferences for setting up trap based on location and/or event
 
     function embedStatusTable() {
-        var tmpTxt;
-        var statusSection = document.createElement('div');
-        var statusDisplayTable = document.createElement('table');
+        let tmpTxt;
+        const statusSection = document.createElement('div');
+        const statusDisplayTable = document.createElement('table');
         statusDisplayTable.width = "100%";
 
         // The first row shows title and version (also some misc buttons)
-        var trFirst = statusDisplayTable.insertRow();
-        var statusDisplayTitle = trFirst.insertCell();
+        const trFirst = statusDisplayTable.insertRow();
+        const statusDisplayTitle = trFirst.insertCell();
         statusDisplayTitle.colSpan = 2;
         statusDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
-        statusDisplayTitle = null;
-        var miscStatusCell = trFirst.insertCell();
+        const miscStatusCell = trFirst.insertCell();
         miscStatusCell.style.fontSize = "9px";
         miscStatusCell.style.textAlign = "right";
         tmpTxt = document.createTextNode("Gifts & Raffles status : " + g_statusGiftsAndRaffles + "  ");
         miscStatusCell.appendChild(tmpTxt);
-        var miscButtonsCell = trFirst.insertCell();
+        const miscButtonsCell = trFirst.insertCell();
         miscButtonsCell.style.textAlign = "right";
-        var sendGiftsAndRafflesButton = document.createElement('button');
+        const sendGiftsAndRafflesButton = document.createElement('button');
         sendGiftsAndRafflesButton.onclick = manualSendingGiftsAndRaffles
         sendGiftsAndRafflesButton.style.fontSize = "8px";
-        var buttonTxt = document.createTextNode("Send Gifts & Raffles");
-        sendGiftsAndRafflesButton.appendChild(buttonTxt);
+        tmpTxt = document.createTextNode("Send Gifts & Raffles");
+        sendGiftsAndRafflesButton.appendChild(tmpTxt);
         miscButtonsCell.appendChild(sendGiftsAndRafflesButton);
-        var claimYesterdayGiftsButton = document.createElement('button');
+        const claimYesterdayGiftsButton = document.createElement('button');
         claimYesterdayGiftsButton.onclick = manualClaimingYesterdayGifts
         claimYesterdayGiftsButton.style.fontSize = "8px";
-        buttonTxt = document.createTextNode("Claim yesterday gifts");
-        claimYesterdayGiftsButton.appendChild(buttonTxt);
+        tmpTxt = document.createTextNode("Claim yesterday gifts");
+        claimYesterdayGiftsButton.appendChild(tmpTxt);
         miscButtonsCell.appendChild(claimYesterdayGiftsButton);
-        var claimTodayGiftsButton = document.createElement('button');
+        const claimTodayGiftsButton = document.createElement('button');
         claimTodayGiftsButton.onclick = manualClaimingTodayGifts
         claimTodayGiftsButton.style.fontSize = "8px";
-        buttonTxt = document.createTextNode("Claim today gifts");
-        claimTodayGiftsButton.appendChild(buttonTxt);
+        tmpTxt = document.createTextNode("Claim today gifts");
+        claimTodayGiftsButton.appendChild(tmpTxt);
         miscButtonsCell.appendChild(claimTodayGiftsButton);
-        miscStatusCell = null;
-        sendGiftsAndRafflesButton = null;
-        claimYesterdayGiftsButton = null;
-        claimTodayGiftsButton = null;
-        miscButtonsCell = null;
-        trFirst = null;
 
         // The second row shows next bot horn time countdown
-        var trSecond = statusDisplayTable.insertRow();
-        var nextBotHornTimeCaptionCell = trSecond.insertCell();
+        const trSecond = statusDisplayTable.insertRow();
+        const nextBotHornTimeCaptionCell = trSecond.insertCell();
         nextBotHornTimeCaptionCell.width = 20;
         nextBotHornTimeCaptionCell.style.fontWeight = "bold";
         nextBotHornTimeCaptionCell.innerHTML = "Next Hunter Horn Time : ";
@@ -1910,55 +1903,44 @@ function embedUIStructure() {
         g_nextBotHornTimeDisplay.style.textAlign = "left";
         g_nextBotHornTimeDisplay.width = 320;
         g_nextBotHornTimeDisplay.innerHTML = "Loading...";
-        nextBotHornTimeCaptionCell = null;
-        trSecond = null;
 
         // The third row shows next trap check time countdown
-        var trThird = statusDisplayTable.insertRow();
-        var nextTrapCheckTimeCaptionCell = trThird.insertCell();
+        const trThird = statusDisplayTable.insertRow();
+        const nextTrapCheckTimeCaptionCell = trThird.insertCell();
         nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
         nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
         g_nextTrapCheckTimeDisplay = trThird.insertCell();
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
-        nextTrapCheckTimeCaptionCell = null;
-        trThird = null;
 
-        /*
+/*
         // The forth row is very temporary just for testing
-        var trForth = statusDisplayTable.insertRow();
+        const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
-        var testButtonsCell = trForth.insertCell();
-        var test1Button = document.createElement('button');
+        const testButtonsCell = trForth.insertCell();
+        const test1Button = document.createElement('button');
         test1Button.onclick = test1
         test1Button.style.fontSize = "10px";
         tmpTxt = document.createTextNode("test 1");
         test1Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test1Button);
-        var test2Button = document.createElement('button');
+        const test2Button = document.createElement('button');
         test2Button.onclick = test2
         test2Button.style.fontSize = "10px";
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-        test1Button = null;
-        test2Button = null;
-        testButtonsCell = null;
-        trForth = null;
 */
 
         statusSection.appendChild(statusDisplayTable);
-        statusDisplayTable = null;
-        buttonTxt = null;
-        tmpTxt = null;
 
         return statusSection;
     }
 
     function embedPreferences() {
         function togglePreferences() {
-            var toggleLink = document.getElementById(ID_PREFERENCES_LINK);
-            var preferencesBox = document.getElementById(ID_PREFERENCES_BOX);
+            const toggleLink = document.getElementById(ID_PREFERENCES_LINK);
+            const preferencesBox = document.getElementById(ID_PREFERENCES_BOX);
             if (toggleLink.innerHTML == '[Show Preferences]') {
                 toggleLink.innerHTML = '[Hide Preferences]'
                 preferencesBox.style.display = 'block';
@@ -1966,13 +1948,11 @@ function embedUIStructure() {
                 toggleLink.innerHTML = '[Show Preferences]'
                 preferencesBox.style.display = 'none';
             }
-            toggleLink = null;
-            preferencesBox = null;
         }
 
         function toggleTimerPreferencesTable() {
-            var toggleLink = document.getElementById(ID_TIMER_LINK);
-            var preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
+            const toggleLink = document.getElementById(ID_TIMER_LINK);
+            const preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
             if (toggleLink.innerHTML == '[Show]') {
                 toggleLink.innerHTML = '[Hide]'
                 preferencesTable.style.display = 'table';
@@ -1980,63 +1960,52 @@ function embedUIStructure() {
                 toggleLink.innerHTML = '[Show]'
                 preferencesTable.style.display = 'none';
             }
-            toggleLink = null;
-            preferencesTable = null;
         }
 
         function embedPreferencesHeaderTable() {
-            var preferencesHeaderTable = document.createElement('table');
+            const preferencesHeaderTable = document.createElement('table');
             preferencesHeaderTable.width = "100%";
-            var preferencesHeaderRow = preferencesHeaderTable.insertRow();
-            var botProcessCaption = preferencesHeaderRow.insertCell();
+            const preferencesHeaderRow = preferencesHeaderTable.insertRow();
+            const botProcessCaption = preferencesHeaderRow.insertCell();
             botProcessCaption.width = 70;
             botProcessCaption.style.fontSize = "10px";
             botProcessCaption.style.fontWeight = "bold";
             botProcessCaption.innerHTML = "Bot Process :  ";
-            var botProcessTxt = preferencesHeaderRow.insertCell();
+            const botProcessTxt = preferencesHeaderRow.insertCell();
             botProcessTxt.width = 70;
             botProcessTxt.style.fontSize = "10px";
             botProcessTxt.innerHTML = g_botProcess;
             botProcessTxt.id = ID_BOT_PROCESS_TXT;
-            botProcessCaption = null;
-            botProcessTxt = null;
-            var botStatusCaption = preferencesHeaderRow.insertCell();
+            const botStatusCaption = preferencesHeaderRow.insertCell();
             botStatusCaption.width = 45;
             botStatusCaption.style.fontSize = "10px";
             botStatusCaption.style.fontWeight = "bold";
             botStatusCaption.innerHTML = "Status :  ";
-            var botStatusTxt = preferencesHeaderRow.insertCell();
+            const botStatusTxt = preferencesHeaderRow.insertCell();
             botStatusTxt.width = 295;
             botStatusTxt.style.fontSize = "10px";
             botStatusTxt.innerHTML = BOT_STATUS_IDLE;
             botStatusTxt.id = ID_BOT_STATUS_TXT;
-            botStatusCaption = null;
-            botStatusTxt = null;
 
-            var policyCaption = preferencesHeaderRow.insertCell();
+            const policyCaption = preferencesHeaderRow.insertCell();
             policyCaption.className = STYLE_CLASS_NAME_JNK_CAPTION;
             policyCaption.style.fontSize = "10px";
             policyCaption.width = 70;
             policyCaption.innerHTML = "Policy :  ";
-            var policyTxt = preferencesHeaderRow.insertCell();
+            const policyTxt = preferencesHeaderRow.insertCell();
             policyTxt.id = ID_POLICY_TXT;
             policyTxt.style.fontSize = "10px";
             policyTxt.innerHTML = POLICY_NAME_NONE;
-            policyCaption = null;
-            policyTxt = null;
 
-            var preferencesHeaderCell = preferencesHeaderRow.insertCell();
+            const preferencesHeaderCell = preferencesHeaderRow.insertCell();
             preferencesHeaderCell.style.textAlign = "right";
-            var preferencesLink = document.createElement('a');
+            const preferencesLink = document.createElement('a');
             preferencesLink.id = ID_PREFERENCES_LINK;
             preferencesLink.style.fontSize = "10px";
             preferencesLink.innerHTML = '[Show Preferences]';
             preferencesLink.style.fontWeight = "bold";
             preferencesLink.onclick = togglePreferences;
             preferencesHeaderCell.appendChild(preferencesLink);
-            preferencesLink = null;
-            preferencesHeaderCell = null;
-            preferencesHeaderRow = null;
 
             return preferencesHeaderTable;
         }
@@ -2058,25 +2027,24 @@ function embedUIStructure() {
                 reloadCampPage();
             }
 
-            var tmpTxt;
-            var captionCell;
-            var timerPreferencesTable = document.createElement('table');
+            let tmpTxt;
+            let captionCell;
+            const timerPreferencesTable = document.createElement('table');
             timerPreferencesTable.id = ID_TIMER_PREFERENCES_TABLE;
             timerPreferencesTable.width = "100%";
 
-            var trEmpty = timerPreferencesTable.insertRow();
+            const trEmpty = timerPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
-            trEmpty = null;
 
-            var trNextBotHornTimePreferences = timerPreferencesTable.insertRow();
+            const trNextBotHornTimePreferences = timerPreferencesTable.insertRow();
             trNextBotHornTimePreferences.style.height = "21px"
             captionCell = trNextBotHornTimePreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Bot Horn Time Delay :  ";
             captionCell.width = 240;
-            var nextBotHornTimePreferencesSettings = trNextBotHornTimePreferences.insertCell();
+            const nextBotHornTimePreferencesSettings = trNextBotHornTimePreferences.insertCell();
             nextBotHornTimePreferencesSettings.width = 250;
-            var botHornTimeDelayMinInput = document.createElement('INPUT');
+            const botHornTimeDelayMinInput = document.createElement('INPUT');
             botHornTimeDelayMinInput.type = "number";
             botHornTimeDelayMinInput.style.fontSize = "12px";
             botHornTimeDelayMinInput.min = "0";
@@ -2087,7 +2055,7 @@ function embedUIStructure() {
             nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
             nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
-            var botHornTimeDelayMaxInput = document.createElement('INPUT');
+            const botHornTimeDelayMaxInput = document.createElement('INPUT');
             botHornTimeDelayMaxInput.type = "number";
             botHornTimeDelayMaxInput.style.fontSize = "12px";
             botHornTimeDelayMaxInput.min = "1";
@@ -2098,18 +2066,14 @@ function embedUIStructure() {
             nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
-            botHornTimeDelayMinInput = null;
-            botHornTimeDelayMaxInput = null;
-            nextBotHornTimePreferencesSettings = null;
-            trNextBotHornTimePreferences = null;
 
-            var trNextTrapCheckTimePreferences = timerPreferencesTable.insertRow();
+            const trNextTrapCheckTimePreferences = timerPreferencesTable.insertRow();
             trNextTrapCheckTimePreferences.style.height = "21px"
             captionCell = trNextTrapCheckTimePreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Trap Check Time Delay :  ";
-            var nextTrapCheckTimePreferencesSettings = trNextTrapCheckTimePreferences.insertCell();
-            var trapCheckTimeDelayMinInput = document.createElement('INPUT');
+            const nextTrapCheckTimePreferencesSettings = trNextTrapCheckTimePreferences.insertCell();
+            const trapCheckTimeDelayMinInput = document.createElement('INPUT');
             trapCheckTimeDelayMinInput.type = "number";
             trapCheckTimeDelayMinInput.style.fontSize = "12px";
             trapCheckTimeDelayMinInput.min = "0";
@@ -2120,7 +2084,7 @@ function embedUIStructure() {
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
             nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
-            var trapCheckTimeDelayMaxInput = document.createElement('INPUT');
+            const trapCheckTimeDelayMaxInput = document.createElement('INPUT');
             trapCheckTimeDelayMaxInput.type = "number";
             trapCheckTimeDelayMaxInput.style.fontSize = "12px";
             trapCheckTimeDelayMaxInput.min = "1";
@@ -2131,18 +2095,14 @@ function embedUIStructure() {
             nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
-            trapCheckTimeDelayMinInput = null;
-            trapCheckTimeDelayMaxInput = null;
-            nextTrapCheckTimePreferencesSettings = null;
-            trNextTrapCheckTimePreferences = null;
 
-            var trAutosolveKRPreferences = timerPreferencesTable.insertRow();
+            const trAutosolveKRPreferences = timerPreferencesTable.insertRow();
             trAutosolveKRPreferences.style.height = "24px"
             captionCell = trAutosolveKRPreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Auto Solve King Reward Delay :  ";
-            var autosolveKRPreferencesSettings = trAutosolveKRPreferences.insertCell();
-            var autosolveKRDelayMinInput = document.createElement('INPUT');
+            const autosolveKRPreferencesSettings = trAutosolveKRPreferences.insertCell();
+            const autosolveKRDelayMinInput = document.createElement('INPUT');
             autosolveKRDelayMinInput.type = "number";
             autosolveKRDelayMinInput.style.fontSize = "12px";
             autosolveKRDelayMinInput.min = "0";
@@ -2153,7 +2113,7 @@ function embedUIStructure() {
             autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMinInput);
             tmpTxt = document.createTextNode(" seconds ~  ");
             autosolveKRPreferencesSettings.appendChild(tmpTxt);
-            var autosolveKRDelayMaxInput = document.createElement('INPUT');
+            const autosolveKRDelayMaxInput = document.createElement('INPUT');
             autosolveKRDelayMaxInput.type = "number";
             autosolveKRDelayMaxInput.style.fontSize = "12px";
             autosolveKRDelayMaxInput.min = "1";
@@ -2164,62 +2124,49 @@ function embedUIStructure() {
             autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMaxInput);
             tmpTxt = document.createTextNode(" seconds");
             autosolveKRPreferencesSettings.appendChild(tmpTxt);
-            autosolveKRDelayMinInput = null;
-            autosolveKRDelayMaxInput = null;
-            autosolveKRPreferencesSettings = null;
-            trAutosolveKRPreferences = null;
 
-            var trSchedulerTitle = timerPreferencesTable.insertRow();
+            const trSchedulerTitle = timerPreferencesTable.insertRow();
             trSchedulerTitle.style.height = "20px"
-            var schedulerTitle = trSchedulerTitle.insertCell();
+            const schedulerTitle = trSchedulerTitle.insertCell();
             schedulerTitle.colSpan = 3;
             schedulerTitle.innerHTML = "Scheduler time";
             schedulerTitle.style.fontWeight = "bold";
             schedulerTitle.style.fontSize = "12px";
             schedulerTitle.style.textAlign = "center";
-            trSchedulerTitle = null;
-            schedulerTitle = null;
 
-            var trScheduledGiftAndRafflesPreferences = timerPreferencesTable.insertRow();
+            const trScheduledGiftAndRafflesPreferences = timerPreferencesTable.insertRow();
             trScheduledGiftAndRafflesPreferences.style.height = "24px"
             captionCell = trScheduledGiftAndRafflesPreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Sending Gifts and Raffles :  ";
-            captionCell = null;
-            var scheduledGiftsAndRafflesPreferencesSettings = trScheduledGiftAndRafflesPreferences.insertCell();
-            var scheduledGiftsAndRafflesBeginTime = document.createElement('INPUT');
+            const scheduledGiftsAndRafflesPreferencesSettings = trScheduledGiftAndRafflesPreferences.insertCell();
+            const scheduledGiftsAndRafflesBeginTime = document.createElement('INPUT');
             scheduledGiftsAndRafflesBeginTime.type = "time";
             scheduledGiftsAndRafflesBeginTime.style.fontSize = "12px";
             scheduledGiftsAndRafflesBeginTime.id = ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT;
             scheduledGiftsAndRafflesBeginTime.value = g_scheduledGiftsAndRafflesTime;
             scheduledGiftsAndRafflesPreferencesSettings.appendChild(scheduledGiftsAndRafflesBeginTime);
-            scheduledGiftsAndRafflesBeginTime = null;
-            scheduledGiftsAndRafflesPreferencesSettings = null;
-            trScheduledGiftAndRafflesPreferences = null;
 
-            var trScheduledResetPreferences = timerPreferencesTable.insertRow();
+            const trScheduledResetPreferences = timerPreferencesTable.insertRow();
             trScheduledResetPreferences.style.height = "21px"
             captionCell = trScheduledResetPreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "New Date :  ";
-            var scheduledResetPreferencesSettings = trScheduledResetPreferences.insertCell();
-            var scheduledResetTime = document.createElement('INPUT');
+            const scheduledResetPreferencesSettings = trScheduledResetPreferences.insertCell();
+            const scheduledResetTime = document.createElement('INPUT');
             scheduledResetTime.type = "time";
             scheduledResetTime.style.fontSize = "12px";
             scheduledResetTime.id = ID_SCHEDULED_RESET_TIME_INPUT;
             scheduledResetTime.value = g_scheduledResetTime;
             scheduledResetPreferencesSettings.appendChild(scheduledResetTime);
-            scheduledResetTime = null;
-            scheduledResetPreferencesSettings = null;
-            trScheduledResetPreferences = null;
 
-            var trLastRow = timerPreferencesTable.insertRow();
-            var saveButtonCell = trLastRow.insertCell();
+            const trLastRow = timerPreferencesTable.insertRow();
+            const saveButtonCell = trLastRow.insertCell();
             saveButtonCell.colSpan = 3;
             saveButtonCell.style.textAlign = "right";
             tmpTxt = document.createTextNode("(Changes above this line only take place after user save the preference)  ");
             saveButtonCell.appendChild(tmpTxt);
-            var saveTimerPreferencesButton = document.createElement('button');
+            const saveTimerPreferencesButton = document.createElement('button');
             saveTimerPreferencesButton.onclick = saveTimerPreferences
             saveTimerPreferencesButton.style.fontSize = "13px";
             tmpTxt = document.createTextNode("Save");
@@ -2227,11 +2174,9 @@ function embedUIStructure() {
             saveButtonCell.appendChild(saveTimerPreferencesButton);
             tmpTxt = document.createTextNode("  ");
             saveButtonCell.appendChild(tmpTxt);
+
             captionCell = null;
             tmpTxt = null;
-            trLastRow = null;
-            saveButtonCell = null;
-            saveTimerPreferencesButton = null;
 
             return timerPreferencesTable;
         }
@@ -2242,14 +2187,12 @@ function embedUIStructure() {
             }
 
             function onChangePolicy(event) {
-                var tmpDisplay;
-                var tmpPolicy
                 if (event.target.value == "Select policy") {
                     return;
                 }
                 for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                    tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
-                    tmpPolicy = POLICY_DICT[policyName];
+                    const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
+                    const tmpPolicy = POLICY_DICT[policyName];
                     for (const tr of tmpPolicy.trs){
                         document.getElementById(tr).style.display = tmpDisplay;
                     }
@@ -2258,31 +2201,26 @@ function embedUIStructure() {
                     } else if (tmpDisplay == "table-row") {
                         tmpPolicy.initSelectTrapSetup();
                     }
-                    tmpPolicy = null;
-                    tmpDisplay = null;
                 }
             }
 
             function updateTraps() {
                 function updateWeapons() {
                     function getCampPageWeaponNames() {
-                        var weaponName;
                         g_weaponNames = [];
-                        var camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                        for (var i = 0; i < camppageWeapons.length; ++i) {
-                            weaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        const camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
+                        for (const i = 0; i < camppageWeapons.length; ++i) {
+                            const weaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_weaponNames.indexOf(weaponName) == -1) {
                                 g_weaponNames[g_weaponNames.length] = weaponName;
                             }
                         }
-                        weaponName = null;
-                        camppageWeapons = null;
                         g_weaponNames.sort();
                         setStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Weapons";;
                     }
                     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Weapons";
-                    var currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
+                    const currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
                     fireEvent(currentWeapon, 'click');
                     window.setTimeout(function () {
                         getCampPageWeaponNames();
@@ -2291,23 +2229,20 @@ function embedUIStructure() {
 
                 function updateBases() {
                     function getCampPageBaseNames() {
-                        var baseName;
                         g_baseNames = [];
-                        var camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                        for (var i = 0; i < camppageBases.length; ++i) {
-                            baseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        const camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
+                        for (const i = 0; i < camppageBases.length; ++i) {
+                            const baseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_baseNames.indexOf(baseName) == -1) {
                                 g_baseNames[g_baseNames.length] = baseName;
                             }
                         }
-                        baseName = null;
-                        camppageBases = null;
                         g_baseNames.sort();
                         setStorage(STORAGE_BASE_NAMES, g_baseNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Bases";;
                     }
                     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Bases";
-                    var currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
+                    const currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
                     fireEvent(currentBase, 'click');
                     window.setTimeout(function () {
                         getCampPageBaseNames();
@@ -2316,23 +2251,20 @@ function embedUIStructure() {
 
                 function updateBaits() {
                     function getCampPageBaitNames() {
-                        var baitName;
                         g_baitNames = [];
-                        var camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                        for (var i = 0; i < camppageBaits.length; ++i) {
-                            baitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        const camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
+                        for (const i = 0; i < camppageBaits.length; ++i) {
+                            const baitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_baitNames.indexOf(baitName) == -1) {
                                 g_baitNames[g_baitNames.length] = baitName;
                             }
                         }
-                        baitName = null;
-                        camppageBaits = null;
                         g_baitNames.sort();
                         setStorage(STORAGE_BAIT_NAMES, g_baitNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Baits";;
                     }
                     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Baits";
-                    var currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
+                    const currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
                     fireEvent(currentBait, 'click');
                     window.setTimeout(function () {
                         getCampPageBaitNames();
@@ -2341,23 +2273,20 @@ function embedUIStructure() {
 
                 function updateTrinkets() {
                     function getCampPageTrinketNames() {
-                        var trinketName;
                         g_trinketNames = [];
-                        var camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                        for (var i = 0; i < camppageTrinkets.length; ++i) {
-                            trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
+                        const camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
+                        for (const i = 0; i < camppageTrinkets.length; ++i) {
+                            const trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_trinketNames.indexOf(trinketName) == -1) {
                                 g_trinketNames[g_trinketNames.length] = trinketName;
                             }
                         }
-                        trinketName = null;
-                        camppageTrinkets = null;
                         g_trinketNames.sort();
                         setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
                         document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Trinkets";;
                     }
                     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Trinkets";
-                    var currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
+                    const currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
                     fireEvent(currentTrinket, 'click');
                     currentTrinket = null;
                     window.setTimeout(function () {
@@ -2386,17 +2315,15 @@ function embedUIStructure() {
             }
 
             function getSelectItem(items, itemId, onchangeFunction) {
-                var itemOption;
-                var selectItem = document.createElement('select');
+                const selectItem = document.createElement('select');
                 selectItem.style.width = "80px";
                 selectItem.style.fontSize = "90%";
-                for (var i = 0; i < items.length; i++) {
-                    itemOption = document.createElement("option");
+                for (let i = 0; i < items.length; i++) {
+                    const itemOption = document.createElement("option");
                     itemOption.value = items[i];
                     itemOption.text = items[i];
                     selectItem.appendChild(itemOption);
                 }
-                itemOption = null;
                 selectItem.selectedIndex = -1;
                 selectItem.id = itemId;
                 selectItem.onchange = onchangeFunction;
@@ -2416,20 +2343,18 @@ function embedUIStructure() {
             }
 
             function getSelectTrinket(itemId, onchangeFunction) {
-                var itemOption;
-                var selectTrinket = document.createElement('select');
+                const selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
-                itemOption = document.createElement("option");
+                const itemOption = document.createElement("option");
                 itemOption.value = DISARM_TRINKET;
                 itemOption.text = DISARM_TRINKET;
                 selectTrinket.appendChild(itemOption);
-                for (var i = 0; i < g_trinketNames.length; i++) {
-                    itemOption = document.createElement("option");
+                for (let i = 0; i < g_trinketNames.length; i++) {
+                    const itemOption = document.createElement("option");
                     itemOption.value = g_trinketNames[i];
                     itemOption.text = g_trinketNames[i];
                     selectTrinket.appendChild(itemOption);
                 }
-                itemOption = null;
                 selectTrinket.selectedIndex = -1;
                 selectTrinket.id = itemId;
                 selectTrinket.onchange = onchangeFunction;
@@ -2437,17 +2362,15 @@ function embedUIStructure() {
             }
 
             function insertSelectPolicyRow() {
-                var captionCell;
-                var itemOption;
-                var trSelectPolicy = policyPreferencesTable.insertRow();
+                let itemOption;
+                const trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
-                captionCell = trSelectPolicy.insertCell();
+                const captionCell = trSelectPolicy.insertCell();
                 captionCell.width = 260;
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Select Location :  ";
-                captionCell = null;
-                var selectPolicyCell = trSelectPolicy.insertCell();
-                var selectPolicy = document.createElement('select');
+                const selectPolicyCell = trSelectPolicy.insertCell();
+                const selectPolicy = document.createElement('select');
                 selectPolicy.style.width = "120px";
                 selectPolicy.style.fontSize = "90%";
                 selectPolicy.onchange = onChangePolicy;
@@ -2455,18 +2378,14 @@ function embedUIStructure() {
                 itemOption.value = "Select policy";
                 itemOption.text = "Select policy";
                 selectPolicy.appendChild(itemOption);
-                itemOption = null;
                 for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
                     itemOption = document.createElement("option");
                     itemOption.value = policyName;
                     itemOption.text = policyName;
                     selectPolicy.appendChild(itemOption);
                 }
-                itemOption = null;
                 selectPolicyCell.appendChild(selectPolicy);
-                selectPolicy = null;
-                selectPolicyCell = null;
-                trSelectPolicy = null;
+                itemOption = null;
             }
 
             function insertARePolicyPreferences() {
@@ -2501,17 +2420,15 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                var captionCell;
-                var tmpTxt;
-                var itemOption;
-                var trAReTrapSetup = policyPreferencesTable.insertRow();
+                let tmpTxt;
+                const trAReTrapSetup = policyPreferencesTable.insertRow();
                 trAReTrapSetup.id = ID_TR_ARE_TRAP_SETUP;
                 trAReTrapSetup.style.height = "24px";
                 trAReTrapSetup.style.display = "none";
-                captionCell = trAReTrapSetup.insertCell();
+                const captionCell = trAReTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup :  ";
-                var trapSetupCell = trAReTrapSetup.insertCell();
+                const trapSetupCell = trAReTrapSetup.insertCell();
                 trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_ARE_WEAPON, saveAReWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
@@ -2524,25 +2441,21 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ARE_TRINKET, saveAReTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var recommendButton = document.createElement('button');
+                const recommendButton = document.createElement('button');
                 recommendButton.onclick = recommendAReTrapSetup;
                 recommendButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Recommend");
                 recommendButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(recommendButton);
-                recommendButton = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
+                const resetButton = document.createElement('button');
                 resetButton.onclick = resetAReTrapSetup;
                 resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(resetButton);
-                resetButton = null;
                 tmpTxt = null;
-                trapSetupCell = null;
-                trAReTrapSetup = null;
             }
 
             function insertFRoPolicyPreferences() {
@@ -2551,9 +2464,8 @@ function embedUIStructure() {
                 }
 
                 function saveFRoSetup(itemIndex, value) {
-                    var currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
+                    const currentPhase = document.getElementById(ID_SELECT_FRO_PHASE).value;
                     POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[currentPhase][itemIndex] = value;
-                    currentPhase = null;
                     setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
                 }
 
@@ -2593,24 +2505,23 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_FRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
                 }
 
-                var captionCell;
-                var itemOption;
-                var tmpTxt;
+                let captionCell;
+                let tmpTxt;
 
-                var trFRoPhasesTrapSetup = policyPreferencesTable.insertRow();
+                const trFRoPhasesTrapSetup = policyPreferencesTable.insertRow();
                 trFRoPhasesTrapSetup.id = ID_TR_FRO_PHASES_TRAP_SETUP;
                 trFRoPhasesTrapSetup.style.height = "24px";
                 trFRoPhasesTrapSetup.style.display = "none";
                 captionCell = trFRoPhasesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                var selectPhase = document.createElement('select');
+                const selectPhase = document.createElement('select');
                 selectPhase.id = ID_SELECT_FRO_PHASE;
                 selectPhase.style.width = "70px";
                 selectPhase.style.fontSize = "90%";
                 selectPhase.onchange = onChangeFRoSelectPhase;
                 for (const phase of FRO_PHASES){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = phase
                     itemOption.text = phase
                     selectPhase.appendChild(itemOption);
@@ -2618,8 +2529,7 @@ function embedUIStructure() {
                 captionCell.appendChild(selectPhase);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
-                selectPhase = null;
-                var trapSetupCell = trFRoPhasesTrapSetup.insertCell();
+                const trapSetupCell = trFRoPhasesTrapSetup.insertCell();
                 trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_FRO_WEAPON, saveFRoWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
@@ -2632,37 +2542,34 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_FRO_TRINKET, saveFRoTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var selectTower = document.createElement('select');
+                const selectTower = document.createElement('select');
                 selectTower.id = ID_SELECT_FRO_TOWER;
                 selectTower.style.fontSize = "90%";
                 selectTower.style.width = "80px";
                 selectTower.onchange = saveFRoTower;
                 for (const phase of FRO_TOWER_ACTIVATION){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = phase
                     itemOption.text = phase
                     selectTower.appendChild(itemOption);
                 }
                 trapSetupCell.appendChild(selectTower);
-                selectTower = null;
-                trapSetupCell = null;
-                trFRoPhasesTrapSetup = null;
 
-                var trFRoTowerHPFull = policyPreferencesTable.insertRow();
+                const trFRoTowerHPFull = policyPreferencesTable.insertRow();
                 trFRoTowerHPFull.id = ID_TR_FRO_TOWER_HP_FULL;
                 trFRoTowerHPFull.style.height = "24px";
                 trFRoTowerHPFull.style.display = "none";
                 captionCell = trFRoTowerHPFull.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Tower Activation When HP Full :  ";
-                var selectActivationCell = trFRoTowerHPFull.insertCell();
-                var selectActivation = document.createElement('select');
+                const selectActivationCell = trFRoTowerHPFull.insertCell();
+                const selectActivation = document.createElement('select');
                 selectActivation.id = ID_SELECT_FRO_ACTIVATION_HP_FULL;
                 selectActivation.style.fontSize = "90%";
                 selectActivation.style.width = "60px";
                 selectActivation.onchange = saveFRoActivationHPFull;
                 for (const phase of FRO_TOWER_ACTIVATION){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = phase
                     itemOption.text = phase
                     selectActivation.appendChild(itemOption);
@@ -2670,29 +2577,23 @@ function embedUIStructure() {
                 selectActivationCell.appendChild(selectActivation);
                 tmpTxt = document.createTextNode(" ");
                 selectActivationCell.appendChild(tmpTxt);
-                var recommendButton = document.createElement('button');
+                const recommendButton = document.createElement('button');
                 recommendButton.onclick = recommendFRoTrapSetup;
                 recommendButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Recommend");
                 recommendButton.appendChild(tmpTxt);
                 selectActivationCell.appendChild(recommendButton);
-                recommendButton = null;
                 tmpTxt = document.createTextNode(" ");
                 selectActivationCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
+                const resetButton = document.createElement('button');
                 resetButton.onclick = resetFRoTrapSetup;
                 resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 selectActivationCell.appendChild(resetButton);
-                resetButton = null;
-                selectActivation = null;
-                selectActivationCell = null;
-                trFRoTowerHPFull = null;
 
                 tmpTxt = null;
                 captionCell = null;
-                itemOption = null;
             }
 
             function insertSGaPolicyPreferences() {
@@ -2701,9 +2602,8 @@ function embedUIStructure() {
                 }
 
                 function saveSGaSetup(itemIndex, value) {
-                    var currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+                    const currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
                     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
-                    currentSeason = null;
                     setStorage(STORAGE_TRAP_SETUP_SGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
                 }
 
@@ -2734,34 +2634,30 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                var captionCell;
-                var tmpTxt;
-                var itemOption;
-                var trSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
+                let captionCell;
+                let tmpTxt;
+                const trSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
                 trSGaSeasonsTrapSetup.id = ID_TR_SGA_SEASONS_TRAP_SETUP;
                 trSGaSeasonsTrapSetup.style.height = "24px";
                 trSGaSeasonsTrapSetup.style.display = "none";
                 captionCell = trSGaSeasonsTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                var selectSeason = document.createElement('select');
+                const selectSeason = document.createElement('select');
                 selectSeason.id = ID_SELECT_SGA_SEASON;
                 selectSeason.style.fontSize = "90%";
                 selectSeason.style.width = "70px";
                 selectSeason.onchange = onChangeSGaSelectSeason;
                 for (const season of SGA_SEASONS){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = season
                     itemOption.text = season
                     selectSeason.appendChild(itemOption);
                 }
-                itemOption = null;
                 captionCell.appendChild(selectSeason);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
-                captionCell = null;
-                selectSeason = null;
-                var trapSetupCell = trSGaSeasonsTrapSetup.insertCell();
+                const trapSetupCell = trSGaSeasonsTrapSetup.insertCell();
                 trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_SGA_WEAPON, saveSGaWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
@@ -2774,25 +2670,22 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SGA_TRINKET, saveSGaTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var recommendButton = document.createElement('button');
+                const recommendButton = document.createElement('button');
                 recommendButton.onclick = recommendSGaTrapSetup;
                 recommendButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Recommend");
                 recommendButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(recommendButton);
-                recommendButton = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
+                const resetButton = document.createElement('button');
                 resetButton.onclick = resetSGaTrapSetup;
                 resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(resetButton);
-                resetButton = null;
+                captionCell = null;
                 tmpTxt = null;
-                trapSetupCell = null;
-                trSGaSeasonsTrapSetup = null;
             }
 
             function insertZToPolicyPreferences() {
@@ -2806,9 +2699,8 @@ function embedUIStructure() {
                 }
 
                 function saveZToSetup(itemIndex, value) {
-                    var currentChess = document.getElementById(ID_SELECT_ZTO_CHESS).value;
+                    const currentChess = document.getElementById(ID_SELECT_ZTO_CHESS).value;
                     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[currentChess][itemIndex] = value;
-                    currentChess = null;
                     setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
                 }
 
@@ -2839,28 +2731,27 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                var captionCell;
-                var itemOption;
-                var tmpTxt;
-                var trZToStrategy = policyPreferencesTable.insertRow();
+                let captionCell;
+                let tmpTxt;
+                const trZToStrategy = policyPreferencesTable.insertRow();
                 trZToStrategy.id = ID_TR_ZTO_STRATEGY;
                 trZToStrategy.style.height = "24px";
                 trZToStrategy.style.display = "none";
                 captionCell = trZToStrategy.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Strategy :  ";
-                var selectStrategyCell = trZToStrategy.insertCell();
-                var selectStrategy = document.createElement('select');
+                const selectStrategyCell = trZToStrategy.insertCell();
+                const selectStrategy = document.createElement('select');
                 selectStrategy.id = ID_SELECT_ZTO_STRATEGY;
                 selectStrategy.style.fontSize = "90%";
                 selectStrategy.style.width = "120px";
                 selectStrategy.onchange = onChangeZToStrategy;
-                itemOption = document.createElement("option");
+                const itemOption = document.createElement("option");
                 itemOption.value = "Select strategy";
                 itemOption.text = "Select strategy";
                 selectStrategy.appendChild(itemOption);
                 for (const strategy of ZTO_STRATEGIES){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = strategy
                     itemOption.text = strategy
                     selectStrategy.appendChild(itemOption);
@@ -2868,40 +2759,35 @@ function embedUIStructure() {
                 selectStrategyCell.appendChild(selectStrategy);
                 tmpTxt = document.createTextNode("   ");
                 selectStrategyCell.appendChild(tmpTxt);
-                var recommendButton = document.createElement('button');
+                const recommendButton = document.createElement('button');
                 recommendButton.onclick = recommendZToTrapSetup;
                 recommendButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Recommend");
                 recommendButton.appendChild(tmpTxt);
                 selectStrategyCell.appendChild(recommendButton);
-                recommendButton = null;
                 tmpTxt = document.createTextNode(" ");
                 selectStrategyCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
+                const resetButton = document.createElement('button');
                 resetButton.onclick = resetZToTrapSetup;
                 resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 selectStrategyCell.appendChild(resetButton);
-                resetButton = null;
-                selectStrategy = null;
-                selectStrategyCell = null;
-                trZToStrategy = null;
 
-                var trZToChessTrapSetup = policyPreferencesTable.insertRow();
+                const trZToChessTrapSetup = policyPreferencesTable.insertRow();
                 trZToChessTrapSetup.id = ID_TR_ZTO_CHESS_TRAP_SETUP;
                 trZToChessTrapSetup.style.height = "24px";
                 trZToChessTrapSetup.style.display = "none";
                 captionCell = trZToChessTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                var selectChess = document.createElement('select');
+                const selectChess = document.createElement('select');
                 selectChess.id = ID_SELECT_ZTO_CHESS;
                 selectChess.style.fontSize = "90%";
                 selectChess.style.width = "70px";
                 selectChess.onchange = onChangeZToSelectChess;
                 for (const name of ZTO_CHESS_PROGRESS){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = name
                     itemOption.text = name
                     selectChess.appendChild(itemOption);
@@ -2909,8 +2795,7 @@ function embedUIStructure() {
                 captionCell.appendChild(selectChess);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
-                selectChess = null;
-                var trapSetupCell = trZToChessTrapSetup.insertCell();
+                const trapSetupCell = trZToChessTrapSetup.insertCell();
                 trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_ZTO_WEAPON, saveZToWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
@@ -2921,11 +2806,8 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ZTO_TRINKET, saveZToTrinket));
-                trapSetupCell = null;
-                trZToChessTrapSetup = null;
 
                 captionCell = null;
-                itemOption = null;
                 tmpTxt = null;
             }
 
@@ -2935,25 +2817,19 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_CLI, POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups);
                 }
 
-                var captionCell;
-                var trCLiCatalogMice = policyPreferencesTable.insertRow();
+                const trCLiCatalogMice = policyPreferencesTable.insertRow();
                 trCLiCatalogMice.id = ID_TR_CLI_CATALOG_MICE;
                 trCLiCatalogMice.style.height = "24px";
                 trCLiCatalogMice.style.display = "none";
-                captionCell = trCLiCatalogMice.insertCell();
+                const captionCell = trCLiCatalogMice.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Catalog Library Mice :  ";
-                var checkboxCell = trCLiCatalogMice.insertCell();
-                var checkbox = document.createElement('input');
+                const checkboxCell = trCLiCatalogMice.insertCell();
+                const checkbox = document.createElement('input');
                 checkbox.id = ID_CHECKBOX_CLI_CATALOG_MICE;
                 checkbox.type = "checkbox";
                 checkbox.onchange = saveCLiCheckbox;
                 checkboxCell.appendChild(checkbox);
-                checkboxCell = null;
-                checkbox = null;
-                trCLiCatalogMice = null;
-
-                captionCell = null;
             }
 
             function insertIcePolicyPreferences() {
@@ -2962,10 +2838,8 @@ function embedUIStructure() {
                 }
 
                 function saveIceSetup(itemIndex, value) {
-                    alert(value);
-                    var sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
+                    const sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
                     POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups[sublocation][itemIndex] = value;
-                    sublocation = null;
                     setStorage(STORAGE_TRAP_SETUP_ICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
                 }
 
@@ -2996,34 +2870,29 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                var captionCell;
-                var tmpTxt;
-                var itemOption;
-                var trIceSublocationTrapSetup = policyPreferencesTable.insertRow();
+                let tmpTxt;
+                const trIceSublocationTrapSetup = policyPreferencesTable.insertRow();
                 trIceSublocationTrapSetup.id = ID_TR_ICE_SUBLOCATIONS_TRAP_SETUP;
                 trIceSublocationTrapSetup.style.height = "24px";
                 trIceSublocationTrapSetup.style.display = "none";
-                captionCell = trIceSublocationTrapSetup.insertCell();
+                const captionCell = trIceSublocationTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                var selectSublocation = document.createElement('select');
+                const selectSublocation = document.createElement('select');
                 selectSublocation.id = ID_SELECT_ICE_SUBLOCATION;
                 selectSublocation.style.fontSize = "90%";
                 selectSublocation.style.width = "70px";
                 selectSublocation.onchange = onChangeIceSelectSublocation;
                 for (const sublocation of ICE_SUBLOCATIONS){
-                    itemOption = document.createElement("option");
+                    const itemOption = document.createElement("option");
                     itemOption.value = sublocation
                     itemOption.text = sublocation
                     selectSublocation.appendChild(itemOption);
                 }
-                itemOption = null;
                 captionCell.appendChild(selectSublocation);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
-                captionCell = null;
-                selectSublocation = null;
-                var trapSetupCell = trIceSublocationTrapSetup.insertCell();
+                const trapSetupCell = trIceSublocationTrapSetup.insertCell();
                 trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_ICE_WEAPON, saveIceWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
@@ -3036,34 +2905,29 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_ICE_TRINKET, saveIceTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var recommendButton = document.createElement('button');
+                const recommendButton = document.createElement('button');
                 recommendButton.onclick = recommendIceTrapSetup;
                 recommendButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Recommend");
                 recommendButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(recommendButton);
-                recommendButton = null;
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                var resetButton = document.createElement('button');
+                const resetButton = document.createElement('button');
                 resetButton.onclick = resetIceTrapSetup;
                 resetButton.style.fontSize = "9px";
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 trapSetupCell.appendChild(resetButton);
-                resetButton = null;
                 tmpTxt = null;
-                trapSetupCell = null;
-                trIceSublocationTrapSetup = null;
             }
 
-            var tmpTxt;
-            var policyPreferencesTable = document.createElement('table');
+            let tmpTxt;
+            const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
 
-            var trEmpty = policyPreferencesTable.insertRow();
+            const trEmpty = policyPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
-            trEmpty = null;
 
             insertSelectPolicyRow();
             insertARePolicyPreferences();
@@ -3073,117 +2937,105 @@ function embedUIStructure() {
             insertCLiPolicyPreferences();
             insertIcePolicyPreferences();
 
-            var trLastRow = policyPreferencesTable.insertRow();
-            var updateTrapsButtonCell = trLastRow.insertCell();
-            var updateTrapsButton = document.createElement('button');
+            const trLastRow = policyPreferencesTable.insertRow();
+            const updateTrapsButtonCell = trLastRow.insertCell();
+            const updateTrapsButton = document.createElement('button');
             updateTrapsButton.onclick = updateTraps
             updateTrapsButton.style.fontSize = "10px";
             tmpTxt = document.createTextNode("Update traps");
             updateTrapsButton.appendChild(tmpTxt);
-            tmpTxt = null;
             updateTrapsButtonCell.appendChild(updateTrapsButton);
-            var applyButtonCell = trLastRow.insertCell();
+            const applyButtonCell = trLastRow.insertCell();
             applyButtonCell.style.textAlign = "right";
-            var applyPolicyPreferencesButton = document.createElement('button');
+            const applyPolicyPreferencesButton = document.createElement('button');
             applyPolicyPreferencesButton.onclick = savePolicyPreferences
             applyPolicyPreferencesButton.style.fontSize = "13px";
             tmpTxt = document.createTextNode("Apply & Reload");
             applyPolicyPreferencesButton.appendChild(tmpTxt);
-            tmpTxt = null;
             applyButtonCell.appendChild(applyPolicyPreferencesButton);
             tmpTxt = document.createTextNode("  ");
             applyButtonCell.appendChild(tmpTxt);
             tmpTxt = null;
-            trLastRow = null;
-            applyButtonCell = null;
-            applyPolicyPreferencesButton = null;
 
             return policyPreferencesTable;
         }
 
-        var preferencesSection = document.createElement('div');
+        let separationLine;
+        let blankLine;
+        let tmpTitle;
+        const preferencesSection = document.createElement('div');
 
-        var preferencesHeaderTable = embedPreferencesHeaderTable();
+        const preferencesHeaderTable = embedPreferencesHeaderTable();
         preferencesSection.appendChild(preferencesHeaderTable);
-        preferencesHeaderTable = null;
 
-        var preferencesBox = document.createElement('div');
+        const preferencesBox = document.createElement('div');
         preferencesBox.id = "preferencesBox";
         preferencesBox.style.display = "none";
-
-        var separationLine = document.createElement('div');
-        separationLine.style.height = "3px";
-        separationLine.style.borderBottom = "1px solid #F122F6";
-        preferencesBox.appendChild(separationLine);
-        separationLine = null;
-        var blankLine = document.createElement('div');
-        blankLine.style.height="2px"
-        preferencesBox.appendChild(blankLine);
-        blankLine = null;
-        var tmpTitle = document.createElement('div');
-        tmpTitle.style.textAlign = "center";
-        tmpTitle.style.fontWeight = "bold";
-        tmpTitle.style.fontSize = "12px";
-        tmpTitle.innerHTML = 'Timer configuration ';
-        preferencesBox.appendChild(tmpTitle);
-        var timerLink = document.createElement('a');
-        timerLink.id = ID_TIMER_LINK;
-        timerLink.innerHTML = '[Show]';
-        timerLink.style.fontWeight = "bold";
-        timerLink.onclick = toggleTimerPreferencesTable;
-        tmpTitle.appendChild(timerLink);
-        timerLink = null;
-        tmpTitle = null;
-
-        var timerPreferencesTable = embedTimerPreferences();
-        preferencesBox.appendChild(timerPreferencesTable);
-        timerPreferencesTable.style.display = "none";
-        timerPreferencesTable = null;
 
         separationLine = document.createElement('div');
         separationLine.style.height = "3px";
         separationLine.style.borderBottom = "1px solid #F122F6";
         preferencesBox.appendChild(separationLine);
-        separationLine = null;
+        blankLine = document.createElement('div');
+        blankLine.style.height="2px"
+        preferencesBox.appendChild(blankLine);
+        tmpTitle = document.createElement('div');
+        tmpTitle.style.textAlign = "center";
+        tmpTitle.style.fontWeight = "bold";
+        tmpTitle.style.fontSize = "12px";
+        tmpTitle.innerHTML = 'Timer configuration ';
+        preferencesBox.appendChild(tmpTitle);
+        const timerLink = document.createElement('a');
+        timerLink.id = ID_TIMER_LINK;
+        timerLink.innerHTML = '[Show]';
+        timerLink.style.fontWeight = "bold";
+        timerLink.onclick = toggleTimerPreferencesTable;
+        tmpTitle.appendChild(timerLink);
+
+        const timerPreferencesTable = embedTimerPreferences();
+        preferencesBox.appendChild(timerPreferencesTable);
+        timerPreferencesTable.style.display = "none";
+
+        separationLine = document.createElement('div');
+        separationLine.style.height = "3px";
+        separationLine.style.borderBottom = "1px solid #F122F6";
+        preferencesBox.appendChild(separationLine);
 
         blankLine = document.createElement('div');
         blankLine.style.height="2px"
         preferencesBox.appendChild(blankLine);
-        blankLine = null;
         tmpTitle = document.createElement('div');
         tmpTitle.style.textAlign = "center";
         tmpTitle.style.fontWeight = "bold";
         tmpTitle.style.fontSize = "12px";
         tmpTitle.innerHTML = 'Location/event-based trap setup';
         preferencesBox.appendChild(tmpTitle);
-        tmpTitle = null;
 
-        var policyPreferencesTable = embedPolicyPreferences();
+        const policyPreferencesTable = embedPolicyPreferences();
         preferencesBox.appendChild(policyPreferencesTable);
-        policyPreferencesTable = null;
 
         preferencesSection.appendChild(preferencesBox);
+
+        separationLine = null;
+        blankLine = null;
+        tmpTitle = null;
 
         return preferencesSection;
     }
 
-    var overlayContainerElement = document.getElementById('overlayContainer');
+    const overlayContainerElement = document.getElementById('overlayContainer');
     if (overlayContainerElement) {
-        var autobotDiv = document.createElement('div');
+        const autobotDiv = document.createElement('div');
         autobotDiv.style.whiteSpace = "pre";
         autobotDiv.style.fontSize = "200%";
 
-        var statusSection = embedStatusTable();
+        const statusSection = embedStatusTable();
         autobotDiv.appendChild(statusSection);
-        statusSection = null;
 
-        var preferencesSection = embedPreferences();
+        const preferencesSection = embedPreferences();
         autobotDiv.appendChild(preferencesSection);
-        preferencesSection = null;
 
         overlayContainerElement.parentNode.insertBefore(autobotDiv, overlayContainerElement);
-        autobotDiv = null;
-        overlayContainerElement = null;
         return true;
     } else {
         return false;
