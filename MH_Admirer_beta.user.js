@@ -2450,6 +2450,7 @@ function embedUIStructure() {
             function getSelectTrinket(itemId, onchangeFunction) {
                 const selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
+                selectTrinket.style.fontSize = "90%";
                 const itemOption = document.createElement("option");
                 itemOption.value = TRINKET_DISARM;
                 itemOption.text = TRINKET_DISARM;
