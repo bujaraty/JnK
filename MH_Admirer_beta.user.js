@@ -514,8 +514,6 @@ class PolicyFRo extends Policy {
         }
         document.getElementById(ID_SELECT_FRO_TOWER).value = trapSetups[currentPhase][IDX_TOWER];
         document.getElementById(ID_SELECT_FRO_ACTIVATION_HP_FULL).value = trapSetups[FRO_TOWER_HP_FULL];
-        currentPhase = null;
-        trapSetups = null;
     }
 
     recommendTrapSetup() {

@@ -1,6 +1,7 @@
 Version 1.2.2.20
 - Change Fort Rox recommmend DAY cheese to Brie
 - Correct Font Size of selectFRoTrinket
+- Fix bug 'Fort Rox doesn't save recommended Trap Setup'
 
 Version 1.2.2.19
 - Refactor code (removing var)
