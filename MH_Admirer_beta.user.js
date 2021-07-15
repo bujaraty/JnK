@@ -870,7 +870,7 @@ function checkKRAnswer() {
     }
 
     const codeError = document.getElementsByClassName("mousehuntPage-puzzle-form-code-error");
-    for (const i = 0; i < codeError.length; i++) {
+    for (let i = 0; i < codeError.length; i++) {
         if (codeError[i].innerText.toLowerCase().indexOf("incorrect claim code") > -1) {
             retryKRSolver(false);
         }
@@ -911,7 +911,7 @@ function getNewKRCaptcha() {
     if (DEBUG_MODE) console.log("RUN getNewKRCaptcha()");
 
     const tagName = document.getElementsByTagName("a");
-    for (const i = 0; i < tagName.length; i++) {
+    for (let i = 0; i < tagName.length; i++) {
         if (tagName[i].innerText == "Click here to get a new one!") {
             // TODO IMPORTANT: Find another time to fetch new puzzle
             fireEvent(tagName[i], 'click');
@@ -1475,7 +1475,7 @@ function checkLocation() {
         function armWeapon(policyWeaponName) {
             function armingWeapon(policyWeaponName) {
                 const camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                for (const i = 0; i < camppageWeapons.length; ++i) {
+                for (let i = 0; i < camppageWeapons.length; ++i) {
                     const camppageWeaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                     if (camppageWeaponName == policyWeaponName) {
                         const armButton = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
@@ -1495,7 +1495,7 @@ function checkLocation() {
         function armBase(policyBaseName) {
             function armingBase(policyBaseName) {
                 const camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                for (const i = 0; i < camppageBases.length; ++i) {
+                for (let i = 0; i < camppageBases.length; ++i) {
                     const camppageBaseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                     if (camppageBaseName == policyBaseName) {
                         const armButton = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
@@ -1515,7 +1515,7 @@ function checkLocation() {
         function armBait(policyBaitName) {
             function armingBait(policyBaitName) {
                 const camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                for (const i = 0; i < camppageBaits.length; ++i) {
+                for (let i = 0; i < camppageBaits.length; ++i) {
                     const camppageBaitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                     if (camppageBaitName == policyBaitName) {
                         const armButton = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
@@ -1539,7 +1539,7 @@ function checkLocation() {
                     const disarmButton = document.getElementsByClassName("campPage-trap-itemBrowser-item-disarmButton")[0];
                     fireEvent(disarmButton, 'click');
                 } else {
-                    for (const i = 0; i < camppageTrinkets.length; ++i) {
+                    for (let i = 0; i < camppageTrinkets.length; ++i) {
                         const camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                         if (camppageTrinketName == policyTrinketName) {
                             const armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton")[0];
@@ -1790,7 +1790,7 @@ function displayDocumentStyles() {
 function listAttributes(obj) {
     const attrs = obj.attributes;
     let tmpTxt = "";
-    for (const i = 0; i < attrs.length; i++) {
+    for (let i = 0; i < attrs.length; i++) {
         tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
     }
     alert(tmpTxt);
@@ -1801,7 +1801,7 @@ function testSaveObjToStorage() {
     const myObj = {"key1": ['a', 'b', 'c']};
     //alert(myObj.key1);
 
-    for (const i = 0; i < myObj.key1.length; i++) {
+    for (let i = 0; i < myObj.key1.length; i++) {
         alert(myObj.key1[i]);
     }
     setStorage("testObj", JSON.stringify(myObj));
@@ -1810,7 +1810,7 @@ function testSaveObjToStorage() {
 function testLoadObjFromStorage() {
     alert("in loadObjFromStorage");
     const myObj = JSON.parse(getStorage("testObj"));
-    for (const i = 0; i < myObj.key1.length; i++) {
+    for (let i = 0; i < myObj.key1.length; i++) {
         alert(myObj.key1[i]);
     }
 }
@@ -1826,8 +1826,7 @@ function testDict() {
 }
 
 function test1() {
-    alert(isAtCampPage())
-    //checkLocation();
+    checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -2312,7 +2311,7 @@ function embedUIStructure() {
                     function getCampPageWeaponNames() {
                         g_weaponNames = [];
                         const camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                        for (const i = 0; i < camppageWeapons.length; ++i) {
+                        for (let i = 0; i < camppageWeapons.length; ++i) {
                             const weaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_weaponNames.indexOf(weaponName) == -1) {
                                 g_weaponNames[g_weaponNames.length] = weaponName;
@@ -2334,7 +2333,7 @@ function embedUIStructure() {
                     function getCampPageBaseNames() {
                         g_baseNames = [];
                         const camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                        for (const i = 0; i < camppageBases.length; ++i) {
+                        for (let i = 0; i < camppageBases.length; ++i) {
                             const baseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_baseNames.indexOf(baseName) == -1) {
                                 g_baseNames[g_baseNames.length] = baseName;
@@ -2356,7 +2355,7 @@ function embedUIStructure() {
                     function getCampPageBaitNames() {
                         g_baitNames = [];
                         const camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                        for (const i = 0; i < camppageBaits.length; ++i) {
+                        for (let i = 0; i < camppageBaits.length; ++i) {
                             const baitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_baitNames.indexOf(baitName) == -1) {
                                 g_baitNames[g_baitNames.length] = baitName;
@@ -2378,7 +2377,7 @@ function embedUIStructure() {
                     function getCampPageTrinketNames() {
                         g_trinketNames = [];
                         const camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                        for (const i = 0; i < camppageTrinkets.length; ++i) {
+                        for (let i = 0; i < camppageTrinkets.length; ++i) {
                             const trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
                             if (g_trinketNames.indexOf(trinketName) == -1) {
                                 g_trinketNames[g_trinketNames.length] = trinketName;
