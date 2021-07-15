@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.19
+// @version      1.2.2.20
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,12 +20,14 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
+// - Change font size of selectFRoCharm
+// - Let the countdownTrapCheck going even if KR
 // - Auto change trap setting
 //   - ZToPolicy
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
 //   - CLiPolicy
 //   - IcePolicy and test
-//   - Refactoring code (removing var)
+//   - FWa Preferences and Policy
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -219,6 +221,30 @@ const ID_SELECT_ICE_WEAPON = "selectIceWeapon";
 const ID_SELECT_ICE_BASE = "selectIceBase";
 const ID_SELECT_ICE_BAIT = "selectIceBait";
 const ID_SELECT_ICE_TRINKET = "selectIceTrinket";
+const ID_TR_SELECT_FWA_WAVE = "trSelectFWaWave";
+const ID_SELECT_FWA_WAVE = "selectFWaWave";
+const ID_TR_FWA_POWER_TYPES_TRAP_SETUP = "trFWaPowerTypesTrapSetup";
+const ID_SELECT_FWA_POWER_TYPE = "selectFWaPowerType";
+const ID_SELECT_FWA_SOLDIER_WEAPON = "selectFWaSoldierWeapon";
+const ID_SELECT_FWA_SOLDIER_BASE = "selectFWaSoldierBase";
+const ID_TR_SELECT_FWA_TARGET_POPULATION = "trSelectFWaTargetPopulation";
+const ID_SELECT_FWA_TARGET_POPULATION = "selectFWaTargetPopulation";
+const ID_TR_FWA_STREAKS_TRAP_SETUP = "trFWaStreaksTrapSetup";
+const ID_SELECT_FWA_STREAK = "selectFWaStreak";
+const ID_SELECT_FWA_STREAK_BAIT = "selectFWaStreakBait";
+const ID_SELECT_FWA_STREAK_CHARM_TYPE = "selectFWaStreakCharmType";
+const ID_SELECT_FWA_STREAK_SOLDIER_TYPE = "selectFWaStreakSoldierType";
+const ID_TR_FWA_LAST_SOLDIER_TRAP_SETUP = "trFWaLastSoldierTrapSetup";
+const ID_SELECT_FWA_LAST_SOLDIER_BAIT = "selectFWaLastSoldierBait";
+const ID_SELECT_FWA_LAST_SOLDIER_CHARM_TYPE = "selectFWaLastSoldierCharmType";
+const ID_TR_FWA_WHEN_SUPPORT_RETREAT = "trFWaWhenSupportRetreat";
+const ID_SELECT_FWA_ARMING_WARPATH_CHARM = "selectFWaArmingWarpathCharm";
+const ID_TR_FWA_WAVE4_TRAP_SETUP = "trFWaWave4TrapSetup";
+const ID_SELECT_FWA_BEFORE_AFTER_WARDENS = "selectFWaBeforeAfterWardens";
+const ID_SELECT_FWA_WAVE4_WEAPON = "selectFWaWave4Weapon";
+const ID_SELECT_FWA_WAVE4_BASE = "selectFWaWave4Base";
+const ID_SELECT_FWA_WAVE4_BAIT = "selectFWaWave4Bait";
+const ID_SELECT_FWA_WAVE4_TRINKET = "selectFWaWave4Trinket";
 const ID_TMP_KR_FRAME = 'tmpKRFrame';
 const STORAGE_BOT_HORN_TIME_DELAY_MIN = "botHornTimeDelayMin";
 const STORAGE_BOT_HORN_TIME_DELAY_MAX = "botHornTimeDelayMax";
@@ -239,12 +265,21 @@ const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
 const STORAGE_TRAP_SETUP_ZTO = "trapSetupZTo";
 const STORAGE_TRAP_SETUP_CLI = "trapSetupCLi";
 const STORAGE_TRAP_SETUP_ICE = "trapSetupIce";
+const STORAGE_TRAP_SETUP_FWA = "trapSetupFWa";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
 const IDX_TRINKET = 3;
 const IDX_TOWER = 4;
-const DISARM_TRINKET = "Disarm";
+const POWER_TYPE_HYDRO = "Hydro";
+const POWER_TYPE_Physical = "Physical";
+const POWER_TYPE_Tactical = "Tactical";
+const TRINKET_ARM = "Arm";
+const TRINKET_DISARM = "Disarm";
+const TRINKET_ARMING = [TRINKET_ARM, TRINKET_DISARM];
+const STATUS_BEFORE = "Before";
+const STATUS_AFTER = "After";
+const STATUSES = [STATUS_BEFORE, STATUS_AFTER];
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
@@ -302,12 +337,29 @@ const ICE_SUBLOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
 const ICE_SUBLOCATIONS = [ICE_SUBLOCATION_ICEBERG_GENERAL, ICE_SUBLOCATION_TREACHEROUS_TUNNELS, ICE_SUBLOCATION_BRUTAL_BULWARK,
                           ICE_SUBLOCATION_BOMBING_RUN, ICE_SUBLOCATION_THE_MAD_DEPTHS, ICE_SUBLOCATION_ICEWINGS_LAIR,
                           ICE_SUBLOCATION_HIDDEN_DEPTHS, ICE_SUBLOCATION_THE_DEEP_LAIR, ICE_SUBLOCATION_SLUSHY_SHORELINE];
+const FWA_WAVE1 = "Wave 1";
+const FWA_WAVE2 = "Wave 2";
+const FWA_WAVE3 = "Wave 3";
+const FWA_WAVE4 = "Wave 4";
+const FWA_WAVES = [FWA_WAVE1, FWA_WAVE2, FWA_WAVE3, FWA_WAVE4];
+const FWA_POWER_TYPES = [POWER_TYPE_HYDRO, POWER_TYPE_Physical, POWER_TYPE_Tactical];
+const FWA_TARGET_POPULATION_LOWEST = "Lowest";
+const FWA_TARGET_POPULATION_HIGHEST = "Highest";
+const FWA_TARGET_POPULATIONS = [FWA_TARGET_POPULATION_LOWEST, FWA_TARGET_POPULATION_HIGHEST];
+const FWA_MAX_STREAKS = 9;
+const FWA_CHARM_TYPE_WARPATH = "Warpath";
+const FWA_CHARM_TYPE_SUPER_WARPATH = "Super Warpath";
+const FWA_CHARM_TYPES = [FWA_CHARM_TYPE_WARPATH, FWA_CHARM_TYPE_SUPER_WARPATH];
+const FWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
+const FWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
+const FWA_STREAK_SOLDIER_TYPES = [FWA_STREAK_SOLDIER_TYPE_COMMANDER, FWA_STREAK_SOLDIER_TYPE_GARGANTUA];
 const LOCATION_HARBOUR = "Harbour";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
+const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
@@ -317,6 +369,7 @@ const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const POLICY_NAME_CRYSTAL_LIBRARY = "Crystal Library";
 const POLICY_NAME_ICEBERG = "Iceberg";
+const POLICY_NAME_FIERY_WARPATH = "Fiery Warpath";
 
 // Policy description
 class Policy {
@@ -467,8 +520,9 @@ class PolicyFRo extends Policy {
 
     recommendTrapSetup() {
         const trapSetups = this.getTrapSetups();
+        const brieCheese = g_baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const baitName = g_baitNames.includes(BAIT_MOON)? BAIT_MOON: g_baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
-        this.getLawTrapSetup(trapSetups[FRO_PHASE_DAY], baitName);
+        this.getLawTrapSetup(trapSetups[FRO_PHASE_DAY], brieCheese);
         this.getShadowTrapSetup(trapSetups[FRO_PHASE_TWILIGHT], baitName);
         this.getShadowTrapSetup(trapSetups[FRO_PHASE_MIDNIGHT], baitName);
         this.getArcaneTrapSetup(trapSetups[FRO_PHASE_PITCH], baitName);
@@ -668,6 +722,56 @@ class PolicyIce extends Policy {
     }
 }
 
+class PolicyFWa extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_FIERY_WARPATH);
+        this.trs[0] = ID_TR_SELECT_FWA_WAVE;
+        this.trs[1] = ID_TR_FWA_POWER_TYPES_TRAP_SETUP;
+        this.trs[2] = ID_TR_SELECT_FWA_TARGET_POPULATION;
+        this.trs[3] = ID_TR_FWA_STREAKS_TRAP_SETUP;
+        this.trs[4] = ID_TR_FWA_LAST_SOLDIER_TRAP_SETUP;
+        this.trs[5] = ID_TR_FWA_WHEN_SUPPORT_RETREAT;
+        this.trs[6] = ID_TR_FWA_WAVE4_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = {};
+        /*
+        for (const season of SGA_SEASONS){
+            this.trapSetups[season] = [];
+        }
+        */
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_FWA);
+    }
+
+    initSelectTrapSetup() {
+        /*
+        const trapSetups = this.getTrapSetups();
+        const currentSeason = document.getElementById(ID_SELECT_SGA_SEASON).value;
+        document.getElementById(ID_SELECT_SGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
+        document.getElementById(ID_SELECT_SGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
+        document.getElementById(ID_SELECT_SGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
+        document.getElementById(ID_SELECT_SGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
+        */
+    }
+
+    recommendTrapSetup() {
+        /*
+        const trapSetups = this.getTrapSetups();
+        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
+        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
+        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
+        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
+        this.initSelectTrapSetup();
+        */
+    }
+}
+
 const POLICY_DICT = {};
 function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyARe();
@@ -676,6 +780,7 @@ function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyZTo();
     POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyCLi();
     POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyIce();
+    POLICY_DICT[POLICY_NAME_FIERY_WARPATH] = new PolicyFWa();
 }
 
 // Start executing script
@@ -1432,7 +1537,7 @@ function checkLocation() {
         function armTrinket(policyTrinketName) {
             function armingTrinket(policyTrinketName) {
                 const camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                if (policyTrinketName == DISARM_TRINKET) {
+                if (policyTrinketName == TRINKET_DISARM) {
                     const disarmButton = document.getElementsByClassName("campPage-trap-itemBrowser-item-disarmButton")[0];
                     fireEvent(disarmButton, 'click');
                 } else {
@@ -1498,7 +1603,7 @@ function checkLocation() {
         // Check Trinket
         let currentTrinket = getCurrentTrinket();
         if (currentTrinket == "") {
-            currentTrinket = DISARM_TRINKET;
+            currentTrinket = TRINKET_DISARM;
         }
         if( !isNullOrUndefined(trapSetup[IDX_TRINKET]) && currentTrinket != trapSetup[IDX_TRINKET] ) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
@@ -1913,7 +2018,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2346,8 +2451,8 @@ function embedUIStructure() {
                 const selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
                 const itemOption = document.createElement("option");
-                itemOption.value = DISARM_TRINKET;
-                itemOption.text = DISARM_TRINKET;
+                itemOption.value = TRINKET_DISARM;
+                itemOption.text = TRINKET_DISARM;
                 selectTrinket.appendChild(itemOption);
                 for (let i = 0; i < g_trinketNames.length; i++) {
                     const itemOption = document.createElement("option");
@@ -2459,7 +2564,7 @@ function embedUIStructure() {
             }
 
             function insertFRoPolicyPreferences() {
-                function onChangeFRoSelectPhase(event) {
+                function onChangeSelectFRoPhase(event) {
                     POLICY_DICT[POLICY_NAME_FORT_ROX].initSelectTrapSetup();
                 }
 
@@ -2519,7 +2624,7 @@ function embedUIStructure() {
                 selectPhase.id = ID_SELECT_FRO_PHASE;
                 selectPhase.style.width = "70px";
                 selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeFRoSelectPhase;
+                selectPhase.onchange = onChangeSelectFRoPhase;
                 for (const phase of FRO_PHASES){
                     const itemOption = document.createElement("option");
                     itemOption.value = phase
@@ -2597,7 +2702,7 @@ function embedUIStructure() {
             }
 
             function insertSGaPolicyPreferences() {
-                function onChangeSGaSelectSeason(event) {
+                function onChangeSelectSGaSeason(event) {
                     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
                 }
 
@@ -2647,7 +2752,7 @@ function embedUIStructure() {
                 selectSeason.id = ID_SELECT_SGA_SEASON;
                 selectSeason.style.fontSize = "90%";
                 selectSeason.style.width = "70px";
-                selectSeason.onchange = onChangeSGaSelectSeason;
+                selectSeason.onchange = onChangeSelectSGaSeason;
                 for (const season of SGA_SEASONS){
                     const itemOption = document.createElement("option");
                     itemOption.value = season
@@ -2689,7 +2794,7 @@ function embedUIStructure() {
             }
 
             function insertZToPolicyPreferences() {
-                function onChangeZToStrategy(event) {
+                function onChangeSelectZToStrategy(event) {
                     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[ZTO_STRATEGY] = event.target.value;
                     setStorage(STORAGE_TRAP_SETUP_ZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
                 }
@@ -2745,7 +2850,7 @@ function embedUIStructure() {
                 selectStrategy.id = ID_SELECT_ZTO_STRATEGY;
                 selectStrategy.style.fontSize = "90%";
                 selectStrategy.style.width = "120px";
-                selectStrategy.onchange = onChangeZToStrategy;
+                selectStrategy.onchange = onChangeSelectZToStrategy;
                 const itemOption = document.createElement("option");
                 itemOption.value = "Select strategy";
                 itemOption.text = "Select strategy";
@@ -2833,7 +2938,7 @@ function embedUIStructure() {
             }
 
             function insertIcePolicyPreferences() {
-                function onChangeIceSelectSublocation(event) {
+                function onChangeSelectIceSublocation(event) {
                     POLICY_DICT[POLICY_NAME_ICEBERG].initSelectTrapSetup();
                 }
 
@@ -2882,7 +2987,7 @@ function embedUIStructure() {
                 selectSublocation.id = ID_SELECT_ICE_SUBLOCATION;
                 selectSublocation.style.fontSize = "90%";
                 selectSublocation.style.width = "70px";
-                selectSublocation.onchange = onChangeIceSelectSublocation;
+                selectSublocation.onchange = onChangeSelectIceSublocation;
                 for (const sublocation of ICE_SUBLOCATIONS){
                     const itemOption = document.createElement("option");
                     itemOption.value = sublocation
@@ -2922,6 +3027,320 @@ function embedUIStructure() {
                 tmpTxt = null;
             }
 
+            function insertFWaPolicyPreferences() {
+                function onChangeSelectFWaWave(event) {
+                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                }
+
+                /*
+                function saveIceSetup(itemIndex, value) {
+                    const sublocation = document.getElementById(ID_SELECT_ICE_SUBLOCATION).value;
+                    POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups[sublocation][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_ICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
+                }
+
+                function saveIceBait(event) {
+                    saveIceSetup(IDX_BAIT, event.target.value);
+                }
+
+                function saveIceTrinket(event) {
+                    saveIceSetup(IDX_TRINKET, event.target.value);
+                }
+*/
+                function saveFWaSoldierWeapon(event) {
+                    //saveIceSetup(IDX_WEAPON, event.target.value);
+                }
+
+                function saveFWaSoldierBase(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function onChangeSelectFWaTargetPopulation(event) {
+                }
+
+                function onChangeSelectFWaStreak(event) {
+                }
+
+                function saveFWaStreakBait(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaStreakCharmType(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaStreakSoldierType(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaLastSoldierBait(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaLastSoldierCharmType(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaArmingWarpathCharm(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function onChangeSelectFWaBeforeAfterWardens(event) {
+                }
+
+                function saveFWaWave4Weapon(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaWave4Base(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaWave4Bait(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveFWaWave4Trinket(event) {
+                    //saveIceSetup(IDX_BASE, event.target.value);
+                }
+
+                function recommendFWaTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].recommendTrapSetup();
+                    setStorage(STORAGE_TRAP_SETUP_FWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                }
+
+                function resetFWaTrapSetup() {
+                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].resetTrapSetups();
+                    setStorage(STORAGE_TRAP_SETUP_FWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    reloadCampPage();
+                }
+
+
+                let tmpTxt;
+                let captionCell;
+                const trSelectFWaWave = policyPreferencesTable.insertRow();
+                trSelectFWaWave.id = ID_TR_SELECT_FWA_WAVE;
+                trSelectFWaWave.style.height = "24px";
+                trSelectFWaWave.style.display = "none";
+                captionCell = trSelectFWaWave.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Wave :  ";
+                const selectFWaWaveCell = trSelectFWaWave.insertCell();
+                const selectFWaWave = document.createElement('select');
+                selectFWaWave.id = ID_SELECT_FWA_WAVE;
+                selectFWaWave.style.fontSize = "90%";
+                selectFWaWave.style.width = "70px";
+                selectFWaWave.onchange = onChangeSelectFWaWave;
+                for (const wave of FWA_WAVES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = wave
+                    itemOption.text = wave
+                    selectFWaWave.appendChild(itemOption);
+                }
+                selectFWaWaveCell.appendChild(selectFWaWave);
+                tmpTxt = document.createTextNode(" ");
+                selectFWaWaveCell.appendChild(tmpTxt);
+                const recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendFWaTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                selectFWaWaveCell.appendChild(recommendButton);
+                tmpTxt = document.createTextNode(" ");
+                selectFWaWaveCell.appendChild(tmpTxt);
+                const resetButton = document.createElement('button');
+                resetButton.onclick = resetFWaTrapSetup;
+                resetButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                selectFWaWaveCell.appendChild(resetButton);
+
+                const trFWaPowerTypesTrapSetup = policyPreferencesTable.insertRow();
+                trFWaPowerTypesTrapSetup.id = ID_TR_FWA_POWER_TYPES_TRAP_SETUP;
+                trFWaPowerTypesTrapSetup.style.height = "24px";
+                trFWaPowerTypesTrapSetup.style.display = "none";
+                captionCell = trFWaPowerTypesTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                const selectFWaPowerType = document.createElement('select');
+                selectFWaPowerType.id = ID_SELECT_FWA_POWER_TYPE;
+                selectFWaPowerType.style.fontSize = "90%";
+                selectFWaPowerType.style.width = "65px";
+                selectFWaPowerType.onchange = onChangeSelectFWaWave;
+                for (const power_type of FWA_POWER_TYPES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = power_type
+                    itemOption.text = power_type
+                    selectFWaPowerType.appendChild(itemOption);
+                }
+                captionCell.appendChild(selectFWaPowerType);
+                tmpTxt = document.createTextNode(" :  ");
+                captionCell.appendChild(tmpTxt);
+                const powerTypeTrapSetupCell = trFWaPowerTypesTrapSetup.insertCell();
+                powerTypeTrapSetupCell.appendChild(getSelectWeapon(ID_SELECT_FWA_SOLDIER_WEAPON, saveFWaSoldierWeapon));
+                tmpTxt = document.createTextNode(" ");
+                powerTypeTrapSetupCell.appendChild(tmpTxt);
+                powerTypeTrapSetupCell.appendChild(getSelectBase(ID_SELECT_FWA_SOLDIER_BASE, saveFWaSoldierBase));
+
+                const trSelectFWaTargetPopulation = policyPreferencesTable.insertRow();
+                trSelectFWaTargetPopulation.id = ID_TR_SELECT_FWA_TARGET_POPULATION;
+                trSelectFWaTargetPopulation.style.height = "24px";
+                trSelectFWaTargetPopulation.style.display = "none";
+                captionCell = trSelectFWaTargetPopulation.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Target Population :  ";
+                const selectFWaTargetPopulationCell = trSelectFWaTargetPopulation.insertCell();
+                const selectFWaTargetPopulation = document.createElement('select');
+                selectFWaTargetPopulation.id = ID_SELECT_FWA_TARGET_POPULATION;
+                selectFWaTargetPopulation.style.fontSize = "90%";
+                selectFWaTargetPopulation.style.width = "65px";
+                selectFWaTargetPopulation.onchange = onChangeSelectFWaTargetPopulation;
+                for (const target_population of FWA_TARGET_POPULATIONS){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = target_population;
+                    itemOption.text = target_population;
+                    selectFWaTargetPopulation.appendChild(itemOption);
+                }
+                selectFWaTargetPopulationCell.appendChild(selectFWaTargetPopulation);
+
+                const trFWaStreaksTrapSetup = policyPreferencesTable.insertRow();
+                trFWaStreaksTrapSetup.id = ID_TR_FWA_STREAKS_TRAP_SETUP;
+                trFWaStreaksTrapSetup.style.height = "24px";
+                trFWaStreaksTrapSetup.style.display = "none";
+                captionCell = trFWaStreaksTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                const selectFWaStreak = document.createElement('select');
+                selectFWaStreak.id = ID_SELECT_FWA_STREAK;
+                selectFWaStreak.style.fontSize = "90%";
+                selectFWaStreak.style.width = "35px";
+                selectFWaStreak.onchange = onChangeSelectFWaStreak;
+                for(let i = 0; i <= FWA_MAX_STREAKS; i++){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = i;
+                    itemOption.text = i;
+                    selectFWaStreak.appendChild(itemOption);
+                }
+                captionCell.appendChild(selectFWaStreak);
+                tmpTxt = document.createTextNode(" :  ");
+                captionCell.appendChild(tmpTxt);
+                const streakTrapSetupCell = trFWaStreaksTrapSetup.insertCell();
+                streakTrapSetupCell.appendChild(getSelectBait(ID_SELECT_FWA_STREAK_BAIT, saveFWaStreakBait));
+                tmpTxt = document.createTextNode(" ");
+                streakTrapSetupCell.appendChild(tmpTxt);
+                const selectFWaStreakCharmType = document.createElement('select');
+                selectFWaStreakCharmType.id = ID_SELECT_FWA_STREAK_CHARM_TYPE;
+                selectFWaStreakCharmType.style.fontSize = "90%";
+                selectFWaStreakCharmType.style.width = "80px";
+                selectFWaStreakCharmType.onchange = saveFWaStreakCharmType;
+                for (const charmType of FWA_CHARM_TYPES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = charmType;
+                    itemOption.text = charmType;
+                    selectFWaStreakCharmType.appendChild(itemOption);
+                }
+                selectFWaStreakCharmType.selectedIndex = -1;
+                streakTrapSetupCell.appendChild(selectFWaStreakCharmType);
+                tmpTxt = document.createTextNode(" ");
+                streakTrapSetupCell.appendChild(tmpTxt);
+                const selectFWaStreakSoldierType = document.createElement('select');
+                selectFWaStreakSoldierType.id = ID_SELECT_FWA_STREAK_SOLDIER_TYPE;
+                selectFWaStreakSoldierType.style.fontSize = "90%";
+                selectFWaStreakSoldierType.style.width = "80px";
+                selectFWaStreakSoldierType.onchange = saveFWaStreakSoldierType;
+                for (const soldierType of FWA_STREAK_SOLDIER_TYPES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = soldierType;
+                    itemOption.text = soldierType;
+                    selectFWaStreakSoldierType.appendChild(itemOption);
+                }
+                selectFWaStreakSoldierType.selectedIndex = -1;
+                streakTrapSetupCell.appendChild(selectFWaStreakSoldierType);
+
+                const trFWaLastSoldierTrapSetup = policyPreferencesTable.insertRow();
+                trFWaLastSoldierTrapSetup.id = ID_TR_FWA_LAST_SOLDIER_TRAP_SETUP;
+                trFWaLastSoldierTrapSetup.style.height = "24px";
+                trFWaLastSoldierTrapSetup.style.display = "none";
+                captionCell = trFWaLastSoldierTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for Last Soldier :  ";
+                const lastSoldierTrapSetupCell = trFWaLastSoldierTrapSetup.insertCell();
+                lastSoldierTrapSetupCell.appendChild(getSelectBait(ID_SELECT_FWA_LAST_SOLDIER_BAIT, saveFWaLastSoldierBait));
+                tmpTxt = document.createTextNode(" ");
+                lastSoldierTrapSetupCell.appendChild(tmpTxt);
+                const selectFWaLastSoldierCharmType = document.createElement('select');
+                selectFWaLastSoldierCharmType.id = ID_SELECT_FWA_LAST_SOLDIER_CHARM_TYPE;
+                selectFWaLastSoldierCharmType.style.fontSize = "90%";
+                selectFWaLastSoldierCharmType.style.width = "80px";
+                selectFWaLastSoldierCharmType.onchange = saveFWaLastSoldierCharmType;
+                for (const charmType of FWA_CHARM_TYPES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = charmType;
+                    itemOption.text = charmType;
+                    selectFWaLastSoldierCharmType.appendChild(itemOption);
+                }
+                selectFWaLastSoldierCharmType.selectedIndex = -1;
+                lastSoldierTrapSetupCell.appendChild(selectFWaLastSoldierCharmType);
+
+                const trFWaWhenSupportRetreat = policyPreferencesTable.insertRow();
+                trFWaWhenSupportRetreat.id = ID_TR_FWA_WHEN_SUPPORT_RETREAT;
+                trFWaWhenSupportRetreat.style.height = "24px";
+                trFWaWhenSupportRetreat.style.display = "none";
+                captionCell = trFWaWhenSupportRetreat.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "When Support Retreat :  ";
+                const trinketArmingCell = trFWaWhenSupportRetreat.insertCell();
+                const selectFWaArmingWarpathCharm = document.createElement('select');
+                selectFWaArmingWarpathCharm.id = ID_SELECT_FWA_ARMING_WARPATH_CHARM;
+                selectFWaArmingWarpathCharm.style.fontSize = "90%";
+                selectFWaArmingWarpathCharm.style.width = "60px";
+                selectFWaArmingWarpathCharm.onchange = saveFWaArmingWarpathCharm;
+                for (const armStatus of TRINKET_ARMING){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = armStatus;
+                    itemOption.text = armStatus;
+                    selectFWaArmingWarpathCharm.appendChild(itemOption);
+                }
+                trinketArmingCell.appendChild(selectFWaArmingWarpathCharm);
+                tmpTxt = document.createTextNode("  Warpath Charm");
+                trinketArmingCell.appendChild(tmpTxt);
+
+                const trFWaWave4TrapSetup = policyPreferencesTable.insertRow();
+                trFWaWave4TrapSetup.id = ID_TR_FWA_WAVE4_TRAP_SETUP;
+                trFWaWave4TrapSetup.style.height = "24px";
+                trFWaWave4TrapSetup.style.display = "none";
+                captionCell = trFWaWave4TrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup ";
+                const selectFWaBeforeAfterWardens = document.createElement('select');
+                selectFWaBeforeAfterWardens.id = ID_SELECT_FWA_BEFORE_AFTER_WARDENS;
+                selectFWaBeforeAfterWardens.style.fontSize = "90%";
+                selectFWaBeforeAfterWardens.style.width = "60px";
+                selectFWaBeforeAfterWardens.onchange = onChangeSelectFWaBeforeAfterWardens;
+                for (const status of STATUSES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = status;
+                    itemOption.text = status;
+                    selectFWaBeforeAfterWardens.appendChild(itemOption);
+                }
+                captionCell.appendChild(selectFWaBeforeAfterWardens);
+                tmpTxt = document.createTextNode("  Clear Wardens :  ");
+                captionCell.appendChild(tmpTxt);
+                const wave4TrapSetupCell = trFWaWave4TrapSetup.insertCell();
+                wave4TrapSetupCell.appendChild(getSelectWeapon(ID_SELECT_FWA_WAVE4_WEAPON, saveFWaWave4Weapon));
+                tmpTxt = document.createTextNode(" ");
+                wave4TrapSetupCell.appendChild(tmpTxt);
+                wave4TrapSetupCell.appendChild(getSelectBase(ID_SELECT_FWA_WAVE4_BASE, saveFWaWave4Base));
+                tmpTxt = document.createTextNode(" ");
+                wave4TrapSetupCell.appendChild(tmpTxt);
+                wave4TrapSetupCell.appendChild(getSelectBait(ID_SELECT_FWA_WAVE4_BAIT, saveFWaWave4Bait));
+                tmpTxt = document.createTextNode(" ");
+                wave4TrapSetupCell.appendChild(tmpTxt);
+                wave4TrapSetupCell.appendChild(getSelectTrinket(ID_SELECT_FWA_WAVE4_TRINKET, saveFWaWave4Trinket));
+
+                tmpTxt = null;
+            }
+
             let tmpTxt;
             const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
@@ -2936,6 +3355,7 @@ function embedUIStructure() {
             insertZToPolicyPreferences();
             insertCLiPolicyPreferences();
             insertIcePolicyPreferences();
+            insertFWaPolicyPreferences();
 
             const trLastRow = policyPreferencesTable.insertRow();
             const updateTrapsButtonCell = trLastRow.insertCell();
