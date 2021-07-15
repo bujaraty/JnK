@@ -1894,7 +1894,6 @@ function manualSendingGiftsAndRaffles() {
 function prepareSendingGiftsAndRaffles() {
     function clickActionButton(actionButton) {
         fireEvent(actionButton, "click");
-        actionButton = null;
     }
     function sendGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
         function sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
@@ -2390,7 +2389,6 @@ function embedUIStructure() {
                     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Trinkets";
                     const currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
                     fireEvent(currentTrinket, 'click');
-                    currentTrinket = null;
                     window.setTimeout(function () {
                         getCampPageTrinketNames();
                     }, 4.5 * 1000);

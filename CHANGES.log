@@ -3,6 +3,7 @@ Version 1.2.2.20
 - Correct Font Size of selectFRoTrinket
 - Fix bug 'Fort Rox doesn't save recommended Trap Setup'
 - Fix bug 'using const as a counter'
+- Fix bug 'assigning null to const'
 
 Version 1.2.2.19
 - Refactor code (removing var)
