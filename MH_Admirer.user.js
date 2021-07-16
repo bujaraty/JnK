@@ -20,7 +20,6 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Change font size of selectFRoCharm
 // - Let the countdownTrapCheck going even if KR
 // - Auto change trap setting
 //   - ZToPolicy

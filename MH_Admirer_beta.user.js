@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.22
+// @version      1.2.2.23
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,7 +20,6 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Let the countdownTrapCheck going even if KR
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
@@ -1045,7 +1044,7 @@ function kingRewardCountdownTimer(krDelaySec) {
     const strTemp = "Solve KR in " + timeFormat(krDelaySec) + " second(s)";
     updateTitleTxt(strTemp);
     updateNextBotHornTimeTxt(strTemp);
-    updateNextTrapCheckTimeTxt(strTemp);
+    //updateNextTrapCheckTimeTxt(strTemp);
     krDelaySec -= KR_SOLVER_COUNTDOWN_INTERVAL;
     if (krDelaySec < 0) {
         if (DEBUG_MODE) console.log("START AUTOSOLVE NOW");
@@ -1301,7 +1300,7 @@ function fireEvent(element, event) {
     }
 
     const evt = document.createEvent("HTMLEvents");
-    evt.initEvent(event, true, true); // event type,bubbling,cancelable
+    evt.initEvent(event, true, true);
 
     return !element.dispatchEvent(evt);
 }
@@ -1317,13 +1316,13 @@ function updateNextBotHornTimeTxt(nextHornTimeTxt) {
 function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
     g_nextTrapCheckTimeDisplay.innerHTML = trapCheckTimeTxt;
 }
-
+/*
 function updateUI(titleTxt, nextHornTimeTxt, trapCheckTimeTxt) {
     updateTitleTxt(titleTxt);
     updateNextBotHornTimeTxt(nextHornTimeTxt);
     updateNextTrapCheckTimeTxt(trapCheckTimeTxt);
 }
-
+*/
 function loadPreferenceSettingFromStorage() {
     g_botHornTimeDelayMin = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MIN, g_botHornTimeDelayMin);
     g_botHornTimeDelayMax = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MAX, g_botHornTimeDelayMax);
