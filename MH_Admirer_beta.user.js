@@ -25,7 +25,7 @@
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
 //   - CLiPolicy
 //   - IcePolicy and test
-//   - FWa Preferences and Policy
+//   - FWaPolicy
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -273,8 +273,8 @@ const IDX_CHARM_TYPE = 4;
 const IDX_SOLDIER_TYPE = 5;
 const POWER_TYPE_ARCANE = "Arcane";
 const POWER_TYPE_HYDRO = "Hydro";
-const POWER_TYPE_Physical = "Physical";
-const POWER_TYPE_Tactical = "Tactical";
+const POWER_TYPE_PHYSICAL = "Physical";
+const POWER_TYPE_TACTICAL = "Tactical";
 const TRINKET_ARM = "Arm";
 const TRINKET_DISARM = "Disarm";
 const TRINKET_ARMING = [TRINKET_ARM, TRINKET_DISARM];
@@ -345,7 +345,7 @@ const FWA_WAVE2 = "Wave 2";
 const FWA_WAVE3 = "Wave 3";
 const FWA_WAVE4 = "Wave 4";
 const FWA_WAVES = [FWA_WAVE1, FWA_WAVE2, FWA_WAVE3, FWA_WAVE4];
-const FWA_POWER_TYPES = [POWER_TYPE_ARCANE, POWER_TYPE_HYDRO, POWER_TYPE_Physical, POWER_TYPE_Tactical];
+const FWA_POWER_TYPES = [POWER_TYPE_ARCANE, POWER_TYPE_HYDRO, POWER_TYPE_PHYSICAL, POWER_TYPE_TACTICAL];
 const FWA_TARGET_POPULATION_LOWEST = "Lowest";
 const FWA_TARGET_POPULATION_HIGHEST = "Highest";
 const FWA_TARGET_POPULATIONS = [FWA_TARGET_POPULATION_LOWEST, FWA_TARGET_POPULATION_HIGHEST];
@@ -354,9 +354,10 @@ const FWA_MAX_STREAKS = 9;
 const FWA_CHARM_TYPE_WARPATH = "Warpath";
 const FWA_CHARM_TYPE_SUPER_WARPATH = "Super Warpath";
 const FWA_CHARM_TYPES = [FWA_CHARM_TYPE_WARPATH, FWA_CHARM_TYPE_SUPER_WARPATH];
+const FWA_STREAK_SOLDIER_TYPE_SOLIDER = "Soldier";
 const FWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
 const FWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
-const FWA_STREAK_SOLDIER_TYPES = [FWA_STREAK_SOLDIER_TYPE_COMMANDER, FWA_STREAK_SOLDIER_TYPE_GARGANTUA];
+const FWA_STREAK_SOLDIER_TYPES = [FWA_STREAK_SOLDIER_TYPE_SOLIDER, FWA_STREAK_SOLDIER_TYPE_COMMANDER, FWA_STREAK_SOLDIER_TYPE_GARGANTUA];
 const FWA_LAST_SOLDIER = "Last Soldier";
 const FWA_ARMING_CHARM_SUPPORT_RETREAT = "Arming Charm";
 const LOCATION_HARBOUR = "Harbour";
@@ -803,6 +804,81 @@ class PolicyFWa extends Policy {
     }
 
     recommendTrapSetup() {
+        /*
+                for (const powerType of FWA_POWER_TYPES){
+            this.trapSetups[powerType] = [];
+        }
+        this.trapSetups[FWA_LAST_SOLDIER] = [];
+        this.trapSetups[FWA_ARMING_CHARM_SUPPORT_RETREAT] = TRINKET_DISARM;
+        for (const wave of FWA_WAVES){
+            this.trapSetups[wave] = {};
+            if (wave == FWA_WAVE4) {
+                this.trapSetups[wave][STATUS_BEFORE] = [];
+                this.trapSetups[wave][STATUS_AFTER] = [];
+            } else {
+                for (let steak = 0; steak <= FWA_MAX_STREAKS; steak++) {
+                    this.trapSetups[wave][steak] = [];
+                }
+                this.trapSetups[wave][FWA_POPULATION_PRIORITY] = FWA_TARGET_POPULATION_LOWEST;
+            }
+        }
+        const FWA_STREAK_SOLDIER_TYPE_SOLIDER = "Soldier";
+const FWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
+const FWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
+const FWA_TARGET_POPULATION_LOWEST = "Lowest";
+const FWA_TARGET_POPULATION_HIGHEST = "Highest";
+const FWA_TARGET_POPULATIONS = [FWA_TARGET_POPULATION_LOWEST, FWA_TARGET_POPULATION_HIGHEST];
+const FWA_POPULATION_PRIORITY = "Population Priority";
+const FWA_MAX_STREAKS = 9;
+const FWA_CHARM_TYPE_WARPATH = "Warpath";
+const FWA_CHARM_TYPE_SUPER_WARPATH = "Super Warpath";
+*/
+        const trapSetups = this.getTrapSetups();
+        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        trapSetups[POWER_TYPE_ARCANE][IDX_WEAPON] = g_bestArcaneWeapon;
+        trapSetups[POWER_TYPE_ARCANE][IDX_BASE] = g_bestBase;
+        trapSetups[POWER_TYPE_HYDRO][IDX_WEAPON] = g_bestHydroWeapon;
+        trapSetups[POWER_TYPE_HYDRO][IDX_BASE] = g_bestBase;
+        trapSetups[POWER_TYPE_PHYSICAL][IDX_WEAPON] = g_bestPhysicalWeapon;
+        trapSetups[POWER_TYPE_PHYSICAL][IDX_BASE] = g_bestBase;
+        trapSetups[POWER_TYPE_TACTICAL][IDX_WEAPON] = g_bestTacticalWeapon;
+        trapSetups[POWER_TYPE_TACTICAL][IDX_BASE] = g_bestBase;
+        trapSetups[FWA_LAST_SOLDIER][IDX_BAIT] = baitName;
+        trapSetups[FWA_LAST_SOLDIER][IDX_CHARM_TYPE] = TRINKET_DISARM;
+        for (const wave of FWA_WAVES){
+            if (wave == FWA_WAVE4) {
+                for (const status of STATUSES){
+                    trapSetups[wave][status][IDX_WEAPON] = g_bestPhysicalWeapon;
+                    trapSetups[wave][status][IDX_BASE] = g_bestBase;
+                    trapSetups[wave][status][IDX_BAIT] = baitName;
+                }
+            } else {
+                if (wave == FWA_WAVE3) {
+                    trapSetups[wave][FWA_POPULATION_PRIORITY] = FWA_TARGET_POPULATION_HIGHEST;
+                    for (let steak = 0; steak <= FWA_MAX_STREAKS; steak++) {
+                        trapSetups[wave][steak][IDX_BAIT] = baitName;
+                        if (steak > 5) {
+                            trapSetups[wave][steak][IDX_CHARM_TYPE] = FWA_CHARM_TYPE_SUPER_WARPATH;
+                            trapSetups[wave][steak][IDX_SOLDIER_TYPE] = FWA_STREAK_SOLDIER_TYPE_COMMANDER;
+                        } else if (steak > 2) {
+                            trapSetups[wave][steak][IDX_CHARM_TYPE] = FWA_CHARM_TYPE_SUPER_WARPATH;
+                            trapSetups[wave][steak][IDX_SOLDIER_TYPE] = FWA_STREAK_SOLDIER_TYPE_SOLIDER;
+                        } else {
+                            trapSetups[wave][steak][IDX_CHARM_TYPE] = FWA_CHARM_TYPE_WARPATH;
+                            trapSetups[wave][steak][IDX_SOLDIER_TYPE] = FWA_STREAK_SOLDIER_TYPE_SOLIDER;
+                        }
+                    }
+                } else {
+                    trapSetups[wave][FWA_POPULATION_PRIORITY] = FWA_TARGET_POPULATION_LOWEST;
+                    for (let steak = 0; steak <= FWA_MAX_STREAKS; steak++) {
+                        trapSetups[wave][steak][IDX_BAIT] = baitName;
+                        trapSetups[wave][steak][IDX_CHARM_TYPE] = FWA_CHARM_TYPE_WARPATH;
+                        trapSetups[wave][steak][IDX_SOLDIER_TYPE] = FWA_STREAK_SOLDIER_TYPE_SOLIDER;
+                    }
+                }
+            }
+        }
+        this.initSelectTrapSetup();
         /*
         const trapSetups = this.getTrapSetups();
         const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
@@ -2169,7 +2245,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3435,6 +3511,10 @@ function embedUIStructure() {
                 selectFWaLastSoldierCharmType.style.fontSize = "90%";
                 selectFWaLastSoldierCharmType.style.width = "80px";
                 selectFWaLastSoldierCharmType.onchange = saveFWaLastSoldierCharmType;
+                const itemOption = document.createElement("option");
+                itemOption.value = TRINKET_DISARM;
+                itemOption.text = TRINKET_DISARM;
+                selectFWaLastSoldierCharmType.appendChild(itemOption);
                 for (const charmType of FWA_CHARM_TYPES){
                     const itemOption = document.createElement("option");
                     itemOption.value = charmType;

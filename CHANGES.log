@@ -1,5 +1,6 @@
 Version 1.2.2.23
 - Fix issue 'Let the countdownTrapCheck going even if KR'
+- Add recommendTrapSetup for FWa Policy
 
 Version 1.2.2.22
 - Add the first half of ZTo Policy
