@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.21
+// @version      1.2.2.22
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,10 +20,9 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Change font size of selectFRoCharm
 // - Let the countdownTrapCheck going even if KR
 // - Auto change trap setting
-//   - ZToPolicy
+//   - ZToPolicy 2nd half
 //   - Activate-Deactivate FRo tower (After I get tower lvl 3)
 //   - CLiPolicy
 //   - IcePolicy and test
@@ -317,12 +316,14 @@ const ZTO_CHESS_MYSTIC_BISHOP = "Mystic Bishop";
 const ZTO_CHESS_MYSTIC_ROOK = "Mystic Rook";
 const ZTO_CHESS_MYSTIC_QUEEN = "Mystic Queen";
 const ZTO_CHESS_MYSTIC_KING = "Mystic King";
+const ZTO_CHESS_MYSTIC = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_CHESS_MYSTIC_BISHOP, ZTO_CHESS_MYSTIC_ROOK, ZTO_CHESS_MYSTIC_QUEEN, ZTO_CHESS_MYSTIC_KING];
 const ZTO_CHESS_TECHNIC_PAWN = "Technic Pawn";
 const ZTO_CHESS_TECHNIC_KNIGHT = "Technic Knight";
 const ZTO_CHESS_TECHNIC_BISHOP = "Technic Bishop";
 const ZTO_CHESS_TECHNIC_ROOK = "Technic Rook";
 const ZTO_CHESS_TECHNIC_QUEEN = "Technic Queen";
 const ZTO_CHESS_TECHNIC_KING = "Technic King";
+const ZTO_CHESS_TECHNIC = [ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING];
 const ZTO_CHESS_MASTER = "Chess Master";
 const ZTO_CHESS_PROGRESS = [ZTO_CHESS_MYSTIC_PAWN, ZTO_CHESS_MYSTIC_KNIGHT, ZTO_CHESS_MYSTIC_BISHOP, ZTO_CHESS_MYSTIC_ROOK, ZTO_CHESS_MYSTIC_QUEEN, ZTO_CHESS_MYSTIC_KING,
                             ZTO_CHESS_TECHNIC_PAWN, ZTO_CHESS_TECHNIC_KNIGHT, ZTO_CHESS_TECHNIC_BISHOP, ZTO_CHESS_TECHNIC_ROOK, ZTO_CHESS_TECHNIC_QUEEN, ZTO_CHESS_TECHNIC_KING,
@@ -365,6 +366,7 @@ const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
+const LOCATION_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
@@ -1785,6 +1787,103 @@ function checkLocation() {
         armTraps(trapSetups[currentSeason]);
     }
 
+    function runZToPolicy() {
+        function getTowerProgress() {
+            const towerProgress = {};
+            for (const chess of ZTO_CHESS_MYSTIC){
+                towerProgress[chess] = 0;
+            }
+            for (const chess of ZTO_CHESS_TECHNIC){
+                towerProgress[chess] = 0;
+            }
+            towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MYSTIC_PAWN;
+            towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_TECHNIC_PAWN;
+            towerProgress[UNLOCK_CHESS_MASTER] = false;
+
+            const progressMagic = document.getElementsByClassName("zuzwangsTowerHUD-progress magic")[0].children;
+            for (const item of progressMagic){
+                if (item.src.indexOf("pawn") > -1) {
+                    towerProgress[ZTO_CHESS_MYSTIC_PAWN] += 1
+                } else if (item.src.indexOf("knight") > -1) {
+                    towerProgress[ZTO_CHESS_MYSTIC_KNIGHT] += 1
+                } else if (item.src.indexOf("bishop") > -1) {
+                    towerProgress[ZTO_CHESS_MYSTIC_BISHOP] += 1
+                } else if (item.src.indexOf("rook") > -1) {
+                    towerProgress[ZTO_CHESS_MYSTIC_ROOK] += 1
+                } else if (item.src.indexOf("queen") > -1) {
+                    towerProgress[ZTO_CHESS_MYSTIC_QUEEN] += 1
+                } else if (item.src.indexOf("king") > -1) {
+                    towerProgress[ZTO_CHESS_MYSTIC_KING] += 1
+                }
+            }
+            const progressTechnic = document.getElementsByClassName("zuzwangsTowerHUD-progress tech")[0].children;
+            for (const item of progressTechnic){
+                if (item.src.indexOf("pawn") > -1) {
+                    towerProgress[ZTO_CHESS_TECHNIC_PAWN] += 1
+                } else if (item.src.indexOf("knight") > -1) {
+                    towerProgress[ZTO_CHESS_TECHNIC_KNIGHT] += 1
+                } else if (item.src.indexOf("bishop") > -1) {
+                    towerProgress[ZTO_CHESS_TECHNIC_BISHOP] += 1
+                } else if (item.src.indexOf("rook") > -1) {
+                    towerProgress[ZTO_CHESS_TECHNIC_ROOK] += 1
+                } else if (item.src.indexOf("queen") > -1) {
+                    towerProgress[ZTO_CHESS_TECHNIC_QUEEN] += 1
+                } else if (item.src.indexOf("king") > -1) {
+                    towerProgress[ZTO_CHESS_TECHNIC_KING] += 1
+                }
+            }
+            if (towerProgress[ZTO_CHESS_MYSTIC_KING] == 1) {
+                towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MASTER;
+                towerProgress[UNLOCK_CHESS_MASTER] = true;
+            } else if (towerProgress[ZTO_CHESS_MYSTIC_QUEEN] == 1) {
+                towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MYSTIC_KING;
+            } else if (towerProgress[ZTO_CHESS_MYSTIC_ROOK] == 2) {
+                towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MYSTIC_QUEEN;
+            } else if (towerProgress[ZTO_CHESS_MYSTIC_BISHOP] == 2) {
+                towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MYSTIC_ROOK;
+            } else if (towerProgress[ZTO_CHESS_MYSTIC_KNIGHT] == 2) {
+                towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MYSTIC_BISHOP;
+            } else if (towerProgress[ZTO_CHESS_MYSTIC_PAWN] == 8) {
+                towerProgress[NEXT_MYSTIC_TARGET] = ZTO_CHESS_MYSTIC_KNIGHT;
+            }
+            if (towerProgress[ZTO_CHESS_TECHNIC_KING] == 1) {
+                towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_MASTER;
+                towerProgress[UNLOCK_CHESS_MASTER] = true;
+            } else if (towerProgress[ZTO_CHESS_TECHNIC_QUEEN] == 1) {
+                towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_TECHNIC_KING;
+            } else if (towerProgress[ZTO_CHESS_TECHNIC_ROOK] == 2) {
+                towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_TECHNIC_QUEEN;
+            } else if (towerProgress[ZTO_CHESS_TECHNIC_BISHOP] == 2) {
+                towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_TECHNIC_ROOK;
+            } else if (towerProgress[ZTO_CHESS_TECHNIC_KNIGHT] == 2) {
+                towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_TECHNIC_BISHOP;
+            } else if (towerProgress[ZTO_CHESS_TECHNIC_PAWN] == 8) {
+                towerProgress[NEXT_TECHNIC_TARGET] = ZTO_CHESS_TECHNIC_KNIGHT;
+            }
+            return towerProgress;
+        }
+
+        const NEXT_MYSTIC_TARGET = "Next Mystic Target";
+        const NEXT_TECHNIC_TARGET = "Next Technic Target";
+        const UNLOCK_CHESS_MASTER = "Unlock Chess Master";
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ZUGZWANGS_TOWER;
+        const towerProgress = getTowerProgress();
+        const trapSetups = POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].getTrapSetups();
+        switch(trapSetups[ZTO_STRATEGY]) {
+            case ZTO_STRATEGY_MYSTIC_ONLY:
+                armTraps(trapSetups[towerProgress[NEXT_MYSTIC_TARGET]]);
+                break;
+            case ZTO_STRATEGY_TECHNIC_ONLY:
+                armTraps(trapSetups[towerProgress[NEXT_TECHNIC_TARGET]]);
+                break;
+            case ZTO_STRATEGY_MYSTIC_FIRST:
+                break;
+            case ZTO_STRATEGY_TECHNIC_FIRST:
+                break;
+            default:
+        }
+    }
+
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
         return;
     }
@@ -1807,6 +1906,9 @@ function checkLocation() {
             break;
         case LOCATION_SEASONAL_GARDEN:
             runSGaPolicy();
+            break;
+        case LOCATION_ZUGZWANGS_TOWER:
+            runZToPolicy();
             break;
         default:
             runDefaultLocation();
@@ -1880,7 +1982,7 @@ function testArray() {
 
 function test1() {
     //testArray();
-    //checkLocation();
+    checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -2068,7 +2170,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
