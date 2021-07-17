@@ -1629,161 +1629,86 @@ function checkLocation() {
     }
 
     function armTraps(trapSetup) {
-        function getCurrentWeapon() {
-            return document.getElementById("campPage-trap-armedItem-floatingTooltip-weapon").innerHTML;
+        function getCurrentWeaponItemId() {
+            return getPageVariable("user.weapon_item_id");
         }
 
-        function getCurrentBase() {
-            return document.getElementById("campPage-trap-armedItem-floatingTooltip-base").innerHTML;
+        function getCurrentBaseItemId() {
+            return getPageVariable("user.base_item_id");
         }
 
-        function getCurrentBait() {
-            return document.getElementsByClassName("campPage-trap-baitName")[0].innerHTML;
+        function getCurrentBaitItemId() {
+            return getPageVariable("user.bait_item_id");
         }
 
-        function getCurrentTrinket() {
-            return document.getElementById("campPage-trap-armedItem-floatingTooltip-trinket").innerHTML;
+        function getCurrentTrinketItemId() {
+            return getPageVariable("user.trinket_item_id");
         }
 
-        function armWeapon(policyWeaponName) {
-            function armingWeapon(policyWeaponName) {
-                const camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                for (let i = 0; i < camppageWeapons.length; ++i) {
-                    const camppageWeaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                    if (camppageWeaponName == policyWeaponName) {
-                        const armButton = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
-                        fireEvent(armButton, 'click');
-                    }
+        function armItem(classification, itemType) {
+            const objData = {};
+            objData.sn = 'Hitgrab';
+            objData.hg_is_ajax = 1;
+            objData[classification] = itemType;
+            objData.uh = getPageVariable('user.unique_hash');
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming " + classification;
+            ajaxPost(window.location.origin + '/managers/ajax/users/changetrap.php', objData, function (data) {
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish arming " + classification;
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error arming " + classification);
+            });
+        }
+
+        function checkArmedItem(currentItemId, policyItemName, itemInfo) {
+            for (const [itemType, info] of Object.entries(itemInfo)) {
+                if (policyItemName == info.name && currentItemId != info.itemId) {
+                    return itemType;
+                } else if (policyItemName == info.name && currentItemId == info.itemId) {
+                    return;
                 }
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Weapon";;
             }
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Weapon";
-            const currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
-            fireEvent(currentWeapon, 'click');
-            window.setTimeout(function () {
-                armingWeapon(policyWeaponName);
-            }, 4.5 * 1000);
-        }
-
-        function armBase(policyBaseName) {
-            function armingBase(policyBaseName) {
-                const camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                for (let i = 0; i < camppageBases.length; ++i) {
-                    const camppageBaseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                    if (camppageBaseName == policyBaseName) {
-                        const armButton = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
-                        fireEvent(armButton, 'click');
-                    }
-                }
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Base";;
-            }
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Base";
-            const currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
-            fireEvent(currentBase, 'click');
-            window.setTimeout(function () {
-                armingBase(policyBaseName);
-            }, 4.5 * 1000);
-        }
-
-        function armBait(policyBaitName) {
-            function armingBait(policyBaitName) {
-                const camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                for (let i = 0; i < camppageBaits.length; ++i) {
-                    const camppageBaitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                    if (camppageBaitName == policyBaitName) {
-                        const armButton = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton ")[0];
-                        fireEvent(armButton, 'click');
-                    }
-                }
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Bait";;
-            }
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Bait";
-            const currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
-            fireEvent(currentBait, 'click');
-            window.setTimeout(function () {
-                armingBait(policyBaitName);
-            }, 4.5 * 1000);
-        }
-
-        function armTrinket(policyTrinketName) {
-            function armingTrinket(policyTrinketName) {
-                const camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                if (policyTrinketName == TRINKET_DISARM) {
-                    const disarmButton = document.getElementsByClassName("campPage-trap-itemBrowser-item-disarmButton")[0];
-                    fireEvent(disarmButton, 'click');
-                } else {
-                    for (let i = 0; i < camppageTrinkets.length; ++i) {
-                        const camppageTrinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                        if (camppageTrinketName == policyTrinketName) {
-                            const armButton = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-armButton")[0];
-                            fireEvent(armButton, 'click');
-                        }
-                    }
-                }
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Arming Trinket";;
-            }
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming Trinket";
-            const currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
-            fireEvent(currentTrinket, 'click');
-            window.setTimeout(function () {
-                armingTrinket(policyTrinketName);
-            }, 4.5 * 1000);
         }
 
         let delayTime = 0;
-        // Check weapon
-        let currentWeapon = getCurrentWeapon();
-        if (currentWeapon.endsWith("Trap")) {
-            currentWeapon = currentWeapon.slice(0, -5);
-        }
-        let policyWeapon = trapSetup[IDX_WEAPON];
-        if (!isNullOrUndefined(policyWeapon) && policyWeapon.endsWith("Trap")) {
-            policyWeapon = policyWeapon.slice(0, -5);
-        }
-        if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != policyWeapon ) {
+        const targetWeaponType = checkArmedItem(getCurrentWeaponItemId(), trapSetup[IDX_WEAPON], getWeaponInfo());
+        if (!isNullOrUndefined(targetWeaponType)) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
             }
-            window.setTimeout(function () {
-                armWeapon(trapSetup[IDX_WEAPON]);
-            }, delayTime * 1000);
-            delayTime += 10;
+            armItem(CLASSIFICATION_WEAPON, targetWeaponType);
+            delayTime += 1;
         }
-        // Check Base
-        const currentBase = getCurrentBase();
-        if( !isNullOrUndefined(trapSetup[IDX_BASE]) && currentBase != trapSetup[IDX_BASE] ) {
+        const targetBaseType = checkArmedItem(getCurrentBaseItemId(), trapSetup[IDX_BASE], getBaseInfo());
+        if (!isNullOrUndefined(targetBaseType)) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
             }
-            window.setTimeout(function () {
-                armBase(trapSetup[IDX_BASE]);
-            }, delayTime * 1000);
-            delayTime += 10;
+            armItem(CLASSIFICATION_BASE, targetBaseType);
+            delayTime += 1;
         }
-        // Check Bait
-        const currentBait = getCurrentBait();
-        if( !isNullOrUndefined(trapSetup[IDX_BAIT]) && currentBait != trapSetup[IDX_BAIT] ) {
+        const targetBaitType = checkArmedItem(getCurrentBaitItemId(), trapSetup[IDX_BAIT], getBaitInfo());
+        if (!isNullOrUndefined(targetBaitType)) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
             }
-            window.setTimeout(function () {
-                armBait(trapSetup[IDX_BAIT]);
-            }, delayTime * 1000);
-            delayTime += 10;
+            armItem(CLASSIFICATION_BAIT, targetBaitType);
+            delayTime += 1;
         }
-        // Check Trinket
-        let currentTrinket = getCurrentTrinket();
-        if (currentTrinket == "") {
-            currentTrinket = TRINKET_DISARM;
+        const policyTrinket = trapSetup[IDX_TRINKET];
+        const currentTrinketItemId = getCurrentTrinketItemId();
+        let targetTrinketType;
+        if (policyTrinket == TRINKET_DISARM && !isNullOrUndefined(currentTrinketItemId)) {
+            targetTrinketType = policyTrinket.toLowerCase();
+        } else if (!isNullOrUndefined(policyTrinket) && policyTrinket != TRINKET_DISARM) {
+            targetTrinketType = checkArmedItem(currentTrinketItemId, policyTrinket, getTrinketInfo());
         }
-        if( !isNullOrUndefined(trapSetup[IDX_TRINKET]) && currentTrinket != trapSetup[IDX_TRINKET] ) {
+        if (!isNullOrUndefined(targetTrinketType)) {
             if (!lockBot(BOT_PROCESS_POLICY)) {
                 return;
             }
-            window.setTimeout(function () {
-                armTrinket(trapSetup[IDX_TRINKET]);
-            }, delayTime * 1000);
-            delayTime += 10;
+            armItem(CLASSIFICATION_TRINKET, targetTrinketType);
+            delayTime += 1;
         }
         if (delayTime > 0) {
             window.setTimeout(function () {
@@ -2171,8 +2096,8 @@ function testSortObj() {
 }
 
 function test1() {
-    testSortObj();
-    //checkLocation();
+    //testSortObj();
+    checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -3837,6 +3762,14 @@ function getPageVariable(name) {
             return unsafeWindow.user.unique_hash;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
+        } else if (name == "user.weapon_item_id") {
+            return unsafeWindow.user.weapon_item_id;
+        } else if (name == "user.base_item_id") {
+            return unsafeWindow.user.base_item_id;
+        } else if (name == "user.bait_item_id") {
+            return unsafeWindow.user.bait_item_id;
+        } else if (name == "user.trinket_item_id") {
+            return unsafeWindow.user.trinket_item_id;
         } else if (name == "user.environment_name") {
             return unsafeWindow.user.environment_name;
         } else if (name == "user.title_name") {
