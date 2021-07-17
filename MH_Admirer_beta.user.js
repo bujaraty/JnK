@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.23
+// @version      1.2.2.24
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -22,7 +22,7 @@
 // Issue list
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
-//   - Activate-Deactivate FRo tower (After I get tower lvl 3)
+//   - Activate-Deactivate FRo tower (After I get tower lvl 4)
 //   - CLiPolicy
 //   - IcePolicy and test
 //   - FWaPolicy
@@ -91,21 +91,8 @@ let g_nextBotHornTime;
 let g_lastBotHornTimeRecorded = new Date();
 let g_lastTrapCheckTimeRecorded = new Date();
 let g_kingsRewardRetry = 0;
-let g_weaponNames = [];
-let g_baseNames = [];
-let g_baitNames = [];
-let g_trinketNames = [];
+let g_trapInfo = {};
 let g_botProcess = BOT_PROCESS_IDLE;
-let g_bestBase;
-let g_bestArcaneWeapon;
-let g_bestDraconicWeapon;
-let g_bestForgottenWeapon;
-let g_bestHydroWeapon;
-let g_bestLawWeapon;
-let g_bestPhysicalWeapon;
-let g_bestRiftWeapon;
-let g_bestShadowWeapon;
-let g_bestTacticalWeapon;
 
 // I have to re-define the default value of the following variables somewhere else
 let g_isKingReward = false;
@@ -126,32 +113,16 @@ const MOUSEHUNTGAME_WEBSITE_HOME = HTTP_STR + "://www.mousehuntgame.com/";
 const HUNTER_TITLES = ["Novice", "Recruit", "Apprentice", "Initiate", "Journeyman", "Journeywoman", "Master", "Grandmaster", "Legendary", "Hero", "Knight",
                        "Lord", "Lady", "Baron", "Baroness", "Count", "Countess", "Duke", "Duchess", "Grand Duke", "Grand Duchess", "Archduke", "Archduchess",
                        "Viceroy", "Elder", "Sage", "Fabled"];
-const WEAPON_OASIS_WATER_NODE = "Oasis Water Node";
-const WEAPON_STEAM_LASER_MK_III = "Steam Laser Mk. III";
 const BASE_CHEESECAKE = "Cheesecake Base";
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
 const BASE_DEEP_FREEZE = "Deep Freeze Base";
+const BASE_FORECASTER = "Forecaster Base";
 const BASE_HEARTHSTONE = "Hearthstone Base";
 const BASE_MAGNET = "Magnet Base";
 const BASE_REMOTE_DETONATOR = "Remote Detonator Base";
 const BASE_SPIKED = "Spiked Base";
 const BASE_THIEF = "Thief Base";
 const BASE_WOODEN_BASE_WITH_TARGET = "Wooden Base with Target";
-const BEST_BASES = ["Chocolate Bar Base", "Aqua Base", "Fan Base", "Explosive Base"];
-const BEST_ARCANE_WEAPONS = ["Circlet of Pursuing", "Circlet of Seeking", "Event Horizon", "Grand Arcanum", "Droid Archmagus", "Arcane Blast",
-                             "Arcane Capturing Rod Of Never Yielding Mystery"];
-const BEST_DRACONIC_WEAPONS = ["Dragon Slayer Cannon", "Chrome Storm Wrought Ballista", "Storm Wrought Ballista", "Dragonvine Ballista", "Blazing Ember Spear",
-                               "Ice Maiden"];
-const BEST_FORGOTTEN_WEAPONS = ["Thought Obliterator ", "Thought Manipulator", "Infinite Labyrinth", "Endless Labyrinth", "Crystal Crucible", "Scarlet Ember Root",
-                                "Ancient Box"];
-const BEST_HYDRO_WEAPONS = ["Queso Fount", "School of Sharks", WEAPON_OASIS_WATER_NODE, "Steam Laser Mk. I", "Ancient Spear Gun"];
-const BEST_LAW_WEAPONS = ["S.T.I.N.G.E.R.", "Ember Prison Core", "Meteor Prison Core", "S.L.A.C. II"];
-const BEST_PHYSICAL_WEAPONS = ["Smoldering Stone Sentinel", "Chrome MonstroBot", "Sandstorm MonstroBot", "Enraged RhinoBot"];
-const BEST_RIFT_WEAPONS= ["Chrome Celestial Dissonance", "Celestial Dissonance", "Timesplit Dissonance",
-                          "Mysteriously unYielding Null-Onyx Rampart of Cascading Amperes", "Darkest Chocolate Bunny", "Focused Crystal Laser", "Multi-Crystal",
-                          "Crystal Tower"];
-const BEST_SHADOW_WEAPONS = ["Chrome Temporal Turbine", "Temporal Turbine", "Interdimensional Crossbow", "Clockwork Portal", "Reaper's Perch", "Clockapult of Time"];
-const BEST_TACTICAL_WEAPONS = ["Slumbering Boulder", "Sleeping Stone", "Gouging Geyserite", "Sphynx Wrath", "Horrific Venus Mouse", "Ambush"];
 const BAIT_BRIE = "Brie Cheese";
 const BAIT_CHECKMATE = "Checkmate Cheese";
 const BAIT_CRESCENT = "Crescent Cheese";
@@ -168,6 +139,12 @@ const WEAPON_MYSTIC_PAWN_PINCHER = "Mystic Pawn Pincher";
 const WEAPON_TECHNIC_PAWN_PINCHER = "Technic Pawn Pincher";
 const WEAPON_BLACKSTONE_PASS = "Blackstone Pass";
 const WEAPON_OBVIOUS_AMBUSH = "Obvious Ambush";
+const WEAPON_OASIS_WATER_NODE = "Oasis Water Node";
+const WEAPON_STEAM_LASER_MK_III = "Steam Laser Mk. III";
+const CLASSIFICATION_WEAPON = "weapon";
+const CLASSIFICATION_BASE = "base";
+const CLASSIFICATION_BAIT = "bait";
+const CLASSIFICATION_TRINKET = "trinket";
 const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
 const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
 const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
@@ -253,10 +230,7 @@ const STORAGE_AUTOSOLVE_KR_DELAY_MAX = "autosolveKRDelayMax";
 const STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME = "scheduledGiftsAndRafflesTime";
 const STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
 const STORAGE_STATUS_GIFTS_AND_RAFFLES = "statusGiftsAndRaffles";
-const STORAGE_WEAPON_NAMES = "weaponNames";
-const STORAGE_BASE_NAMES = "baseNames";
-const STORAGE_BAIT_NAMES = "baitNames";
-const STORAGE_TRINKET_NAMES = "trinketNames";
+const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_ARE = "trapSetupARe";
 const STORAGE_TRAP_SETUP_FRO = "trapSetupFRo";
 const STORAGE_TRAP_SETUP_SGA = "trapSetupSGa";
@@ -272,8 +246,13 @@ const IDX_TOWER = 4;
 const IDX_CHARM_TYPE = 4;
 const IDX_SOLDIER_TYPE = 5;
 const POWER_TYPE_ARCANE = "Arcane";
+const POWER_TYPE_DRACONIC = "Draconic";
+const POWER_TYPE_FORGOTTEN = "Forgotten";
 const POWER_TYPE_HYDRO = "Hydro";
+const POWER_TYPE_LAW = "Law";
 const POWER_TYPE_PHYSICAL = "Physical";
+const POWER_TYPE_RIFT = "Rift";
+const POWER_TYPE_SHADOW = "Shadow";
 const POWER_TYPE_TACTICAL = "Tactical";
 const TRINKET_ARM = "Arm";
 const TRINKET_DISARM = "Disarm";
@@ -383,10 +362,57 @@ const POLICY_NAME_FIERY_WARPATH = "Fiery Warpath";
 class Policy {
     constructor() {
         this.trs = [];
+        this.bestPowerWeapons = {};
+        this.bestLuckWeapons = {};
+        this.bestBase = undefined;
     }
 
     setName(name) {
         this.name = name;
+    }
+
+    getBestBase() {
+        const baseInfo = getBaseInfo();
+        if (isNullOrUndefined(this.bestBase)) {
+            const bestBases = Object.entries(baseInfo)
+            .sort(([,a], [,b]) => b.power - a.power)
+            .sort(([,a], [,b]) => b.luck - a.luck)
+            .map(x => x[1].name);
+            const hunterTitle = getPageVariable("user.title_name");
+            if (HUNTER_TITLES.indexOf(hunterTitle) > 16 && bestBases.includes(BASE_THIEF)) {
+                this.bestBase = BASE_THIEF;
+            } else {
+                for (const base of bestBases){
+                    if (base != BASE_THIEF && base != BASE_FORECASTER) {
+                        this.bestBase = base;
+                        break;
+                    }
+                }
+            }
+        }
+        return this.bestBase;
+    }
+
+    getBestPowerWeapon(powerType) {
+        const weaponInfo = getWeaponInfo();
+        if (isNullOrUndefined(this.bestPowerWeapons[powerType])) {
+            this.bestPowerWeapons[powerType] = Object.entries(weaponInfo)
+                .filter(([key, value]) => value.powerType === powerType)
+                .sort(([,a], [,b]) => b.power - a.power)
+                .map(x => x[1].name)[0];
+        }
+        return this.bestPowerWeapons[powerType];
+    }
+
+    getBestLuckWeapon(powerType) {
+        const weaponInfo = getWeaponInfo();
+        if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
+            this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
+                .filter(([key, value]) => value.powerType === powerType)
+                .sort(([,a], [,b]) => b.luck - a.luck)
+                .map(x => x[1].name)[0];
+        }
+        return this.bestLuckWeapons[powerType];
     }
 
     getTrapSetups(storageName) {
@@ -400,8 +426,9 @@ class Policy {
         }
         return this.trapSetups;
     }
+
     getDefaultTrapSetup(trapSetup, baitName, trinketName) {
-        trapSetup[IDX_BASE] = g_bestBase;
+        trapSetup[IDX_BASE] = this.getBestBase();
         if ( !isNullOrUndefined(baitName)) {
             trapSetup[IDX_BAIT] = baitName;
         }
@@ -412,47 +439,47 @@ class Policy {
 
     getArcaneTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestArcaneWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_ARCANE);
     }
 
     getDraconicTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestDraconicWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_DRACONIC);
     }
 
     getForgottenTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestForgottenWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_FORGOTTEN);
     }
 
     getHydroTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestHydroWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_HYDRO);
     }
 
     getLawTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestLawWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_LAW);
     }
 
     getPhysicalTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestPhysicalWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_PHYSICAL);
     }
 
     getRiftTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestRiftWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_RIFT);
     }
 
     getShadowTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestShadowWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_SHADOW);
     }
 
     getTacticalTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
-        trapSetup[IDX_WEAPON] = g_bestTacticalWeapon;
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_TACTICAL);
     }
 }
 
@@ -481,7 +508,7 @@ class PolicyARe extends Policy {
 
     recommendTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        if (g_baitNames.includes(BAIT_RUNIC)) {
+        if (getBaitNames().includes(BAIT_RUNIC)) {
             this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
         } else {
             this.getArcaneTrapSetup(trapSetups);
@@ -526,9 +553,10 @@ class PolicyFRo extends Policy {
 
     recommendTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        const brieCheese = g_baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
-        const baitName = g_baitNames.includes(BAIT_MOON)? BAIT_MOON: g_baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
-        this.getLawTrapSetup(trapSetups[FRO_PHASE_DAY], brieCheese);
+        const baitNames = getBaitNames();
+        const brieCheese = baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        const baitName = baitNames.includes(BAIT_MOON)? BAIT_MOON: baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
+        this.getLawTrapSetup(trapSetups[FRO_PHASE_DAY], brieCheese, TRINKET_DISARM);
         this.getShadowTrapSetup(trapSetups[FRO_PHASE_TWILIGHT], baitName);
         this.getShadowTrapSetup(trapSetups[FRO_PHASE_MIDNIGHT], baitName);
         this.getArcaneTrapSetup(trapSetups[FRO_PHASE_PITCH], baitName);
@@ -568,11 +596,11 @@ class PolicySGa extends Policy {
 
     recommendTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
-        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
-        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
-        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName, TRINKET_DISARM);
+        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName, TRINKET_DISARM);
+        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName, TRINKET_DISARM);
+        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName, TRINKET_DISARM);
         this.initSelectTrapSetup();
     }
 }
@@ -616,30 +644,36 @@ class PolicyZTo extends Policy {
         }
 
         const trapSetups = this.getTrapSetups();
-        const mysticPawnWeapon = g_weaponNames.includes(WEAPON_MYSTIC_PAWN_PINCHER)? WEAPON_MYSTIC_PAWN_PINCHER: g_bestTacticalWeapon;
-        const mysticOnlyWeapon = g_weaponNames.includes(WEAPON_BLACKSTONE_PASS)? WEAPON_BLACKSTONE_PASS: g_bestTacticalWeapon;
-        const technicPawnWeapon = g_weaponNames.includes(WEAPON_TECHNIC_PAWN_PINCHER)? WEAPON_TECHNIC_PAWN_PINCHER: g_bestTacticalWeapon;
-        const technicOnlyWeapon = g_weaponNames.includes(WEAPON_OBVIOUS_AMBUSH)? WEAPON_OBVIOUS_AMBUSH: g_bestTacticalWeapon;
-        const attractionBase = g_baseNames.includes(BASE_CHEESECAKE)? BASE_CHEESECAKE: g_baseNames.includes(BASE_WOODEN_BASE_WITH_TARGET)? BASE_WOODEN_BASE_WITH_TARGET: g_bestBase;
-        const attractionCharm = g_trinketNames.includes(TRINKET_VALENTINE)? TRINKET_VALENTINE: g_trinketNames.includes(TRINKET_ATTRACTION)? TRINKET_ATTRACTION: undefined;
-        const powerCharm = g_trinketNames.includes(TRINKET_POWER)? TRINKET_POWER: attractionCharm;
-        const rookCrumbleCharm = g_trinketNames.includes(TRINKET_ROOK_CRUMBLE)? TRINKET_ROOK_CRUMBLE: powerCharm;
-        const checkmateCheese = g_baitNames.includes(BAIT_CHECKMATE)? BAIT_CHECKMATE: undefined;
-        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        const weaponNames = getWeaponNames();
+        const baseNames = getBaseNames();
+        const baitNames = getBaitNames();
+        const trinketNames = getTrinketNames();
+        const bestBase = this.getBestBase();
+        const bestTacticalWeapon = this.getBestLuckWeapon(POWER_TYPE_TACTICAL);
+        const mysticPawnWeapon = weaponNames.includes(WEAPON_MYSTIC_PAWN_PINCHER)? WEAPON_MYSTIC_PAWN_PINCHER: bestTacticalWeapon;
+        const mysticOnlyWeapon = weaponNames.includes(WEAPON_BLACKSTONE_PASS)? WEAPON_BLACKSTONE_PASS: bestTacticalWeapon;
+        const technicPawnWeapon = weaponNames.includes(WEAPON_TECHNIC_PAWN_PINCHER)? WEAPON_TECHNIC_PAWN_PINCHER: bestTacticalWeapon;
+        const technicOnlyWeapon = weaponNames.includes(WEAPON_OBVIOUS_AMBUSH)? WEAPON_OBVIOUS_AMBUSH: bestTacticalWeapon;
+        const attractionBase = baseNames.includes(BASE_CHEESECAKE)? BASE_CHEESECAKE: baseNames.includes(BASE_WOODEN_BASE_WITH_TARGET)? BASE_WOODEN_BASE_WITH_TARGET: bestBase;
+        const attractionCharm = trinketNames.includes(TRINKET_VALENTINE)? TRINKET_VALENTINE: trinketNames.includes(TRINKET_ATTRACTION)? TRINKET_ATTRACTION: undefined;
+        const powerCharm = trinketNames.includes(TRINKET_POWER)? TRINKET_POWER: attractionCharm;
+        const rookCrumbleCharm = trinketNames.includes(TRINKET_ROOK_CRUMBLE)? TRINKET_ROOK_CRUMBLE: powerCharm;
+        const checkmateCheese = baitNames.includes(BAIT_CHECKMATE)? BAIT_CHECKMATE: undefined;
+        const baitName = baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
 
         getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_PAWN], mysticPawnWeapon, attractionBase, baitName, attractionCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_KNIGHT], mysticOnlyWeapon, g_bestBase, baitName, powerCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_BISHOP], mysticOnlyWeapon, g_bestBase, baitName, powerCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_ROOK], mysticOnlyWeapon, g_bestBase, baitName, rookCrumbleCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_QUEEN], mysticOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_KNIGHT], mysticOnlyWeapon, bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_BISHOP], mysticOnlyWeapon, bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_ROOK], mysticOnlyWeapon, bestBase, baitName, rookCrumbleCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_QUEEN], mysticOnlyWeapon, bestBase, baitName, powerCharm);
         getZToTrapSetup(trapSetups[ZTO_CHESS_MYSTIC_KING], mysticOnlyWeapon, attractionBase, baitName, attractionCharm);
         getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_PAWN], technicPawnWeapon, attractionBase, baitName, attractionCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_KNIGHT], technicOnlyWeapon, g_bestBase, baitName, powerCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_BISHOP], technicOnlyWeapon, g_bestBase, baitName, powerCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_ROOK], technicOnlyWeapon, g_bestBase, baitName, rookCrumbleCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_QUEEN], technicOnlyWeapon, g_bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_KNIGHT], technicOnlyWeapon, bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_BISHOP], technicOnlyWeapon, bestBase, baitName, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_ROOK], technicOnlyWeapon, bestBase, baitName, rookCrumbleCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_QUEEN], technicOnlyWeapon, bestBase, baitName, powerCharm);
         getZToTrapSetup(trapSetups[ZTO_CHESS_TECHNIC_KING], technicOnlyWeapon, attractionBase, baitName, attractionCharm);
-        getZToTrapSetup(trapSetups[ZTO_CHESS_MASTER], g_bestTacticalWeapon, g_bestBase, checkmateCheese, powerCharm);
+        getZToTrapSetup(trapSetups[ZTO_CHESS_MASTER], bestTacticalWeapon, bestBase, checkmateCheese, powerCharm);
         this.initSelectTrapSetup();
     }
 }
@@ -702,28 +736,34 @@ class PolicyIce extends Policy {
         }
 
         const trapSetups = this.getTrapSetups();
-        const deepFreezeBase = g_baseNames.includes(BASE_DEEP_FREEZE)? BASE_DEEP_FREEZE: g_bestBase;
-        const hearthstoneBase = g_baseNames.includes(BASE_HEARTHSTONE)? BASE_HEARTHSTONE: g_bestBase;
-        const magnetBase = g_baseNames.includes(BASE_MAGNET)? BASE_MAGNET: g_bestBase;
-        const remoteDetonatorBase = g_baseNames.includes(BASE_REMOTE_DETONATOR)? BASE_REMOTE_DETONATOR: g_bestBase;
-        const spikedBase = g_baseNames.includes(BASE_SPIKED)? BASE_SPIKED: g_bestBase;
-        const brieCheese = g_baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
-        const powerCharm = g_trinketNames.includes(TRINKET_POWER)? TRINKET_POWER: undefined;
-        const stickyCharm = g_trinketNames.includes(TRINKET_STICKY)? TRINKET_STICKY: undefined;
-        const waxCharm = g_trinketNames.includes(TRINKET_WAX)? TRINKET_WAX: undefined;
-        const weaponName = (g_weaponNames.includes(WEAPON_STEAM_LASER_MK_III) && g_bestHydroWeapon == WEAPON_OASIS_WATER_NODE)? WEAPON_STEAM_LASER_MK_III: g_bestHydroWeapon;
-        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        const trinketName = g_weaponNames.indexOf(g_bestHydroWeapon) < 2? waxCharm: stickyCharm;
+        const weaponNames = getWeaponNames();
+        const baseNames = getBaseNames();
+        const baitNames = getBaitNames();
+        const trinketNames = getTrinketNames();
+        const bestBase = this.getBestBase();
+        const bestHydroWeapon = this.getBestLuckWeapon(POWER_TYPE_HYDRO);
+        const deepFreezeBase = baseNames.includes(BASE_DEEP_FREEZE)? BASE_DEEP_FREEZE: bestBase;
+        const hearthstoneBase = baseNames.includes(BASE_HEARTHSTONE)? BASE_HEARTHSTONE: bestBase;
+        const magnetBase = baseNames.includes(BASE_MAGNET)? BASE_MAGNET: bestBase;
+        const remoteDetonatorBase = baseNames.includes(BASE_REMOTE_DETONATOR)? BASE_REMOTE_DETONATOR: bestBase;
+        const spikedBase = baseNames.includes(BASE_SPIKED)? BASE_SPIKED: bestBase;
+        const brieCheese = baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        const powerCharm = trinketNames.includes(TRINKET_POWER)? TRINKET_POWER: undefined;
+        const stickyCharm = trinketNames.includes(TRINKET_STICKY)? TRINKET_STICKY: undefined;
+        const waxCharm = trinketNames.includes(TRINKET_WAX)? TRINKET_WAX: undefined;
+        const weaponName = (weaponNames.includes(WEAPON_STEAM_LASER_MK_III) && bestHydroWeapon == WEAPON_OASIS_WATER_NODE)? WEAPON_STEAM_LASER_MK_III: bestHydroWeapon;
+        const baitName = baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        const trinketName = weaponNames.indexOf(bestHydroWeapon) < 2? waxCharm: stickyCharm;
 
-        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_ICEBERG_GENERAL], g_bestBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_ICEBERG_GENERAL], bestBase, baitName, powerCharm);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_TREACHEROUS_TUNNELS], magnetBase, baitName, trinketName);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_BRUTAL_BULWARK], spikedBase, baitName, trinketName);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_BOMBING_RUN], remoteDetonatorBase, baitName, trinketName);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_THE_MAD_DEPTHS], hearthstoneBase, baitName, trinketName);
         getIceTrapSetup(trapSetups[ICE_SUBLOCATION_ICEWINGS_LAIR], deepFreezeBase, baitName, powerCharm);
-        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_HIDDEN_DEPTHS], g_bestBase, baitName, powerCharm);
-        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_THE_DEEP_LAIR], g_bestBase, baitName, powerCharm);
-        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_SLUSHY_SHORELINE], g_bestBase, brieCheese, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_HIDDEN_DEPTHS], bestBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_THE_DEEP_LAIR], bestBase, baitName, powerCharm);
+        getIceTrapSetup(trapSetups[ICE_SUBLOCATION_SLUSHY_SHORELINE], bestBase, brieCheese, powerCharm);
         this.initSelectTrapSetup();
     }
 }
@@ -804,53 +844,24 @@ class PolicyFWa extends Policy {
     }
 
     recommendTrapSetup() {
-        /*
-                for (const powerType of FWA_POWER_TYPES){
-            this.trapSetups[powerType] = [];
-        }
-        this.trapSetups[FWA_LAST_SOLDIER] = [];
-        this.trapSetups[FWA_ARMING_CHARM_SUPPORT_RETREAT] = TRINKET_DISARM;
-        for (const wave of FWA_WAVES){
-            this.trapSetups[wave] = {};
-            if (wave == FWA_WAVE4) {
-                this.trapSetups[wave][STATUS_BEFORE] = [];
-                this.trapSetups[wave][STATUS_AFTER] = [];
-            } else {
-                for (let steak = 0; steak <= FWA_MAX_STREAKS; steak++) {
-                    this.trapSetups[wave][steak] = [];
-                }
-                this.trapSetups[wave][FWA_POPULATION_PRIORITY] = FWA_TARGET_POPULATION_LOWEST;
-            }
-        }
-        const FWA_STREAK_SOLDIER_TYPE_SOLIDER = "Soldier";
-const FWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
-const FWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
-const FWA_TARGET_POPULATION_LOWEST = "Lowest";
-const FWA_TARGET_POPULATION_HIGHEST = "Highest";
-const FWA_TARGET_POPULATIONS = [FWA_TARGET_POPULATION_LOWEST, FWA_TARGET_POPULATION_HIGHEST];
-const FWA_POPULATION_PRIORITY = "Population Priority";
-const FWA_MAX_STREAKS = 9;
-const FWA_CHARM_TYPE_WARPATH = "Warpath";
-const FWA_CHARM_TYPE_SUPER_WARPATH = "Super Warpath";
-*/
         const trapSetups = this.getTrapSetups();
-        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        trapSetups[POWER_TYPE_ARCANE][IDX_WEAPON] = g_bestArcaneWeapon;
-        trapSetups[POWER_TYPE_ARCANE][IDX_BASE] = g_bestBase;
-        trapSetups[POWER_TYPE_HYDRO][IDX_WEAPON] = g_bestHydroWeapon;
-        trapSetups[POWER_TYPE_HYDRO][IDX_BASE] = g_bestBase;
-        trapSetups[POWER_TYPE_PHYSICAL][IDX_WEAPON] = g_bestPhysicalWeapon;
-        trapSetups[POWER_TYPE_PHYSICAL][IDX_BASE] = g_bestBase;
-        trapSetups[POWER_TYPE_TACTICAL][IDX_WEAPON] = g_bestTacticalWeapon;
-        trapSetups[POWER_TYPE_TACTICAL][IDX_BASE] = g_bestBase;
+        const bestBase = this.getBestBase();
+        const bestArcaneWeapon = this.getBestLuckWeapon(POWER_TYPE_ARCANE);
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        trapSetups[POWER_TYPE_ARCANE][IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_ARCANE);;
+        trapSetups[POWER_TYPE_ARCANE][IDX_BASE] = bestBase;
+        trapSetups[POWER_TYPE_HYDRO][IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_HYDRO);;
+        trapSetups[POWER_TYPE_HYDRO][IDX_BASE] = bestBase;
+        trapSetups[POWER_TYPE_PHYSICAL][IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_PHYSICAL);;
+        trapSetups[POWER_TYPE_PHYSICAL][IDX_BASE] = bestBase;
+        trapSetups[POWER_TYPE_TACTICAL][IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_TACTICAL);;
+        trapSetups[POWER_TYPE_TACTICAL][IDX_BASE] = bestBase;
         trapSetups[FWA_LAST_SOLDIER][IDX_BAIT] = baitName;
         trapSetups[FWA_LAST_SOLDIER][IDX_CHARM_TYPE] = TRINKET_DISARM;
         for (const wave of FWA_WAVES){
             if (wave == FWA_WAVE4) {
                 for (const status of STATUSES){
-                    trapSetups[wave][status][IDX_WEAPON] = g_bestPhysicalWeapon;
-                    trapSetups[wave][status][IDX_BASE] = g_bestBase;
-                    trapSetups[wave][status][IDX_BAIT] = baitName;
+                    this.getPhysicalTrapSetup(trapSetups[wave][status], baitName);
                 }
             } else {
                 if (wave == FWA_WAVE3) {
@@ -879,15 +890,6 @@ const FWA_CHARM_TYPE_SUPER_WARPATH = "Super Warpath";
             }
         }
         this.initSelectTrapSetup();
-        /*
-        const trapSetups = this.getTrapSetups();
-        const baitName = g_baitNames.includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getPhysicalTrapSetup(trapSetups[SGA_SEASON_SPRING], baitName);
-        this.getTacticalTrapSetup(trapSetups[SGA_SEASON_SUMMER], baitName);
-        this.getShadowTrapSetup(trapSetups[SGA_SEASON_AUTUMN], baitName);
-        this.getHydroTrapSetup(trapSetups[SGA_SEASON_WINTER], baitName);
-        this.initSelectTrapSetup();
-        */
     }
 }
 
@@ -900,6 +902,98 @@ function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyCLi();
     POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyIce();
     POLICY_DICT[POLICY_NAME_FIERY_WARPATH] = new PolicyFWa();
+}
+
+function loadTrapInfo() {
+    g_trapInfo = getStorage(STORAGE_TRAP_INFO, null);
+}
+
+function getWeaponInfo() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+        return null
+    } else {
+        return g_trapInfo.weapon.info;
+    }
+}
+
+function getBaseInfo() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+        return null;
+    } else {
+        return g_trapInfo.base.info;
+    }
+}
+
+function getBaitInfo() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+        return null;
+    } else {
+        return g_trapInfo.bait.info;
+    }
+}
+
+function getTrinketInfo() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+        return null;
+    } else {
+        return g_trapInfo.trinket.info;
+    }
+}
+
+function getWeaponNames() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+        return [];
+    } else {
+        return g_trapInfo.weapon.names;
+    }
+}
+
+function getBaseNames() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+        return [];
+    } else {
+        return g_trapInfo.base.names;
+    }
+}
+
+function getBaitNames() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+        return [];
+    } else {
+        return g_trapInfo.bait.names;
+    }
+}
+
+function getTrinketNames() {
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+        loadTrapInfo();
+    }
+    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+        return [];
+    } else {
+        return g_trapInfo.trinket.names;
+    }
 }
 
 // Start executing script
@@ -1059,7 +1153,6 @@ function execScript() {
         initPolicyDict();
         setBotDocumentStyle();
         loadPreferenceSettingFromStorage();
-        rankWeapons();
         retrieveCampActiveData();
         if (isNullOrUndefined(g_baitCount)) {
             setTimeout(function () {
@@ -1392,13 +1485,7 @@ function updateNextBotHornTimeTxt(nextHornTimeTxt) {
 function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
     g_nextTrapCheckTimeDisplay.innerHTML = trapCheckTimeTxt;
 }
-/*
-function updateUI(titleTxt, nextHornTimeTxt, trapCheckTimeTxt) {
-    updateTitleTxt(titleTxt);
-    updateNextBotHornTimeTxt(nextHornTimeTxt);
-    updateNextTrapCheckTimeTxt(trapCheckTimeTxt);
-}
-*/
+
 function loadPreferenceSettingFromStorage() {
     g_botHornTimeDelayMin = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MIN, g_botHornTimeDelayMin);
     g_botHornTimeDelayMax = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MAX, g_botHornTimeDelayMax);
@@ -1414,41 +1501,6 @@ function loadPreferenceSettingFromStorage() {
     g_scheduledResetTime = getStorage(STORAGE_SCHEDULED_RESET_TIME, g_scheduledResetTime);
     g_beginScheduledResetTime.setHours(parseInt(g_scheduledResetTime.substring(0,2)), parseInt(g_scheduledResetTime.substring(3,5)), 0);
     g_statusGiftsAndRaffles = getStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
-    g_weaponNames = getStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
-    g_baseNames = getStorage(STORAGE_BASE_NAMES, g_baseNames);
-    g_baitNames = getStorage(STORAGE_BAIT_NAMES, g_baitNames);
-    g_trinketNames = getStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
-}
-
-function rankWeapons() {
-    function getBestWeapon(BestWeapons) {
-        for (const weaponName of BestWeapons){
-            if (g_weaponNames.includes(weaponName)) {
-                return weaponName;
-            }
-        }
-    }
-
-    const hunterTitle = getPageVariable("user.title_name");
-    if (HUNTER_TITLES.indexOf(hunterTitle) > 16 && g_baseNames.includes(BASE_THIEF)) {
-        g_bestBase = BASE_THIEF;
-    } else {
-        for (const baseName of BEST_BASES){
-            if (g_baseNames.includes(baseName)) {
-                g_bestBase = baseName;
-                break;
-            }
-        }
-    }
-    g_bestArcaneWeapon = getBestWeapon(BEST_ARCANE_WEAPONS);
-    g_bestDraconicWeapon = getBestWeapon(BEST_DRACONIC_WEAPONS);
-    g_bestForgottenWeapon = getBestWeapon(BEST_FORGOTTEN_WEAPONS);
-    g_bestHydroWeapon = getBestWeapon(BEST_HYDRO_WEAPONS);
-    g_bestLawWeapon = getBestWeapon(BEST_LAW_WEAPONS);
-    g_bestPhysicalWeapon = getBestWeapon(BEST_PHYSICAL_WEAPONS);
-    g_bestRiftWeapon = getBestWeapon(BEST_RIFT_WEAPONS);
-    g_bestShadowWeapon = getBestWeapon(BEST_SHADOW_WEAPONS);
-    g_bestTacticalWeapon = getBestWeapon(BEST_TACTICAL_WEAPONS);
 }
 
 function getStorage(name, defaultValue) {
@@ -1685,7 +1737,7 @@ function checkLocation() {
             currentWeapon = currentWeapon.slice(0, -5);
         }
         let policyWeapon = trapSetup[IDX_WEAPON];
-        if (policyWeapon.endsWith("Trap")) {
+        if (!isNullOrUndefined(policyWeapon) && policyWeapon.endsWith("Trap")) {
             policyWeapon = policyWeapon.slice(0, -5);
         }
         if( !isNullOrUndefined(trapSetup[IDX_WEAPON]) && currentWeapon != policyWeapon ) {
@@ -2008,6 +2060,19 @@ function displayDocumentStyles() {
     document.getElementById("demo").innerHTML = x[0].innerHTML;
 }
 
+function debugObj(obj) {
+    let tempTxt = "";
+    for (const [objKey, entry] of Object.entries(obj)) {
+        tempTxt += objKey;
+        tempTxt += "\n";
+        for (const [entryKey, value] of Object.entries(entry)) {
+            tempTxt += "  - " + entryKey + " : " + value;
+            tempTxt += "\n";
+        }
+    }
+    alert(tempTxt);
+}
+
 function listAttributes(obj) {
     const attrs = obj.attributes;
     let tmpTxt = "";
@@ -2020,7 +2085,6 @@ function listAttributes(obj) {
 function testSaveObjToStorage() {
     alert("in saveObjToStorage");
     const myObj = {"key1": ['a', 'b', 'c']};
-    //alert(myObj.key1);
 
     for (let i = 0; i < myObj.key1.length; i++) {
         alert(myObj.key1[i]);
@@ -2029,42 +2093,113 @@ function testSaveObjToStorage() {
 }
 
 function testLoadObjFromStorage() {
-    alert("in loadObjFromStorage");
-    const myObj = JSON.parse(getStorage("testObj"));
-    for (let i = 0; i < myObj.key1.length; i++) {
-        alert(myObj.key1[i]);
-    }
+    let tmpInfo;
+    tmpInfo = getStorage(STORAGE_TRAP_INFO, null);
+    debugObj(tmpInfo);
 }
 
 function testDict() {
     const tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
     alert(tmpPolicy.trapSetups[SGA_SEASON_SPRING].weapon);
-    /*
-    for (const [key, value] of Object.entries(POLICY_DICT)) {
-        alert(key + ": " + value);
-    }
-    */
 }
 
-function testArray() {
-    const myArr = [];
-    myArr[0] = "a";
-    myArr[3] = "d";
-    alert(myArr[0]);
-    alert(myArr[2]);
-    alert(myArr[3]);
+function testSortObj() {
+    function debugObj(obj) {
+        let tempTxt = "";
+        for (const [objKey, entry] of Object.entries(obj)) {
+            tempTxt += objKey;
+            tempTxt += "\n";
+            for (const [entryKey, value] of Object.entries(entry)) {
+                tempTxt += "  - " + entryKey + " : " + value;
+                tempTxt += "\n";
+            }
+        }
+        alert(tempTxt);
+    }
+    const unSorted = {}
+    const WEAPON_A = "horrific_venus_mouse_trap_weapon";
+    const WEAPON_B = "mystic_low_weapon";
+    const WEAPON_C = "bottomless_grave_weapon";
+    const WEAPON_D = "ambush_weapon";
+    const WEAPON_E = "acronym_weapon";
+    const POWER_TYPE = "Power Type";
+    const POWER = "Power";
+    const LUCK = "Luck";
+    const NAME = "Name";
+
+    unSorted[WEAPON_A] = {};
+    unSorted[WEAPON_A].powerType = POWER_TYPE_TACTICAL;
+    unSorted[WEAPON_A].power = 3400;
+    unSorted[WEAPON_A][LUCK] = 16;
+    unSorted[WEAPON_A][NAME] = "Horrific Venus Mouse Trap";
+    unSorted[WEAPON_B] = {};
+    unSorted[WEAPON_B].powerType = POWER_TYPE_TACTICAL;
+    unSorted[WEAPON_B].power = 60;
+    unSorted[WEAPON_B][LUCK] = 0;
+    unSorted[WEAPON_B][NAME] = "Mystic Pawn Pincher";
+    unSorted[WEAPON_C] = {};
+    unSorted[WEAPON_C].powerType = "Shadow";
+    unSorted[WEAPON_C].power = 1500;
+    unSorted[WEAPON_C][LUCK] = 5;
+    unSorted[WEAPON_C][NAME] = "Bottomless Grave";
+    unSorted[WEAPON_D] = {};
+    unSorted[WEAPON_D].powerType = POWER_TYPE_TACTICAL;
+    unSorted[WEAPON_D].power = 3000;
+    unSorted[WEAPON_D][LUCK] = 12;
+    unSorted[WEAPON_D][NAME] = "Ambush Trap";
+    unSorted[WEAPON_E] = {};
+    unSorted[WEAPON_E].powerType = POWER_TYPE_ARCANE;
+    unSorted[WEAPON_E].power = 3000;
+    unSorted[WEAPON_E][LUCK] = 18;
+    unSorted[WEAPON_E][NAME] = "Arcane Capturing Rod Of Never Yielding Mystery";
+
+    const sorted = Object.keys(unSorted).sort().reduce(
+        (obj, key) => {
+            obj[key] = unSorted[key];
+            return obj;
+        },
+        {}
+    );
+    const tacticalWeapons = Object.fromEntries(Object.entries(unSorted).filter(([key, value]) => value.powerType === POWER_TYPE_TACTICAL) );
+    const sortedTacticalWeapons = Object.fromEntries(Object.entries(unSorted)
+                                                     .filter(([key, value]) => value.powerType === POWER_TYPE_TACTICAL)
+                                                     .sort(([,a], [,b]) => b.power - a.power) );
+    debugObj(unSorted);
+    debugObj(sorted);
+    debugObj(tacticalWeapons);
+    debugObj(sortedTacticalWeapons);
 }
 
 function test1() {
-    //testArray();
-    checkLocation();
+    testSortObj();
+    //checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
 }
 
 function test2() {
-    //testLoadObjFromStorage();
+    testLoadObjFromStorage();
+}
+
+function ajaxPost(postURL, objData, callback, throwerror) {
+    try {
+        jQuery.ajax({
+            type: 'POST',
+            url: postURL,
+            data: objData,
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: false
+            },
+            success: callback,
+            error: throwerror,
+        });
+    }
+    catch (e) {
+        throwerror(e);
+    }
 }
 
 function manualClaimingYesterdayGifts() {
@@ -2245,7 +2380,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2537,122 +2672,93 @@ function embedUIStructure() {
             }
 
             function updateTraps() {
-                function updateWeapons() {
-                    function getCampPageWeaponNames() {
-                        g_weaponNames = [];
-                        const camppageWeapons = document.getElementsByClassName('campPage-trap-itemBrowser-item weapon');
-                        for (let i = 0; i < camppageWeapons.length; ++i) {
-                            const weaponName = camppageWeapons[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                            if (g_weaponNames.indexOf(weaponName) == -1) {
-                                g_weaponNames[g_weaponNames.length] = weaponName;
+                function processData(data, classification) {
+                    const tmpInfo = {};
+                    for (const component of data.components){
+                        tmpInfo[component.type] = {};
+                        tmpInfo[component.type].name = component.name;
+                        tmpInfo[component.type].itemId = component.item_id;
+                        if (classification === CLASSIFICATION_WEAPON || classification === CLASSIFICATION_BASE) {
+                            if (classification === CLASSIFICATION_WEAPON) {
+                                tmpInfo[component.type].powerType = component.power_type_name;
+                            }
+                            tmpInfo[component.type].power = component.power;
+                            if (isNullOrUndefined(component.luck)) {
+                                tmpInfo[component.type].luck = 0;
+                            } else {
+                                tmpInfo[component.type].luck = component.luck;
                             }
                         }
-                        g_weaponNames.sort();
-                        setStorage(STORAGE_WEAPON_NAMES, g_weaponNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Weapons";;
                     }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Weapons";
-                    const currentWeapon = document.getElementsByClassName('campPage-trap-armedItem weapon')[0];
-                    fireEvent(currentWeapon, 'click');
-                    window.setTimeout(function () {
-                        getCampPageWeaponNames();
-                    }, 4.5 * 1000);
+                    const sortedInfo = Object.fromEntries(Object.entries(tmpInfo)
+                                                          .sort(([,a], [,b]) => (b.name > a.name)? -1: 1));
+                    if (classification === CLASSIFICATION_WEAPON) {
+                        g_trapInfo.weapon.info = sortedInfo;
+                        g_trapInfo.weapon.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    } else if (classification === CLASSIFICATION_BASE) {
+                        g_trapInfo.base.info = sortedInfo;
+                        g_trapInfo.base.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    } else if (classification === CLASSIFICATION_BAIT) {
+                        g_trapInfo.bait.info = sortedInfo;
+                        g_trapInfo.bait.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    } else if (classification === CLASSIFICATION_TRINKET) {
+                        g_trapInfo.trinket.info = sortedInfo;
+                        g_trapInfo.trinket.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    }
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating " + classification + "s";
                 }
 
-                function updateBases() {
-                    function getCampPageBaseNames() {
-                        g_baseNames = [];
-                        const camppageBases = document.getElementsByClassName('campPage-trap-itemBrowser-item base');
-                        for (let i = 0; i < camppageBases.length; ++i) {
-                            const baseName = camppageBases[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                            if (g_baseNames.indexOf(baseName) == -1) {
-                                g_baseNames[g_baseNames.length] = baseName;
-                            }
-                        }
-                        g_baseNames.sort();
-                        setStorage(STORAGE_BASE_NAMES, g_baseNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Bases";;
-                    }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Bases";
-                    const currentBase = document.getElementsByClassName('campPage-trap-armedItem base')[0];
-                    fireEvent(currentBase, 'click');
-                    window.setTimeout(function () {
-                        getCampPageBaseNames();
-                    }, 4.5 * 1000);
+                function updateItems(classification) {
+                    var objData = {
+                        sn: 'Hitgrab',
+                        hg_is_ajax: 1,
+                        classification: classification,
+                        uh: getPageVariable('user.unique_hash')
+                    };
+                    ajaxPost(window.location.origin + '/managers/ajax/users/gettrapcomponents.php', objData, function (data) {
+                        processData(data, classification);
+                    }, function (error) {
+                        console.error('ajax:', error);
+                        alert("error updating weapon");
+                    });
                 }
 
-                function updateBaits() {
-                    function getCampPageBaitNames() {
-                        g_baitNames = [];
-                        const camppageBaits = document.getElementsByClassName('campPage-trap-itemBrowser-item bait');
-                        for (let i = 0; i < camppageBaits.length; ++i) {
-                            const baitName = camppageBaits[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                            if (g_baitNames.indexOf(baitName) == -1) {
-                                g_baitNames[g_baitNames.length] = baitName;
-                            }
-                        }
-                        g_baitNames.sort();
-                        setStorage(STORAGE_BAIT_NAMES, g_baitNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Baits";;
-                    }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Baits";
-                    const currentBait = document.getElementsByClassName('campPage-trap-armedItem bait')[0];
-                    fireEvent(currentBait, 'click');
-                    window.setTimeout(function () {
-                        getCampPageBaitNames();
-                    }, 4.5 * 1000);
-                }
-
-                function updateTrinkets() {
-                    function getCampPageTrinketNames() {
-                        g_trinketNames = [];
-                        const camppageTrinkets = document.getElementsByClassName('campPage-trap-itemBrowser-item trinket');
-                        for (let i = 0; i < camppageTrinkets.length; ++i) {
-                            const trinketName = camppageTrinkets[i].getElementsByClassName("campPage-trap-itemBrowser-item-name")[0].innerHTML;
-                            if (g_trinketNames.indexOf(trinketName) == -1) {
-                                g_trinketNames[g_trinketNames.length] = trinketName;
-                            }
-                        }
-                        g_trinketNames.sort();
-                        setStorage(STORAGE_TRINKET_NAMES, g_trinketNames);
-                        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating Trinkets";;
-                    }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual Updating Trinkets";
-                    const currentTrinket = document.getElementsByClassName('campPage-trap-armedItem trinket')[0];
-                    fireEvent(currentTrinket, 'click');
-                    window.setTimeout(function () {
-                        getCampPageTrinketNames();
-                    }, 4.5 * 1000);
+                function saveTrapInfo() {
+                    setStorage(STORAGE_TRAP_INFO, g_trapInfo);
+                    reloadCampPage();
                 }
 
                 if (!lockBot(BOT_PROCESS_Manual)) {
                     return;
                 }
+                g_trapInfo = {};
+                g_trapInfo.weapon = {};
+                updateItems(CLASSIFICATION_WEAPON);
+                g_trapInfo.base = {};
+                updateItems(CLASSIFICATION_BASE);
+                g_trapInfo.bait = {};
+                updateItems(CLASSIFICATION_BAIT);
+                g_trapInfo.trinket = {};
+                updateItems(CLASSIFICATION_TRINKET);
+
                 window.setTimeout(function () {
-                    updateWeapons();
-                }, 0.5 * 1000);
-                window.setTimeout(function () {
-                    updateBases();
-                }, 7 * 1000);
-                window.setTimeout(function () {
-                    updateBaits();
-                }, 13 * 1000);
-                window.setTimeout(function () {
-                    updateTrinkets();
-                }, 19 * 1000);
-                window.setTimeout(function () {
-                    reloadCampPage();
-                }, 25 * 1000);
+                    saveTrapInfo();
+                }, 3 * 1000);
             }
 
-            function getSelectItem(items, itemId, onchangeFunction) {
+            function clearStorage() {
+                window.localStorage.clear();
+                reloadCampPage();
+            }
+
+            function getSelectItem(itemNames, itemId, onchangeFunction) {
                 const selectItem = document.createElement('select');
                 selectItem.style.width = "80px";
                 selectItem.style.fontSize = "90%";
-                for (let i = 0; i < items.length; i++) {
+                for (const itemName of itemNames) {
                     const itemOption = document.createElement("option");
-                    itemOption.value = items[i];
-                    itemOption.text = items[i];
+                    itemOption.value = itemName;
+                    itemOption.text = itemName;
                     selectItem.appendChild(itemOption);
                 }
                 selectItem.selectedIndex = -1;
@@ -2662,15 +2768,21 @@ function embedUIStructure() {
             }
 
             function getSelectWeapon(itemId, onchangeFunction) {
-                return getSelectItem(g_weaponNames, itemId, onchangeFunction);
+                const tmpNames = getWeaponNames();
+                const weaponNames = isNullOrUndefined(tmpNames)? []: tmpNames;
+                return getSelectItem(weaponNames, itemId, onchangeFunction);
             }
 
             function getSelectBase(itemId, onchangeFunction) {
-                return getSelectItem(g_baseNames, itemId, onchangeFunction);
+                const tmpNames = getBaseNames();
+                const baseNames = isNullOrUndefined(tmpNames)? []: tmpNames;
+                return getSelectItem(baseNames, itemId, onchangeFunction);
             }
 
             function getSelectBait(itemId, onchangeFunction) {
-                return getSelectItem(g_baitNames, itemId, onchangeFunction);
+                const tmpNames = getBaitNames();
+                const baitNames = isNullOrUndefined(tmpNames)? []: tmpNames;
+                return getSelectItem(baitNames, itemId, onchangeFunction);
             }
 
             function getSelectTrinket(itemId, onchangeFunction) {
@@ -2681,10 +2793,12 @@ function embedUIStructure() {
                 itemOption.value = TRINKET_DISARM;
                 itemOption.text = TRINKET_DISARM;
                 selectTrinket.appendChild(itemOption);
-                for (let i = 0; i < g_trinketNames.length; i++) {
+                const tmpNames = getTrinketNames();
+                const trinketNames = isNullOrUndefined(tmpNames)? []: tmpNames;
+                for (const trinketName of trinketNames) {
                     const itemOption = document.createElement("option");
-                    itemOption.value = g_trinketNames[i];
-                    itemOption.text = g_trinketNames[i];
+                    itemOption.value = trinketName;
+                    itemOption.text = trinketName;
                     selectTrinket.appendChild(itemOption);
                 }
                 selectTrinket.selectedIndex = -1;
@@ -3607,11 +3721,19 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode("Update traps");
             updateTrapsButton.appendChild(tmpTxt);
             updateTrapsButtonCell.appendChild(updateTrapsButton);
+            tmpTxt = document.createTextNode(" ");
+            updateTrapsButtonCell.appendChild(tmpTxt);
+            const clearStorageButton = document.createElement('button');
+            clearStorageButton.onclick = clearStorage;
+            clearStorageButton.style.fontSize = "10px";
+            tmpTxt = document.createTextNode("Clear stroage");
+            clearStorageButton.appendChild(tmpTxt);
+            updateTrapsButtonCell.appendChild(clearStorageButton);
             const applyButtonCell = trLastRow.insertCell();
             applyButtonCell.style.textAlign = "right";
             const applyPolicyPreferencesButton = document.createElement('button');
             applyPolicyPreferencesButton.onclick = savePolicyPreferences
-            applyPolicyPreferencesButton.style.fontSize = "13px";
+            applyPolicyPreferencesButton.style.fontSize = "9px";
             tmpTxt = document.createTextNode("Apply & Reload");
             applyPolicyPreferencesButton.appendChild(tmpTxt);
             applyButtonCell.appendChild(applyPolicyPreferencesButton);
@@ -3711,6 +3833,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.next_activeturn_seconds;
         } else if (name == USER_HAS_PUZZLE) {
             return unsafeWindow.user.has_puzzle;
+        } else if (name == 'user.unique_hash') {
+            return unsafeWindow.user.unique_hash;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.environment_name") {

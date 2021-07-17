@@ -1,3 +1,6 @@
+Version 1.2.2.24
+- Restructure trap information
+
 Version 1.2.2.23
 - Fix issue 'Let the countdownTrapCheck going even if KR'
 - Add recommendTrapSetup for FWa Policy
