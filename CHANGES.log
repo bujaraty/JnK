@@ -2,6 +2,7 @@ Version 1.2.2.24
 - Restructure trap information
 - Change comparison key of armTrap to item_id
 - Change location abbreviation to include Area code
+- Make recommendTrapSetup and resetTrapSetup global
 
 Version 1.2.2.23
 - Fix issue 'Let the countdownTrapCheck going even if KR'

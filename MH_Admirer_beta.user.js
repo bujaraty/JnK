@@ -131,6 +131,7 @@ const BAIT_MOON = "Moon Cheese";
 const BAIT_RUNIC = "Runic Cheese";
 const TRINKET_ATTRACTION = "Attraction Charm";
 const TRINKET_POWER = "Power Charm";
+const TRINKET_PROSPECTORS = "Prospector's Charm";
 const TRINKET_ROOK_CRUMBLE = "Rook Crumble Charm";
 const TRINKET_STICKY = "Sticky Charm";
 const TRINKET_VALENTINE = "Valentine Charm";
@@ -165,6 +166,16 @@ const ID_SELECT_BWOARE_WEAPON = "selectBWoAReWeapon";
 const ID_SELECT_BWOARE_BASE = "selectBWoAReBase";
 const ID_SELECT_BWOARE_BAIT = "selectBWoAReBait";
 const ID_SELECT_BWOARE_TRINKET = "selectBWoAReTrinket";
+const ID_TR_VVACSC_PHASES_TRAP_SETUP = "trVVaCSCPhasesTrapSetup";
+const ID_SELECT_VVACSC_PHASE = "selectVVaCSCPhase";
+const ID_SELECT_VVACSC_WEAPON = "selectVVaCSCWeapon";
+const ID_SELECT_VVACSC_BASE = "selectVVaCSCBase";
+const ID_SELECT_VVACSC_BAIT = "selectVVaCSCBait";
+const ID_SELECT_VVACSC_TRINKET = "selectVVaCSCTrinket";
+const ID_TR_VVACSC_AUTOMATIC_POSTER = "trVVaCSCAutomaticPoster";
+const ID_CHECKBOX_VVACSC_AUTOMATIC_POASTER = "checkboxVVaCSCAutomaticPoster";
+const ID_TR_VVACSC_AUTOMATIC_CACTUS_CHARM = "trVVaCSCAutomaticCactusCharm";
+const ID_CHECKBOX_VVACSC_AUTOMATIC_CACTUS_CHARM = "checkboxVVaCSCAutomaticCactusCharm";
 const ID_TR_VVAFRO_PHASES_TRAP_SETUP = "trVVaFRoPhasesTrapSetup";
 const ID_SELECT_VVAFRO_PHASE = "selectVVaFRoPhase";
 const ID_SELECT_VVAFRO_WEAPON = "selectVVaFRoWeapon";
@@ -232,6 +243,7 @@ const STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
 const STORAGE_STATUS_GIFTS_AND_RAFFLES = "statusGiftsAndRaffles";
 const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
+const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
 const STORAGE_TRAP_SETUP_VVAFRO = "trapSetupVVaFRo";
 const STORAGE_TRAP_SETUP_RODSGA = "trapSetupRodSGa";
 const STORAGE_TRAP_SETUP_RODZTO = "trapSetupRodZTo";
@@ -265,6 +277,11 @@ const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_PROCESS_Manual = "Manual";
 const BOT_STATUS_IDLE = "Idle";
+const VVACSC_PHASE_NEED_POSTER = "Need Poster";
+const VVACSC_PHASE_ACTIVE_POSTER = "Active Poster";
+const VVACSC_PHASES = [VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
+const VVACSC_AUTOMATIC_POSTER = "Automatic Poster";
+const VVACSC_AUTOMATIC_CACTUS_CHARM = "Automatic Cactus Charm";
 const VVAFRO_PHASE_DAY = "Day";
 const VVAFRO_PHASE_TWILIGHT = "Twilight";
 const VVAFRO_PHASE_MIDNIGHT = "Midnight";
@@ -516,6 +533,51 @@ class PolicyBWoARe extends Policy {
         } else {
             this.getArcaneTrapSetup(trapSetups);
         }
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyVVaCSC extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_CLAW_SHOT_CITY);
+        this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
+        this.trs[1] = ID_TR_VVACSC_AUTOMATIC_POSTER;
+        this.trs[2] = ID_TR_VVACSC_AUTOMATIC_CACTUS_CHARM;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = {};
+        for (const phase of VVACSC_PHASES){
+            this.trapSetups[phase] = [];
+        }
+        this.trapSetups[VVACSC_AUTOMATIC_POSTER] = false;
+        this.trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = false;
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_VVACSC);
+    }
+
+    initSelectTrapSetup() {
+        const trapSetups = this.getTrapSetups();
+        const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
+        document.getElementById(ID_SELECT_VVACSC_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
+        document.getElementById(ID_SELECT_VVACSC_BASE).value = trapSetups[currentPhase][IDX_BASE];
+        document.getElementById(ID_SELECT_VVACSC_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
+        document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
+        document.getElementById(ID_CHECKBOX_VVACSC_AUTOMATIC_POASTER).checked = trapSetups[VVACSC_AUTOMATIC_POSTER];
+        document.getElementById(ID_CHECKBOX_VVACSC_AUTOMATIC_CACTUS_CHARM).checked = trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM];
+    }
+
+    recommendTrapSetup() {
+        const trapSetups = this.getTrapSetups();
+        const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        const prospectorsCharm = getTrinketNames().includes(TRINKET_PROSPECTORS)? TRINKET_PROSPECTORS: undefined;
+        this.getLawTrapSetup(trapSetups[VVACSC_PHASE_NEED_POSTER], brieCheese, prospectorsCharm);
+        this.getLawTrapSetup(trapSetups[VVACSC_PHASE_ACTIVE_POSTER], brieCheese, prospectorsCharm);
+        trapSetups[VVACSC_AUTOMATIC_POSTER] = true;
+        trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = true;
         this.initSelectTrapSetup();
     }
 }
@@ -899,6 +961,7 @@ class PolicySDeFWa extends Policy {
 const POLICY_DICT = {};
 function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
+    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
     POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyVVaFRo();
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyRodZTo();
@@ -2597,24 +2660,6 @@ function embedUIStructure() {
                 reloadCampPage();
             }
 
-            function onChangePolicy(event) {
-                if (event.target.value == "Select policy") {
-                    return;
-                }
-                for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                    const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
-                    const tmpPolicy = POLICY_DICT[policyName];
-                    for (const tr of tmpPolicy.trs){
-                        document.getElementById(tr).style.display = tmpDisplay;
-                    }
-                    if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
-                        alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
-                    } else if (tmpDisplay == "table-row") {
-                        tmpPolicy.initSelectTrapSetup();
-                    }
-                }
-            }
-
             function updateTraps() {
                 function processData(data, classification) {
                     const tmpInfo = {};
@@ -2752,7 +2797,66 @@ function embedUIStructure() {
             }
 
             function insertSelectPolicyRow() {
+                function onChangePolicy(event) {
+                    if (event.target.value == "Select policy") {
+                        return;
+                    }
+                    for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
+                        const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
+                        const tmpPolicy = POLICY_DICT[policyName];
+                        for (const tr of tmpPolicy.trs){
+                            document.getElementById(tr).style.display = tmpDisplay;
+                        }
+                        if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
+                            alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
+                        } else if (tmpDisplay == "table-row") {
+                            tmpPolicy.initSelectTrapSetup();
+                        }
+                    }
+                    currentPolicy = event.target.value;
+                    switch(event.target.value) {
+                        case POLICY_NAME_ACOLYTE_REALM:
+                            policyStorage = STORAGE_TRAP_SETUP_BWOARE;
+                            break;
+                        case POLICY_NAME_CLAW_SHOT_CITY:
+                            policyStorage = STORAGE_TRAP_SETUP_VVACSC;
+                            break;
+                        case POLICY_NAME_FORT_ROX:
+                            policyStorage = STORAGE_TRAP_SETUP_VVAFRO;
+                            break;
+                        case POLICY_NAME_SEASONAL_GARDEN:
+                            policyStorage = STORAGE_TRAP_SETUP_RODSGA;
+                            break;
+                        case POLICY_NAME_ZUGZWANGS_TOWER:
+                            policyStorage = STORAGE_TRAP_SETUP_RODZTO;
+                            break;
+                        case POLICY_NAME_CRYSTAL_LIBRARY:
+                            policyStorage = STORAGE_TRAP_SETUP_RODCLI;
+                            break;
+                        case POLICY_NAME_ICEBERG:
+                            policyStorage = STORAGE_TRAP_SETUP_RODICE;
+                            break;
+                        case POLICY_NAME_FIERY_WARPATH:
+                            policyStorage = STORAGE_TRAP_SETUP_SDEFWA;
+                            break;
+                        default:
+                    }
+                }
+
+                function recommendTrapSetup() {
+                    POLICY_DICT[currentPolicy].recommendTrapSetup();
+                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                }
+
+                function resetTrapSetup() {
+                    POLICY_DICT[currentPolicy].resetTrapSetups();
+                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    reloadCampPage();
+                }
+
                 let itemOption;
+                let currentPolicy;
+                let policyStorage;
                 const trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
                 const captionCell = trSelectPolicy.insertCell();
@@ -2776,6 +2880,22 @@ function embedUIStructure() {
                 }
                 selectPolicyCell.appendChild(selectPolicy);
                 itemOption = null;
+                tmpTxt = document.createTextNode("  ");
+                selectPolicyCell.appendChild(tmpTxt);
+                const recommendButton = document.createElement('button');
+                recommendButton.onclick = recommendTrapSetup;
+                recommendButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Recommend");
+                recommendButton.appendChild(tmpTxt);
+                selectPolicyCell.appendChild(recommendButton);
+                tmpTxt = document.createTextNode("  ");
+                selectPolicyCell.appendChild(tmpTxt);
+                const resetButton = document.createElement('button');
+                resetButton.onclick = resetTrapSetup;
+                resetButton.style.fontSize = "9px";
+                tmpTxt = document.createTextNode("Reset & Reload");
+                resetButton.appendChild(tmpTxt);
+                selectPolicyCell.appendChild(resetButton);
             }
 
             function insertBWoARePolicyPreferences() {
@@ -2829,23 +2949,127 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_BWOARE_TRINKET, saveBWoAReTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const recommendButton = document.createElement('button');
-                recommendButton.onclick = recommendBWoAReTrapSetup;
-                recommendButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Recommend");
-                recommendButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(recommendButton);
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const resetButton = document.createElement('button');
-                resetButton.onclick = resetBWoAReTrapSetup;
-                resetButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(resetButton);
                 tmpTxt = null;
+            }
+
+            function insertVVaCSCPolicyPreferences() {
+                function onChangeSelectVVaCSCPhase(event) {
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].initSelectTrapSetup();
+                }
+
+                function saveVVaCSCSetup(itemIndex, value) {
+                    const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[currentPhase][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                }
+
+                function saveVVaCSCWeapon(event) {
+                    saveVVaCSCSetup(IDX_WEAPON, event.target.value);
+                }
+
+                function saveVVaCSCBase(event) {
+                    saveVVaCSCSetup(IDX_BASE, event.target.value);
+                }
+
+                function saveVVaCSCBait(event) {
+                    saveVVaCSCSetup(IDX_BAIT, event.target.value);
+                }
+
+                function saveVVaCSCTrinket(event) {
+                    saveVVaCSCSetup(IDX_TRINKET, event.target.value);
+                }
+
+                function saveVVaCSCAutomaticPoster(event) {
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_AUTOMATIC_POSTER] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                }
+
+                function saveVVaCSCAutomaticCactusCharm(event) {
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                }
+
+                let captionCell;
+                let tmpTxt;
+
+                const trVVaCSCPhasesTrapSetup = policyPreferencesTable.insertRow();
+                trVVaCSCPhasesTrapSetup.id = ID_TR_VVACSC_PHASES_TRAP_SETUP;
+                trVVaCSCPhasesTrapSetup.style.height = "24px";
+                trVVaCSCPhasesTrapSetup.style.display = "none";
+                captionCell = trVVaCSCPhasesTrapSetup.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Setup for ";
+                const selectPhase = document.createElement('select');
+                selectPhase.id = ID_SELECT_VVACSC_PHASE;
+                selectPhase.style.width = "70px";
+                selectPhase.style.fontSize = "90%";
+                selectPhase.onchange = onChangeSelectVVaCSCPhase;
+                for (const phase of VVACSC_PHASES){
+                    const itemOption = document.createElement("option");
+                    itemOption.value = phase
+                    itemOption.text = phase
+                    selectPhase.appendChild(itemOption);
+                }
+                captionCell.appendChild(selectPhase);
+                tmpTxt = document.createTextNode("  Phase :  ");
+                captionCell.appendChild(tmpTxt);
+                const trapSetupCell = trVVaCSCPhasesTrapSetup.insertCell();
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_VVACSC_WEAPON, saveVVaCSCWeapon));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_VVACSC_BASE, saveVVaCSCBase));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_VVACSC_BAIT, saveVVaCSCBait));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVACSC_TRINKET, saveVVaCSCTrinket));
+                tmpTxt = document.createTextNode(" ");
+                trapSetupCell.appendChild(tmpTxt);
+
+                const trVVaCSCAutomaticPoster = policyPreferencesTable.insertRow();
+                trVVaCSCAutomaticPoster.id = ID_TR_VVACSC_AUTOMATIC_POSTER;
+                trVVaCSCAutomaticPoster.style.height = "24px";
+                trVVaCSCAutomaticPoster.style.display = "none";
+                captionCell = trVVaCSCAutomaticPoster.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Automatic action(s) :  ";
+                const checkboxAutomaticPosterCell = trVVaCSCAutomaticPoster.insertCell();
+                const checkboxAutomaticPoster = document.createElement('input');
+                checkboxAutomaticPoster.id = ID_CHECKBOX_VVACSC_AUTOMATIC_POASTER;
+                checkboxAutomaticPoster.type = "checkbox";
+                checkboxAutomaticPoster.onchange = saveVVaCSCAutomaticPoster;
+                checkboxAutomaticPosterCell.appendChild(checkboxAutomaticPoster);
+                tmpTxt = document.createTextNode(" Open Poster and Claim Bounty Reward");
+                checkboxAutomaticPosterCell.appendChild(tmpTxt);
+
+                const trVVaCSCAutomaticCactusCharm = policyPreferencesTable.insertRow();
+                trVVaCSCAutomaticCactusCharm.id = ID_TR_VVACSC_AUTOMATIC_CACTUS_CHARM;
+                trVVaCSCAutomaticCactusCharm.style.height = "24px";
+                trVVaCSCAutomaticCactusCharm.style.display = "none";
+                captionCell = trVVaCSCAutomaticCactusCharm.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                const checkboxAutomaticCactusCharmCell = trVVaCSCAutomaticCactusCharm.insertCell();
+                const checkboxAutomaticCactusCharm = document.createElement('input');
+                checkboxAutomaticCactusCharm.id = ID_CHECKBOX_VVACSC_AUTOMATIC_CACTUS_CHARM;
+                checkboxAutomaticCactusCharm.type = "checkbox";
+                checkboxAutomaticCactusCharm.onchange = saveVVaCSCAutomaticCactusCharm;
+                checkboxAutomaticCactusCharmCell.appendChild(checkboxAutomaticCactusCharm);
+                tmpTxt = document.createTextNode(" Arm Super Cactus Charm ");
+                checkboxAutomaticCactusCharmCell.appendChild(tmpTxt);
+                const imgSuperCactusCharm = document.createElement("img");
+                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
+                imgSuperCactusCharm.height = 15;
+                checkboxAutomaticCactusCharmCell.appendChild(imgSuperCactusCharm);
+                tmpTxt = document.createTextNode(" and Cactus Charm ");
+                checkboxAutomaticCactusCharmCell.appendChild(tmpTxt);
+                const imgCactusCharm = document.createElement("img");
+                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
+                imgCactusCharm.height = 15;
+                checkboxAutomaticCactusCharmCell.appendChild(imgCactusCharm);
+
+                tmpTxt = null;
+                captionCell = null;
             }
 
             function insertVVaFRoPolicyPreferences() {
@@ -2877,17 +3101,6 @@ function embedUIStructure() {
 
                 function saveVVaFRoTower(event) {
                     saveVVaFRoSetup(IDX_TOWER, event.target.value);
-                }
-
-                function recommendVVaFRoTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-                }
-
-                function resetVVaFRoTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-                    reloadCampPage();
                 }
 
                 function saveVVaFRoActivationHPFull(event) {
@@ -2965,22 +3178,6 @@ function embedUIStructure() {
                     selectActivation.appendChild(itemOption);
                 }
                 selectActivationCell.appendChild(selectActivation);
-                tmpTxt = document.createTextNode(" ");
-                selectActivationCell.appendChild(tmpTxt);
-                const recommendButton = document.createElement('button');
-                recommendButton.onclick = recommendVVaFRoTrapSetup;
-                recommendButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Recommend");
-                recommendButton.appendChild(tmpTxt);
-                selectActivationCell.appendChild(recommendButton);
-                tmpTxt = document.createTextNode(" ");
-                selectActivationCell.appendChild(tmpTxt);
-                const resetButton = document.createElement('button');
-                resetButton.onclick = resetVVaFRoTrapSetup;
-                resetButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                selectActivationCell.appendChild(resetButton);
 
                 tmpTxt = null;
                 captionCell = null;
@@ -3011,17 +3208,6 @@ function embedUIStructure() {
 
                 function saveRodSGaTrinket(event) {
                     saveRodSGaSetup(IDX_TRINKET, event.target.value);
-                }
-
-                function recommendRodSGaTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_RODSGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                }
-
-                function resetRodSGaTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_RODSGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                    reloadCampPage();
                 }
 
                 let captionCell;
@@ -3058,22 +3244,6 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODSGA_TRINKET, saveRodSGaTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const recommendButton = document.createElement('button');
-                recommendButton.onclick = recommendRodSGaTrapSetup;
-                recommendButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Recommend");
-                recommendButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(recommendButton);
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const resetButton = document.createElement('button');
-                resetButton.onclick = resetRodSGaTrapSetup;
-                resetButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(resetButton);
                 captionCell = null;
                 tmpTxt = null;
             }
@@ -3110,17 +3280,6 @@ function embedUIStructure() {
                     saveRodZToSetup(IDX_TRINKET, event.target.value);
                 }
 
-                function recommendRodZToTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
-                }
-
-                function resetRodZToTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
-                    reloadCampPage();
-                }
-
                 let captionCell;
                 let tmpTxt;
                 const trRodZToStrategy = policyPreferencesTable.insertRow();
@@ -3147,22 +3306,6 @@ function embedUIStructure() {
                     selectStrategy.appendChild(itemOption);
                 }
                 selectStrategyCell.appendChild(selectStrategy);
-                tmpTxt = document.createTextNode("   ");
-                selectStrategyCell.appendChild(tmpTxt);
-                const recommendButton = document.createElement('button');
-                recommendButton.onclick = recommendRodZToTrapSetup;
-                recommendButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Recommend");
-                recommendButton.appendChild(tmpTxt);
-                selectStrategyCell.appendChild(recommendButton);
-                tmpTxt = document.createTextNode(" ");
-                selectStrategyCell.appendChild(tmpTxt);
-                const resetButton = document.createElement('button');
-                resetButton.onclick = resetRodZToTrapSetup;
-                resetButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                selectStrategyCell.appendChild(resetButton);
 
                 const trRodZToChessTrapSetup = policyPreferencesTable.insertRow();
                 trRodZToChessTrapSetup.id = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
@@ -3251,17 +3394,6 @@ function embedUIStructure() {
                     saveRodIceSetup(IDX_TRINKET, event.target.value);
                 }
 
-                function recommendRodIceTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ICEBERG].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_RODICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
-                }
-
-                function resetRodIceTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ICEBERG].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_RODICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
-                    reloadCampPage();
-                }
-
                 let tmpTxt;
                 const trRodIceSublocationTrapSetup = policyPreferencesTable.insertRow();
                 trRodIceSublocationTrapSetup.id = ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP;
@@ -3295,22 +3427,6 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODICE_TRINKET, saveRodIceTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const recommendButton = document.createElement('button');
-                recommendButton.onclick = recommendRodIceTrapSetup;
-                recommendButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Recommend");
-                recommendButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(recommendButton);
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const resetButton = document.createElement('button');
-                resetButton.onclick = resetRodIceTrapSetup;
-                resetButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                trapSetupCell.appendChild(resetButton);
                 tmpTxt = null;
             }
 
@@ -3403,17 +3519,6 @@ function embedUIStructure() {
                     saveWave4Setup(IDX_TRINKET, event.target.value);
                 }
 
-                function recommendSDeFWaTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-                }
-
-                function resetSDeFWaTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-                    reloadCampPage();
-                }
-
                 let tmpTxt;
                 let captionCell;
                 const trSelectSDeFWaWave = policyPreferencesTable.insertRow();
@@ -3436,22 +3541,6 @@ function embedUIStructure() {
                     selectSDeFWaWave.appendChild(itemOption);
                 }
                 selectSDeFWaWaveCell.appendChild(selectSDeFWaWave);
-                tmpTxt = document.createTextNode(" ");
-                selectSDeFWaWaveCell.appendChild(tmpTxt);
-                const recommendButton = document.createElement('button');
-                recommendButton.onclick = recommendSDeFWaTrapSetup;
-                recommendButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Recommend");
-                recommendButton.appendChild(tmpTxt);
-                selectSDeFWaWaveCell.appendChild(recommendButton);
-                tmpTxt = document.createTextNode(" ");
-                selectSDeFWaWaveCell.appendChild(tmpTxt);
-                const resetButton = document.createElement('button');
-                resetButton.onclick = resetSDeFWaTrapSetup;
-                resetButton.style.fontSize = "9px";
-                tmpTxt = document.createTextNode("Reset & Reload");
-                resetButton.appendChild(tmpTxt);
-                selectSDeFWaWaveCell.appendChild(resetButton);
 
                 const trSDeFWaPowerTypesTrapSetup = policyPreferencesTable.insertRow();
                 trSDeFWaPowerTypesTrapSetup.id = ID_TR_SDEFWA_POWER_TYPES_TRAP_SETUP;
@@ -3652,6 +3741,7 @@ function embedUIStructure() {
 
             insertSelectPolicyRow();
             insertBWoARePolicyPreferences();
+            insertVVaCSCPolicyPreferences();
             insertVVaFRoPolicyPreferences();
             insertRodSGaPolicyPreferences();
             insertRodZToPolicyPreferences();
