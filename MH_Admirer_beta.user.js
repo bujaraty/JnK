@@ -2205,7 +2205,7 @@ function prepareSendingGiftsAndBallots() {
     function sendingGiftsAndBallots(friendIdx) {
         function sendingGift(snuid) {
             ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
-                     getAjaxRequestHeader({"action": "send_daily_gift", "snuid": snuid}),
+                     getAjaxHeader({"action": "send_daily_gift", "snuid": snuid}),
                      function (data) {
             }, function (error) {
                 console.error('ajax:', error);
@@ -2215,7 +2215,7 @@ function prepareSendingGiftsAndBallots() {
 
         function sendingBallot(snuid) {
             ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
-                     getAjaxRequestHeader({"snuid": snuid}),
+                     getAjaxHeader({"snuid": snuid}),
                      function (data) {
             }, function (error) {
                 console.error('ajax:', error);
@@ -2264,7 +2264,7 @@ function testGetSocialGiftStatus() {
         function sendingGiftsAndBallots(friendIdx) {
             function sendingGift(snuid) {
                 ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
-                         getAjaxRequestHeader({"action": "send_daily_gift", "snuid": snuid}),
+                         getAjaxHeader({"action": "send_daily_gift", "snuid": snuid}),
                          function (data) {
                 }, function (error) {
                     console.error('ajax:', error);
@@ -2274,7 +2274,7 @@ function testGetSocialGiftStatus() {
 
             function sendingBallot(snuid) {
                 ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
-                         getAjaxRequestHeader({"snuid": snuid}),
+                         getAjaxHeader({"snuid": snuid}),
                          function (data) {
                 }, function (error) {
                     console.error('ajax:', error);
@@ -2284,9 +2284,9 @@ function testGetSocialGiftStatus() {
 
             const snuId = friendInfo[friendIdx][0];
             if (friendsSentGifts.includes(snuId)) {
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "We have already sent a gift and a ballot tofriendInfo[friendIdx][1].name;
+            //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "We have already sent a gift and a ballot tofriendInfo[friendIdx][1].name;
             }
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
+            //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
 
             sendingGift(snuid);
             window.setTimeout(function () {
@@ -2325,7 +2325,7 @@ function testGetSocialGiftStatus() {
     }
 
     ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
-             getAjaxRequestHeader({"action": "info", "last_read_journal_entry_id": 13021}),
+             getAjaxHeader({"action": "info", "last_read_journal_entry_id": 13021}),
              function (data) {
         processSocialGiftData(data);
     }, function (error) {
@@ -2348,7 +2348,7 @@ function test2() {
     testLoadObjFromStorage();
 }
 
-function getAjaxRequestHeader(addedData) {
+function getAjaxHeader(addedData) {
     const mainData = {};
     mainData.sn = 'Hitgrab';
     mainData.hg_is_ajax = 1;
@@ -2873,13 +2873,9 @@ function embedUIStructure() {
                 }
 
                 function updateItems(classification) {
-                    const objData = {
-                        sn: 'Hitgrab',
-                        hg_is_ajax: 1,
-                        classification: classification,
-                        uh: getPageVariable('user.unique_hash')
-                    };
-                    ajaxPost(window.location.origin + '/managers/ajax/users/gettrapcomponents.php', objData, function (data) {
+                    ajaxPost(window.location.origin + '/managers/ajax/users/gettrapcomponents.php',
+                             getAjaxHeader({"classification": classification}),
+                             function (data) {
                         processData(data, classification);
                     }, function (error) {
                         console.error('ajax:', error);
@@ -2917,9 +2913,9 @@ function embedUIStructure() {
                     setStorage(STORAGE_FRIEND_INFO, g_friendInfo);
                     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating friends";
                 }
-                const addedHeaderData = {"fields%5B%5D": "snuid",
-                                         "get_friends": true};
-                ajaxPost(window.location.origin + '/managers/ajax/users/userData.php', getAjaxRequestHeader(addedHeaderData), function (data) {
+                ajaxPost(window.location.origin + '/managers/ajax/users/userData.php',
+                         getAjaxHeader({"fields%5B%5D": "snuid", "get_friends": true}),
+                         function (data) {
                     processUserData(data);
                 }, function (error) {
                     console.error('ajax:', error);
