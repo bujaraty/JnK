@@ -115,6 +115,7 @@ const HUNTER_TITLES = ["Novice", "Recruit", "Apprentice", "Initiate", "Journeyma
                        "Viceroy", "Elder", "Sage", "Fabled"];
 const BASE_CHEESECAKE = "Cheesecake Base";
 const BASE_CHOCOLATE_BAR = "Chocolate Bar Base";
+const BASE_CLAW_SHOT = "Claw Shot Base";
 const BASE_DEEP_FREEZE = "Deep Freeze Base";
 const BASE_FORECASTER = "Forecaster Base";
 const BASE_HEARTHSTONE = "Hearthstone Base";
@@ -277,8 +278,10 @@ const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_PROCESS_Manual = "Manual";
 const BOT_STATUS_IDLE = "Idle";
-const VVACSC_PHASE_NEED_POSTER = "Need Poster";
-const VVACSC_PHASE_ACTIVE_POSTER = "Active Poster";
+const VVACSC_PHASE_NEED_POSTER = "need_poster";
+const VVACSC_PHASE_HAS_POSTER = "has_poster";
+const VVACSC_PHASE_ACTIVE_POSTER = "active_poster";
+const VVACSC_PHASE_HAS_REWARD = "has_reward";
 const VVACSC_PHASES = [VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
 const VVACSC_AUTOMATIC_POSTER = "Automatic Poster";
 const VVACSC_AUTOMATIC_CACTUS_CHARM = "Automatic Cactus Charm";
@@ -426,9 +429,18 @@ class Policy {
 
     getBestLuckWeapon(powerType) {
         const weaponInfo = getWeaponInfo();
+        /*
+        const tmpWeapons = Object.fromEntries(Object.entries(weaponInfo)
+        .filter(([key, value]) => value.powerType === powerType)
+        .sort(([,a], [,b]) => b.power - a.power)
+        .sort(([,a], [,b]) => b.luck - a.luck)
+                                             );
+        debugObj(tmpWeapons);
+//        .map(x => x[1].name)[0];*/
         if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
             this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
                 .filter(([key, value]) => value.powerType === powerType)
+                .sort(([,a], [,b]) => b.power - a.power)
                 .sort(([,a], [,b]) => b.luck - a.luck)
                 .map(x => x[1].name)[0];
         }
@@ -572,10 +584,18 @@ class PolicyVVaCSC extends Policy {
 
     recommendTrapSetup() {
         const trapSetups = this.getTrapSetups();
+        const bestWeapon = this.getBestLuckWeapon(POWER_TYPE_LAW);
+        const clawShotBase = getBaseNames().includes(BASE_CLAW_SHOT)? BASE_CLAW_SHOT: this.getBestBase();;
         const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const prospectorsCharm = getTrinketNames().includes(TRINKET_PROSPECTORS)? TRINKET_PROSPECTORS: undefined;
-        this.getLawTrapSetup(trapSetups[VVACSC_PHASE_NEED_POSTER], brieCheese, prospectorsCharm);
-        this.getLawTrapSetup(trapSetups[VVACSC_PHASE_ACTIVE_POSTER], brieCheese, prospectorsCharm);
+        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_WEAPON] = bestWeapon;
+        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_BASE] = clawShotBase;
+        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_BAIT] = brieCheese;
+        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_TRINKET] = prospectorsCharm;
+        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_WEAPON] = bestWeapon;
+        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_BASE] = clawShotBase;
+        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_BAIT] = brieCheese;
+        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_TRINKET] = prospectorsCharm;
         trapSetups[VVACSC_AUTOMATIC_POSTER] = true;
         trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = true;
         this.initSelectTrapSetup();
@@ -1830,20 +1850,26 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
+        const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
         switch(phase) {
-            case "need_poster":
+            case VVACSC_PHASE_NEED_POSTER:
+                armTraps(trapSetups[phase]);
                 break;
-            case "has_poster":
+            case VVACSC_PHASE_HAS_POSTER:
+                if (!trapSetups[VVACSC_AUTOMATIC_POSTER]) {
+                    return;
+                }
                 poster = document.getElementsByClassName("open has_poster")[0];
                 fireEvent(poster, "click");
                 window.setTimeout(function () {
                     reloadCampPage();
                 }, 5 * 1000);
                 break;
-            case "active_poster":
+            case VVACSC_PHASE_ACTIVE_POSTER:
+                armTraps(trapSetups[phase]);
                 break;
-            case "has_reward":
-                if (!lockBot(BOT_PROCESS_POLICY)) {
+            case VVACSC_PHASE_HAS_REWARD:
+                if (!lockBot(BOT_PROCESS_POLICY) || !trapSetups[VVACSC_AUTOMATIC_POSTER]) {
                     return;
                 }
                 poster = document.getElementsByClassName("open has_reward")[0];
@@ -2371,7 +2397,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2396,15 +2422,7 @@ function embedUIStructure() {
         imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Howlite.gif"
         imgHowlite.height = 15;
         testButtonsCell.appendChild(imgHowlite);
-        const imgCactusCharm = document.createElement("img");
-        imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
-        imgCactusCharm.height = 15;
-        testButtonsCell.appendChild(imgCactusCharm);
-        const imgSuperCactusCharm = document.createElement("img");
-        imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
-        imgSuperCactusCharm.height = 15;
-        testButtonsCell.appendChild(imgSuperCactusCharm);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
 
