@@ -175,10 +175,10 @@ const ID_SELECT_VVACSC_WEAPON = "selectVVaCSCWeapon";
 const ID_SELECT_VVACSC_BASE = "selectVVaCSCBase";
 const ID_SELECT_VVACSC_BAIT = "selectVVaCSCBait";
 const ID_SELECT_VVACSC_TRINKET = "selectVVaCSCTrinket";
-const ID_TR_VVACSC_AUTOMATIC_POSTER = "trVVaCSCAutomaticPoster";
-const ID_CHECKBOX_VVACSC_AUTOMATIC_POASTER = "checkboxVVaCSCAutomaticPoster";
-const ID_TR_VVACSC_AUTOMATIC_CACTUS_CHARM = "trVVaCSCAutomaticCactusCharm";
-const ID_CHECKBOX_VVACSC_AUTOMATIC_CACTUS_CHARM = "checkboxVVaCSCAutomaticCactusCharm";
+const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
+const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
+const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
+const ID_CBX_VVACSC_ATM_CACTUS_CHARM = "cbxVVaCSCAtmCactusCharm";
 const ID_TR_VVAFRO_PHASES_TRAP_SETUP = "trVVaFRoPhasesTrapSetup";
 const ID_SELECT_VVAFRO_PHASE = "selectVVaFRoPhase";
 const ID_SELECT_VVAFRO_WEAPON = "selectVVaFRoWeapon";
@@ -186,8 +186,12 @@ const ID_SELECT_VVAFRO_BASE = "selectVVaFRoBase";
 const ID_SELECT_VVAFRO_BAIT = "selectVVaFRoBait";
 const ID_SELECT_VVAFRO_TRINKET = "selectVVaFRoTrinket";
 const ID_SELECT_VVAFRO_TOWER = "selectVVaFRoTower";
-const ID_TR_VVAFRO_TOWER_HP_FULL = "trVVaFRoTowerHPFull";
-const ID_SELECT_VVAFRO_ACTIVATION_HP_FULL = "selectVVaFRoActivationHPFull";
+const ID_TR_VVAFRO_ATM_DEACTIVATE = "trVVaFRoAtmDeactivate";
+const ID_CBX_VVAFRO_ATM_DEACTIVATE = "cbxVVaFRoAtmDeactivate";
+const ID_TR_VVAFRO_ATM_RETREAT = "trVVaFRoAtmRetreat";
+const ID_CBX_VVAFRO_ATM_RETREAT = "cbxVVaFRoAtmRetreat";
+const ID_INPUT_VVAFRO_REQUIRED_HOWLITE = "inputVVaFRoRequiredHowlite";
+const ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE = "inputVVaFRoRequiredBloodstone";
 const ID_TR_RODSGA_SEASONS_TRAP_SETUP = "trRodSGaSeasonsTrapSetup";
 const ID_SELECT_RODSGA_SEASON = "selectRodSGaSeason";
 const ID_SELECT_RODSGA_WEAPON = "selectRodSGaWeapon";
@@ -203,7 +207,7 @@ const ID_SELECT_RODZTO_BASE = "selectRodZToBase";
 const ID_SELECT_RODZTO_BAIT = "selectRodZToBait";
 const ID_SELECT_RODZTO_TRINKET = "selectRodZToTrinket";
 const ID_TR_RODCLI_CATALOG_MICE = "trRodCLiCatalogMice";
-const ID_CHECKBOX_RODCLI_CATALOG_MICE = "checkboxRodCLiCatalogMice";
+const ID_CBX_RODCLI_CATALOG_MICE = "cbxRodCLiCatalogMice";
 const ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP = "trRodIceSublocationTrapSetup";
 const ID_SELECT_RODICE_SUBLOCATION = "selectRodIceSublocation";
 const ID_SELECT_RODICE_WEAPON = "selectRodIceWeapon";
@@ -286,8 +290,8 @@ const VVACSC_PHASE_HAS_POSTER = "has_poster";
 const VVACSC_PHASE_ACTIVE_POSTER = "active_poster";
 const VVACSC_PHASE_HAS_REWARD = "has_reward";
 const VVACSC_PHASES = [VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
-const VVACSC_AUTOMATIC_POSTER = "Automatic Poster";
-const VVACSC_AUTOMATIC_CACTUS_CHARM = "Automatic Cactus Charm";
+const VVACSC_ATM_POSTER = "Automatic Poster";
+const VVACSC_ATM_CACTUS_CHARM = "Automatic Cactus Charm";
 const VVAFRO_PHASE_DAY = "Day";
 const VVAFRO_PHASE_TWILIGHT = "Twilight";
 const VVAFRO_PHASE_MIDNIGHT = "Midnight";
@@ -297,10 +301,13 @@ const VVAFRO_PHASE_FIRST_LIGHT = "First Light";
 const VVAFRO_PHASE_DAWN = "Dawn";
 const VVAFRO_PHASES = [VVAFRO_PHASE_DAY, VVAFRO_PHASE_TWILIGHT, VVAFRO_PHASE_MIDNIGHT, VVAFRO_PHASE_PITCH, VVAFRO_PHASE_UTTER_DARKNESS, VVAFRO_PHASE_FIRST_LIGHT,
                        VVAFRO_PHASE_DAWN];
-const VVAFRO_TOWER_HP_FULL = "HP Full";
 const VVAFRO_TOWER_ACTIVATE = "Activate";
 const VVAFRO_TOWER_DEACTIVATE = "Deactivate";
 const VVAFRO_TOWER_ACTIVATION = [VVAFRO_TOWER_ACTIVATE, VVAFRO_TOWER_DEACTIVATE];
+const VVAFRO_ATM_DEACTIVATE = "Automatic Deactivate";
+const VVAFRO_ATM_RETREAT = "Automatic Retreat";
+const VVAFRO_REQUIRED_HOWLITE = "Required Howlite";
+const VVAFRO_REQUIRED_BLOODSTONE = "Required Bloodstone";
 const RODSGA_SEASON_SPRING = "Spring";
 const RODSGA_SEASON_SUMMER = "Summer";
 const RODSGA_SEASON_AUTUMN = "Autumn";
@@ -557,8 +564,8 @@ class PolicyVVaCSC extends Policy {
         super();
         this.setName(POLICY_NAME_CLAW_SHOT_CITY);
         this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-        this.trs[1] = ID_TR_VVACSC_AUTOMATIC_POSTER;
-        this.trs[2] = ID_TR_VVACSC_AUTOMATIC_CACTUS_CHARM;
+        this.trs[1] = ID_TR_VVACSC_ATM_POSTER;
+        this.trs[2] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
     }
 
     resetTrapSetups() {
@@ -566,8 +573,8 @@ class PolicyVVaCSC extends Policy {
         for (const phase of VVACSC_PHASES){
             this.trapSetups[phase] = [];
         }
-        this.trapSetups[VVACSC_AUTOMATIC_POSTER] = false;
-        this.trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = false;
+        this.trapSetups[VVACSC_ATM_POSTER] = false;
+        this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = false;
     }
 
     getTrapSetups() {
@@ -581,8 +588,8 @@ class PolicyVVaCSC extends Policy {
         document.getElementById(ID_SELECT_VVACSC_BASE).value = trapSetups[currentPhase][IDX_BASE];
         document.getElementById(ID_SELECT_VVACSC_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
         document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
-        document.getElementById(ID_CHECKBOX_VVACSC_AUTOMATIC_POASTER).checked = trapSetups[VVACSC_AUTOMATIC_POSTER];
-        document.getElementById(ID_CHECKBOX_VVACSC_AUTOMATIC_CACTUS_CHARM).checked = trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM];
+        document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
+        document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
     }
 
     recommendTrapSetup() {
@@ -599,8 +606,8 @@ class PolicyVVaCSC extends Policy {
         trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_BASE] = clawShotBase;
         trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_BAIT] = brieCheese;
         trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_TRINKET] = prospectorsCharm;
-        trapSetups[VVACSC_AUTOMATIC_POSTER] = true;
-        trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = true;
+        trapSetups[VVACSC_ATM_POSTER] = true;
+        trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
         this.initSelectTrapSetup();
     }
 }
@@ -610,7 +617,8 @@ class PolicyVVaFRo extends Policy {
         super();
         this.setName(POLICY_NAME_FORT_ROX);
         this.trs[0] = ID_TR_VVAFRO_PHASES_TRAP_SETUP;
-        this.trs[1] = ID_TR_VVAFRO_TOWER_HP_FULL;
+        this.trs[1] = ID_TR_VVAFRO_ATM_DEACTIVATE;
+        this.trs[2] = ID_TR_VVAFRO_ATM_RETREAT;
     }
 
     resetTrapSetups() {
@@ -618,7 +626,10 @@ class PolicyVVaFRo extends Policy {
         for (const phase of VVAFRO_PHASES){
             this.trapSetups[phase] = [];
         }
-        this.trapSetups[VVAFRO_TOWER_HP_FULL] = VVAFRO_TOWER_DEACTIVATE;
+        this.trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
+        this.trapSetups[VVAFRO_ATM_RETREAT] = false;
+        this.trapSetups[VVAFRO_REQUIRED_HOWLITE] = 0;
+        this.trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = 0;
     }
 
     getTrapSetups() {
@@ -636,7 +647,12 @@ class PolicyVVaFRo extends Policy {
             trapSetups[currentPhase][IDX_TOWER] = VVAFRO_TOWER_DEACTIVATE;
         }
         document.getElementById(ID_SELECT_VVAFRO_TOWER).value = trapSetups[currentPhase][IDX_TOWER];
-        document.getElementById(ID_SELECT_VVAFRO_ACTIVATION_HP_FULL).value = trapSetups[VVAFRO_TOWER_HP_FULL];
+        document.getElementById(ID_CBX_VVAFRO_ATM_DEACTIVATE).checked = trapSetups[VVAFRO_ATM_DEACTIVATE];
+        document.getElementById(ID_CBX_VVAFRO_ATM_RETREAT).checked = trapSetups[VVAFRO_ATM_RETREAT];
+        document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).value = trapSetups[VVAFRO_REQUIRED_HOWLITE];
+        document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).disabled = !trapSetups[VVAFRO_ATM_RETREAT];
+        document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).value = trapSetups[VVAFRO_REQUIRED_BLOODSTONE];
+        document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).disabled = !trapSetups[VVAFRO_ATM_RETREAT];
     }
 
     recommendTrapSetup() {
@@ -651,6 +667,8 @@ class PolicyVVaFRo extends Policy {
         this.getArcaneTrapSetup(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS], baitName);
         this.getArcaneTrapSetup(trapSetups[VVAFRO_PHASE_FIRST_LIGHT], baitName);
         this.getArcaneTrapSetup(trapSetups[VVAFRO_PHASE_DAWN], baitName);
+        trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
+        trapSetups[VVAFRO_ATM_RETREAT] = trapSetups[VVAFRO_REQUIRED_HOWLITE] > 0 || trapSetups[VVAFRO_REQUIRED_BLOODSTONE] > 0;
         this.initSelectTrapSetup();
     }
 }
@@ -784,7 +802,7 @@ class PolicyRodCLi extends Policy {
 
     initSelectTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        document.getElementById(ID_CHECKBOX_RODCLI_CATALOG_MICE).checked = trapSetups[RODCLI_CATALOG_MICE];
+        document.getElementById(ID_CBX_RODCLI_CATALOG_MICE).checked = trapSetups[RODCLI_CATALOG_MICE];
     }
 }
 
@@ -1870,7 +1888,7 @@ function checkLocation() {
                 armTraps(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_POSTER:
-                if (!trapSetups[VVACSC_AUTOMATIC_POSTER]) {
+                if (!trapSetups[VVACSC_ATM_POSTER]) {
                     return;
                 }
                 poster = document.getElementsByClassName("open has_poster")[0];
@@ -1883,7 +1901,7 @@ function checkLocation() {
                 armTraps(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_REWARD:
-                if (!trapSetups[VVACSC_AUTOMATIC_POSTER] || !lockBot(BOT_PROCESS_POLICY)) {
+                if (!trapSetups[VVACSC_ATM_POSTER] || !lockBot(BOT_PROCESS_POLICY)) {
                     return;
                 }
                 poster = document.getElementsByClassName("open has_reward")[0];
@@ -2284,13 +2302,13 @@ function testGetSocialGiftStatus() {
 
             const snuId = friendInfo[friendIdx][0];
             if (friendsSentGifts.includes(snuId)) {
-            //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "We have already sent a gift and a ballot tofriendInfo[friendIdx][1].name;
+                //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "We have already sent a gift and a ballot tofriendInfo[friendIdx][1].name;
             }
             //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
 
-            sendingGift(snuid);
+            sendingGift(snuId);
             window.setTimeout(function () {
-                sendingBallot(snuid);
+                sendingBallot(snuId);
             }, itemTimeoutInterval * 1000);
             friendIdx += 1;
             if (friendIdx < friendInfo.length) {
@@ -2554,7 +2572,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2571,14 +2589,6 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-        const imgBloodStone = document.createElement("img");
-        imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Bloodstone.gif"
-        imgBloodStone.height = 15;
-        testButtonsCell.appendChild(imgBloodStone);
-        const imgHowlite = document.createElement("img");
-        imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Howlite.gif"
-        imgHowlite.height = 15;
-        testButtonsCell.appendChild(imgHowlite);
 */
 
         statusSection.appendChild(statusDisplayTable);
@@ -2609,6 +2619,16 @@ function embedUIStructure() {
                 toggleLink.innerHTML = '[Show]'
                 preferencesTable.style.display = 'none';
             }
+        }
+
+        function getNumberInput() {
+            const element = document.createElement('INPUT');
+            element.type = "number";
+            element.style.fontSize = "9px";
+            element.min = "0";
+            element.max = "999";
+            element.size = "5";
+            return element;
         }
 
         function embedPreferencesHeaderTable() {
@@ -3167,13 +3187,13 @@ function embedUIStructure() {
                     saveVVaCSCSetup(IDX_TRINKET, event.target.value);
                 }
 
-                function saveVVaCSCAutomaticPoster(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_AUTOMATIC_POSTER] = event.target.checked;
+                function saveVVaCSCAtmPoster(event) {
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
                 }
 
-                function saveVVaCSCAutomaticCactusCharm(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_AUTOMATIC_CACTUS_CHARM] = event.target.checked;
+                function saveVVaCSCAtmCactusCharm(event) {
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
                 }
 
@@ -3215,46 +3235,46 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
 
-                const trVVaCSCAutomaticPoster = policyPreferencesTable.insertRow();
-                trVVaCSCAutomaticPoster.id = ID_TR_VVACSC_AUTOMATIC_POSTER;
-                trVVaCSCAutomaticPoster.style.height = "24px";
-                trVVaCSCAutomaticPoster.style.display = "none";
-                captionCell = trVVaCSCAutomaticPoster.insertCell();
+                const trVVaCSCAtmPoster = policyPreferencesTable.insertRow();
+                trVVaCSCAtmPoster.id = ID_TR_VVACSC_ATM_POSTER;
+                trVVaCSCAtmPoster.style.height = "24px";
+                trVVaCSCAtmPoster.style.display = "none";
+                captionCell = trVVaCSCAtmPoster.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Automatic action(s) :  ";
-                const checkboxAutomaticPosterCell = trVVaCSCAutomaticPoster.insertCell();
-                const checkboxAutomaticPoster = document.createElement('input');
-                checkboxAutomaticPoster.id = ID_CHECKBOX_VVACSC_AUTOMATIC_POASTER;
-                checkboxAutomaticPoster.type = "checkbox";
-                checkboxAutomaticPoster.onchange = saveVVaCSCAutomaticPoster;
-                checkboxAutomaticPosterCell.appendChild(checkboxAutomaticPoster);
+                const checkboxAtmPosterCell = trVVaCSCAtmPoster.insertCell();
+                const checkboxAtmPoster = document.createElement('input');
+                checkboxAtmPoster.id = ID_CBX_VVACSC_ATM_POSTER;
+                checkboxAtmPoster.type = "checkbox";
+                checkboxAtmPoster.onchange = saveVVaCSCAtmPoster;
+                checkboxAtmPosterCell.appendChild(checkboxAtmPoster);
                 tmpTxt = document.createTextNode(" Open Poster and Claim Bounty Reward");
-                checkboxAutomaticPosterCell.appendChild(tmpTxt);
+                checkboxAtmPosterCell.appendChild(tmpTxt);
 
-                const trVVaCSCAutomaticCactusCharm = policyPreferencesTable.insertRow();
-                trVVaCSCAutomaticCactusCharm.id = ID_TR_VVACSC_AUTOMATIC_CACTUS_CHARM;
-                trVVaCSCAutomaticCactusCharm.style.height = "24px";
-                trVVaCSCAutomaticCactusCharm.style.display = "none";
-                captionCell = trVVaCSCAutomaticCactusCharm.insertCell();
+                const trVVaCSCAtmCactusCharm = policyPreferencesTable.insertRow();
+                trVVaCSCAtmCactusCharm.id = ID_TR_VVACSC_ATM_CACTUS_CHARM;
+                trVVaCSCAtmCactusCharm.style.height = "24px";
+                trVVaCSCAtmCactusCharm.style.display = "none";
+                captionCell = trVVaCSCAtmCactusCharm.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                const checkboxAutomaticCactusCharmCell = trVVaCSCAutomaticCactusCharm.insertCell();
-                const checkboxAutomaticCactusCharm = document.createElement('input');
-                checkboxAutomaticCactusCharm.id = ID_CHECKBOX_VVACSC_AUTOMATIC_CACTUS_CHARM;
-                checkboxAutomaticCactusCharm.type = "checkbox";
-                checkboxAutomaticCactusCharm.onchange = saveVVaCSCAutomaticCactusCharm;
-                checkboxAutomaticCactusCharmCell.appendChild(checkboxAutomaticCactusCharm);
+                const checkboxAtmCactusCharmCell = trVVaCSCAtmCactusCharm.insertCell();
+                const checkboxAtmCactusCharm = document.createElement('input');
+                checkboxAtmCactusCharm.id = ID_CBX_VVACSC_ATM_CACTUS_CHARM;
+                checkboxAtmCactusCharm.type = "checkbox";
+                checkboxAtmCactusCharm.onchange = saveVVaCSCAtmCactusCharm;
+                checkboxAtmCactusCharmCell.appendChild(checkboxAtmCactusCharm);
                 tmpTxt = document.createTextNode(" Arm Super Cactus Charm ");
-                checkboxAutomaticCactusCharmCell.appendChild(tmpTxt);
+                checkboxAtmCactusCharmCell.appendChild(tmpTxt);
                 const imgSuperCactusCharm = document.createElement("img");
                 imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
                 imgSuperCactusCharm.height = 15;
-                checkboxAutomaticCactusCharmCell.appendChild(imgSuperCactusCharm);
+                checkboxAtmCactusCharmCell.appendChild(imgSuperCactusCharm);
                 tmpTxt = document.createTextNode(" and Cactus Charm ");
-                checkboxAutomaticCactusCharmCell.appendChild(tmpTxt);
+                checkboxAtmCactusCharmCell.appendChild(tmpTxt);
                 const imgCactusCharm = document.createElement("img");
                 imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
                 imgCactusCharm.height = 15;
-                checkboxAutomaticCactusCharmCell.appendChild(imgCactusCharm);
+                checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
 
                 tmpTxt = null;
                 captionCell = null;
@@ -3291,8 +3311,25 @@ function embedUIStructure() {
                     saveVVaFRoSetup(IDX_TOWER, event.target.value);
                 }
 
-                function saveVVaFRoActivationHPFull(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_TOWER_HP_FULL] = event.target.value;
+                function saveVVaFRoAtmDeactivate(event) {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_DEACTIVATE] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                }
+
+                function saveVVaFRoAtmRetreat(event) {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).disabled = !event.target.checked;
+                    document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).disabled = !event.target.checked;
+                }
+
+                function saveVVaFRoRequiredHowlite(event) {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                }
+
+                function saveVVaFRoRequiredBloodstone(event) {
+                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
                     setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
                 }
 
@@ -3346,26 +3383,61 @@ function embedUIStructure() {
                 }
                 trapSetupCell.appendChild(selectTower);
 
-                const trVVaFRoTowerHPFull = policyPreferencesTable.insertRow();
-                trVVaFRoTowerHPFull.id = ID_TR_VVAFRO_TOWER_HP_FULL;
-                trVVaFRoTowerHPFull.style.height = "24px";
-                trVVaFRoTowerHPFull.style.display = "none";
-                captionCell = trVVaFRoTowerHPFull.insertCell();
+                const trVVaFRoAtmDeactivate = policyPreferencesTable.insertRow();
+                trVVaFRoAtmDeactivate.id = ID_TR_VVAFRO_ATM_DEACTIVATE;
+                trVVaFRoAtmDeactivate.style.height = "24px";
+                trVVaFRoAtmDeactivate.style.display = "none";
+                captionCell = trVVaFRoAtmDeactivate.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Tower Activation When HP Full :  ";
-                const selectActivationCell = trVVaFRoTowerHPFull.insertCell();
-                const selectActivation = document.createElement('select');
-                selectActivation.id = ID_SELECT_VVAFRO_ACTIVATION_HP_FULL;
-                selectActivation.style.fontSize = "90%";
-                selectActivation.style.width = "60px";
-                selectActivation.onchange = saveVVaFRoActivationHPFull;
-                for (const phase of VVAFRO_TOWER_ACTIVATION){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectActivation.appendChild(itemOption);
-                }
-                selectActivationCell.appendChild(selectActivation);
+                captionCell.innerHTML = "Automatic action(s) :  ";
+                const checkboxAtmDeactivateCell = trVVaFRoAtmDeactivate.insertCell();
+                const checkboxAtmDeactivate = document.createElement('input');
+                checkboxAtmDeactivate.id = ID_CBX_VVAFRO_ATM_DEACTIVATE;
+                checkboxAtmDeactivate.type = "checkbox";
+                checkboxAtmDeactivate.onchange = saveVVaFRoAtmDeactivate;
+                checkboxAtmDeactivateCell.appendChild(checkboxAtmDeactivate);
+                tmpTxt = document.createTextNode(" Deactivate Mage Tower when HP is full");
+                checkboxAtmDeactivateCell.appendChild(tmpTxt);
+
+                const trVVaFRoAtmRetreat = policyPreferencesTable.insertRow();
+                trVVaFRoAtmRetreat.id = ID_TR_VVAFRO_ATM_RETREAT;
+                trVVaFRoAtmRetreat.style.height = "24px";
+                trVVaFRoAtmRetreat.style.display = "none";
+                captionCell = trVVaFRoAtmRetreat.insertCell();
+                const checkboxAtmRetreatCell = trVVaFRoAtmRetreat.insertCell();
+                const checkboxAtmRetreat = document.createElement('input');
+                checkboxAtmRetreat.id = ID_CBX_VVAFRO_ATM_RETREAT;
+                checkboxAtmRetreat.type = "checkbox";
+                checkboxAtmRetreat.onchange = saveVVaFRoAtmRetreat;
+                checkboxAtmRetreatCell.appendChild(checkboxAtmRetreat);
+                tmpTxt = document.createTextNode(" Retreat when having");
+                checkboxAtmRetreatCell.appendChild(tmpTxt);
+                tmpTxt = document.createTextNode("  ");
+                checkboxAtmRetreatCell.appendChild(tmpTxt);
+                const inputVVaFRoRequiredHowlite = getNumberInput();
+                inputVVaFRoRequiredHowlite.id = ID_INPUT_VVAFRO_REQUIRED_HOWLITE;
+                inputVVaFRoRequiredHowlite.onchange = saveVVaFRoRequiredHowlite;
+                inputVVaFRoRequiredHowlite.value = 0;
+                checkboxAtmRetreatCell.appendChild(inputVVaFRoRequiredHowlite);
+                tmpTxt = document.createTextNode(" ");
+                checkboxAtmRetreatCell.appendChild(tmpTxt);
+                const imgHowlite = document.createElement("img");
+                imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Howlite.gif"
+                imgHowlite.height = 15;
+                checkboxAtmRetreatCell.appendChild(imgHowlite);
+                tmpTxt = document.createTextNode(" ");
+                checkboxAtmRetreatCell.appendChild(tmpTxt);
+                const inputVVaFRoRequiredBloodstone = getNumberInput();
+                inputVVaFRoRequiredBloodstone.id = ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE;
+                inputVVaFRoRequiredBloodstone.onchange = saveVVaFRoRequiredBloodstone;
+                inputVVaFRoRequiredBloodstone.value = 0;
+                checkboxAtmRetreatCell.appendChild(inputVVaFRoRequiredBloodstone);
+                tmpTxt = document.createTextNode(" ");
+                checkboxAtmRetreatCell.appendChild(tmpTxt);
+                const imgBloodStone = document.createElement("img");
+                imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Bloodstone.gif"
+                imgBloodStone.height = 15;
+                checkboxAtmRetreatCell.appendChild(imgBloodStone);
 
                 tmpTxt = null;
                 captionCell = null;
@@ -3547,7 +3619,7 @@ function embedUIStructure() {
                 captionCell.innerHTML = "Catalog Library Assignment :  ";
                 const checkboxCell = trRodCLiCatalogMice.insertCell();
                 const checkbox = document.createElement('input');
-                checkbox.id = ID_CHECKBOX_RODCLI_CATALOG_MICE;
+                checkbox.id = ID_CBX_RODCLI_CATALOG_MICE;
                 checkbox.type = "checkbox";
                 checkbox.onchange = saveRodCLiCheckbox;
                 checkboxCell.appendChild(checkbox);
