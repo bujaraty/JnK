@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.24
+// @version      1.2.2.25
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -92,6 +92,7 @@ let g_lastBotHornTimeRecorded = new Date();
 let g_lastTrapCheckTimeRecorded = new Date();
 let g_kingsRewardRetry = 0;
 let g_trapInfo = {};
+let g_friendInfo;
 let g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
@@ -162,6 +163,7 @@ const ID_PREFERENCES_BOX = 'preferencesBox';
 const ID_TIMER_PREFERENCES_TABLE = 'timerPreferencesTable';
 const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
+const ID_BOTTON_UPDATE_FRIENDS = "btnUpdateFriends";
 const ID_TR_BWOARE_TRAP_SETUP = "trBWoAreTrapSetup";
 const ID_SELECT_BWOARE_WEAPON = "selectBWoAReWeapon";
 const ID_SELECT_BWOARE_BASE = "selectBWoAReBase";
@@ -251,6 +253,7 @@ const STORAGE_TRAP_SETUP_RODZTO = "trapSetupRodZTo";
 const STORAGE_TRAP_SETUP_RODCLI = "trapSetupRodCLi";
 const STORAGE_TRAP_SETUP_RODICE = "trapSetupRodIce";
 const STORAGE_TRAP_SETUP_SDEFWA = "trapSetupSDeFWa";
+const STORAGE_FRIEND_INFO = "friendInfo";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
@@ -1082,6 +1085,17 @@ function getTrinketNames() {
     }
 }
 
+function getFriendInfo() {
+    if (isNullOrUndefined(g_friendInfo)) {
+        g_friendInfo = getStorage(STORAGE_FRIEND_INFO, null);
+        if (isNullOrUndefined(g_friendInfo)) {
+            document.getElementById(ID_BOTTON_UPDATE_FRIENDS).click();
+            return;
+        }
+    }
+    return g_friendInfo;
+}
+
 // Start executing script
 window.addEventListener("message", processEventMsg, false);
 
@@ -1869,7 +1883,7 @@ function checkLocation() {
                 armTraps(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_REWARD:
-                if (!lockBot(BOT_PROCESS_POLICY) || !trapSetups[VVACSC_AUTOMATIC_POSTER]) {
+                if (!trapSetups[VVACSC_AUTOMATIC_POSTER] || !lockBot(BOT_PROCESS_POLICY)) {
                     return;
                 }
                 poster = document.getElementsByClassName("open has_reward")[0];
@@ -2093,8 +2107,8 @@ function debugObj(obj) {
 function listAttributes(obj) {
     const attrs = obj.attributes;
     let tmpTxt = "";
-    for (let i = 0; i < attrs.length; i++) {
-        tmpTxt += attrs[i].name + " : " + attrs[i].value + "\n";
+    for (const [key, value] of Object.entries(obj)) {
+        tmpTxt += key + " : " + value + "\n";
     }
     alert(tmpTxt);
 }
@@ -2187,9 +2201,144 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
+function prepareSendingGiftsAndBallots() {
+    function sendingGiftsAndBallots(friendIdx) {
+        function sendingGift(snuid) {
+            ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
+                     getAjaxRequestHeader({"action": "send_daily_gift", "snuid": snuid}),
+                     function (data) {
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error sending gift to " + snuid);
+            });
+        }
+
+        function sendingBallot(snuid) {
+            ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
+                     getAjaxRequestHeader({"snuid": snuid}),
+                     function (data) {
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error sending ballot to " + snuid);
+            });
+        }
+
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
+        const snuid = friendInfo[friendIdx][0];
+
+        sendingGift(snuid);
+        window.setTimeout(function () {
+            sendingBallot(snuid);
+        }, itemTimeoutInterval * 1000);
+        friendIdx += 1;
+        if (friendIdx < friendInfo.length) {
+            window.setTimeout(function () {
+                sendingGiftsAndBallots(friendIdx);
+            }, 2 * itemTimeoutInterval * 1000);
+        }
+    }
+    const itemTimeoutInterval = 0.75
+    const tmpInfo = getFriendInfo();
+    if (isNullOrUndefined(tmpInfo)) {
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot get friend info .... Reload Camp Page";
+        window.setTimeout(function () {
+            reloadCampPage();
+        }, 60000);
+    }
+    const friendInfo = Object.entries(tmpInfo).slice(5,7);
+    if (friendInfo.length > 0) {
+        sendingGiftsAndBallots(0);
+    }
+    window.setTimeout(function () {
+        reloadCampPage();
+    }, friendInfo.length * 1.5 * 2 * itemTimeoutInterval * 1000);
+}
+
+function testGetSocialGiftStatus() {
+    function setSocialGiftComplete() {
+        g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_COMPLETE;
+        setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
+    }
+
+    function processSocialGiftData(data) {
+        function sendingGiftsAndBallots(friendIdx) {
+            function sendingGift(snuid) {
+                ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
+                         getAjaxRequestHeader({"action": "send_daily_gift", "snuid": snuid}),
+                         function (data) {
+                }, function (error) {
+                    console.error('ajax:', error);
+                    alert("error sending gift to " + snuid);
+                });
+            }
+
+            function sendingBallot(snuid) {
+                ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
+                         getAjaxRequestHeader({"snuid": snuid}),
+                         function (data) {
+                }, function (error) {
+                    console.error('ajax:', error);
+                    alert("error sending ballot to " + snuid);
+                });
+            }
+
+            const snuId = friendInfo[friendIdx][0];
+            if (friendsSentGifts.includes(snuId)) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "We have already sent a gift and a ballot tofriendInfo[friendIdx][1].name;
+            }
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
+
+            sendingGift(snuid);
+            window.setTimeout(function () {
+                sendingBallot(snuid);
+            }, itemTimeoutInterval * 1000);
+            friendIdx += 1;
+            if (friendIdx < friendInfo.length) {
+                window.setTimeout(function () {
+                    sendingGiftsAndBallots(friendIdx);
+                }, 2 * itemTimeoutInterval * 1000);
+            }
+        }
+
+        const friendsSentGifts = Object.keys(data.friends_sent_gifts);
+        let numSent = data.gift_limits.num_sent;
+        const sendLimit = data.gift_limits.send_limit;
+        if (numSent >= sendLimit) {
+            setSocialGiftComplete();
+        }
+
+        const itemTimeoutInterval = 0.75
+        const tmpInfo = getFriendInfo();
+        if (isNullOrUndefined(tmpInfo)) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot get friend info .... Reload Camp Page";
+            window.setTimeout(function () {
+                reloadCampPage();
+            }, 60000);
+        }
+        const friendInfo = Object.entries(tmpInfo).slice(5,7);
+        if (friendInfo.length > 0) {
+            //sendingGiftsAndBallots(0);
+        }
+        window.setTimeout(function () {
+            reloadCampPage();
+        }, friendInfo.length * 1.5 * 2 * itemTimeoutInterval * 1000);
+    }
+
+    ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
+             getAjaxRequestHeader({"action": "info", "last_read_journal_entry_id": 13021}),
+             function (data) {
+        processSocialGiftData(data);
+    }, function (error) {
+        console.error('ajax:', error);
+        alert("error getting social gift status");
+    });
+}
+
 function test1() {
+    testGetSocialGiftStatus();
+    //prepareSendingGiftsAndBallots();
     //testSortObj();
-    checkLocation();
+    //checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -2197,6 +2346,14 @@ function test1() {
 
 function test2() {
     testLoadObjFromStorage();
+}
+
+function getAjaxRequestHeader(addedData) {
+    const mainData = {};
+    mainData.sn = 'Hitgrab';
+    mainData.hg_is_ajax = 1;
+    mainData.uh = getPageVariable('user.unique_hash');
+    return Object.assign(mainData, addedData);
 }
 
 function ajaxPost(postURL, objData, callback, throwerror) {
@@ -2751,6 +2908,23 @@ function embedUIStructure() {
                 window.setTimeout(function () {
                     saveTrapInfo();
                 }, 3 * 1000);
+            }
+
+            function updateFriends() {
+                function processUserData(data) {
+                    const senderUserId = getPageVariable("user.sn_user_id");
+                    g_friendInfo = Object.fromEntries(Object.entries(data.user_data).filter(([key, value]) => value.sn_user_id !== senderUserId));
+                    setStorage(STORAGE_FRIEND_INFO, g_friendInfo);
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating friends";
+                }
+                const addedHeaderData = {"fields%5B%5D": "snuid",
+                                         "get_friends": true};
+                ajaxPost(window.location.origin + '/managers/ajax/users/userData.php', getAjaxRequestHeader(addedHeaderData), function (data) {
+                    processUserData(data);
+                }, function (error) {
+                    console.error('ajax:', error);
+                    alert("error getting friend list");
+                });
             }
 
             function clearStorage() {
@@ -3777,6 +3951,15 @@ function embedUIStructure() {
             updateTrapsButtonCell.appendChild(updateTrapsButton);
             tmpTxt = document.createTextNode(" ");
             updateTrapsButtonCell.appendChild(tmpTxt);
+            const updateFriendsButton = document.createElement('button');
+            updateFriendsButton.id = ID_BOTTON_UPDATE_FRIENDS;
+            updateFriendsButton.onclick = updateFriends;
+            updateFriendsButton.style.fontSize = "10px";
+            tmpTxt = document.createTextNode("Update friends");
+            updateFriendsButton.appendChild(tmpTxt);
+            updateTrapsButtonCell.appendChild(updateFriendsButton);
+            tmpTxt = document.createTextNode(" ");
+            updateTrapsButtonCell.appendChild(tmpTxt);
             const clearStorageButton = document.createElement('button');
             clearStorageButton.onclick = clearStorage;
             clearStorageButton.style.fontSize = "10px";
@@ -3889,6 +4072,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.has_puzzle;
         } else if (name == 'user.unique_hash') {
             return unsafeWindow.user.unique_hash;
+        } else if (name == 'user.sn_user_id') {
+            return unsafeWindow.user.sn_user_id;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.weapon_item_id") {

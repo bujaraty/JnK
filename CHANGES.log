@@ -1,3 +1,6 @@
+Version 1.2.2.25
+- Add a button to retrieve friends' information
+
 Version 1.2.2.24
 - Restructure trap information
 - Change comparison key of armTrap to item_id
