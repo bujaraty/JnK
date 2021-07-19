@@ -1,6 +1,7 @@
 Version 1.2.2.27
 - Move the Polify Preferences to be inserted only when selected
 - Fix bug 'Policy keep trying to arm finished Item'
+- Implement VVaCSCPolicy to automatically arm Cactus Charm
 
 Version 1.2.2.26
 - Implement Retreating Poilicy for VVaFRo

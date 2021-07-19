@@ -183,8 +183,6 @@ const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
 const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
 const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
 const ID_CBX_VVACSC_ATM_CACTUS_CHARM = "cbxVVaCSCAtmCactusCharm";
-const ID_TR_VVACSC_ATM_SHERIFFS_BADGE_CHARM = "trVVaCSCAtmSheriffsBadgeCharm";
-const ID_CBX_VVACSC_ATM_SHERIFFS_BADGE_CHARM = "cbxVVaCSCAtmSheriffsBadgeCharm";
 const ID_TR_VVAFRO_PHASES_TRAP_SETUP = "trVVaFRoPhasesTrapSetup";
 const ID_SELECT_VVAFRO_PHASE = "selectVVaFRoPhase";
 const ID_SELECT_VVAFRO_WEAPON = "selectVVaFRoWeapon";
@@ -299,7 +297,6 @@ const VVACSC_PHASE_HAS_REWARD = "has_reward";
 const VVACSC_PHASES = [VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
 const VVACSC_ATM_POSTER = "Automatic Poster";
 const VVACSC_ATM_CACTUS_CHARM = "Automatic Cactus Charm";
-const VVACSC_ATM_SHERIFFS_BADGE_CHARM = "Automatic Sheriffs Badge Charm";
 const VVAFRO_PHASE_DAY = "Day";
 const VVAFRO_PHASE_TWILIGHT = "Twilight";
 const VVAFRO_PHASE_MIDNIGHT = "Midnight";
@@ -439,6 +436,7 @@ class Policy {
         if (isNullOrUndefined(this.bestPowerWeapons[powerType])) {
             this.bestPowerWeapons[powerType] = Object.entries(weaponInfo)
                 .filter(([key, value]) => value.powerType === powerType)
+                .sort(([,a], [,b]) => b.luck - a.luck)
                 .sort(([,a], [,b]) => b.power - a.power)
                 .map(x => x[1].name)[0];
         }
@@ -566,7 +564,6 @@ class PolicyVVaCSC extends Policy {
         this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
         this.trs[1] = ID_TR_VVACSC_ATM_POSTER;
         this.trs[2] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
-        this.trs[3] = ID_TR_VVACSC_ATM_SHERIFFS_BADGE_CHARM;
     }
 
     resetTrapSetups() {
@@ -576,7 +573,6 @@ class PolicyVVaCSC extends Policy {
         }
         this.trapSetups[VVACSC_ATM_POSTER] = true;
         this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
-        this.trapSetups[VVACSC_ATM_SHERIFFS_BADGE_CHARM] = true;
     }
 
     getTrapSetups() {
@@ -592,7 +588,6 @@ class PolicyVVaCSC extends Policy {
         document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
         document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
         document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
-        document.getElementById(ID_CBX_VVACSC_ATM_SHERIFFS_BADGE_CHARM).checked = trapSetups[VVACSC_ATM_SHERIFFS_BADGE_CHARM];
     }
 
     recommendTrapSetup() {
@@ -1460,7 +1455,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        //checkLocation();
+        checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1902,7 +1897,7 @@ function checkLocation() {
         const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
-            //alert("hello need to check charm");
+            trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
         }
         switch(phase) {
             case VVACSC_PHASE_NEED_POSTER:
@@ -3100,10 +3095,6 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
                 }
 
-                function saveVVaCSCAtmSheriffsBadgeCharm(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_SHERIFFS_BADGE_CHARM] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
 
                 let captionCell;
                 let tmpTxt;
@@ -3184,32 +3175,6 @@ function embedUIStructure() {
                 imgCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
 
-                const trVVaCSCAtmSheriffsBadgeCharm = policyPreferencesTable.insertRow();
-                trVVaCSCAtmSheriffsBadgeCharm.id = ID_TR_VVACSC_ATM_SHERIFFS_BADGE_CHARM;
-                trVVaCSCAtmSheriffsBadgeCharm.style.height = "24px";
-                trVVaCSCAtmSheriffsBadgeCharm.style.display = "none";
-                captionCell = trVVaCSCAtmSheriffsBadgeCharm.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                const checkboxAtmSheriffsBadgeCharmCell = trVVaCSCAtmSheriffsBadgeCharm.insertCell();
-                const checkboxAtmSheriffsBadgeCharm = document.createElement('input');
-                checkboxAtmSheriffsBadgeCharm.id = ID_CBX_VVACSC_ATM_SHERIFFS_BADGE_CHARM;
-                checkboxAtmSheriffsBadgeCharm.type = "checkbox";
-                checkboxAtmSheriffsBadgeCharm.onchange = saveVVaCSCAtmSheriffsBadgeCharm;
-                checkboxAtmSheriffsBadgeCharmCell.appendChild(checkboxAtmSheriffsBadgeCharm);
-                tmpTxt = document.createTextNode(" Arm Sheriff's Badge Charm ");
-                checkboxAtmSheriffsBadgeCharmCell.appendChild(tmpTxt);
-                /*
-                const imgSuperCactusCharm = document.createElement("img");
-                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
-                imgSuperCactusCharm.height = 15;
-                checkboxAtmSheriffsBadgeCharmCell.appendChild(imgSuperCactusCharm);
-                tmpTxt = document.createTextNode(" and Cactus Charm ");
-                checkboxAtmCactusCharmCell.appendChild(tmpTxt);
-                const imgCactusCharm = document.createElement("img");
-                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
-                imgCactusCharm.height = 15;
-                checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
-*/
                 tmpTxt = null;
                 captionCell = null;
             }
