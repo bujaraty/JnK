@@ -54,13 +54,14 @@ let g_autosolveKRDelayMax = 10;
 const MAX_KR_RETRY = 5;
 
 // // Scheduler time that will start automatically
-const STATUS_GIFTS_AND_RAFFLES_INCOMPLETE = "Incomplete";
-const STATUS_GIFTS_AND_RAFFLES_COMPLETE = "Complete";
-let g_scheduledGiftsAndRafflesTime = "07:35";
-let g_beginScheduledGiftsAndRafflesTime = new Date();
+const STATUS_INCOMPLETE = "Incomplete";
+const STATUS_COMPLETE = "Complete";
+let g_scheduledGiftingAndBallotingTime = "07:35";
+let g_beginScheduledGiftingAndBallotingTime = new Date();
 let g_scheduledResetTime = "07:02";
 let g_beginScheduledResetTime = new Date();
-let g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
+let g_statusGifting = STATUS_INCOMPLETE;
+let g_statusBalloting = STATUS_INCOMPLETE;
 
 // == Basic User Preference Setting (End) ==
 
@@ -154,7 +155,7 @@ const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
 const ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT = "trapCheckTimeDelayMaxInput";
 const ID_AUTOSOLVE_KR_DELAY_MIN_INPUT = "autosolveKRDelayMinInput";
 const ID_AUTOSOLVE_KR_DELAY_MAX_INPUT = "autosolveKRDelayMaxInput";
-const ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT = "scheduledGiftAndRafflesTimeInput";
+const ID_SCHEDULED_GIFTING_AND_BALLOTING_TIME_INPUT = "scheduledGiftingAndBallotingTimeInput";
 const ID_SCHEDULED_RESET_TIME_INPUT = "scheduledResetTimeInput";
 const ID_BOT_PROCESS_TXT = "botProcessTxt";
 const ID_BOT_STATUS_TXT = "botStatusTxt";
@@ -245,9 +246,10 @@ const STORAGE_TRAP_CHECK_TIME_DELAY_MIN = "trapCheckTimeDelayMin";
 const STORAGE_TRAP_CHECK_TIME_DELAY_MAX = "trapCheckTimeDelayMax";
 const STORAGE_AUTOSOLVE_KR_DELAY_MIN = "autosolveKRDelayMin";
 const STORAGE_AUTOSOLVE_KR_DELAY_MAX = "autosolveKRDelayMax";
-const STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME = "scheduledGiftsAndRafflesTime";
+const STORAGE_SCHEDULED_GIFTING_AND_BALLOTING_TIME = "scheduledGiftingAndBallotingTime";
 const STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
-const STORAGE_STATUS_GIFTS_AND_RAFFLES = "statusGiftsAndRaffles";
+const STORAGE_STATUS_GIFTING = "statusGifting";
+const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
 const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
@@ -1377,35 +1379,17 @@ function lockBot(processName) {
     return false;
 }
 
-function runScheduledGiftsAndRaffles() {
-    function getGiftsAndRafflesStatus() {
-        function gettingGiftsAndRafflesStatus() {
-            const sendActionRemaining = parseInt(document.getElementsByClassName("giftSelectorView-numSendActionsRemaining")[0].innerHTML);
-            if (sendActionRemaining <= 1) {
-                g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_COMPLETE;
-                setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
-            }
-        }
-        const giftButton = document.getElementsByClassName("freeGifts")[0];
-        fireEvent(giftButton, "click");
-        window.setTimeout(function () {
-            gettingGiftsAndRafflesStatus()
-        }, 4.5 * 1000);
-    }
+function runScheduledGiftingAndBalloting() {
     if (!lockBot(BOT_PROCESS_SCHEDULER)) {
         return;
     }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Scheduled Gifts and Raffles";
-    // Send gifts and raffles
-    prepareSendingGiftsAndRaffles();
-    // Check if the sending is complete
-    window.setTimeout(function () {
-        getGiftsAndRafflesStatus();
-    }, 90 * 1000);
-    // Unlock bot
-    window.setTimeout(function () {
-        reloadCampPage();
-    }, 100 * 1000);
+    if (g_statusGifting == STATUS_INCOMPLETE) {
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Scheduled Gifting";
+        prepareSendingGifts();
+    } else {
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Scheduled Balloting";
+        prepareSendingBallots();
+    }
 }
 
 function resetSchedule() {
@@ -1414,8 +1398,10 @@ function resetSchedule() {
     }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Resetting Scheduler";
     // Actual reset schedule
-    g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_INCOMPLETE;
-    setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
+    g_statusGifting = STATUS_INCOMPLETE;
+    setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
+    g_statusBalloting = STATUS_INCOMPLETE;
+    setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
     // Unlock bot
     window.setTimeout(function () {
         reloadCampPage();
@@ -1429,8 +1415,8 @@ function checkSchedule() {
 
     if (g_beginScheduledResetTime < dateNow && g_endScheduledResetTime > dateNow) {
         resetSchedule();
-    } else if (g_beginScheduledGiftsAndRafflesTime < dateNow && g_statusGiftsAndRaffles == STATUS_GIFTS_AND_RAFFLES_INCOMPLETE) {
-        runScheduledGiftsAndRaffles();
+    } else if (g_beginScheduledGiftingAndBallotingTime < dateNow && (g_statusGifting == STATUS_INCOMPLETE || g_statusBalloting == STATUS_INCOMPLETE)) {
+        runScheduledGiftingAndBalloting();
     }
 }
 
@@ -1614,11 +1600,12 @@ function loadPreferenceSettingFromStorage() {
     g_autosolveKRDelayMin = getStorageVarInt(STORAGE_AUTOSOLVE_KR_DELAY_MIN, g_autosolveKRDelayMin);
     g_autosolveKRDelayMax = getStorageVarInt(STORAGE_AUTOSOLVE_KR_DELAY_MAX, g_autosolveKRDelayMax);
 
-    g_scheduledGiftsAndRafflesTime = getStorage(STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME, g_scheduledGiftsAndRafflesTime);
-    g_beginScheduledGiftsAndRafflesTime.setHours(parseInt(g_scheduledGiftsAndRafflesTime.substring(0,2)), parseInt(g_scheduledGiftsAndRafflesTime.substring(3,5)), 0);
+    g_scheduledGiftingAndBallotingTime = getStorage(STORAGE_SCHEDULED_GIFTING_AND_BALLOTING_TIME, g_scheduledGiftingAndBallotingTime);
+    g_beginScheduledGiftingAndBallotingTime.setHours(parseInt(g_scheduledGiftingAndBallotingTime.substring(0,2)), parseInt(g_scheduledGiftingAndBallotingTime.substring(3,5)), 0);
     g_scheduledResetTime = getStorage(STORAGE_SCHEDULED_RESET_TIME, g_scheduledResetTime);
     g_beginScheduledResetTime.setHours(parseInt(g_scheduledResetTime.substring(0,2)), parseInt(g_scheduledResetTime.substring(3,5)), 0);
-    g_statusGiftsAndRaffles = getStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
+    g_statusGifting = getStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
+    g_statusBalloting = getStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
 }
 
 function getStorage(name, defaultValue) {
@@ -2219,68 +2206,22 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
-function prepareSendingGiftsAndBallots() {
-    function sendingGiftsAndBallots(friendIdx) {
-        function sendingGift(snuid) {
-            ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
-                     getAjaxHeader({"action": "send_daily_gift", "snuid": snuid}),
-                     function (data) {
-            }, function (error) {
-                console.error('ajax:', error);
-                alert("error sending gift to " + snuid);
-            });
-        }
+function prepareSendingGifts() {
+    function sendingGifts(snuidIdx) {
+        function processPageData(data) {
+            function checkCompleteGifts() {
+                if (completeGifts.length == snuids.length) {
+                    g_statusGifting = STATUS_COMPLETE;
+                    setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
+                }
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, itemTimeoutInterval * 1000);
+            }
 
-        function sendingBallot(snuid) {
-            ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
-                     getAjaxHeader({"snuid": snuid}),
-                     function (data) {
-            }, function (error) {
-                console.error('ajax:', error);
-                alert("error sending ballot to " + snuid);
-            });
-        }
-
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
-        const snuid = friendInfo[friendIdx][0];
-
-        sendingGift(snuid);
-        window.setTimeout(function () {
-            sendingBallot(snuid);
-        }, itemTimeoutInterval * 1000);
-        friendIdx += 1;
-        if (friendIdx < friendInfo.length) {
-            window.setTimeout(function () {
-                sendingGiftsAndBallots(friendIdx);
-            }, 2 * itemTimeoutInterval * 1000);
-        }
-    }
-    const itemTimeoutInterval = 0.75
-    const tmpInfo = getFriendInfo();
-    if (isNullOrUndefined(tmpInfo)) {
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot get friend info .... Reload Camp Page";
-        window.setTimeout(function () {
-            reloadCampPage();
-        }, 60000);
-    }
-    const friendInfo = Object.entries(tmpInfo).slice(5,7);
-    if (friendInfo.length > 0) {
-        sendingGiftsAndBallots(0);
-    }
-    window.setTimeout(function () {
-        reloadCampPage();
-    }, friendInfo.length * 1.5 * 2 * itemTimeoutInterval * 1000);
-}
-
-function testGetSocialGiftStatus() {
-    function setSocialGiftComplete() {
-        g_statusGiftsAndRaffles = STATUS_GIFTS_AND_RAFFLES_COMPLETE;
-        setStorage(STORAGE_STATUS_GIFTS_AND_RAFFLES, g_statusGiftsAndRaffles);
-    }
-
-    function processSocialGiftData(data) {
-        function sendingGiftsAndBallots(friendIdx) {
-            function sendingGift(snuid) {
+            const sendDailyGiftInfo = Object.entries(data.page.tabs.profile.subtabs)[0][1].friends_profile_view.user_interactions.actions.send_daily_gift;
+            if (sendDailyGiftInfo.is_allowed) {
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift to " + friendInfo[snuid].name;
                 ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
                          getAjaxHeader({"action": "send_daily_gift", "snuid": snuid}),
                          function (data) {
@@ -2288,9 +2229,61 @@ function testGetSocialGiftStatus() {
                     console.error('ajax:', error);
                     alert("error sending gift to " + snuid);
                 });
+            } else if (sendDailyGiftInfo.is_daily_total_limit_reached) {
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a gift to " + friendInfo[snuid].name + " (limit reached)";
+                g_statusGifting = STATUS_COMPLETE;
+                setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
+                reloadCampPage();
+            } else if (sendDailyGiftInfo.is_complete) {
+                completeGifts.push(snuid);
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a gift to " + friendInfo[snuid].name + " (already sent)";
             }
+            snuidIdx += 1
+            if (snuidIdx < snuids.length) {
+                window.setTimeout(function () {
+                    sendingGifts(snuidIdx);
+                }, itemTimeoutInterval * 1000);
+            } else {
+                window.setTimeout(function () {
+                    checkCompleteGifts();
+                }, 2 * itemTimeoutInterval * 1000);
+            }
+        }
 
-            function sendingBallot(snuid) {
+        const snuid = snuids[snuidIdx];
+        ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
+                 getAjaxHeader({"page_class": "HunterProfile", "page_arguments[snuid]": snuid, "last_read_journal_entry_id": lastReadJournalEntryId}),
+                 function (data) {
+            processPageData(data);
+        }, function (error) {
+            console.error('ajax:', error);
+            alert("error getting hunter profile");
+        });
+    }
+
+    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
+    const itemTimeoutInterval = 0.75;
+    const friendInfo = getFriendInfo();
+    const completeGifts = [];
+    const snuids = Object.keys(friendInfo);
+    sendingGifts(0);
+}
+
+function prepareSendingBallots() {
+    function sendingBallots(snuidIdx) {
+        function processPageData(data) {
+            function checkCompleteBallots() {
+                if (completeBallots.length == 20) {
+                    g_statusBalloting = STATUS_COMPLETE;
+                    setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
+                }
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, itemTimeoutInterval * 1000);
+            }
+            const sendDrawBallot = Object.entries(data.page.tabs.profile.subtabs)[0][1].friends_profile_view.user_interactions.actions.send_draw_ballot;
+            if (sendDrawBallot.is_allowed) {
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a Ballot to " + friendInfo[snuid].name;
                 ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
                          getAjaxHeader({"snuid": snuid}),
                          function (data) {
@@ -2298,63 +2291,49 @@ function testGetSocialGiftStatus() {
                     console.error('ajax:', error);
                     alert("error sending ballot to " + snuid);
                 });
+            } else if (sendDrawBallot.is_limit_reached) {
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a ballot to " + friendInfo[snuid].name + " (limit reached)";
+                g_statusBalloting = STATUS_COMPLETE;
+                setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
+                reloadCampPage();
+            } else if (sendDrawBallot.is_complete) {
+                completeBallots.push(snuid);
+                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a ballot to " + friendInfo[snuid].name + " (already sent)";
             }
-
-            const snuId = friendInfo[friendIdx][0];
-            if (friendsSentGifts.includes(snuId)) {
-                //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "We have already sent a gift and a ballot tofriendInfo[friendIdx][1].name;
-            }
-            //document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendInfo[friendIdx][1].name;
-
-            sendingGift(snuId);
-            window.setTimeout(function () {
-                sendingBallot(snuId);
-            }, itemTimeoutInterval * 1000);
-            friendIdx += 1;
-            if (friendIdx < friendInfo.length) {
+            snuidIdx += 1
+            if (snuidIdx < snuids.length) {
                 window.setTimeout(function () {
-                    sendingGiftsAndBallots(friendIdx);
+                    sendingBallots(snuidIdx);
+                }, itemTimeoutInterval * 1000);
+            } else {
+                window.setTimeout(function () {
+                    checkCompleteBallots();
                 }, 2 * itemTimeoutInterval * 1000);
             }
         }
 
-        const friendsSentGifts = Object.keys(data.friends_sent_gifts);
-        let numSent = data.gift_limits.num_sent;
-        const sendLimit = data.gift_limits.send_limit;
-        if (numSent >= sendLimit) {
-            setSocialGiftComplete();
-        }
-
-        const itemTimeoutInterval = 0.75
-        const tmpInfo = getFriendInfo();
-        if (isNullOrUndefined(tmpInfo)) {
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot get friend info .... Reload Camp Page";
-            window.setTimeout(function () {
-                reloadCampPage();
-            }, 60000);
-        }
-        const friendInfo = Object.entries(tmpInfo).slice(5,7);
-        if (friendInfo.length > 0) {
-            //sendingGiftsAndBallots(0);
-        }
-        window.setTimeout(function () {
-            reloadCampPage();
-        }, friendInfo.length * 1.5 * 2 * itemTimeoutInterval * 1000);
+        const snuid = snuids[snuidIdx];
+        ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
+                 getAjaxHeader({"page_class": "HunterProfile", "page_arguments[snuid]": snuid, "last_read_journal_entry_id": lastReadJournalEntryId}),
+                 function (data) {
+            processPageData(data);
+        }, function (error) {
+            console.error('ajax:', error);
+            alert("error getting hunter profile");
+        });
     }
 
-    ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
-             getAjaxHeader({"action": "info", "last_read_journal_entry_id": 13021}),
-             function (data) {
-        processSocialGiftData(data);
-    }, function (error) {
-        console.error('ajax:', error);
-        alert("error getting social gift status");
-    });
+    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
+    const itemTimeoutInterval = 0.75;
+    const friendInfo = getFriendInfo();
+    const completeBallots = [];
+    const snuids = Object.keys(friendInfo);
+    sendingBallots(0);
 }
 
 function test1() {
-    testGetSocialGiftStatus();
-    //prepareSendingGiftsAndBallots();
+    //prepareSendingGifts();
+    //prepareSendingBallots();
     //testSortObj();
     //checkLocation();
     //testDict();
@@ -2363,7 +2342,16 @@ function test1() {
 }
 
 function test2() {
-    testLoadObjFromStorage();
+    //testLoadObjFromStorage();
+    resetGiftingAndBallotingStatus();
+}
+
+function resetGiftingAndBallotingStatus() {
+    g_statusGifting = STATUS_INCOMPLETE;
+    setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
+    g_statusBalloting = STATUS_INCOMPLETE;
+    setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
+    reloadCampPage();
 }
 
 function getAjaxHeader(addedData) {
@@ -2441,70 +2429,20 @@ function prepareClaimingGifts(fromTop) {
     }, 4.5 * 1000);
 }
 
-function manualSendingGiftsAndRaffles() {
+function manualSendingGifts() {
     if (!lockBot(BOT_PROCESS_Manual)) {
         return;
     }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts and Raffles";
-    prepareSendingGiftsAndRaffles();
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts";
+    prepareSendingGifts();
 }
 
-function prepareSendingGiftsAndRaffles() {
-    function clickActionButton(actionButton) {
-        fireEvent(actionButton, "click");
+function manualSendingBallots() {
+    if (!lockBot(BOT_PROCESS_Manual)) {
+        return;
     }
-    function sendGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
-        function sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles) {
-            const friendRow = friendRows[friendIndex];
-            const friendName = friendRow.getElementsByClassName("friendsPage-friendRow-titleBar")[0].getElementsByTagName('a')[0].text;
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift and a ballot ticket to " + friendName;
-            const sendGiftButton = friendRow.getElementsByClassName("userInteractionButtonsView-button sendGift")[0];
-            const sendBallotButton = friendRow.getElementsByClassName("userInteractionButtonsView-button sendTicket")[0];
-
-            clickActionButton(sendGiftButton);
-            if (friendIndex < nRaffles) {
-                window.setTimeout(function () {
-                    clickActionButton(sendBallotButton);
-                }, 1 * 1000);
-            }
-            friendIndex++;
-            if (friendIndex < nGifts) {
-                window.setTimeout(function () {
-                    sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles);
-                }, 2 * 1000);
-            }
-        }
-
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving friend list";
-        const friendRows = document.getElementsByClassName("friendsPage-friendRow");
-        window.setTimeout(function () {
-            sendingGiftsAndRaffles(friendIndex, nGifts, nRaffles);
-        }, 0.5 * 1000);
-    }
-    function gotoNextFriendList() {
-        // Got to the second frield list page
-        const nextFriendListLink = document.getElementsByClassName("next active pagerView-section")[0].getElementsByTagName("a")[0];
-        fireEvent(nextFriendListLink, "click");
-
-        // Go through all sendGift and sendRaffle buttons in the first page
-        window.setTimeout(function () {
-            sendGiftsAndRaffles(0, 5, 0);
-        }, 5 * 1000);
-    }
-    let friendRows;
-    if (DEBUG_MODE) console.log('RUN sendRafflesAndGifts()');
-
-    // Goto friend list page
-    const friendListLink = document.getElementsByClassName("mousehuntHud-gameInfo")[0].getElementsByTagName("a")[0];
-    fireEvent(friendListLink, "click");
-    window.setTimeout(function () {
-        sendGiftsAndRaffles(0, 20, 20);
-    }, 5 * 1000);
-
-    // Go through all sendGift and sendRaffle buttons in the first page
-    window.setTimeout(function () {
-        gotoNextFriendList();
-    }, 60 * 1000);
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Ballots";
+    prepareSendingBallots();
 }
 
 function embedUIStructure() {
@@ -2528,16 +2466,24 @@ function embedUIStructure() {
         const miscStatusCell = trFirst.insertCell();
         miscStatusCell.style.fontSize = "9px";
         miscStatusCell.style.textAlign = "right";
-        tmpTxt = document.createTextNode("Gifts & Raffles status : " + g_statusGiftsAndRaffles + "  ");
+        tmpTxt = document.createTextNode("Gifting status : " + g_statusGifting + ",  ");
+        miscStatusCell.appendChild(tmpTxt);
+        tmpTxt = document.createTextNode("Balloting status : " + g_statusBalloting + "  ");
         miscStatusCell.appendChild(tmpTxt);
         const miscButtonsCell = trFirst.insertCell();
         miscButtonsCell.style.textAlign = "right";
-        const sendGiftsAndRafflesButton = document.createElement('button');
-        sendGiftsAndRafflesButton.onclick = manualSendingGiftsAndRaffles
-        sendGiftsAndRafflesButton.style.fontSize = "8px";
-        tmpTxt = document.createTextNode("Send Gifts & Raffles");
-        sendGiftsAndRafflesButton.appendChild(tmpTxt);
-        miscButtonsCell.appendChild(sendGiftsAndRafflesButton);
+        const sendGiftsButton = document.createElement('button');
+        sendGiftsButton.onclick = manualSendingGifts
+        sendGiftsButton.style.fontSize = "8px";
+        tmpTxt = document.createTextNode("Send Gifts");
+        sendGiftsButton.appendChild(tmpTxt);
+        miscButtonsCell.appendChild(sendGiftsButton);
+        const sendBallotsButton = document.createElement('button');
+        sendBallotsButton.onclick = manualSendingBallots
+        sendBallotsButton.style.fontSize = "8px";
+        tmpTxt = document.createTextNode("Send Ballots");
+        sendBallotsButton.appendChild(tmpTxt);
+        miscButtonsCell.appendChild(sendBallotsButton);
         const claimYesterdayGiftsButton = document.createElement('button');
         claimYesterdayGiftsButton.onclick = manualClaimingYesterdayGifts
         claimYesterdayGiftsButton.style.fontSize = "8px";
@@ -2572,7 +2518,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2688,7 +2634,7 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
                     setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
                     setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_SCHEDULED_GIFTS_AND_RAFFLES_TIME, document.getElementById(ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT).value);
+                    setStorage(STORAGE_SCHEDULED_GIFTING_AND_BALLOTING_TIME, document.getElementById(ID_SCHEDULED_GIFTING_AND_BALLOTING_TIME_INPUT).value);
                     setStorage(STORAGE_SCHEDULED_RESET_TIME, document.getElementById(ID_SCHEDULED_RESET_TIME_INPUT).value);
                 } catch (e) {
                     console.log(e);
@@ -2803,18 +2749,18 @@ function embedUIStructure() {
             schedulerTitle.style.fontSize = "12px";
             schedulerTitle.style.textAlign = "center";
 
-            const trScheduledGiftAndRafflesPreferences = timerPreferencesTable.insertRow();
-            trScheduledGiftAndRafflesPreferences.style.height = "24px"
-            captionCell = trScheduledGiftAndRafflesPreferences.insertCell();
+            const trScheduledGiftingAndBallotingPreferences = timerPreferencesTable.insertRow();
+            trScheduledGiftingAndBallotingPreferences.style.height = "24px"
+            captionCell = trScheduledGiftingAndBallotingPreferences.insertCell();
             captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
             captionCell.innerHTML = "Sending Gifts and Raffles :  ";
-            const scheduledGiftsAndRafflesPreferencesSettings = trScheduledGiftAndRafflesPreferences.insertCell();
-            const scheduledGiftsAndRafflesBeginTime = document.createElement('INPUT');
-            scheduledGiftsAndRafflesBeginTime.type = "time";
-            scheduledGiftsAndRafflesBeginTime.style.fontSize = "12px";
-            scheduledGiftsAndRafflesBeginTime.id = ID_SCHEDULED_GIFTS_AND_RAFFLES_TIME_INPUT;
-            scheduledGiftsAndRafflesBeginTime.value = g_scheduledGiftsAndRafflesTime;
-            scheduledGiftsAndRafflesPreferencesSettings.appendChild(scheduledGiftsAndRafflesBeginTime);
+            const scheduledGiftingAndBallotingPreferencesSettings = trScheduledGiftingAndBallotingPreferences.insertCell();
+            const scheduledGiftingAndBallotingBeginTime = document.createElement('INPUT');
+            scheduledGiftingAndBallotingBeginTime.type = "time";
+            scheduledGiftingAndBallotingBeginTime.style.fontSize = "12px";
+            scheduledGiftingAndBallotingBeginTime.id = ID_SCHEDULED_GIFTING_AND_BALLOTING_TIME_INPUT;
+            scheduledGiftingAndBallotingBeginTime.value = g_scheduledGiftingAndBallotingTime;
+            scheduledGiftingAndBallotingPreferencesSettings.appendChild(scheduledGiftingAndBallotingBeginTime);
 
             const trScheduledResetPreferences = timerPreferencesTable.insertRow();
             trScheduledResetPreferences.style.height = "21px"
@@ -4142,6 +4088,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.unique_hash;
         } else if (name == 'user.sn_user_id') {
             return unsafeWindow.user.sn_user_id;
+        } else if (name == 'last_read_journal_entry_id') {
+            return unsafeWindow.last_read_journal_entry_id;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.weapon_item_id") {
