@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.27
+// @version      1.2.2.28
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -23,7 +23,6 @@
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - Activate-Deactivate FRo tower (After I get tower lvl 4)
-//   - CSCPolicy (Cactus Charm)
 //   - CLiPolicy
 //   - IcePolicy and test
 //   - FWaPolicy
@@ -151,14 +150,14 @@ const CLASSIFICATION_WEAPON = "weapon";
 const CLASSIFICATION_BASE = "base";
 const CLASSIFICATION_BAIT = "bait";
 const CLASSIFICATION_TRINKET = "trinket";
-const ID_BOT_HORN_TIME_DELAY_MIN_INPUT = "botHornTimeDelayMinInput";
-const ID_BOT_HORN_TIME_DELAY_MAX_INPUT = "botHornTimeDelayMaxInput";
-const ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT = "trapCheckTimeDelayMinInput";
-const ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT = "trapCheckTimeDelayMaxInput";
-const ID_AUTOSOLVE_KR_DELAY_MIN_INPUT = "autosolveKRDelayMinInput";
-const ID_AUTOSOLVE_KR_DELAY_MAX_INPUT = "autosolveKRDelayMaxInput";
-const ID_SCHEDULED_GIFTING_AND_BALLOTING_TIME_INPUT = "scheduledGiftingAndBallotingTimeInput";
-const ID_SCHEDULED_RESET_TIME_INPUT = "scheduledResetTimeInput";
+const ID_INPUT_BOT_HORN_TIME_DELAY_MIN = "inputBotHornTimeDelayMin";
+const ID_INPUT_BOT_HORN_TIME_DELAY_MAX = "inputBotHornTimeDelayMax";
+const ID_INPUT_TRAP_CHECK_TIME_DELAY_MIN = "inputTrapCheckTimeDelayMin";
+const ID_INPUT_TRAP_CHECK_TIME_DELAY_MAX = "inputTrapCheckTimeDelayMax";
+const ID_INPUT_AUTOSOLVE_KR_DELAY_MIN = "inputAutosolveKRDelayMin";
+const ID_INPUT_AUTOSOLVE_KR_DELAY_MAX = "inputAutosolveKRDelayMax";
+const ID_INPUT_SCHEDULED_GIFTING_AND_BALLOTING_TIME = "inputScheduledGiftingAndBallotingTime";
+const ID_INPUT_SCHEDULED_RESET_TIME = "inputScheduledResetTime";
 const ID_BOT_PROCESS_TXT = "botProcessTxt";
 const ID_BOT_STATUS_TXT = "botStatusTxt";
 const ID_PREFERENCES_LINK = 'preferencesLink';
@@ -2553,7 +2552,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2591,8 +2590,142 @@ function embedUIStructure() {
         }
 
         function toggleTimerPreferencesTable() {
+            function inserTimerPreferences () {
+                function saveTimerPreferences() {
+                    try {
+                        setStorage(STORAGE_BOT_HORN_TIME_DELAY_MIN, document.getElementById(ID_INPUT_BOT_HORN_TIME_DELAY_MIN).value);
+                        setStorage(STORAGE_BOT_HORN_TIME_DELAY_MAX, document.getElementById(ID_INPUT_BOT_HORN_TIME_DELAY_MAX).value);
+                        setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MIN, document.getElementById(ID_INPUT_TRAP_CHECK_TIME_DELAY_MIN).value);
+                        setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_INPUT_TRAP_CHECK_TIME_DELAY_MAX).value);
+                        setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_INPUT_AUTOSOLVE_KR_DELAY_MIN).value);
+                        setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_INPUT_AUTOSOLVE_KR_DELAY_MAX).value);
+                        setStorage(STORAGE_SCHEDULED_GIFTING_AND_BALLOTING_TIME, document.getElementById(ID_INPUT_SCHEDULED_GIFTING_AND_BALLOTING_TIME).value);
+                        setStorage(STORAGE_SCHEDULED_RESET_TIME, document.getElementById(ID_INPUT_SCHEDULED_RESET_TIME).value);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                    reloadCampPage();
+                }
+
+                let tmpTxt;
+                let captionCell;
+                const trNextBotHornTimePreferences = preferencesTable.insertRow();
+                trNextBotHornTimePreferences.style.height = "21px"
+                captionCell = trNextBotHornTimePreferences.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Bot Horn Time Delay :  ";
+                captionCell.width = 240;
+                const nextBotHornTimePreferencesSettings = trNextBotHornTimePreferences.insertCell();
+                nextBotHornTimePreferencesSettings.width = 250;
+                const inputBotHornTimeDelayMin = getNumberInput();
+                inputBotHornTimeDelayMin.id = ID_INPUT_BOT_HORN_TIME_DELAY_MIN;
+                inputBotHornTimeDelayMin.value = g_botHornTimeDelayMin;
+                nextBotHornTimePreferencesSettings.appendChild(inputBotHornTimeDelayMin);
+                tmpTxt = document.createTextNode(" seconds ~  ");
+                nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
+                const inputBotHornTimeDelayMax = getNumberInput();
+                inputBotHornTimeDelayMax.id = ID_INPUT_BOT_HORN_TIME_DELAY_MAX;
+                inputBotHornTimeDelayMax.value = g_botHornTimeDelayMax;
+                nextBotHornTimePreferencesSettings.appendChild(inputBotHornTimeDelayMax);
+                tmpTxt = document.createTextNode(" seconds");
+                nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
+
+                const trNextTrapCheckTimePreferences = preferencesTable.insertRow();
+                trNextTrapCheckTimePreferences.style.height = "21px"
+                captionCell = trNextTrapCheckTimePreferences.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Trap Check Time Delay :  ";
+                const nextTrapCheckTimePreferencesSettings = trNextTrapCheckTimePreferences.insertCell();
+                const inputTrapCheckTimeDelayMin = getNumberInput();
+                inputTrapCheckTimeDelayMin.id = ID_INPUT_TRAP_CHECK_TIME_DELAY_MIN;
+                inputTrapCheckTimeDelayMin.value = g_trapCheckTimeDelayMin;
+                nextTrapCheckTimePreferencesSettings.appendChild(inputTrapCheckTimeDelayMin);
+                tmpTxt = document.createTextNode(" seconds ~  ");
+                nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
+                const inputTrapCheckTimeDelayMax = getNumberInput();
+                inputTrapCheckTimeDelayMax.id = ID_INPUT_TRAP_CHECK_TIME_DELAY_MAX;
+                inputTrapCheckTimeDelayMax.value = g_trapCheckTimeDelayMax;
+                nextTrapCheckTimePreferencesSettings.appendChild(inputTrapCheckTimeDelayMax);
+                tmpTxt = document.createTextNode(" seconds");
+                nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
+
+                const trAutosolveKRPreferences = preferencesTable.insertRow();
+                trAutosolveKRPreferences.style.height = "24px"
+                captionCell = trAutosolveKRPreferences.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Auto Solve King Reward Delay :  ";
+                const autosolveKRPreferencesSettings = trAutosolveKRPreferences.insertCell();
+                const inputAutosolveKRDelayMin = getNumberInput();
+                inputAutosolveKRDelayMin.id = ID_INPUT_AUTOSOLVE_KR_DELAY_MIN;
+                inputAutosolveKRDelayMin.value = g_autosolveKRDelayMin;
+                autosolveKRPreferencesSettings.appendChild(inputAutosolveKRDelayMin);
+                tmpTxt = document.createTextNode(" seconds ~  ");
+                autosolveKRPreferencesSettings.appendChild(tmpTxt);
+                const inputAutosolveKRDelayMax = getNumberInput();
+                inputAutosolveKRDelayMax.id = ID_INPUT_AUTOSOLVE_KR_DELAY_MAX;
+                inputAutosolveKRDelayMax.value = g_autosolveKRDelayMax;
+                autosolveKRPreferencesSettings.appendChild(inputAutosolveKRDelayMax);
+                tmpTxt = document.createTextNode(" seconds");
+                autosolveKRPreferencesSettings.appendChild(tmpTxt);
+
+                const trSchedulerTitle = preferencesTable.insertRow();
+                trSchedulerTitle.style.height = "20px"
+                const schedulerTitle = trSchedulerTitle.insertCell();
+                schedulerTitle.colSpan = 3;
+                schedulerTitle.innerHTML = "Scheduler time";
+                schedulerTitle.style.fontWeight = "bold";
+                schedulerTitle.style.fontSize = "12px";
+                schedulerTitle.style.textAlign = "center";
+
+                const trScheduledGiftingAndBallotingPreferences = preferencesTable.insertRow();
+                trScheduledGiftingAndBallotingPreferences.style.height = "24px"
+                captionCell = trScheduledGiftingAndBallotingPreferences.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Sending Gifts and Raffles :  ";
+                const scheduledGiftingAndBallotingPreferencesSettings = trScheduledGiftingAndBallotingPreferences.insertCell();
+                const scheduledGiftingAndBallotingBeginTime = document.createElement('INPUT');
+                scheduledGiftingAndBallotingBeginTime.type = "time";
+                scheduledGiftingAndBallotingBeginTime.style.fontSize = "11px";
+                scheduledGiftingAndBallotingBeginTime.id = ID_INPUT_SCHEDULED_GIFTING_AND_BALLOTING_TIME;
+                scheduledGiftingAndBallotingBeginTime.value = g_scheduledGiftingAndBallotingTime;
+                scheduledGiftingAndBallotingPreferencesSettings.appendChild(scheduledGiftingAndBallotingBeginTime);
+
+                const trScheduledResetPreferences = preferencesTable.insertRow();
+                trScheduledResetPreferences.style.height = "21px"
+                captionCell = trScheduledResetPreferences.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "New Date :  ";
+                const scheduledResetPreferencesSettings = trScheduledResetPreferences.insertCell();
+                const scheduledResetTime = document.createElement('INPUT');
+                scheduledResetTime.type = "time";
+                scheduledResetTime.style.fontSize = "11px";
+                scheduledResetTime.id = ID_INPUT_SCHEDULED_RESET_TIME;
+                scheduledResetTime.value = g_scheduledResetTime;
+                scheduledResetPreferencesSettings.appendChild(scheduledResetTime);
+
+                const trLastRow = preferencesTable.insertRow();
+                const saveButtonCell = trLastRow.insertCell();
+                saveButtonCell.colSpan = 3;
+                saveButtonCell.style.textAlign = "right";
+                tmpTxt = document.createTextNode("(Changes above this line only take place after user save the preference)  ");
+                saveButtonCell.appendChild(tmpTxt);
+                const saveTimerPreferencesButton = document.createElement('button');
+                saveTimerPreferencesButton.onclick = saveTimerPreferences
+                saveTimerPreferencesButton.style.fontSize = "13px";
+                tmpTxt = document.createTextNode("Save");
+                saveTimerPreferencesButton.appendChild(tmpTxt);
+                saveButtonCell.appendChild(saveTimerPreferencesButton);
+                tmpTxt = document.createTextNode("  ");
+                saveButtonCell.appendChild(tmpTxt);
+
+                captionCell = null;
+                tmpTxt = null;
+            }
             const toggleLink = document.getElementById(ID_TIMER_LINK);
             const preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
+            if (preferencesTable.rows.length < 2) {
+                inserTimerPreferences();
+            }
             if (toggleLink.innerHTML == '[Show]') {
                 toggleLink.innerHTML = '[Hide]'
                 preferencesTable.style.display = 'table';
@@ -2661,172 +2794,11 @@ function embedUIStructure() {
         }
 
         function embedTimerPreferences() {
-            function saveTimerPreferences() {
-                try {
-                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MIN, document.getElementById(ID_BOT_HORN_TIME_DELAY_MIN_INPUT).value);
-                    setStorage(STORAGE_BOT_HORN_TIME_DELAY_MAX, document.getElementById(ID_BOT_HORN_TIME_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MIN, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT).value);
-                    setStorage(STORAGE_TRAP_CHECK_TIME_DELAY_MAX, document.getElementById(ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MIN, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MIN_INPUT).value);
-                    setStorage(STORAGE_AUTOSOLVE_KR_DELAY_MAX, document.getElementById(ID_AUTOSOLVE_KR_DELAY_MAX_INPUT).value);
-                    setStorage(STORAGE_SCHEDULED_GIFTING_AND_BALLOTING_TIME, document.getElementById(ID_SCHEDULED_GIFTING_AND_BALLOTING_TIME_INPUT).value);
-                    setStorage(STORAGE_SCHEDULED_RESET_TIME, document.getElementById(ID_SCHEDULED_RESET_TIME_INPUT).value);
-                } catch (e) {
-                    console.log(e);
-                }
-                reloadCampPage();
-            }
-
-            let tmpTxt;
-            let captionCell;
             const timerPreferencesTable = document.createElement('table');
             timerPreferencesTable.id = ID_TIMER_PREFERENCES_TABLE;
             timerPreferencesTable.width = "100%";
-
             const trEmpty = timerPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
-
-            const trNextBotHornTimePreferences = timerPreferencesTable.insertRow();
-            trNextBotHornTimePreferences.style.height = "21px"
-            captionCell = trNextBotHornTimePreferences.insertCell();
-            captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "Bot Horn Time Delay :  ";
-            captionCell.width = 240;
-            const nextBotHornTimePreferencesSettings = trNextBotHornTimePreferences.insertCell();
-            nextBotHornTimePreferencesSettings.width = 250;
-            const botHornTimeDelayMinInput = document.createElement('INPUT');
-            botHornTimeDelayMinInput.type = "number";
-            botHornTimeDelayMinInput.style.fontSize = "12px";
-            botHornTimeDelayMinInput.min = "0";
-            botHornTimeDelayMinInput.max = "600";
-            botHornTimeDelayMinInput.size = "5";
-            botHornTimeDelayMinInput.id = ID_BOT_HORN_TIME_DELAY_MIN_INPUT;
-            botHornTimeDelayMinInput.value = g_botHornTimeDelayMin;
-            nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMinInput);
-            tmpTxt = document.createTextNode(" seconds ~  ");
-            nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
-            const botHornTimeDelayMaxInput = document.createElement('INPUT');
-            botHornTimeDelayMaxInput.type = "number";
-            botHornTimeDelayMaxInput.style.fontSize = "12px";
-            botHornTimeDelayMaxInput.min = "1";
-            botHornTimeDelayMaxInput.max = "600";
-            botHornTimeDelayMaxInput.size = "5";
-            botHornTimeDelayMaxInput.id = ID_BOT_HORN_TIME_DELAY_MAX_INPUT;
-            botHornTimeDelayMaxInput.value = g_botHornTimeDelayMax;
-            nextBotHornTimePreferencesSettings.appendChild(botHornTimeDelayMaxInput);
-            tmpTxt = document.createTextNode(" seconds");
-            nextBotHornTimePreferencesSettings.appendChild(tmpTxt);
-
-            const trNextTrapCheckTimePreferences = timerPreferencesTable.insertRow();
-            trNextTrapCheckTimePreferences.style.height = "21px"
-            captionCell = trNextTrapCheckTimePreferences.insertCell();
-            captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "Trap Check Time Delay :  ";
-            const nextTrapCheckTimePreferencesSettings = trNextTrapCheckTimePreferences.insertCell();
-            const trapCheckTimeDelayMinInput = document.createElement('INPUT');
-            trapCheckTimeDelayMinInput.type = "number";
-            trapCheckTimeDelayMinInput.style.fontSize = "12px";
-            trapCheckTimeDelayMinInput.min = "0";
-            trapCheckTimeDelayMinInput.max = "360";
-            trapCheckTimeDelayMinInput.size = "5";
-            trapCheckTimeDelayMinInput.id = ID_TRAP_CHECK_TIME_DELAY_MIN_INPUT;
-            trapCheckTimeDelayMinInput.value = g_trapCheckTimeDelayMin;
-            nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMinInput);
-            tmpTxt = document.createTextNode(" seconds ~  ");
-            nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
-            const trapCheckTimeDelayMaxInput = document.createElement('INPUT');
-            trapCheckTimeDelayMaxInput.type = "number";
-            trapCheckTimeDelayMaxInput.style.fontSize = "12px";
-            trapCheckTimeDelayMaxInput.min = "1";
-            trapCheckTimeDelayMaxInput.max = "600";
-            trapCheckTimeDelayMaxInput.size = "5";
-            trapCheckTimeDelayMaxInput.id = ID_TRAP_CHECK_TIME_DELAY_MAX_INPUT;
-            trapCheckTimeDelayMaxInput.value = g_trapCheckTimeDelayMax;
-            nextTrapCheckTimePreferencesSettings.appendChild(trapCheckTimeDelayMaxInput);
-            tmpTxt = document.createTextNode(" seconds");
-            nextTrapCheckTimePreferencesSettings.appendChild(tmpTxt);
-
-            const trAutosolveKRPreferences = timerPreferencesTable.insertRow();
-            trAutosolveKRPreferences.style.height = "24px"
-            captionCell = trAutosolveKRPreferences.insertCell();
-            captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "Auto Solve King Reward Delay :  ";
-            const autosolveKRPreferencesSettings = trAutosolveKRPreferences.insertCell();
-            const autosolveKRDelayMinInput = document.createElement('INPUT');
-            autosolveKRDelayMinInput.type = "number";
-            autosolveKRDelayMinInput.style.fontSize = "12px";
-            autosolveKRDelayMinInput.min = "0";
-            autosolveKRDelayMinInput.max = "360";
-            autosolveKRDelayMinInput.size = "5";
-            autosolveKRDelayMinInput.id = ID_AUTOSOLVE_KR_DELAY_MIN_INPUT;
-            autosolveKRDelayMinInput.value = g_autosolveKRDelayMin;
-            autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMinInput);
-            tmpTxt = document.createTextNode(" seconds ~  ");
-            autosolveKRPreferencesSettings.appendChild(tmpTxt);
-            const autosolveKRDelayMaxInput = document.createElement('INPUT');
-            autosolveKRDelayMaxInput.type = "number";
-            autosolveKRDelayMaxInput.style.fontSize = "12px";
-            autosolveKRDelayMaxInput.min = "1";
-            autosolveKRDelayMaxInput.max = "600";
-            autosolveKRDelayMaxInput.size = "5";
-            autosolveKRDelayMaxInput.id = ID_AUTOSOLVE_KR_DELAY_MAX_INPUT;
-            autosolveKRDelayMaxInput.value = g_autosolveKRDelayMax;
-            autosolveKRPreferencesSettings.appendChild(autosolveKRDelayMaxInput);
-            tmpTxt = document.createTextNode(" seconds");
-            autosolveKRPreferencesSettings.appendChild(tmpTxt);
-
-            const trSchedulerTitle = timerPreferencesTable.insertRow();
-            trSchedulerTitle.style.height = "20px"
-            const schedulerTitle = trSchedulerTitle.insertCell();
-            schedulerTitle.colSpan = 3;
-            schedulerTitle.innerHTML = "Scheduler time";
-            schedulerTitle.style.fontWeight = "bold";
-            schedulerTitle.style.fontSize = "12px";
-            schedulerTitle.style.textAlign = "center";
-
-            const trScheduledGiftingAndBallotingPreferences = timerPreferencesTable.insertRow();
-            trScheduledGiftingAndBallotingPreferences.style.height = "24px"
-            captionCell = trScheduledGiftingAndBallotingPreferences.insertCell();
-            captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "Sending Gifts and Raffles :  ";
-            const scheduledGiftingAndBallotingPreferencesSettings = trScheduledGiftingAndBallotingPreferences.insertCell();
-            const scheduledGiftingAndBallotingBeginTime = document.createElement('INPUT');
-            scheduledGiftingAndBallotingBeginTime.type = "time";
-            scheduledGiftingAndBallotingBeginTime.style.fontSize = "12px";
-            scheduledGiftingAndBallotingBeginTime.id = ID_SCHEDULED_GIFTING_AND_BALLOTING_TIME_INPUT;
-            scheduledGiftingAndBallotingBeginTime.value = g_scheduledGiftingAndBallotingTime;
-            scheduledGiftingAndBallotingPreferencesSettings.appendChild(scheduledGiftingAndBallotingBeginTime);
-
-            const trScheduledResetPreferences = timerPreferencesTable.insertRow();
-            trScheduledResetPreferences.style.height = "21px"
-            captionCell = trScheduledResetPreferences.insertCell();
-            captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-            captionCell.innerHTML = "New Date :  ";
-            const scheduledResetPreferencesSettings = trScheduledResetPreferences.insertCell();
-            const scheduledResetTime = document.createElement('INPUT');
-            scheduledResetTime.type = "time";
-            scheduledResetTime.style.fontSize = "12px";
-            scheduledResetTime.id = ID_SCHEDULED_RESET_TIME_INPUT;
-            scheduledResetTime.value = g_scheduledResetTime;
-            scheduledResetPreferencesSettings.appendChild(scheduledResetTime);
-
-            const trLastRow = timerPreferencesTable.insertRow();
-            const saveButtonCell = trLastRow.insertCell();
-            saveButtonCell.colSpan = 3;
-            saveButtonCell.style.textAlign = "right";
-            tmpTxt = document.createTextNode("(Changes above this line only take place after user save the preference)  ");
-            saveButtonCell.appendChild(tmpTxt);
-            const saveTimerPreferencesButton = document.createElement('button');
-            saveTimerPreferencesButton.onclick = saveTimerPreferences
-            saveTimerPreferencesButton.style.fontSize = "13px";
-            tmpTxt = document.createTextNode("Save");
-            saveTimerPreferencesButton.appendChild(tmpTxt);
-            saveButtonCell.appendChild(saveTimerPreferencesButton);
-            tmpTxt = document.createTextNode("  ");
-            saveButtonCell.appendChild(tmpTxt);
-
-            captionCell = null;
-            tmpTxt = null;
 
             return timerPreferencesTable;
         }
