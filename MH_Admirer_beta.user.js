@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.26
+// @version      1.2.2.27
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -23,7 +23,6 @@
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - Activate-Deactivate FRo tower (After I get tower lvl 4)
-//   - FRo Retreat Policy
 //   - CSCPolicy (Cactus Charm)
 //   - CLiPolicy
 //   - IcePolicy and test
@@ -182,6 +181,8 @@ const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
 const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
 const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
 const ID_CBX_VVACSC_ATM_CACTUS_CHARM = "cbxVVaCSCAtmCactusCharm";
+const ID_TR_VVACSC_ATM_SHERIFFS_BADGE_CHARM = "trVVaCSCAtmSheriffsBadgeCharm";
+const ID_CBX_VVACSC_ATM_SHERIFFS_BADGE_CHARM = "cbxVVaCSCAtmSheriffsBadgeCharm";
 const ID_TR_VVAFRO_PHASES_TRAP_SETUP = "trVVaFRoPhasesTrapSetup";
 const ID_SELECT_VVAFRO_PHASE = "selectVVaFRoPhase";
 const ID_SELECT_VVAFRO_WEAPON = "selectVVaFRoWeapon";
@@ -296,6 +297,7 @@ const VVACSC_PHASE_HAS_REWARD = "has_reward";
 const VVACSC_PHASES = [VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
 const VVACSC_ATM_POSTER = "Automatic Poster";
 const VVACSC_ATM_CACTUS_CHARM = "Automatic Cactus Charm";
+const VVACSC_ATM_SHERIFFS_BADGE_CHARM = "Automatic Sheriffs Badge Charm";
 const VVAFRO_PHASE_DAY = "Day";
 const VVAFRO_PHASE_TWILIGHT = "Twilight";
 const VVAFRO_PHASE_MIDNIGHT = "Midnight";
@@ -562,6 +564,7 @@ class PolicyVVaCSC extends Policy {
         this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
         this.trs[1] = ID_TR_VVACSC_ATM_POSTER;
         this.trs[2] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
+        this.trs[3] = ID_TR_VVACSC_ATM_SHERIFFS_BADGE_CHARM;
     }
 
     resetTrapSetups() {
@@ -569,8 +572,9 @@ class PolicyVVaCSC extends Policy {
         for (const phase of VVACSC_PHASES){
             this.trapSetups[phase] = [];
         }
-        this.trapSetups[VVACSC_ATM_POSTER] = false;
-        this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = false;
+        this.trapSetups[VVACSC_ATM_POSTER] = true;
+        this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
+        this.trapSetups[VVACSC_ATM_SHERIFFS_BADGE_CHARM] = true;
     }
 
     getTrapSetups() {
@@ -586,6 +590,7 @@ class PolicyVVaCSC extends Policy {
         document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
         document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
         document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
+        document.getElementById(ID_CBX_VVACSC_ATM_SHERIFFS_BADGE_CHARM).checked = trapSetups[VVACSC_ATM_SHERIFFS_BADGE_CHARM];
     }
 
     recommendTrapSetup() {
@@ -1860,6 +1865,7 @@ function checkLocation() {
                 openChest();
             }, 5 * 1000);
         }
+
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
@@ -2518,7 +2524,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2797,103 +2803,6 @@ function embedUIStructure() {
         }
 
         function embedPolicyPreferences() {
-            function savePolicyPreferences() {
-                reloadCampPage();
-            }
-
-            function updateTraps() {
-                function processData(data, classification) {
-                    const tmpInfo = {};
-                    for (const component of data.components){
-                        tmpInfo[component.type] = {};
-                        tmpInfo[component.type].name = component.name;
-                        tmpInfo[component.type].itemId = component.item_id;
-                        if (classification === CLASSIFICATION_WEAPON || classification === CLASSIFICATION_BASE) {
-                            if (classification === CLASSIFICATION_WEAPON) {
-                                tmpInfo[component.type].powerType = component.power_type_name;
-                            }
-                            tmpInfo[component.type].power = component.power;
-                            if (isNullOrUndefined(component.luck)) {
-                                tmpInfo[component.type].luck = 0;
-                            } else {
-                                tmpInfo[component.type].luck = component.luck;
-                            }
-                        }
-                    }
-                    const sortedInfo = Object.fromEntries(Object.entries(tmpInfo)
-                                                          .sort(([,a], [,b]) => (b.name > a.name)? -1: 1));
-                    if (classification === CLASSIFICATION_WEAPON) {
-                        g_trapInfo.weapon.info = sortedInfo;
-                        g_trapInfo.weapon.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
-                    } else if (classification === CLASSIFICATION_BASE) {
-                        g_trapInfo.base.info = sortedInfo;
-                        g_trapInfo.base.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
-                    } else if (classification === CLASSIFICATION_BAIT) {
-                        g_trapInfo.bait.info = sortedInfo;
-                        g_trapInfo.bait.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
-                    } else if (classification === CLASSIFICATION_TRINKET) {
-                        g_trapInfo.trinket.info = sortedInfo;
-                        g_trapInfo.trinket.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
-                    }
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating " + classification + "s";
-                }
-
-                function updateItems(classification) {
-                    ajaxPost(window.location.origin + '/managers/ajax/users/gettrapcomponents.php',
-                             getAjaxHeader({"classification": classification}),
-                             function (data) {
-                        processData(data, classification);
-                    }, function (error) {
-                        console.error('ajax:', error);
-                        alert("error updating weapon");
-                    });
-                }
-
-                function saveTrapInfo() {
-                    setStorage(STORAGE_TRAP_INFO, g_trapInfo);
-                    reloadCampPage();
-                }
-
-                if (!lockBot(BOT_PROCESS_Manual)) {
-                    return;
-                }
-                g_trapInfo = {};
-                g_trapInfo.weapon = {};
-                updateItems(CLASSIFICATION_WEAPON);
-                g_trapInfo.base = {};
-                updateItems(CLASSIFICATION_BASE);
-                g_trapInfo.bait = {};
-                updateItems(CLASSIFICATION_BAIT);
-                g_trapInfo.trinket = {};
-                updateItems(CLASSIFICATION_TRINKET);
-
-                window.setTimeout(function () {
-                    saveTrapInfo();
-                }, 3 * 1000);
-            }
-
-            function updateFriends() {
-                function processUserData(data) {
-                    const senderUserId = getPageVariable("user.sn_user_id");
-                    g_friendInfo = Object.fromEntries(Object.entries(data.user_data).filter(([key, value]) => value.sn_user_id !== senderUserId));
-                    setStorage(STORAGE_FRIEND_INFO, g_friendInfo);
-                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating friends";
-                }
-                ajaxPost(window.location.origin + '/managers/ajax/users/userData.php',
-                         getAjaxHeader({"fields%5B%5D": "snuid", "get_friends": true}),
-                         function (data) {
-                    processUserData(data);
-                }, function (error) {
-                    console.error('ajax:', error);
-                    alert("error getting friend list");
-                });
-            }
-
-            function clearStorage() {
-                window.localStorage.clear();
-                reloadCampPage();
-            }
-
             function getSelectItem(itemNames, itemId, onchangeFunction) {
                 const selectItem = document.createElement('select');
                 selectItem.style.width = "80px";
@@ -2955,9 +2864,48 @@ function embedUIStructure() {
                     if (event.target.value == "Select policy") {
                         return;
                     }
+                    currentPolicy = event.target.value;
+                    switch(event.target.value) {
+                        case POLICY_NAME_ACOLYTE_REALM:
+                            insertBWoARePolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_BWOARE;
+                            break;
+                        case POLICY_NAME_CLAW_SHOT_CITY:
+                            insertVVaCSCPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_VVACSC;
+                            break;
+                        case POLICY_NAME_FORT_ROX:
+                            insertVVaFRoPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_VVAFRO;
+                            break;
+                        case POLICY_NAME_SEASONAL_GARDEN:
+                            insertRodSGaPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_RODSGA;
+                            break;
+                        case POLICY_NAME_ZUGZWANGS_TOWER:
+                            insertRodZToPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_RODZTO;
+                            break;
+                        case POLICY_NAME_CRYSTAL_LIBRARY:
+                            insertRodCLiPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_RODCLI;
+                            break;
+                        case POLICY_NAME_ICEBERG:
+                            insertRodIcePolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_RODICE;
+                            break;
+                        case POLICY_NAME_FIERY_WARPATH:
+                            insertSDeFWaPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_SDEFWA;
+                            break;
+                        default:
+                    }
                     for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                        const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
                         const tmpPolicy = POLICY_DICT[policyName];
+                        if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
+                            continue;
+                        }
+                        const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
                         for (const tr of tmpPolicy.trs){
                             document.getElementById(tr).style.display = tmpDisplay;
                         }
@@ -2966,34 +2914,6 @@ function embedUIStructure() {
                         } else if (tmpDisplay == "table-row") {
                             tmpPolicy.initSelectTrapSetup();
                         }
-                    }
-                    currentPolicy = event.target.value;
-                    switch(event.target.value) {
-                        case POLICY_NAME_ACOLYTE_REALM:
-                            policyStorage = STORAGE_TRAP_SETUP_BWOARE;
-                            break;
-                        case POLICY_NAME_CLAW_SHOT_CITY:
-                            policyStorage = STORAGE_TRAP_SETUP_VVACSC;
-                            break;
-                        case POLICY_NAME_FORT_ROX:
-                            policyStorage = STORAGE_TRAP_SETUP_VVAFRO;
-                            break;
-                        case POLICY_NAME_SEASONAL_GARDEN:
-                            policyStorage = STORAGE_TRAP_SETUP_RODSGA;
-                            break;
-                        case POLICY_NAME_ZUGZWANGS_TOWER:
-                            policyStorage = STORAGE_TRAP_SETUP_RODZTO;
-                            break;
-                        case POLICY_NAME_CRYSTAL_LIBRARY:
-                            policyStorage = STORAGE_TRAP_SETUP_RODCLI;
-                            break;
-                        case POLICY_NAME_ICEBERG:
-                            policyStorage = STORAGE_TRAP_SETUP_RODICE;
-                            break;
-                        case POLICY_NAME_FIERY_WARPATH:
-                            policyStorage = STORAGE_TRAP_SETUP_SDEFWA;
-                            break;
-                        default:
                     }
                 }
 
@@ -3011,6 +2931,7 @@ function embedUIStructure() {
                 let itemOption;
                 let currentPolicy;
                 let policyStorage;
+                let tmpTxt;
                 const trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
                 const captionCell = trSelectPolicy.insertCell();
@@ -3033,7 +2954,6 @@ function embedUIStructure() {
                     selectPolicy.appendChild(itemOption);
                 }
                 selectPolicyCell.appendChild(selectPolicy);
-                itemOption = null;
                 tmpTxt = document.createTextNode("  ");
                 selectPolicyCell.appendChild(tmpTxt);
                 const recommendButton = document.createElement('button');
@@ -3050,6 +2970,9 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 selectPolicyCell.appendChild(resetButton);
+
+                tmpTxt = null;
+                itemOption = null;
             }
 
             function insertBWoARePolicyPreferences() {
@@ -3143,6 +3066,11 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
                 }
 
+                function saveVVaCSCAtmSheriffsBadgeCharm(event) {
+                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_SHERIFFS_BADGE_CHARM] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                }
+
                 let captionCell;
                 let tmpTxt;
 
@@ -3222,6 +3150,32 @@ function embedUIStructure() {
                 imgCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
 
+                const trVVaCSCAtmSheriffsBadgeCharm = policyPreferencesTable.insertRow();
+                trVVaCSCAtmSheriffsBadgeCharm.id = ID_TR_VVACSC_ATM_SHERIFFS_BADGE_CHARM;
+                trVVaCSCAtmSheriffsBadgeCharm.style.height = "24px";
+                trVVaCSCAtmSheriffsBadgeCharm.style.display = "none";
+                captionCell = trVVaCSCAtmSheriffsBadgeCharm.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                const checkboxAtmSheriffsBadgeCharmCell = trVVaCSCAtmSheriffsBadgeCharm.insertCell();
+                const checkboxAtmSheriffsBadgeCharm = document.createElement('input');
+                checkboxAtmSheriffsBadgeCharm.id = ID_CBX_VVACSC_ATM_SHERIFFS_BADGE_CHARM;
+                checkboxAtmSheriffsBadgeCharm.type = "checkbox";
+                checkboxAtmSheriffsBadgeCharm.onchange = saveVVaCSCAtmSheriffsBadgeCharm;
+                checkboxAtmSheriffsBadgeCharmCell.appendChild(checkboxAtmSheriffsBadgeCharm);
+                tmpTxt = document.createTextNode(" Arm Sheriff's Badge Charm ");
+                checkboxAtmSheriffsBadgeCharmCell.appendChild(tmpTxt);
+                /*
+                const imgSuperCactusCharm = document.createElement("img");
+                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
+                imgSuperCactusCharm.height = 15;
+                checkboxAtmSheriffsBadgeCharmCell.appendChild(imgSuperCactusCharm);
+                tmpTxt = document.createTextNode(" and Cactus Charm ");
+                checkboxAtmCactusCharmCell.appendChild(tmpTxt);
+                const imgCactusCharm = document.createElement("img");
+                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
+                imgCactusCharm.height = 15;
+                checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
+*/
                 tmpTxt = null;
                 captionCell = null;
             }
@@ -3938,25 +3892,121 @@ function embedUIStructure() {
                 tmpTxt = null;
             }
 
-            let tmpTxt;
+            //let tmpTxt;
             const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
 
             const trEmpty = policyPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
-
             insertSelectPolicyRow();
-            insertBWoARePolicyPreferences();
-            insertVVaCSCPolicyPreferences();
-            insertVVaFRoPolicyPreferences();
-            insertRodSGaPolicyPreferences();
-            insertRodZToPolicyPreferences();
-            insertRodCLiPolicyPreferences();
-            insertRodIcePolicyPreferences();
-            insertSDeFWaPolicyPreferences();
 
-            const trLastRow = policyPreferencesTable.insertRow();
-            const updateTrapsButtonCell = trLastRow.insertCell();
+            return policyPreferencesTable;
+        }
+
+        function embedPreferencesFooterTable() {
+            function savePolicyPreferences() {
+                reloadCampPage();
+            }
+
+            function updateTraps() {
+                function processData(data, classification) {
+                    const tmpInfo = {};
+                    for (const component of data.components){
+                        tmpInfo[component.type] = {};
+                        tmpInfo[component.type].name = component.name;
+                        tmpInfo[component.type].itemId = component.item_id;
+                        if (classification === CLASSIFICATION_WEAPON || classification === CLASSIFICATION_BASE) {
+                            if (classification === CLASSIFICATION_WEAPON) {
+                                tmpInfo[component.type].powerType = component.power_type_name;
+                            }
+                            tmpInfo[component.type].power = component.power;
+                            if (isNullOrUndefined(component.luck)) {
+                                tmpInfo[component.type].luck = 0;
+                            } else {
+                                tmpInfo[component.type].luck = component.luck;
+                            }
+                        }
+                    }
+                    const sortedInfo = Object.fromEntries(Object.entries(tmpInfo)
+                                                          .sort(([,a], [,b]) => (b.name > a.name)? -1: 1));
+                    if (classification === CLASSIFICATION_WEAPON) {
+                        g_trapInfo.weapon.info = sortedInfo;
+                        g_trapInfo.weapon.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    } else if (classification === CLASSIFICATION_BASE) {
+                        g_trapInfo.base.info = sortedInfo;
+                        g_trapInfo.base.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    } else if (classification === CLASSIFICATION_BAIT) {
+                        g_trapInfo.bait.info = sortedInfo;
+                        g_trapInfo.bait.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    } else if (classification === CLASSIFICATION_TRINKET) {
+                        g_trapInfo.trinket.info = sortedInfo;
+                        g_trapInfo.trinket.names = Object.keys(sortedInfo).map(x => sortedInfo[x].name);
+                    }
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish Updating " + classification + "s";
+                }
+
+                function updateItems(classification) {
+                    ajaxPost(window.location.origin + '/managers/ajax/users/gettrapcomponents.php',
+                             getAjaxHeader({"classification": classification}),
+                             function (data) {
+                        processData(data, classification);
+                    }, function (error) {
+                        console.error('ajax:', error);
+                        alert("error updating weapon");
+                    });
+                }
+
+                function saveTrapInfo() {
+                    setStorage(STORAGE_TRAP_INFO, g_trapInfo);
+                    reloadCampPage();
+                }
+
+                if (!lockBot(BOT_PROCESS_Manual)) {
+                    return;
+                }
+                g_trapInfo = {};
+                g_trapInfo.weapon = {};
+                updateItems(CLASSIFICATION_WEAPON);
+                g_trapInfo.base = {};
+                updateItems(CLASSIFICATION_BASE);
+                g_trapInfo.bait = {};
+                updateItems(CLASSIFICATION_BAIT);
+                g_trapInfo.trinket = {};
+                updateItems(CLASSIFICATION_TRINKET);
+
+                window.setTimeout(function () {
+                    saveTrapInfo();
+                }, 3 * 1000);
+            }
+
+            function updateFriends() {
+                function processUserData(data) {
+                    const senderUserId = getPageVariable("user.sn_user_id");
+                    g_friendInfo = Object.fromEntries(Object.entries(data.user_data).filter(([key, value]) => value.sn_user_id !== senderUserId));
+                    setStorage(STORAGE_FRIEND_INFO, g_friendInfo);
+                    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish updating friends";
+                }
+                ajaxPost(window.location.origin + '/managers/ajax/users/userData.php',
+                         getAjaxHeader({"fields%5B%5D": "snuid", "get_friends": true}),
+                         function (data) {
+                    processUserData(data);
+                }, function (error) {
+                    console.error('ajax:', error);
+                    alert("error getting friend list");
+                });
+            }
+
+            function clearStorage() {
+                window.localStorage.clear();
+                reloadCampPage();
+            }
+
+            let tmpTxt;
+            const preferencesFooterTable = document.createElement('table');
+            preferencesFooterTable.width = "100%";
+
+            const preferencesFooterRow = preferencesFooterTable.insertRow();
+            const updateTrapsButtonCell = preferencesFooterRow.insertCell();
             const updateTrapsButton = document.createElement('button');
             updateTrapsButton.onclick = updateTraps
             updateTrapsButton.style.fontSize = "10px";
@@ -3980,7 +4030,7 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode("Clear stroage");
             clearStorageButton.appendChild(tmpTxt);
             updateTrapsButtonCell.appendChild(clearStorageButton);
-            const applyButtonCell = trLastRow.insertCell();
+            const applyButtonCell = preferencesFooterRow.insertCell();
             applyButtonCell.style.textAlign = "right";
             const applyPolicyPreferencesButton = document.createElement('button');
             applyPolicyPreferencesButton.onclick = savePolicyPreferences
@@ -3990,9 +4040,9 @@ function embedUIStructure() {
             applyButtonCell.appendChild(applyPolicyPreferencesButton);
             tmpTxt = document.createTextNode("  ");
             applyButtonCell.appendChild(tmpTxt);
-            tmpTxt = null;
 
-            return policyPreferencesTable;
+            tmpTxt = null;
+            return preferencesFooterTable;
         }
 
         let separationLine;
@@ -4048,6 +4098,11 @@ function embedUIStructure() {
 
         const policyPreferencesTable = embedPolicyPreferences();
         preferencesBox.appendChild(policyPreferencesTable);
+        blankLine = document.createElement('div');
+        blankLine.style.height="4px"
+        preferencesBox.appendChild(blankLine);
+        const preferencesFooterTable = embedPreferencesFooterTable();
+        preferencesBox.appendChild(preferencesFooterTable);
 
         preferencesSection.appendChild(preferencesBox);
 
