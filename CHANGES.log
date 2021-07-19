@@ -1,3 +1,6 @@
+Version 1.2.2.26
+- Implement Retreating Poilicy for VVaFRo
+
 Version 1.2.2.25
 - Add a button to retrieve friends' information
 - Change Ajax header format of updateFriends

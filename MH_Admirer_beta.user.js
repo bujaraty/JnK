@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.25
+// @version      1.2.2.26
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -23,6 +23,8 @@
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - Activate-Deactivate FRo tower (After I get tower lvl 4)
+//   - FRo Retreat Policy
+//   - CSCPolicy (Cactus Charm)
 //   - CLiPolicy
 //   - IcePolicy and test
 //   - FWaPolicy
@@ -441,14 +443,6 @@ class Policy {
 
     getBestLuckWeapon(powerType) {
         const weaponInfo = getWeaponInfo();
-        /*
-        const tmpWeapons = Object.fromEntries(Object.entries(weaponInfo)
-        .filter(([key, value]) => value.powerType === powerType)
-        .sort(([,a], [,b]) => b.power - a.power)
-        .sort(([,a], [,b]) => b.luck - a.luck)
-                                             );
-        debugObj(tmpWeapons);
-//        .map(x => x[1].name)[0];*/
         if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
             this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
                 .filter(([key, value]) => value.powerType === powerType)
@@ -1909,29 +1903,46 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
         const currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
         const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
-        switch(currentStage) {
-            case false:
-                armTraps(trapSetups[VVAFRO_PHASE_DAY]);
-                break;
-            case "stage_one":
-                armTraps(trapSetups[VVAFRO_PHASE_TWILIGHT]);
-                break;
-            case "stage_two":
-                armTraps(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
-                break;
-            case "stage_three":
-                armTraps(trapSetups[VVAFRO_PHASE_PITCH]);
-                break;
-            case "stage_four":
-                armTraps(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
-                break;
-            case "stage_five":
-                armTraps(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
-                break;
-            case "DAWN":
-                armTraps(trapSetups[VVAFRO_PHASE_DAWN]);
-                break;
-            default:
+        if (currentStage != false &&
+            trapSetups[VVAFRO_ATM_RETREAT] &&
+            parseInt(getPageVariable("user.quests.QuestFortRox.items.howlite_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
+            parseInt(getPageVariable("user.quests.QuestFortRox.items.blood_stone_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
+            ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
+                     getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                     function (data) {
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, 2 * 1000);
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error retreating from Fort Rox");
+            });
+        } else {
+            switch(currentStage) {
+                case false:
+                    armTraps(trapSetups[VVAFRO_PHASE_DAY]);
+                    break;
+                case "stage_one":
+                    armTraps(trapSetups[VVAFRO_PHASE_TWILIGHT]);
+                    break;
+                case "stage_two":
+                    armTraps(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
+                    break;
+                case "stage_three":
+                    armTraps(trapSetups[VVAFRO_PHASE_PITCH]);
+                    break;
+                case "stage_four":
+                    armTraps(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
+                    break;
+                case "stage_five":
+                    armTraps(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
+                    break;
+                case "DAWN":
+                    armTraps(trapSetups[VVAFRO_PHASE_DAWN]);
+                    break;
+                default:
+            }
         }
     }
 
@@ -2332,10 +2343,8 @@ function prepareSendingBallots() {
 }
 
 function test1() {
-    //prepareSendingGifts();
-    //prepareSendingBallots();
     //testSortObj();
-    //checkLocation();
+    checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -2343,15 +2352,6 @@ function test1() {
 
 function test2() {
     //testLoadObjFromStorage();
-    resetGiftingAndBallotingStatus();
-}
-
-function resetGiftingAndBallotingStatus() {
-    g_statusGifting = STATUS_INCOMPLETE;
-    setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
-    g_statusBalloting = STATUS_INCOMPLETE;
-    setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
-    reloadCampPage();
 }
 
 function getAjaxHeader(addedData) {
@@ -4112,6 +4112,10 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestFortRox.current_stage") {
             return unsafeWindow.user.quests.QuestFortRox.current_stage;
+        } else if (name == "user.quests.QuestFortRox.items.howlite_stat_item.quantity") {
+            return unsafeWindow.user.quests.QuestFortRox.items.howlite_stat_item.quantity;
+        } else if (name == "user.quests.QuestFortRox.items.blood_stone_stat_item.quantity") {
+            return unsafeWindow.user.quests.QuestFortRox.items.blood_stone_stat_item.quantity;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
