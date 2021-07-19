@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.28
+// @version      1.2.2.29
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -23,7 +23,6 @@
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - Activate-Deactivate FRo tower (After I get tower lvl 4)
-//   - CLiPolicy
 //   - IcePolicy and test
 //   - FWaPolicy
 
@@ -209,8 +208,8 @@ const ID_SELECT_RODZTO_WEAPON = "selectRodZToWeapon";
 const ID_SELECT_RODZTO_BASE = "selectRodZToBase";
 const ID_SELECT_RODZTO_BAIT = "selectRodZToBait";
 const ID_SELECT_RODZTO_TRINKET = "selectRodZToTrinket";
-const ID_TR_RODCLI_CATALOG_MICE = "trRodCLiCatalogMice";
-const ID_CBX_RODCLI_CATALOG_MICE = "cbxRodCLiCatalogMice";
+const ID_TR_RODCLI_ATM_CATALOG_MICE = "trRodCLiAtmCatalogMice";
+const ID_CBX_RODCLI_ATM_CATALOG_MICE = "cbxRodCLiAtmCatalogMice";
 const ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP = "trRodIceSublocationTrapSetup";
 const ID_SELECT_RODICE_SUBLOCATION = "selectRodIceSublocation";
 const ID_SELECT_RODICE_WEAPON = "selectRodIceWeapon";
@@ -343,7 +342,7 @@ const RODZTO_CHESS_MASTER = "Chess Master";
 const RODZTO_CHESS_PROGRESS = [RODZTO_CHESS_MYSTIC_PAWN, RODZTO_CHESS_MYSTIC_KNIGHT, RODZTO_CHESS_MYSTIC_BISHOP, RODZTO_CHESS_MYSTIC_ROOK, RODZTO_CHESS_MYSTIC_QUEEN,
                                RODZTO_CHESS_MYSTIC_KING, RODZTO_CHESS_TECHNIC_PAWN, RODZTO_CHESS_TECHNIC_KNIGHT, RODZTO_CHESS_TECHNIC_BISHOP, RODZTO_CHESS_TECHNIC_ROOK,
                                RODZTO_CHESS_TECHNIC_QUEEN, RODZTO_CHESS_TECHNIC_KING, RODZTO_CHESS_MASTER];
-const RODCLI_CATALOG_MICE = "Catalog Mice";
+const RODCLI_ATM_CATALOG_MICE = "Automatic Catalog Mice";
 const RODICE_SUBLOCATION_ICEBERG_GENERAL = "Iceberg General";
 const RODICE_SUBLOCATION_TREACHEROUS_TUNNELS = "Treacherous Tunnels";
 const RODICE_SUBLOCATION_BRUTAL_BULWARK = "Brutal Bulwark";
@@ -381,8 +380,8 @@ const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
-const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
 const LOCATION_ZUGZWANGS_TOWER = "Zugzwang's Tower";
+const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
 const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
@@ -785,12 +784,12 @@ class PolicyRodCLi extends Policy {
     constructor () {
         super();
         this.setName(POLICY_NAME_CRYSTAL_LIBRARY);
-        this.trs[0] = ID_TR_RODCLI_CATALOG_MICE;
+        this.trs[0] = ID_TR_RODCLI_ATM_CATALOG_MICE;
     }
 
     resetTrapSetups() {
         this.trapSetups = {};
-        this.trapSetups[RODCLI_CATALOG_MICE] = false;
+        this.trapSetups[RODCLI_ATM_CATALOG_MICE] = false;
     }
 
     getTrapSetups() {
@@ -799,7 +798,7 @@ class PolicyRodCLi extends Policy {
 
     initSelectTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        document.getElementById(ID_CBX_RODCLI_CATALOG_MICE).checked = trapSetups[RODCLI_CATALOG_MICE];
+        document.getElementById(ID_CBX_RODCLI_ATM_CATALOG_MICE).checked = trapSetups[RODCLI_ATM_CATALOG_MICE];
     }
 }
 
@@ -2092,6 +2091,27 @@ function checkLocation() {
         }
     }
 
+    function runRodCLiPolicy() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CRYSTAL_LIBRARY;
+        const trapSetups = POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].getTrapSetups();
+        if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
+            isNullOrUndefined(getPageVariable("user.quests.QuestZugzwangLibrary.hasResearchQuest")) &&
+            parseInt(getPageVariable("user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest")) == 0) {
+            ajaxPost(window.location.origin + '/managers/ajax/environment/zugzwanglibrary.php',
+                     getAjaxHeader({"action": "purchase",
+                                    "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id"),
+                                    "convertible_item_type": "library_intro_research_assignment_convertible"}),
+                     function (data) {
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, 2 * 1000);
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error getting Library Assignment");
+            });
+        }
+    }
+
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
         return;
     }
@@ -2114,6 +2134,9 @@ function checkLocation() {
             break;
         case LOCATION_SEASONAL_GARDEN:
             runRodSGaPolicy();
+            break;
+        case LOCATION_CRYSTAL_LIBRARY:
+            runRodCLiPolicy();
             break;
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
@@ -2552,7 +2575,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3477,24 +3500,24 @@ function embedUIStructure() {
 
             function insertRodCLiPolicyPreferences() {
                 function saveRodCLiCheckbox(event) {
-                    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups[RODCLI_CATALOG_MICE] = event.target.checked;
+                    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups[RODCLI_ATM_CATALOG_MICE] = event.target.checked;
                     setStorage(STORAGE_TRAP_SETUP_RODCLI, POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups);
                 }
 
-                const trRodCLiCatalogMice = policyPreferencesTable.insertRow();
-                trRodCLiCatalogMice.id = ID_TR_RODCLI_CATALOG_MICE;
-                trRodCLiCatalogMice.style.height = "24px";
-                trRodCLiCatalogMice.style.display = "none";
-                const captionCell = trRodCLiCatalogMice.insertCell();
+                const trRodCLiAtmCatalogMice = policyPreferencesTable.insertRow();
+                trRodCLiAtmCatalogMice.id = ID_TR_RODCLI_ATM_CATALOG_MICE;
+                trRodCLiAtmCatalogMice.style.height = "24px";
+                trRodCLiAtmCatalogMice.style.display = "none";
+                const captionCell = trRodCLiAtmCatalogMice.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Catalog Library Assignment :  ";
-                const checkboxCell = trRodCLiCatalogMice.insertCell();
+                captionCell.innerHTML = "Automatic action(s) :  ";
+                const checkboxCell = trRodCLiAtmCatalogMice.insertCell();
                 const checkbox = document.createElement('input');
-                checkbox.id = ID_CBX_RODCLI_CATALOG_MICE;
+                checkbox.id = ID_CBX_RODCLI_ATM_CATALOG_MICE;
                 checkbox.type = "checkbox";
                 checkbox.onchange = saveRodCLiCheckbox;
                 checkboxCell.appendChild(checkbox);
-                const tmpTxt = document.createTextNode(" Automatically start ");
+                const tmpTxt = document.createTextNode(" Start Calalog Mice Library Assignment");
                 checkboxCell.appendChild(tmpTxt);
             }
 
@@ -4143,6 +4166,10 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestFortRox.items.howlite_stat_item.quantity;
         } else if (name == "user.quests.QuestFortRox.items.blood_stone_stat_item.quantity") {
             return unsafeWindow.user.quests.QuestFortRox.items.blood_stone_stat_item.quantity;
+        } else if (name == "user.quests.QuestZugzwangLibrary.hasResearchQuest") {
+            return unsafeWindow.user.quests.QuestZugzwangLibrary.hasResearchQuest;
+        } else if (name == "user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest") {
+            return unsafeWindow.user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
