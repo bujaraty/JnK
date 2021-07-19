@@ -1,5 +1,6 @@
 Version 1.2.2.27
-- Move the Polify Preferences to be instered only when selected
+- Move the Polify Preferences to be inserted only when selected
+- Fix bug 'Policy keep trying to arm finished Item'
 
 Version 1.2.2.26
 - Implement Retreating Poilicy for VVaFRo

@@ -134,6 +134,7 @@ const BAIT_GOUDA = "Gouda Cheese";
 const BAIT_MOON = "Moon Cheese";
 const BAIT_RUNIC = "Runic Cheese";
 const TRINKET_ATTRACTION = "Attraction Charm";
+const TRINKET_CACTUS_CHARM = "Cactus Charm";
 const TRINKET_POWER = "Power Charm";
 const TRINKET_PROSPECTORS = "Prospector's Charm";
 const TRINKET_ROOK_CRUMBLE = "Rook Crumble Charm";
@@ -165,6 +166,7 @@ const ID_PREFERENCES_BOX = 'preferencesBox';
 const ID_TIMER_PREFERENCES_TABLE = 'timerPreferencesTable';
 const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
+const ID_BOTTON_UPDATE_TRAPS = "btnUpdateTtraps";
 const ID_BOTTON_UPDATE_FRIENDS = "btnUpdateFriends";
 const ID_TR_BWOARE_TRAP_SETUP = "trBWoAreTrapSetup";
 const ID_SELECT_BWOARE_WEAPON = "selectBWoAReWeapon";
@@ -1458,7 +1460,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        checkLocation();
+        //checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1732,88 +1734,116 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_NONE;
     }
 
-    function armTraps(trapSetup) {
-        function getCurrentWeaponItemId() {
-            return getPageVariable("user.weapon_item_id");
-        }
+    function getCurrentWeaponItemId() {
+        return getPageVariable("user.weapon_item_id");
+    }
 
-        function getCurrentBaseItemId() {
-            return getPageVariable("user.base_item_id");
-        }
+    function getCurrentBaseItemId() {
+        return getPageVariable("user.base_item_id");
+    }
 
-        function getCurrentBaitItemId() {
-            return getPageVariable("user.bait_item_id");
-        }
+    function getCurrentBaitItemId() {
+        return getPageVariable("user.bait_item_id");
+    }
 
-        function getCurrentTrinketItemId() {
-            return getPageVariable("user.trinket_item_id");
-        }
+    function getCurrentTrinketItemId() {
+        return getPageVariable("user.trinket_item_id");
+    }
 
-        function armItem(classification, itemType) {
-            const objData = {};
-            objData.sn = 'Hitgrab';
-            objData.hg_is_ajax = 1;
-            objData[classification] = itemType;
-            objData.uh = getPageVariable('user.unique_hash');
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming " + classification;
-            ajaxPost(window.location.origin + '/managers/ajax/users/changetrap.php', objData, function (data) {
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish arming " + classification;
+    function armItem(classification, itemType) {
+        const objData = {};
+        objData.sn = 'Hitgrab';
+        objData.hg_is_ajax = 1;
+        objData[classification] = itemType;
+        objData.uh = getPageVariable('user.unique_hash');
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Policy arming " + classification;
+        ajaxPost(window.location.origin + '/managers/ajax/users/changetrap.php', objData, function (data) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Finish arming " + classification;
+        }, function (error) {
+            console.error('ajax:', error);
+            alert("error arming " + classification);
+        });
+    }
+
+    function checkArmedItem(currentItemId, policyItemName, itemInfo) {
+        // This function check if the currently armed item has the same itemId as the Policy item
+        // If yes it return itemType (item code to be used later with Ajax)
+        for (const [itemType, info] of Object.entries(itemInfo)) {
+            if (policyItemName == info.name && currentItemId != info.itemId) {
+                return itemType;
+            } else if (policyItemName == info.name && currentItemId == info.itemId) {
+                return;
+            }
+        }
+    }
+
+    function checkThenArmItem(classification, policyItemName) {
+        let currentItemId;
+        let itemInfo;
+        if (classification == CLASSIFICATION_WEAPON) {
+            currentItemId = getCurrentWeaponItemId();
+            itemInfo = getWeaponInfo();
+        } else if (classification == CLASSIFICATION_BASE) {
+            currentItemId = getCurrentBaseItemId();
+            itemInfo = getBaseInfo();
+        } else if (classification == CLASSIFICATION_BAIT) {
+            currentItemId = getCurrentBaitItemId();
+            itemInfo = getBaitInfo();
+        } else if (classification == CLASSIFICATION_TRINKET) {
+            currentItemId = getCurrentTrinketItemId();
+            itemInfo = getTrinketInfo();
+        }
+        let targetItemType;
+        if (classification == CLASSIFICATION_TRINKET &&
+            policyItemName == TRINKET_DISARM &&
+            !isNullOrUndefined(currentItemId)) {
+            targetItemType = policyItemName.toLowerCase();
+        } else if (classification == CLASSIFICATION_TRINKET &&
+                   !isNullOrUndefined(policyItemName) &&
+                   policyItemName != TRINKET_DISARM) {
+            targetItemType = checkArmedItem(currentItemId, policyItemName, itemInfo);
+        } else if (classification != CLASSIFICATION_TRINKET) {
+            targetItemType = checkArmedItem(currentItemId, policyItemName, itemInfo);
+        }
+        if (!isNullOrUndefined(targetItemType) && (classification == CLASSIFICATION_BAIT || classification == CLASSIFICATION_TRINKET)) {
+            // In case of Cheese or Charm, the quantity of the item have to be checked,
+            // so that it'll not keep trying to arm the non-existed item
+            ajaxPost(window.location.origin + '/managers/ajax/users/gettrapcomponents.php',
+                     getAjaxHeader({"classification": classification}),
+                     function (data) {
+                for (const component of data.components){
+                    if (component.name == policyItemName && component.quantity > 0) {
+                        // the item does exist, so arm the item !!
+                        armItem(classification, targetItemType);
+                        window.setTimeout(function () {
+                            reloadCampPage();
+                        }, 1 * 1000);
+                        return;
+                    }
+                }
+                document.getElementById(ID_BOTTON_UPDATE_TRAPS).click();
             }, function (error) {
                 console.error('ajax:', error);
-                alert("error arming " + classification);
+                alert("error checking item quantity");
             });
+        } else if (!isNullOrUndefined(targetItemType)) {
+            // Same as the previous if condition but this apply to only Weapon and Base, which are hard to disappear
+            // So no Ajax checking need, just go straight to the arming process
+            armItem(classification, targetItemType);
+            return targetItemType;
         }
+    }
 
-        function checkArmedItem(currentItemId, policyItemName, itemInfo) {
-            for (const [itemType, info] of Object.entries(itemInfo)) {
-                if (policyItemName == info.name && currentItemId != info.itemId) {
-                    return itemType;
-                } else if (policyItemName == info.name && currentItemId == info.itemId) {
-                    return;
-                }
-            }
-        }
-
+    function armTraps(trapSetup) {
         let delayTime = 0;
-        const targetWeaponType = checkArmedItem(getCurrentWeaponItemId(), trapSetup[IDX_WEAPON], getWeaponInfo());
-        if (!isNullOrUndefined(targetWeaponType)) {
-            if (!lockBot(BOT_PROCESS_POLICY)) {
-                return;
-            }
-            armItem(CLASSIFICATION_WEAPON, targetWeaponType);
+        if (!isNullOrUndefined(checkThenArmItem(CLASSIFICATION_WEAPON, trapSetup[IDX_WEAPON]))) {
             delayTime += 1;
         }
-        const targetBaseType = checkArmedItem(getCurrentBaseItemId(), trapSetup[IDX_BASE], getBaseInfo());
-        if (!isNullOrUndefined(targetBaseType)) {
-            if (!lockBot(BOT_PROCESS_POLICY)) {
-                return;
-            }
-            armItem(CLASSIFICATION_BASE, targetBaseType);
+        if (!isNullOrUndefined(checkThenArmItem(CLASSIFICATION_BASE, trapSetup[IDX_BASE]))) {
             delayTime += 1;
         }
-        const targetBaitType = checkArmedItem(getCurrentBaitItemId(), trapSetup[IDX_BAIT], getBaitInfo());
-        if (!isNullOrUndefined(targetBaitType)) {
-            if (!lockBot(BOT_PROCESS_POLICY)) {
-                return;
-            }
-            armItem(CLASSIFICATION_BAIT, targetBaitType);
-            delayTime += 1;
-        }
-        const policyTrinket = trapSetup[IDX_TRINKET];
-        const currentTrinketItemId = getCurrentTrinketItemId();
-        let targetTrinketType;
-        if (policyTrinket == TRINKET_DISARM && !isNullOrUndefined(currentTrinketItemId)) {
-            targetTrinketType = policyTrinket.toLowerCase();
-        } else if (!isNullOrUndefined(policyTrinket) && policyTrinket != TRINKET_DISARM) {
-            targetTrinketType = checkArmedItem(currentTrinketItemId, policyTrinket, getTrinketInfo());
-        }
-        if (!isNullOrUndefined(targetTrinketType)) {
-            if (!lockBot(BOT_PROCESS_POLICY)) {
-                return;
-            }
-            armItem(CLASSIFICATION_TRINKET, targetTrinketType);
-            delayTime += 1;
-        }
+        checkThenArmItem(CLASSIFICATION_BAIT, trapSetup[IDX_BAIT]);
+        checkThenArmItem(CLASSIFICATION_TRINKET, trapSetup[IDX_TRINKET]);
         if (delayTime > 0) {
             window.setTimeout(function () {
                 reloadCampPage();
@@ -1870,6 +1900,10 @@ function checkLocation() {
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
         const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
+        if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
+            getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
+            //alert("hello need to check charm");
+        }
         switch(phase) {
             case VVACSC_PHASE_NEED_POSTER:
                 armTraps(trapSetups[phase]);
@@ -2524,7 +2558,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2541,7 +2575,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-*/
+
 
         statusSection.appendChild(statusDisplayTable);
 
@@ -4008,6 +4042,7 @@ function embedUIStructure() {
             const preferencesFooterRow = preferencesFooterTable.insertRow();
             const updateTrapsButtonCell = preferencesFooterRow.insertCell();
             const updateTrapsButton = document.createElement('button');
+            updateTrapsButton.id = ID_BOTTON_UPDATE_TRAPS;
             updateTrapsButton.onclick = updateTraps
             updateTrapsButton.style.fontSize = "10px";
             tmpTxt = document.createTextNode("Update traps");
