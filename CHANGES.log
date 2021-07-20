@@ -1,3 +1,6 @@
+Version 1.2.2.30
+- Fix bug 'Policy keep trying to check quantity of Trinket_disarm'
+
 Version 1.2.2.29
 - Implement RodCLiPolicy
 
