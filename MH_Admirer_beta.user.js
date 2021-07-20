@@ -443,8 +443,6 @@ class Policy {
     }
 
     getBestLuckWeapon(powerType) {
-        alert("hello getBestLuckWeapon");
-        alert(powerType);
         const weaponInfo = getWeaponInfo();
         if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
             this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
@@ -1458,7 +1456,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        //checkLocation();
+        checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1904,17 +1902,12 @@ function checkLocation() {
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
         const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
-        alert("hello vvacsc 1");
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
             trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
         }
-        alert("hello vvacsc 2");
-        alert(phase);
         switch(phase) {
             case VVACSC_PHASE_LAWLESS:
-                alert("hello vvacsc 3");
-                alert(trapSetups[phase]);
                 armTraps(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_NEED_POSTER:
@@ -1931,7 +1924,6 @@ function checkLocation() {
                 }, 5 * 1000);
                 break;
             case VVACSC_PHASE_ACTIVE_POSTER:
-                alert("hello vvacsc 4");
                 armTraps(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_REWARD:
@@ -2595,7 +2587,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2612,7 +2604,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
 
