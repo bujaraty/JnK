@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.31
+// @version      1.2.2.32
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -602,6 +602,9 @@ class PolicyVVaCSC extends Policy {
         const clawShotBase = getBaseNames().includes(BASE_CLAW_SHOT)? BASE_CLAW_SHOT: this.getBestBase();;
         const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const prospectorsCharm = getTrinketNames().includes(TRINKET_PROSPECTORS)? TRINKET_PROSPECTORS: undefined;
+        if (isNullOrUndefined(trapSetups[VVACSC_PHASE_LAWLESS])) {
+            trapSetups[VVACSC_PHASE_LAWLESS] = [];
+        }
         getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_LAWLESS]);
         getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_NEED_POSTER]);
         getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_ACTIVE_POSTER]);
@@ -1456,7 +1459,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        checkLocation();
+        //checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -2587,7 +2590,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2604,7 +2607,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-*/
+
 
         statusSection.appendChild(statusDisplayTable);
 
@@ -3918,6 +3921,9 @@ function embedUIStructure() {
                 function processData(data, classification) {
                     const tmpInfo = {};
                     for (const component of data.components){
+                        if (isNullOrUndefined(component.quantity) || component.quantity == 0) {
+                            continue;
+                        }
                         tmpInfo[component.type] = {};
                         tmpInfo[component.type].name = component.name;
                         tmpInfo[component.type].itemId = component.item_id;

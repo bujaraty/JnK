@@ -1,3 +1,7 @@
+Version 1.2.2.32
+- Add initializing LAWLESS TrapSetup to PolicyVVaCSC
+- Exclude Items with 0 or null or undefined quantity during updateTraps
+
 Version 1.2.2.31
 - Add 'lawless' Phase PolicyVVaCSC
 
