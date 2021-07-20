@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.30
+// @version      1.2.2.31
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -288,11 +288,12 @@ const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_PROCESS_Manual = "Manual";
 const BOT_STATUS_IDLE = "Idle";
+const VVACSC_PHASE_LAWLESS = "lawless";
 const VVACSC_PHASE_NEED_POSTER = "need_poster";
 const VVACSC_PHASE_HAS_POSTER = "has_poster";
 const VVACSC_PHASE_ACTIVE_POSTER = "active_poster";
 const VVACSC_PHASE_HAS_REWARD = "has_reward";
-const VVACSC_PHASES = [VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
+const VVACSC_PHASES = [VVACSC_PHASE_LAWLESS, VVACSC_PHASE_NEED_POSTER, VVACSC_PHASE_ACTIVE_POSTER];
 const VVACSC_ATM_POSTER = "Automatic Poster";
 const VVACSC_ATM_CACTUS_CHARM = "Automatic Cactus Charm";
 const VVAFRO_PHASE_DAY = "Day";
@@ -442,6 +443,8 @@ class Policy {
     }
 
     getBestLuckWeapon(powerType) {
+        alert("hello getBestLuckWeapon");
+        alert(powerType);
         const weaponInfo = getWeaponInfo();
         if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
             this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
@@ -589,19 +592,21 @@ class PolicyVVaCSC extends Policy {
     }
 
     recommendTrapSetup() {
+        function getVVaCSCTrapSetup(trapSetup) {
+            trapSetup[IDX_WEAPON] = bestWeapon;
+            trapSetup[IDX_BASE] = clawShotBase;
+            trapSetup[IDX_BAIT] = brieCheese;
+            trapSetup[IDX_TRINKET] = prospectorsCharm;
+        }
+
         const trapSetups = this.getTrapSetups();
         const bestWeapon = this.getBestLuckWeapon(POWER_TYPE_LAW);
         const clawShotBase = getBaseNames().includes(BASE_CLAW_SHOT)? BASE_CLAW_SHOT: this.getBestBase();;
         const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const prospectorsCharm = getTrinketNames().includes(TRINKET_PROSPECTORS)? TRINKET_PROSPECTORS: undefined;
-        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_WEAPON] = bestWeapon;
-        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_BASE] = clawShotBase;
-        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_BAIT] = brieCheese;
-        trapSetups[VVACSC_PHASE_NEED_POSTER][IDX_TRINKET] = prospectorsCharm;
-        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_WEAPON] = bestWeapon;
-        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_BASE] = clawShotBase;
-        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_BAIT] = brieCheese;
-        trapSetups[VVACSC_PHASE_ACTIVE_POSTER][IDX_TRINKET] = prospectorsCharm;
+        getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_LAWLESS]);
+        getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_NEED_POSTER]);
+        getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_ACTIVE_POSTER]);
         trapSetups[VVACSC_ATM_POSTER] = true;
         trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
         this.initSelectTrapSetup();
@@ -1453,7 +1458,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        checkLocation();
+        //checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -1899,11 +1904,19 @@ function checkLocation() {
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
         const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
+        alert("hello vvacsc 1");
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
             trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
         }
+        alert("hello vvacsc 2");
+        alert(phase);
         switch(phase) {
+            case VVACSC_PHASE_LAWLESS:
+                alert("hello vvacsc 3");
+                alert(trapSetups[phase]);
+                armTraps(trapSetups[phase]);
+                break;
             case VVACSC_PHASE_NEED_POSTER:
                 armTraps(trapSetups[phase]);
                 break;
@@ -1918,6 +1931,7 @@ function checkLocation() {
                 }, 5 * 1000);
                 break;
             case VVACSC_PHASE_ACTIVE_POSTER:
+                alert("hello vvacsc 4");
                 armTraps(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_REWARD:
@@ -2581,7 +2595,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2598,7 +2612,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-*/
+
 
         statusSection.appendChild(statusDisplayTable);
 
