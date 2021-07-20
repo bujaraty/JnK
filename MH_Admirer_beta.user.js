@@ -1459,7 +1459,7 @@ function countdownTrapCheckTimer() {
     if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
-        //checkLocation();
+        checkLocation();
         updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
 
         window.setTimeout(function () {
@@ -2590,7 +2590,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2607,7 +2607,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
 
@@ -3226,19 +3226,27 @@ function embedUIStructure() {
                 }
 
                 function saveVVaFRoAtmRetreat(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    if (!event.target.checked) {
+                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
+                        setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    }
                     document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).disabled = !event.target.checked;
                     document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).disabled = !event.target.checked;
                 }
 
                 function saveVVaFRoRequiredHowlite(event) {
                     POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
+                    if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
+                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
+                    }
                     setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
                 }
 
                 function saveVVaFRoRequiredBloodstone(event) {
                     POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
+                    if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
+                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
+                    }
                     setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
                 }
 

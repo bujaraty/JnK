@@ -1,6 +1,7 @@
 Version 1.2.2.32
 - Add initializing LAWLESS TrapSetup to PolicyVVaCSC
 - Exclude Items with 0 or null or undefined quantity during updateTraps
+- Save cbxAtmRetreat status only when it's false or when Howlite or Bloodstone amount are changed
 
 Version 1.2.2.31
 - Add 'lawless' Phase PolicyVVaCSC
