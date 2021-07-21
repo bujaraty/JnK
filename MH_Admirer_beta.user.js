@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.1
+// @version      1.3.0.2
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -1958,6 +1958,7 @@ function checkLocation() {
     function runVVaFRoPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
         const currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
+        const currentPhase = getPageVariable("user.quests.QuestFortRox.current_phase");
         const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
         if (currentStage != false &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
@@ -1975,7 +1976,7 @@ function checkLocation() {
                 alert("error retreating from Fort Rox");
             });
         } else {
-            switch(currentStage) {
+            switch(currentPhase) {
                 case false:
                     armTrap(trapSetups[VVAFRO_PHASE_DAY]);
                     break;
@@ -1994,7 +1995,7 @@ function checkLocation() {
                 case "stage_five":
                     armTrap(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
                     break;
-                case "DAWN":
+                case "dawn":
                     armTrap(trapSetups[VVAFRO_PHASE_DAWN]);
                     break;
                 default:
@@ -2150,43 +2151,55 @@ function checkLocation() {
                 .map(x => x[0])[0];
         }
 
+        function isLastWave(miceInfo) {
+            return Object.entries(miceInfo)
+                .filter(([key, value]) => value.quantity !== 0)
+                .length == 1;
+        }
+
         function runWave123Policy(wave, miceInfo) {
             if (isNullOrUndefined(trapSetups) ||
                 isNullOrUndefined(trapSetups[wave]) ||
                 isNullOrUndefined(trapSetups[wave][SDEFWA_POPULATION_PRIORITY])) {
                 return;
             }
+            // Count how many mice left in the wave
             for (const [mouseName, mouseInfo] of Object.entries(warpathInfo.mice)) {
                 if (mouseName == "desert_general" || mouseName == "desert_supply") {
                     continue;
                 }
                 miceInfo[mouseName].quantity = mouseInfo.quantity;
             }
-            const SDEFWA_TARGET_POPULATION_LOWEST = "Lowest";const SDEFWA_TARGET_POPULATION_HIGHEST = "Highest";
-            const targetMouse = trapSetups[wave][SDEFWA_POPULATION_PRIORITY] == SDEFWA_TARGET_POPULATION_LOWEST?
-                  getLowestPopulation(miceInfo): getHighestPopulation(miceInfo);
-            const streak = warpathInfo.streak_type == targetMouse? warpathInfo.streak_quantity: 0;
-            const trapSetup = [];
-            trapSetup[IDX_WEAPON] = trapSetups[miceInfo[targetMouse].powerType][IDX_WEAPON];
-            trapSetup[IDX_BASE] = trapSetups[miceInfo[targetMouse].powerType][IDX_BASE];
-            trapSetup[IDX_BAIT] = trapSetups[wave][streak][IDX_BAIT];
-            let warpathCharm = "";
-            let superWarpathCharm = "";
-            switch(trapSetups[wave][streak][IDX_SOLDIER_TYPE]) {
-                case SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER:
-                    break;
-                case SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER:
-                    warpathCharm == trinketNames.includes(WARPATH_COMMANDERS_CHARM)? WARPATH_COMMANDERS_CHARM: undefined;
-                    superWarpathCharm == trinketNames.includes(SUPER_WARPATH_COMMANDERS_CHARM)? SUPER_WARPATH_COMMANDERS_CHARM: WARPATH_COMMANDERS_CHARM;
-                    break;
-                case SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA:
-                    if (trinketNames.includes(GARGANTUA_CHARM)) {
-                        trapSetup[IDX_BAIT] = GARGANTUA_CHARM;
-                    }
-                    break;
-                default:
+            if (isLastWave(miceInfo)) {
+                // Charm used here are any typical charms (like Regal or Ancient)
+                // This part also checks Soldier Type of the Streak and arm the Gargantua Charm, if it's needed
+            } else {
+                const SDEFWA_TARGET_POPULATION_LOWEST = "Lowest";
+                const SDEFWA_TARGET_POPULATION_HIGHEST = "Highest";
+                const targetMouse = trapSetups[wave][SDEFWA_POPULATION_PRIORITY] == SDEFWA_TARGET_POPULATION_LOWEST? getLowestPopulation(miceInfo): getHighestPopulation(miceInfo);
+                const streak = warpathInfo.streak_type == targetMouse? warpathInfo.streak_quantity: 0;
+                const trapSetup = [];
+                trapSetup[IDX_WEAPON] = trapSetups[miceInfo[targetMouse].powerType][IDX_WEAPON];
+                trapSetup[IDX_BASE] = trapSetups[miceInfo[targetMouse].powerType][IDX_BASE];
+                trapSetup[IDX_BAIT] = trapSetups[wave][streak][IDX_BAIT];
+                let warpathCharm = "";
+                let superWarpathCharm = "";
+                switch(trapSetups[wave][streak][IDX_SOLDIER_TYPE]) {
+                    case SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER:
+                        break;
+                    case SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER:
+                        warpathCharm == trinketNames.includes(WARPATH_COMMANDERS_CHARM)? WARPATH_COMMANDERS_CHARM: undefined;
+                        superWarpathCharm == trinketNames.includes(SUPER_WARPATH_COMMANDERS_CHARM)? SUPER_WARPATH_COMMANDERS_CHARM: WARPATH_COMMANDERS_CHARM;
+                        break;
+                    case SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA:
+                        if (trinketNames.includes(GARGANTUA_CHARM)) {
+                            trapSetup[IDX_BAIT] = GARGANTUA_CHARM;
+                        }
+                        break;
+                    default:
+                }
+                alert(trapSetup);
             }
-            alert(trapSetup);
             /*
             const IDX_CHARM_TYPE = 4;
 const IDX_SOLDIER_TYPE = 5;
@@ -2323,9 +2336,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
             break;
-            //case LOCATION_FIERY_WARPATH:
-            //    runSDeFWaPolicy();
-            //    break;
+        case LOCATION_FIERY_WARPATH:
+            runSDeFWaPolicy();
+            break;
         default:
             runDefaultLocation();
     }
@@ -4204,6 +4217,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestFortRox.current_stage") {
             return unsafeWindow.user.quests.QuestFortRox.current_stage;
+        } else if (name == "user.quests.QuestFortRox.current_phase") {
+            return unsafeWindow.user.quests.QuestFortRox.current_phase;
         } else if (name == "user.quests.QuestFortRox.items.howlite_stat_item.quantity") {
             return unsafeWindow.user.quests.QuestFortRox.items.howlite_stat_item.quantity;
         } else if (name == "user.quests.QuestFortRox.items.blood_stone_stat_item.quantity") {
