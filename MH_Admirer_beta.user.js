@@ -20,6 +20,7 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
+// - Chang img location to main branch
 // - Modify 'Next Bot Horn Time' to use user.last_active_turn_timestamp
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
@@ -2760,7 +2761,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3143,7 +3144,6 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                let itemOption;
                 let currentPolicy;
                 let policyStorage;
                 let tmpTxt;
@@ -3154,20 +3154,9 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Select Location :  ";
                 const selectPolicyCell = trSelectPolicy.insertCell();
-                const selectPolicy = document.createElement('select');
+                const selectPolicy = getSelectItem("Select policy", undefined, onChangePolicy, false, false, false);
                 selectPolicy.style.width = "120px";
-                selectPolicy.style.fontSize = "90%";
-                selectPolicy.onchange = onChangePolicy;
-                itemOption = document.createElement("option");
-                itemOption.value = "Select policy";
-                itemOption.text = "Select policy";
-                selectPolicy.appendChild(itemOption);
-                for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                    itemOption = document.createElement("option");
-                    itemOption.value = policyName;
-                    itemOption.text = policyName;
-                    selectPolicy.appendChild(itemOption);
-                }
+                addOptions(selectPolicy, Object.keys(POLICY_DICT));
                 selectPolicyCell.appendChild(selectPolicy);
                 tmpTxt = document.createTextNode("  ");
                 selectPolicyCell.appendChild(tmpTxt);
@@ -3187,7 +3176,6 @@ function embedUIStructure() {
                 selectPolicyCell.appendChild(resetButton);
 
                 tmpTxt = undefined;
-                itemOption = undefined;
             }
 
             function insertBWoARePolicyPreferences() {
@@ -3292,17 +3280,8 @@ function embedUIStructure() {
                 captionCell = trVVaCSCPhasesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = document.createElement('select');
-                selectPhase.id = ID_SELECT_VVACSC_PHASE;
+                const selectPhase = getSelectItem(VVACSC_PHASES, ID_SELECT_VVACSC_PHASE, onChangeSelectVVaCSCPhase, false, false, false);
                 selectPhase.style.width = "70px";
-                selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeSelectVVaCSCPhase;
-                for (const phase of VVACSC_PHASES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectPhase.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectPhase);
                 tmpTxt = document.createTextNode("  Phase :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3436,17 +3415,8 @@ function embedUIStructure() {
                 captionCell = trVVaFRoPhasesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = document.createElement('select');
-                selectPhase.id = ID_SELECT_VVAFRO_PHASE;
+                const selectPhase = getSelectItem(VVAFRO_PHASES, ID_SELECT_VVAFRO_PHASE, onChangeSelectVVaFRoPhase, false, false, false);
                 selectPhase.style.width = "70px";
-                selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeSelectVVaFRoPhase;
-                for (const phase of VVAFRO_PHASES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectPhase.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectPhase);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3463,17 +3433,7 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVAFRO_TRINKET, saveVVaFRoTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                const selectTower = document.createElement('select');
-                selectTower.id = ID_SELECT_VVAFRO_TOWER;
-                selectTower.style.fontSize = "90%";
-                selectTower.style.width = "80px";
-                selectTower.onchange = saveVVaFRoTower;
-                for (const phase of VVAFRO_TOWER_ACTIVATION){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectTower.appendChild(itemOption);
-                }
+                const selectTower = getSelectItem(VVAFRO_TOWER_ACTIVATION, ID_SELECT_VVAFRO_TOWER, saveVVaFRoTower, false, false, false);
                 trapSetupCell.appendChild(selectTower);
 
                 const trVVaFRoAtmDeactivate = policyPreferencesTable.insertRow();
@@ -3572,17 +3532,8 @@ function embedUIStructure() {
                 captionCell = trRodSGaSeasonsTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectSeason = document.createElement('select');
-                selectSeason.id = ID_SELECT_RODSGA_SEASON;
-                selectSeason.style.fontSize = "90%";
+                const selectSeason = getSelectItem(RODSGA_SEASONS, ID_SELECT_RODSGA_SEASON, onChangeSelectRodSGaSeason, false, false, false);
                 selectSeason.style.width = "70px";
-                selectSeason.onchange = onChangeSelectRodSGaSeason;
-                for (const season of RODSGA_SEASONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = season
-                    itemOption.text = season
-                    selectSeason.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSeason);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3643,21 +3594,9 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Strategy :  ";
                 const selectStrategyCell = trRodZToStrategy.insertCell();
-                const selectStrategy = document.createElement('select');
-                selectStrategy.id = ID_SELECT_RODZTO_STRATEGY;
-                selectStrategy.style.fontSize = "90%";
-                selectStrategy.style.width = "120px";
-                selectStrategy.onchange = onChangeSelectRodZToStrategy;
-                const itemOption = document.createElement("option");
-                itemOption.value = "Select strategy";
-                itemOption.text = "Select strategy";
-                selectStrategy.appendChild(itemOption);
-                for (const strategy of RODZTO_STRATEGIES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = strategy
-                    itemOption.text = strategy
-                    selectStrategy.appendChild(itemOption);
-                }
+                const selectStrategy = getSelectItem("Select strategy", ID_SELECT_RODZTO_STRATEGY, onChangeSelectRodZToStrategy, false, false, false);
+                addOptions(selectStrategy, RODZTO_STRATEGIES)
+                selectStrategy.style.width = "100px";
                 selectStrategyCell.appendChild(selectStrategy);
 
                 const trRodZToChessTrapSetup = policyPreferencesTable.insertRow();
@@ -3667,17 +3606,8 @@ function embedUIStructure() {
                 captionCell = trRodZToChessTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectChess = document.createElement('select');
-                selectChess.id = ID_SELECT_ROD_RODZTO_CHESS;
-                selectChess.style.fontSize = "90%";
-                selectChess.style.width = "70px";
-                selectChess.onchange = onChangeRodZToSelectChess;
-                for (const name of RODZTO_CHESS_PROGRESS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = name
-                    itemOption.text = name
-                    selectChess.appendChild(itemOption);
-                }
+                const selectChess = getSelectItem(RODZTO_CHESS_PROGRESS, ID_SELECT_ROD_RODZTO_CHESS, onChangeRodZToSelectChess, false, false, false);
+                selectChess.style.width = "95px";
                 captionCell.appendChild(selectChess);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3755,17 +3685,8 @@ function embedUIStructure() {
                 const captionCell = trRodIceSublocationTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectSublocation = document.createElement('select');
-                selectSublocation.id = ID_SELECT_RODICE_SUBLOCATION;
-                selectSublocation.style.fontSize = "90%";
-                selectSublocation.style.width = "70px";
-                selectSublocation.onchange = onChangeSelectRodIceSublocation;
-                for (const sublocation of RODICE_SUBLOCATIONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = sublocation
-                    itemOption.text = sublocation
-                    selectSublocation.appendChild(itemOption);
-                }
+                const selectSublocation = getSelectItem(RODICE_SUBLOCATIONS, ID_SELECT_RODICE_SUBLOCATION, onChangeSelectRodIceSublocation, false, false, false);
+                selectSublocation.style.width = "100px";
                 captionCell.appendChild(selectSublocation);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3882,17 +3803,8 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Wave :  ";
                 const selectSDeFWaWaveCell = trSelectSDeFWaWave.insertCell();
-                const selectSDeFWaWave = document.createElement('select');
-                selectSDeFWaWave.id = ID_SELECT_SDEFWA_WAVE;
-                selectSDeFWaWave.style.fontSize = "90%";
-                selectSDeFWaWave.style.width = "70px";
-                selectSDeFWaWave.onchange = onChangeSelectSDeFWaWave;
-                for (const wave of SDEFWA_WAVES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = wave
-                    itemOption.text = wave
-                    selectSDeFWaWave.appendChild(itemOption);
-                }
+                const selectSDeFWaWave = getSelectItem(SDEFWA_WAVES, ID_SELECT_SDEFWA_WAVE, onChangeSelectSDeFWaWave, false, false, false);
+                selectSDeFWaWave.style.width = "65px";
                 selectSDeFWaWaveCell.appendChild(selectSDeFWaWave);
 
                 const trSDeFWaPowerTypesTrapSetup = policyPreferencesTable.insertRow();
@@ -3902,17 +3814,8 @@ function embedUIStructure() {
                 captionCell = trSDeFWaPowerTypesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectSDeFWaPowerType = document.createElement('select');
-                selectSDeFWaPowerType.id = ID_SELECT_SDEFWA_POWER_TYPE;
-                selectSDeFWaPowerType.style.fontSize = "90%";
+                const selectSDeFWaPowerType = getSelectItem(SDEFWA_POWER_TYPES, ID_SELECT_SDEFWA_POWER_TYPE, onChangeSelectSDeFWaWave, false, false, false);
                 selectSDeFWaPowerType.style.width = "65px";
-                selectSDeFWaPowerType.onchange = onChangeSelectSDeFWaWave;
-                for (const power_type of SDEFWA_POWER_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = power_type
-                    itemOption.text = power_type
-                    selectSDeFWaPowerType.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSDeFWaPowerType);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3930,17 +3833,11 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Target Population :  ";
                 const selectSDeFWaTargetPopulationCell = trSelectSDeFWaTargetPopulation.insertCell();
-                const selectSDeFWaTargetPopulation = document.createElement('select');
-                selectSDeFWaTargetPopulation.id = ID_SELECT_SDEFWA_TARGET_POPULATION;
-                selectSDeFWaTargetPopulation.style.fontSize = "90%";
+                const selectSDeFWaTargetPopulation = getSelectItem(SDEFWA_TARGET_POPULATIONS,
+                                                                   ID_SELECT_SDEFWA_TARGET_POPULATION,
+                                                                   saveSDeFWaTargetPopulation,
+                                                                   false, false, false);
                 selectSDeFWaTargetPopulation.style.width = "65px";
-                selectSDeFWaTargetPopulation.onchange = saveSDeFWaTargetPopulation;
-                for (const target_population of SDEFWA_TARGET_POPULATIONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = target_population;
-                    itemOption.text = target_population;
-                    selectSDeFWaTargetPopulation.appendChild(itemOption);
-                }
                 selectSDeFWaTargetPopulationCell.appendChild(selectSDeFWaTargetPopulation);
 
                 const trSDeFWaStreaksTrapSetup = policyPreferencesTable.insertRow();
@@ -3950,17 +3847,8 @@ function embedUIStructure() {
                 captionCell = trSDeFWaStreaksTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectSDeFWaStreak = document.createElement('select');
-                selectSDeFWaStreak.id = ID_SELECT_SDEFWA_STREAK;
-                selectSDeFWaStreak.style.fontSize = "90%";
+                const selectSDeFWaStreak = getSelectItem(Array(SDEFWA_MAX_STREAKS+1).keys(), ID_SELECT_SDEFWA_STREAK, onChangeSelectSDeFWaStreak, false, false, false);
                 selectSDeFWaStreak.style.width = "35px";
-                selectSDeFWaStreak.onchange = onChangeSelectSDeFWaStreak;
-                for (let i = 0; i <= SDEFWA_MAX_STREAKS; i++){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = i;
-                    itemOption.text = i;
-                    selectSDeFWaStreak.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSDeFWaStreak);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3968,33 +3856,14 @@ function embedUIStructure() {
                 streakTrapSetupCell.appendChild(getSelectBait(ID_SELECT_SDEFWA_STREAK_BAIT, saveSDeFWaStreakBait));
                 tmpTxt = document.createTextNode(" ");
                 streakTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaStreakCharmType = document.createElement('select');
-                selectSDeFWaStreakCharmType.id = ID_SELECT_SDEFWA_STREAK_CHARM_TYPE;
-                selectSDeFWaStreakCharmType.style.fontSize = "90%";
-                selectSDeFWaStreakCharmType.style.width = "80px";
-                selectSDeFWaStreakCharmType.onchange = saveSDeFWaStreakCharmType;
-                for (const charmType of SDEFWA_CHARM_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = charmType;
-                    itemOption.text = charmType;
-                    selectSDeFWaStreakCharmType.appendChild(itemOption);
-                }
-                selectSDeFWaStreakCharmType.selectedIndex = -1;
+                const selectSDeFWaStreakCharmType = getSelectItem(SDEFWA_CHARM_TYPES, ID_SELECT_SDEFWA_STREAK_CHARM_TYPE, saveSDeFWaStreakCharmType, true, false, false);
                 streakTrapSetupCell.appendChild(selectSDeFWaStreakCharmType);
                 tmpTxt = document.createTextNode(" ");
                 streakTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaStreakSoldierType = document.createElement('select');
-                selectSDeFWaStreakSoldierType.id = ID_SELECT_SDEFWA_STREAK_SOLDIER_TYPE;
-                selectSDeFWaStreakSoldierType.style.fontSize = "90%";
-                selectSDeFWaStreakSoldierType.style.width = "80px";
-                selectSDeFWaStreakSoldierType.onchange = saveSDeFWaStreakSoldierType;
-                for (const soldierType of SDEFWA_STREAK_SOLDIER_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = soldierType;
-                    itemOption.text = soldierType;
-                    selectSDeFWaStreakSoldierType.appendChild(itemOption);
-                }
-                selectSDeFWaStreakSoldierType.selectedIndex = -1;
+                const selectSDeFWaStreakSoldierType = getSelectItem(SDEFWA_STREAK_SOLDIER_TYPES,
+                                                                    ID_SELECT_SDEFWA_STREAK_SOLDIER_TYPE,
+                                                                    saveSDeFWaStreakSoldierType,
+                                                                    false, false, false);
                 streakTrapSetupCell.appendChild(selectSDeFWaStreakSoldierType);
 
                 const trSDeFWaLastSoldierTrapSetup = policyPreferencesTable.insertRow();
@@ -4008,22 +3877,10 @@ function embedUIStructure() {
                 lastSoldierTrapSetupCell.appendChild(getSelectBait(ID_SELECT_SDEFWA_LAST_SOLDIER_BAIT, saveSDeFWaLastSoldierBait));
                 tmpTxt = document.createTextNode(" ");
                 lastSoldierTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaLastSoldierCharmType = document.createElement('select');
-                selectSDeFWaLastSoldierCharmType.id = ID_SELECT_SDEFWA_LAST_SOLDIER_CHARM_TYPE;
-                selectSDeFWaLastSoldierCharmType.style.fontSize = "90%";
-                selectSDeFWaLastSoldierCharmType.style.width = "80px";
-                selectSDeFWaLastSoldierCharmType.onchange = saveSDeFWaLastSoldierCharmType;
-                const itemOption = document.createElement("option");
-                itemOption.value = ITEM_DISARM;
-                itemOption.text = ITEM_DISARM;
-                selectSDeFWaLastSoldierCharmType.appendChild(itemOption);
-                for (const charmType of SDEFWA_CHARM_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = charmType;
-                    itemOption.text = charmType;
-                    selectSDeFWaLastSoldierCharmType.appendChild(itemOption);
-                }
-                selectSDeFWaLastSoldierCharmType.selectedIndex = -1;
+                const selectSDeFWaLastSoldierCharmType = getSelectItem(SDEFWA_CHARM_TYPES,
+                                                                       ID_SELECT_SDEFWA_LAST_SOLDIER_CHARM_TYPE,
+                                                                       saveSDeFWaLastSoldierCharmType,
+                                                                       true, true, false);
                 lastSoldierTrapSetupCell.appendChild(selectSDeFWaLastSoldierCharmType);
 
                 const trSDeFWaWhenSupportRetreat = policyPreferencesTable.insertRow();
@@ -4034,17 +3891,8 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "When Support Retreat :  ";
                 const trinketArmingCell = trSDeFWaWhenSupportRetreat.insertCell();
-                const selectSDeFWaArmingWarpathCharm = document.createElement('select');
-                selectSDeFWaArmingWarpathCharm.id = ID_SELECT_SDEFWA_ARMING_WARPATH_CHARM;
-                selectSDeFWaArmingWarpathCharm.style.fontSize = "90%";
+                const selectSDeFWaArmingWarpathCharm = getSelectItem(ITEM_ARMING, ID_SELECT_SDEFWA_ARMING_WARPATH_CHARM, saveSDeFWaArmingWarpathCharm, false, false, false);
                 selectSDeFWaArmingWarpathCharm.style.width = "60px";
-                selectSDeFWaArmingWarpathCharm.onchange = saveSDeFWaArmingWarpathCharm;
-                for (const armStatus of ITEM_ARMING){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = armStatus;
-                    itemOption.text = armStatus;
-                    selectSDeFWaArmingWarpathCharm.appendChild(itemOption);
-                }
                 trinketArmingCell.appendChild(selectSDeFWaArmingWarpathCharm);
                 tmpTxt = document.createTextNode("  Warpath Charm");
                 trinketArmingCell.appendChild(tmpTxt);
@@ -4056,17 +3904,11 @@ function embedUIStructure() {
                 captionCell = trSDeFWaWave4TrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup ";
-                const selectSDeFWaBeforeAfterWardens = document.createElement('select');
-                selectSDeFWaBeforeAfterWardens.id = ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS;
-                selectSDeFWaBeforeAfterWardens.style.fontSize = "90%";
+                const selectSDeFWaBeforeAfterWardens = getSelectItem(STATUSES,
+                                                                     ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS,
+                                                                     onChangeSelectSDeFWaBeforeAfterWardens,
+                                                                     false, false, false);
                 selectSDeFWaBeforeAfterWardens.style.width = "60px";
-                selectSDeFWaBeforeAfterWardens.onchange = onChangeSelectSDeFWaBeforeAfterWardens;
-                for (const status of STATUSES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = status;
-                    itemOption.text = status;
-                    selectSDeFWaBeforeAfterWardens.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSDeFWaBeforeAfterWardens);
                 tmpTxt = document.createTextNode("  Clear Wardens :  ");
                 captionCell.appendChild(tmpTxt);
@@ -4085,7 +3927,6 @@ function embedUIStructure() {
                 tmpTxt = undefined;
             }
 
-            //let tmpTxt;
             const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
 
