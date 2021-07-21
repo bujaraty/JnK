@@ -20,7 +20,6 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Chang img location to main branch
 // - Modify 'Next Bot Horn Time' to use user.last_active_turn_timestamp
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
@@ -3330,13 +3329,13 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" Arm Super Cactus Charm ");
                 checkboxAtmCactusCharmCell.appendChild(tmpTxt);
                 const imgSuperCactusCharm = document.createElement("img");
-                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
+                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/SuperCactusCharm.gif"
                 imgSuperCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgSuperCactusCharm);
                 tmpTxt = document.createTextNode(" and Cactus Charm ");
                 checkboxAtmCactusCharmCell.appendChild(tmpTxt);
                 const imgCactusCharm = document.createElement("img");
-                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
+                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/CactusCharm.gif"
                 imgCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
 
@@ -3475,7 +3474,7 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 checkboxAtmRetreatCell.appendChild(tmpTxt);
                 const imgHowlite = document.createElement("img");
-                imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Howlite.gif"
+                imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/Howlite.gif"
                 imgHowlite.height = 15;
                 checkboxAtmRetreatCell.appendChild(imgHowlite);
                 tmpTxt = document.createTextNode(" ");
@@ -3488,7 +3487,7 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 checkboxAtmRetreatCell.appendChild(tmpTxt);
                 const imgBloodStone = document.createElement("img");
-                imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Bloodstone.gif"
+                imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/Bloodstone.gif"
                 imgBloodStone.height = 15;
                 checkboxAtmRetreatCell.appendChild(imgBloodStone);
 
