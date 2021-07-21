@@ -2317,9 +2317,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
             break;
-        //case LOCATION_FIERY_WARPATH:
-        //    runSDeFWaPolicy();
-        //    break;
+            //case LOCATION_FIERY_WARPATH:
+            //    runSDeFWaPolicy();
+            //    break;
         default:
             runDefaultLocation();
     }
@@ -2754,7 +2754,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3040,19 +3040,23 @@ function embedUIStructure() {
                 return getSelectItem(baitNames, itemId, onchangeFunction);
             }
 
-            function getSelectTrinket(itemId, onchangeFunction) {
+            function getSelectTrinket(itemId, onchangeFunction, optionDisarm = true, optionIgnore = true) {
                 let itemOption;
                 const selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
                 selectTrinket.style.fontSize = "90%";
-                itemOption = document.createElement("option");
-                itemOption.value = TRINKET_DISARM;
-                itemOption.text = TRINKET_DISARM;
-                selectTrinket.appendChild(itemOption);
-                itemOption = document.createElement("option");
-                itemOption.value = TRINKET_DISARM;
-                itemOption.text = TRINKET_DISARM;
-                selectTrinket.appendChild(itemOption);
+                if (optionIgnore) {
+                    itemOption = document.createElement("option");
+                    itemOption.value = TRINKET_IGNORE;
+                    itemOption.text = TRINKET_IGNORE;
+                    selectTrinket.appendChild(itemOption);
+                }
+                if (optionDisarm) {
+                    itemOption = document.createElement("option");
+                    itemOption.value = TRINKET_DISARM;
+                    itemOption.text = TRINKET_DISARM;
+                    selectTrinket.appendChild(itemOption);
+                }
                 const tmpNames = getTrinketNames();
                 const trinketNames = isNullOrUndefined(tmpNames)? []: tmpNames;
                 for (const trinketName of trinketNames) {
