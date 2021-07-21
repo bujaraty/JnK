@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.32
+// @version      1.3.0.1
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -280,13 +280,15 @@ const POWER_TYPE_TACTICAL = "Tactical";
 const TRINKET_ARM = "Arm";
 const TRINKET_DISARM = "Disarm";
 const TRINKET_ARMING = [TRINKET_ARM, TRINKET_DISARM];
+const TRINKET_OTHER = "Other";
+const TRINKET_IGNORE = "Ignore";
 const STATUS_BEFORE = "Before";
 const STATUS_AFTER = "After";
 const STATUSES = [STATUS_BEFORE, STATUS_AFTER];
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
-const BOT_PROCESS_Manual = "Manual";
+const BOT_PROCESS_MANUAL = "Manual";
 const BOT_STATUS_IDLE = "Idle";
 const VVACSC_PHASE_LAWLESS = "lawless";
 const VVACSC_PHASE_NEED_POSTER = "need_poster";
@@ -369,7 +371,7 @@ const SDEFWA_POPULATION_PRIORITY = "Population Priority";
 const SDEFWA_MAX_STREAKS = 9;
 const SDEFWA_CHARM_TYPE_WARPATH = "Warpath";
 const SDEFWA_CHARM_TYPE_SUPER_WARPATH = "Super Warpath";
-const SDEFWA_CHARM_TYPES = [SDEFWA_CHARM_TYPE_WARPATH, SDEFWA_CHARM_TYPE_SUPER_WARPATH];
+const SDEFWA_CHARM_TYPES = [TRINKET_OTHER, SDEFWA_CHARM_TYPE_WARPATH, SDEFWA_CHARM_TYPE_SUPER_WARPATH];
 const SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER = "Soldier";
 const SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
 const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
@@ -456,7 +458,7 @@ class Policy {
 
     getTrapSetups(storageName) {
         if (isNullOrUndefined(this.trapSetups)) {
-            const tmpStorage = getStorage(storageName, null);
+            const tmpStorage = getStorage(storageName, undefined);
             if (isNullOrUndefined(tmpStorage)) {
                 this.resetTrapSetups();
             } else {
@@ -1014,7 +1016,7 @@ function initPolicyDict() {
 }
 
 function loadTrapInfo() {
-    g_trapInfo = getStorage(STORAGE_TRAP_INFO, null);
+    g_trapInfo = getStorage(STORAGE_TRAP_INFO, undefined);
 }
 
 function getWeaponInfo() {
@@ -1022,7 +1024,7 @@ function getWeaponInfo() {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
-        return null
+        return undefined;
     } else {
         return g_trapInfo.weapon.info;
     }
@@ -1033,7 +1035,7 @@ function getBaseInfo() {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
-        return null;
+        return undefined;
     } else {
         return g_trapInfo.base.info;
     }
@@ -1044,7 +1046,7 @@ function getBaitInfo() {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
-        return null;
+        return undefined;
     } else {
         return g_trapInfo.bait.info;
     }
@@ -1055,7 +1057,7 @@ function getTrinketInfo() {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
-        return null;
+        return undefined;
     } else {
         return g_trapInfo.trinket.info;
     }
@@ -1107,7 +1109,7 @@ function getTrinketNames() {
 
 function getFriendInfo() {
     if (isNullOrUndefined(g_friendInfo)) {
-        g_friendInfo = getStorage(STORAGE_FRIEND_INFO, null);
+        g_friendInfo = getStorage(STORAGE_FRIEND_INFO, undefined);
         if (isNullOrUndefined(g_friendInfo)) {
             document.getElementById(ID_BOTTON_UPDATE_FRIENDS).click();
             return;
@@ -1706,7 +1708,7 @@ function getTrapCheckTimeFromPage() {
         }
     } catch (e) {
         console.perror('GetTrapCheckTime', e.message);
-        return null;
+        return undefined;
     }
 }
 
@@ -1877,8 +1879,8 @@ function checkLocation() {
                 break;
             default:
         }
-        canClaim = null;
-        button = null;
+        canClaim = undefined;
+        button = undefined;
     }
 
     function runBWoARePolicy() {
@@ -1944,7 +1946,7 @@ function checkLocation() {
                 break;
             default:
         }
-        poster = null;
+        poster = undefined;
     }
 
     function runVVaFRoPolicy() {
@@ -2127,6 +2129,165 @@ function checkLocation() {
         }
     }
 
+    function runSDeFWaPolicy() {
+        function getLowestPopulation(miceInfo) {
+            return Object.entries(miceInfo)
+                .filter(([key, value]) => value.powerType !== POWER_TYPE_ARCANE)
+                .sort(([,a], [,b]) => a.quantity - b.quantity)
+                .map(x => x[0])[0];
+        }
+
+        function getHighestPopulation(miceInfo) {
+            return Object.entries(miceInfo)
+                .filter(([key, value]) => value.powerType !== POWER_TYPE_ARCANE)
+                .sort(([,a], [,b]) => b.quantity - a.quantity)
+                .map(x => x[0])[0];
+        }
+
+        function runWave123Policy(wave, miceInfo) {
+            if (isNullOrUndefined(trapSetups) ||
+                isNullOrUndefined(trapSetups[wave]) ||
+                isNullOrUndefined(trapSetups[wave][SDEFWA_POPULATION_PRIORITY])) {
+                return;
+            }
+            for (const [mouseName, mouseInfo] of Object.entries(warpathInfo.mice)) {
+                if (mouseName == "desert_general" || mouseName == "desert_supply") {
+                    continue;
+                }
+                miceInfo[mouseName].quantity = mouseInfo.quantity;
+            }
+            const SDEFWA_TARGET_POPULATION_LOWEST = "Lowest";const SDEFWA_TARGET_POPULATION_HIGHEST = "Highest";
+            const targetMouse = trapSetups[wave][SDEFWA_POPULATION_PRIORITY] == SDEFWA_TARGET_POPULATION_LOWEST?
+                  getLowestPopulation(miceInfo): getHighestPopulation(miceInfo);
+            const streak = warpathInfo.streak_type == targetMouse? warpathInfo.streak_quantity: 0;
+            const trapSetup = [];
+            trapSetup[IDX_WEAPON] = trapSetups[miceInfo[targetMouse].powerType][IDX_WEAPON];
+            trapSetup[IDX_BASE] = trapSetups[miceInfo[targetMouse].powerType][IDX_BASE];
+            trapSetup[IDX_BAIT] = trapSetups[wave][streak][IDX_BAIT];
+            let warpathCharm = "";
+            let superWarpathCharm = "";
+            switch(trapSetups[wave][streak][IDX_SOLDIER_TYPE]) {
+                case SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER:
+                    break;
+                case SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER:
+                    warpathCharm == trinketNames.includes(WARPATH_COMMANDERS_CHARM)? WARPATH_COMMANDERS_CHARM: undefined;
+                    superWarpathCharm == trinketNames.includes(SUPER_WARPATH_COMMANDERS_CHARM)? SUPER_WARPATH_COMMANDERS_CHARM: WARPATH_COMMANDERS_CHARM;
+                    break;
+                case SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA:
+                    if (trinketNames.includes(GARGANTUA_CHARM)) {
+                        trapSetup[IDX_BAIT] = GARGANTUA_CHARM;
+                    }
+                    break;
+                default:
+            }
+            alert(trapSetup);
+            /*
+            const IDX_CHARM_TYPE = 4;
+const IDX_SOLDIER_TYPE = 5;
+        const WARPATH_COMMANDERS_CHARM = "Warpath Commander's Charm";
+        const SUPER_WARPATH_COMMANDERS_CHARM = "Super Warpath Commander's Charm";
+const SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER = "Soldier";
+const SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
+const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
+*/
+        }
+
+        function runWave1Policy() {
+        }
+
+        function runWave2Policy() {
+        }
+
+        function runWave3Policy() {
+            const miceWave3 = {}
+            miceWave3.desert_archer_epic = {}
+            miceWave3.desert_archer_epic.powerType = POWER_TYPE_PHYSICAL;
+            miceWave3.desert_archer_epic[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_ARCHER_CHARM;
+            miceWave3.desert_archer_epic[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_ARCHER_CHARM;
+            miceWave3.desert_artillery = {}
+            miceWave3.desert_artillery.powerType = POWER_TYPE_ARCANE;
+            miceWave3.desert_cavalry_strong = {}
+            miceWave3.desert_cavalry_strong.powerType = POWER_TYPE_TACTICAL;
+            miceWave3.desert_cavalry_strong[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_CAVALRY_CHARM;
+            miceWave3.desert_cavalry_strong[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_CAVALRY_CHARM;
+            miceWave3.desert_mage_strong = {}
+            miceWave3.desert_mage_strong.powerType = POWER_TYPE_HYDRO;
+            miceWave3.desert_mage_strong[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_MAGE_CHARM;
+            miceWave3.desert_mage_strong[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_MAGE_CHARM;
+            miceWave3.desert_scout_epic = {}
+            miceWave3.desert_scout_epic.powerType = POWER_TYPE_PHYSICAL;
+            miceWave3.desert_scout_epic[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_SCOUT_CHARM;
+            miceWave3.desert_scout_epic[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_SCOUT_CHARM;
+            miceWave3.desert_warrior_epic = {}
+            miceWave3.desert_warrior_epic.powerType = POWER_TYPE_PHYSICAL;
+            miceWave3.desert_warrior_epic[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_WARRIOR_CHARM;
+            miceWave3.desert_warrior_epic[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_WARRIOR_CHARM;
+
+            return runWave123Policy(SDEFWA_WAVE3, miceWave3);
+        }
+
+        function runWave4Policy() {
+        }
+
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FIERY_WARPATH;
+        const GARGANTUA_CHARM = "Gargantua Charm";
+        const WARPATH_ARCHER_CHARM = "Warpath Archer Charm";
+        const SUPER_WARPATH_ARCHER_CHARM = "Super Warpath Archer Charm";
+        const WARPATH_CAVALRY_CHARM = "Warpath Cavalry Charm";
+        const SUPER_WARPATH_CAVALRY_CHARM = "Super Warpath Cavalry Charm";
+        const WARPATH_COMMANDERS_CHARM = "Warpath Commander's Charm";
+        const SUPER_WARPATH_COMMANDERS_CHARM = "Super Warpath Commander's Charm";
+        const WARPATH_MAGE_CHARM = "Warpath Mage Charm";
+        const SUPER_WARPATH_MAGE_CHARM = "Super Warpath Mage Charm";
+        const WARPATH_SCOUT_CHARM = "Warpath Scout Charm";
+        const SUPER_WARPATH_SCOUT_CHARM = "Super Warpath Scout Charm";
+        const WARPATH_WARRIOR_CHARM = "Warpath Warrior Charm";
+        const SUPER_WARPATH_WARRIOR_CHARM = "Super Warpath Warrior Charm";
+        const trapSetups = POLICY_DICT[POLICY_NAME_FIERY_WARPATH].getTrapSetups();
+        const warpathInfo = getPageVariable("user.viewing_atts.desert_warpath");
+        const trinketNames = getTrinketNames();
+        switch(warpathInfo.wave) {
+            case 1:
+                runWave1Policy();
+                break;
+            case 2:
+                runWave2Policy();
+                break;
+            case 3:
+                runWave3Policy();
+                break;
+            case 4:
+                runWave4Policy();
+                break;
+            default:
+        }
+        /*
+        alert(warpathInfo.wave);
+        listAttributes(warpathInfo);
+        */
+    }
+    /*
+        resetTrapSetups() {
+        this.trapSetups = {};
+        for (const powerType of SDEFWA_POWER_TYPES){
+            this.trapSetups[powerType] = [];
+        }
+        this.trapSetups[SDEFWA_LAST_SOLDIER] = [];
+        this.trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = TRINKET_DISARM;
+        for (const wave of SDEFWA_WAVES){
+            this.trapSetups[wave] = {};
+            if (wave == SDEFWA_WAVE4) {
+                this.trapSetups[wave][STATUS_BEFORE] = [];
+                this.trapSetups[wave][STATUS_AFTER] = [];
+            } else {
+                for (let steak = 0; steak <= SDEFWA_MAX_STREAKS; steak++) {
+                    this.trapSetups[wave][steak] = [];
+                }
+                this.trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
+            }
+        }
+    }
+*/
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
         return;
     }
@@ -2156,6 +2317,9 @@ function checkLocation() {
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
             break;
+        //case LOCATION_FIERY_WARPATH:
+        //    runSDeFWaPolicy();
+        //    break;
         default:
             runDefaultLocation();
     }
@@ -2213,7 +2377,7 @@ function testSaveObjToStorage() {
 
 function testLoadObjFromStorage() {
     let tmpInfo;
-    tmpInfo = getStorage(STORAGE_TRAP_INFO, null);
+    tmpInfo = getStorage(STORAGE_TRAP_INFO, undefined);
     debugObj(tmpInfo);
 }
 
@@ -2289,6 +2453,101 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
+function test1() {
+    //testSortObj();
+    checkLocation();
+    //testDict();
+    //testSaveObjToStorage();
+    //displayDocumentStyles();
+}
+
+function test2() {
+    //testLoadObjFromStorage();
+}
+
+function getAjaxHeader(addedData) {
+    const mainData = {};
+    mainData.sn = 'Hitgrab';
+    mainData.hg_is_ajax = 1;
+    mainData.uh = getPageVariable('user.unique_hash');
+    return Object.assign(mainData, addedData);
+}
+
+function ajaxPost(postURL, objData, callback, throwerror) {
+    try {
+        jQuery.ajax({
+            type: 'POST',
+            url: postURL,
+            data: objData,
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: false
+            },
+            success: callback,
+            error: throwerror,
+        });
+    }
+    catch (e) {
+        throwerror(e);
+    }
+}
+
+function manualClaimingYesterdayGifts() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
+    prepareClaimingGifts(false);
+}
+
+function manualClaimingTodayGifts() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
+    prepareClaimingGifts(true);
+}
+
+function prepareClaimingGifts(fromTop) {
+    function claimGifts(fromTop) {
+        function claimingGifts(fromTop, giftIndex) {
+            const giftRow = fromTop? giftRows[giftIndex]: giftRows[nGiftRows-giftIndex-1];
+            const senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
+            const actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
+            if (!actionButton.classList.contains("disabled")) {
+                fireEvent(actionButton, "click");
+            }
+            giftIndex++;
+            if (giftIndex < 15 && giftIndex < nGiftRows) {
+                window.setTimeout(function () {
+                    claimingGifts(fromTop, giftIndex);
+                }, 1 * 1000);
+            }
+        }
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving gift list";
+        const giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
+        const nGiftRows = giftRows.length
+        window.setTimeout(function () {
+            claimingGifts(fromTop, 0);
+        }, 0.5 * 1000);
+    }
+    const giftButton = document.getElementsByClassName("freeGifts")[0];
+    fireEvent(giftButton, "click");
+    window.setTimeout(function () {
+        claimGifts(fromTop)
+    }, 4.5 * 1000);
+}
+
+function manualSendingGifts() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts";
+    prepareSendingGifts();
+}
+
 function prepareSendingGifts() {
     function sendingGifts(snuidIdx) {
         function processPageData(data) {
@@ -2352,6 +2611,14 @@ function prepareSendingGifts() {
     sendingGifts(0);
 }
 
+function manualSendingBallots() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Ballots";
+    prepareSendingBallots();
+}
+
 function prepareSendingBallots() {
     function sendingBallots(snuidIdx) {
         function processPageData(data) {
@@ -2412,109 +2679,6 @@ function prepareSendingBallots() {
     const completeBallots = [];
     const snuids = Object.keys(friendInfo);
     sendingBallots(0);
-}
-
-function test1() {
-    //testSortObj();
-    checkLocation();
-    //testDict();
-    //testSaveObjToStorage();
-    //displayDocumentStyles();
-}
-
-function test2() {
-    //testLoadObjFromStorage();
-}
-
-function getAjaxHeader(addedData) {
-    const mainData = {};
-    mainData.sn = 'Hitgrab';
-    mainData.hg_is_ajax = 1;
-    mainData.uh = getPageVariable('user.unique_hash');
-    return Object.assign(mainData, addedData);
-}
-
-function ajaxPost(postURL, objData, callback, throwerror) {
-    try {
-        jQuery.ajax({
-            type: 'POST',
-            url: postURL,
-            data: objData,
-            contentType: 'application/x-www-form-urlencoded',
-            dataType: 'json',
-            xhrFields: {
-                withCredentials: false
-            },
-            success: callback,
-            error: throwerror,
-        });
-    }
-    catch (e) {
-        throwerror(e);
-    }
-}
-
-function manualClaimingYesterdayGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
-    prepareClaimingGifts(false);
-}
-
-function manualClaimingTodayGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
-    prepareClaimingGifts(true);
-}
-
-function prepareClaimingGifts(fromTop) {
-    function claimGifts(fromTop) {
-        function claimingGifts(fromTop, giftIndex) {
-            const giftRow = fromTop? giftRows[giftIndex]: giftRows[nGiftRows-giftIndex-1];
-            const senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
-            const actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
-            if (!actionButton.classList.contains("disabled")) {
-                fireEvent(actionButton, "click");
-            }
-            giftIndex++;
-            if (giftIndex < 15 && giftIndex < nGiftRows) {
-                window.setTimeout(function () {
-                    claimingGifts(fromTop, giftIndex);
-                }, 1 * 1000);
-            }
-        }
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving gift list";
-        const giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
-        const nGiftRows = giftRows.length
-        window.setTimeout(function () {
-            claimingGifts(fromTop, 0);
-        }, 0.5 * 1000);
-    }
-    const giftButton = document.getElementsByClassName("freeGifts")[0];
-    fireEvent(giftButton, "click");
-    window.setTimeout(function () {
-        claimGifts(fromTop)
-    }, 4.5 * 1000);
-}
-
-function manualSendingGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts";
-    prepareSendingGifts();
-}
-
-function manualSendingBallots() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Ballots";
-    prepareSendingBallots();
 }
 
 function embedUIStructure() {
@@ -2756,8 +2920,8 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode("  ");
                 saveButtonCell.appendChild(tmpTxt);
 
-                captionCell = null;
-                tmpTxt = null;
+                captionCell = undefined;
+                tmpTxt = undefined;
             }
             const toggleLink = document.getElementById(ID_TIMER_LINK);
             const preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
@@ -2877,17 +3041,22 @@ function embedUIStructure() {
             }
 
             function getSelectTrinket(itemId, onchangeFunction) {
+                let itemOption;
                 const selectTrinket = document.createElement('select');
                 selectTrinket.style.width = "80px";
                 selectTrinket.style.fontSize = "90%";
-                const itemOption = document.createElement("option");
+                itemOption = document.createElement("option");
+                itemOption.value = TRINKET_DISARM;
+                itemOption.text = TRINKET_DISARM;
+                selectTrinket.appendChild(itemOption);
+                itemOption = document.createElement("option");
                 itemOption.value = TRINKET_DISARM;
                 itemOption.text = TRINKET_DISARM;
                 selectTrinket.appendChild(itemOption);
                 const tmpNames = getTrinketNames();
                 const trinketNames = isNullOrUndefined(tmpNames)? []: tmpNames;
                 for (const trinketName of trinketNames) {
-                    const itemOption = document.createElement("option");
+                    itemOption = document.createElement("option");
                     itemOption.value = trinketName;
                     itemOption.text = trinketName;
                     selectTrinket.appendChild(itemOption);
@@ -2895,6 +3064,7 @@ function embedUIStructure() {
                 selectTrinket.selectedIndex = -1;
                 selectTrinket.id = itemId;
                 selectTrinket.onchange = onchangeFunction;
+                itemOption = undefined;
                 return selectTrinket;
             }
 
@@ -3010,8 +3180,8 @@ function embedUIStructure() {
                 resetButton.appendChild(tmpTxt);
                 selectPolicyCell.appendChild(resetButton);
 
-                tmpTxt = null;
-                itemOption = null;
+                tmpTxt = undefined;
+                itemOption = undefined;
             }
 
             function insertBWoARePolicyPreferences() {
@@ -3065,7 +3235,7 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_BWOARE_TRINKET, saveBWoAReTrinket));
-                tmpTxt = null;
+                tmpTxt = undefined;
             }
 
             function insertVVaCSCPolicyPreferences() {
@@ -3185,8 +3355,8 @@ function embedUIStructure() {
                 imgCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
 
-                tmpTxt = null;
-                captionCell = null;
+                tmpTxt = undefined;
+                captionCell = undefined;
             }
 
             function insertVVaFRoPolicyPreferences() {
@@ -3356,8 +3526,8 @@ function embedUIStructure() {
                 imgBloodStone.height = 15;
                 checkboxAtmRetreatCell.appendChild(imgBloodStone);
 
-                tmpTxt = null;
-                captionCell = null;
+                tmpTxt = undefined;
+                captionCell = undefined;
             }
 
             function insertRodSGaPolicyPreferences() {
@@ -3421,8 +3591,8 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODSGA_TRINKET, saveRodSGaTrinket));
-                captionCell = null;
-                tmpTxt = null;
+                captionCell = undefined;
+                tmpTxt = undefined;
             }
 
             function insertRodZToPolicyPreferences() {
@@ -3517,8 +3687,8 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODZTO_TRINKET, saveRodZToTrinket));
 
-                captionCell = null;
-                tmpTxt = null;
+                captionCell = undefined;
+                tmpTxt = undefined;
             }
 
             function insertRodCLiPolicyPreferences() {
@@ -3604,7 +3774,7 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODICE_TRINKET, saveRodIceTrinket));
-                tmpTxt = null;
+                tmpTxt = undefined;
             }
 
             function insertSDeFWaPolicyPreferences() {
@@ -3906,7 +4076,7 @@ function embedUIStructure() {
                 wave4TrapSetupCell.appendChild(tmpTxt);
                 wave4TrapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SDEFWA_WAVE4_TRINKET, saveSDeFWaWave4Trinket));
 
-                tmpTxt = null;
+                tmpTxt = undefined;
             }
 
             //let tmpTxt;
@@ -3981,7 +4151,7 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                if (!lockBot(BOT_PROCESS_Manual)) {
+                if (!lockBot(BOT_PROCESS_MANUAL)) {
                     return;
                 }
                 g_trapInfo = {};
@@ -4062,7 +4232,7 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode("  ");
             applyButtonCell.appendChild(tmpTxt);
 
-            tmpTxt = null;
+            tmpTxt = undefined;
             return preferencesFooterTable;
         }
 
@@ -4127,9 +4297,9 @@ function embedUIStructure() {
 
         preferencesSection.appendChild(preferencesBox);
 
-        separationLine = null;
-        blankLine = null;
-        tmpTitle = null;
+        separationLine = undefined;
+        blankLine = undefined;
+        tmpTitle = undefined;
 
         return preferencesSection;
     }
@@ -4196,6 +4366,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestZugzwangLibrary.hasResearchQuest;
         } else if (name == "user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest") {
             return unsafeWindow.user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest;
+        } else if (name == "user.viewing_atts.desert_warpath") {
+            return unsafeWindow.user.viewing_atts.desert_warpath;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
