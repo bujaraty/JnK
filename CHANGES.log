@@ -1,5 +1,8 @@
 Version 1.3.0.1
 - Replace all 'null' assigment with 'undefined'
+- Add optionDisarm and optionIgnore to getSelectTrinket Preferences
+- Add ITEM_IGNOE to getSelectItem Preferences
+- Implement armTrap to recognize ITEM_IGNORE
 
 Version 1.3.0.0
 - Move beta 1.2.2.32 to stable version 1.3.0.0
