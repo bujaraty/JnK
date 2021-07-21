@@ -1,3 +1,120 @@
+Version 1.3.0.0
+- Move beta 1.2.2.32 to stable version 1.3.0.0
+
+Version 1.2.2.32
+- Add initializing LAWLESS TrapSetup to PolicyVVaCSC
+- Exclude Items with 0 or null or undefined quantity during updateTraps
+- Save cbxAtmRetreat status only when it's false or when Howlite or Bloodstone amount are changed
+
+Version 1.2.2.31
+- Add 'lawless' Phase PolicyVVaCSC
+
+Version 1.2.2.30
+- Fix bug 'Policy keep trying to check quantity of Trinket_disarm'
+
+Version 1.2.2.29
+- Implement RodCLiPolicy
+
+Version 1.2.2.28
+- Move the Timer Preferences to be inserted only when first shown
+
+Version 1.2.2.27
+- Move the Policy Preferences to be inserted only when selected
+- Fix bug 'Policy keep trying to arm finished Item'
+- Implement VVaCSCPolicy to automatically arm Cactus Charm
+
+Version 1.2.2.26
+- Implement Retreating Poilicy for VVaFRo
+
+Version 1.2.2.25
+- Add a button to retrieve friends' information
+- Change Ajax header format of updateFriends
+- Rework on VVaFRo Policy and add an option for retreating
+- Change method of sending gifts and ballots to using Ajax
+
+Version 1.2.2.24
+- Restructure trap information
+- Change comparison key of armTrap to item_id
+- Change location abbreviation to include Area code
+- Make recommendTrapSetup and resetTrapSetup global
+- Implement first half of CSC Policy
+
+Version 1.2.2.23
+- Fix issue 'Let the countdownTrapCheck going even if KR'
+- Add recommendTrapSetup for FWa Policy
+
+Version 1.2.2.22
+- Add the first half of ZTo Policy
+
+Version 1.2.2.21
+- Add preferences for setting Fiery Warpath Policy
+
+Version 1.2.2.20
+- Change Fort Rox recommmend DAY cheese to Brie
+- Correct Font Size of selectFRoTrinket
+- Fix bug 'Fort Rox doesn't save recommended Trap Setup'
+- Fix bug 'using const as a counter'
+- Fix bug 'assigning null to const'
+
+Version 1.2.2.19
+- Refactor code (removing var)
+
+Version 1.2.2.18
+- Add recommendTrapSetup for Ice Policy
+
+Version 1.2.2.17
+- Increase interval before calling afterSoundingHorn to 2 secs
+
+Version 1.2.2.16
+- Fix minor display
+
+Version 1.2.2.15
+- Check KR prompt in afterSoundingHorn
+
+Version 1.2.2.14
+- Fix issue 'countdownTrapCheck doesn't work on non-camp pages'
+
+Version 1.2.2.13
+- Add recommendTrapSetup for ZTo Policy
+- Fix status display issue
+
+Version 1.2.2.12
+- Add recommendTrapSetup for ARe, FRo and SGa Policy
+
+Version 1.2.2.11
+- Add rankWeapon function
+
+Version 1.2.2.10
+- Add preferences for setting Crystal Library Policy
+
+Version 1.2.2.9
+- Add ARePolicy and Policy Preferences for Acolyte Realm
+
+Version 1.2.2.8
+- Add HarPolicy for Harbour location
+
+Version 1.2.2.7
+- Add preferences for setting Zugzwang's Tower Policy
+
+Version 1.2.2.6
+- Add the complete and functional SGaPolicy to checkLocation with Alpha test
+
+Version 1.2.2.5
+- Add preferences for setting Fort Rox Policy
+
+Version 1.2.2.4
+- Add lockBot function
+
+Version 1.2.2.3
+- Add openChest to the CSC policy
+- Increase duration of CSC policy
+
+Version 1.2.2.2
+- Embed checkLocation into countDownTrapCheck
+
+Version 1.2.2.1
+- Add prototype version of CSC Policy
+
 Version 1.2.2.0
 - Increase number of gift actions
 
