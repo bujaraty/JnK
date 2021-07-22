@@ -197,12 +197,6 @@ const ID_INPUT_VVAFRO_REQUIRED_HOWLITE = "inputVVaFRoRequiredHowlite";
 const ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE = "inputVVaFRoRequiredBloodstone";
 const ID_TR_RODZTO_STRATEGY = "trRodZToStrategy";
 const ID_SELECT_RODZTO_STRATEGY = "selectRodZToStrategy";
-const ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP = "trRodZToChessTrapSetup";
-const ID_SELECT_ROD_RODZTO_CHESS = "selectRodZToChess";
-const ID_SELECT_RODZTO_WEAPON = "selectRodZToWeapon";
-const ID_SELECT_RODZTO_BASE = "selectRodZToBase";
-const ID_SELECT_RODZTO_BAIT = "selectRodZToBait";
-const ID_SELECT_RODZTO_TRINKET = "selectRodZToTrinket";
 const ID_TR_RODCLI_ATM_CATALOG_MICE = "trRodCLiAtmCatalogMice";
 const ID_CBX_RODCLI_ATM_CATALOG_MICE = "cbxRodCLiAtmCatalogMice";
 const ID_TR_SELECT_SDEFWA_WAVE = "trSelectSDeFWaWave";
@@ -793,7 +787,8 @@ class PolicyRodZTo extends Policy {
         super();
         this.setName(POLICY_NAME_ZUGZWANGS_TOWER);
         this.trs[0] = ID_TR_RODZTO_STRATEGY;
-        this.trs[1] = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
+        this.trs[1] = ID_TR_SELECTABLE_TRAP_SETUP;
+        this.selectableValues = RODZTO_CHESS_PROGRESS;
     }
 
     resetTrapSetups() {
@@ -810,11 +805,7 @@ class PolicyRodZTo extends Policy {
 
     initSelectTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        const currentChess = document.getElementById(ID_SELECT_ROD_RODZTO_CHESS).value;
-        document.getElementById(ID_SELECT_RODZTO_WEAPON).value = trapSetups[currentChess][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODZTO_BASE).value = trapSetups[currentChess][IDX_BASE];
-        document.getElementById(ID_SELECT_RODZTO_BAIT).value = trapSetups[currentChess][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODZTO_TRINKET).value = trapSetups[currentChess][IDX_TRINKET];
+        this.setSelectableTrapSetup(trapSetups);
         document.getElementById(ID_SELECT_RODZTO_STRATEGY).value = trapSetups[RODZTO_STRATEGY];
     }
 
@@ -3238,6 +3229,7 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_RODSGA;
                             break;
                         case POLICY_NAME_ZUGZWANGS_TOWER:
+                            setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
                             insertRodZToPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODZTO;
                             break;
@@ -3641,39 +3633,11 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
                 }
 
-                function onChangeRodZToSelectChess(event) {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].initSelectTrapSetup();
-                }
-
-                function saveRodZToSetup(itemIndex, value) {
-                    const currentChess = document.getElementById(ID_SELECT_ROD_RODZTO_CHESS).value;
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[currentChess][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
-                }
-
-                function saveRodZToWeapon(event) {
-                    saveRodZToSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodZToBase(event) {
-                    saveRodZToSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodZToBait(event) {
-                    saveRodZToSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodZToTrinket(event) {
-                    saveRodZToSetup(IDX_TRINKET, event.target.value);
-                }
-
-                let captionCell;
-                let tmpTxt;
                 const trRodZToStrategy = policyPreferencesTable.insertRow();
                 trRodZToStrategy.id = ID_TR_RODZTO_STRATEGY;
                 trRodZToStrategy.style.height = "24px";
                 trRodZToStrategy.style.display = "none";
-                captionCell = trRodZToStrategy.insertCell();
+                const captionCell = trRodZToStrategy.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Strategy :  ";
                 const selectStrategyCell = trRodZToStrategy.insertCell();
@@ -3681,33 +3645,6 @@ function embedUIStructure() {
                 addOptions(selectStrategy, RODZTO_STRATEGIES)
                 selectStrategy.style.width = "100px";
                 selectStrategyCell.appendChild(selectStrategy);
-
-                const trRodZToChessTrapSetup = policyPreferencesTable.insertRow();
-                trRodZToChessTrapSetup.id = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
-                trRodZToChessTrapSetup.style.height = "24px";
-                trRodZToChessTrapSetup.style.display = "none";
-                captionCell = trRodZToChessTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectChess = getSelectItem(RODZTO_CHESS_PROGRESS, ID_SELECT_ROD_RODZTO_CHESS, onChangeRodZToSelectChess, false, false, false);
-                selectChess.style.width = "95px";
-                captionCell.appendChild(selectChess);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodZToChessTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODZTO_WEAPON, saveRodZToWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODZTO_BASE, saveRodZToBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODZTO_BAIT, saveRodZToBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODZTO_TRINKET, saveRodZToTrinket));
-
-                captionCell = undefined;
-                tmpTxt = undefined;
             }
 
             function insertRodCLiPolicyPreferences() {
