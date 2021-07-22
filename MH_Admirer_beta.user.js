@@ -1977,23 +1977,28 @@ function checkLocation() {
             });
         } else {
             switch(currentPhase) {
-                case false:
+                case "day":
                     armTrap(trapSetups[VVAFRO_PHASE_DAY]);
                     break;
-                case "stage_one":
-                    armTrap(trapSetups[VVAFRO_PHASE_TWILIGHT]);
-                    break;
-                case "stage_two":
-                    armTrap(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
-                    break;
-                case "stage_three":
-                    armTrap(trapSetups[VVAFRO_PHASE_PITCH]);
-                    break;
-                case "stage_four":
-                    armTrap(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
-                    break;
-                case "stage_five":
-                    armTrap(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
+                case "night":
+                    switch(currentStage) {
+                        case "stage_one":
+                            armTrap(trapSetups[VVAFRO_PHASE_TWILIGHT]);
+                            break;
+                        case "stage_two":
+                            armTrap(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
+                            break;
+                        case "stage_three":
+                            armTrap(trapSetups[VVAFRO_PHASE_PITCH]);
+                            break;
+                        case "stage_four":
+                            armTrap(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
+                            break;
+                        case "stage_five":
+                            armTrap(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
+                            break;
+                        default:
+                    }
                     break;
                 case "dawn":
                     armTrap(trapSetups[VVAFRO_PHASE_DAWN]);
