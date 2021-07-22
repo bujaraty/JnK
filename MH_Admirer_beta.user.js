@@ -254,6 +254,7 @@ const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_BURMOU = "trapSetupBurMou";
+const STORAGE_TRAP_SETUP_BWOCAT = "trapSetupBWoCat";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
 const STORAGE_TRAP_SETUP_TISDDU = "trapSetupTIsDDu";
 const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
@@ -385,6 +386,7 @@ const SDEFWA_LAST_SOLDIER = "Last Soldier";
 const SDEFWA_ARMING_CHARM_SUPPORT_RETREAT = "Arming Charm";
 const LOCATION_HARBOUR = "Harbour";
 const LOCATION_MOUSOLEUM = "Mousoleum";
+const LOCATION_CATACOMBS = "Catacombs";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_DERR_DUNES = "Derr Dunes";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
@@ -396,6 +398,7 @@ const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
 const POLICY_NAME_MOUSOLEUM = "Mousoleum";
+const POLICY_NAME_CATACOMBS = "Catacombs";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
 const POLICY_NAME_DERR_DUNES = "Derr Dunes";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
@@ -553,6 +556,29 @@ class PolicyBurMou extends Policy {
 
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BURMOU);
+    }
+
+    initSelectTrapSetup() {
+        this.setSingleTrapSetup(this.getTrapSetups());
+    }
+
+    recommendTrapSetup() {
+        const trapSetups = this.getTrapSetups();
+        const baitName = getBaitNames().includes(BAIT_RADIOACTIVE_BLUE)? BAIT_RADIOACTIVE_BLUE: undefined;
+        this.getArcaneTrapSetup(trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyBWoCat extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_CATACOMBS);
+        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOCAT);
     }
 
     initSelectTrapSetup() {
@@ -1064,6 +1090,7 @@ class PolicySDeFWa extends Policy {
 const POLICY_DICT = {};
 function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_MOUSOLEUM] = new PolicyBurMou();
+    POLICY_DICT[POLICY_NAME_CATACOMBS] = new PolicyBWoCat();
     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
     POLICY_DICT[POLICY_NAME_DERR_DUNES] = new PolicyTIsDDu();
     POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
@@ -2406,6 +2433,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_MOUSOLEUM:
             runSingleTrapSetupPolicy(POLICY_NAME_MOUSOLEUM);
             break;
+        case LOCATION_CATACOMBS:
+            runSingleTrapSetupPolicy(POLICY_NAME_CATACOMBS);
+            break;
         case LOCATION_ACOLYTE_REALM:
             runSingleTrapSetupPolicy(POLICY_NAME_ACOLYTE_REALM);
             break;
@@ -3187,6 +3217,9 @@ function embedUIStructure() {
                     switch(currentPolicy) {
                         case POLICY_NAME_MOUSOLEUM:
                             policyStorage = STORAGE_TRAP_SETUP_BURMOU;
+                            break;
+                        case POLICY_NAME_CATACOMBS:
+                            policyStorage = STORAGE_TRAP_SETUP_BWOCAT;
                             break;
                         case POLICY_NAME_ACOLYTE_REALM:
                             policyStorage = STORAGE_TRAP_SETUP_BWOARE;
