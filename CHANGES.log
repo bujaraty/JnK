@@ -1,6 +1,7 @@
 Version 1.3.0.4
 - Add SelectableTrapSetupRow to be shared between locations that need selectable setup (like Seasonal Garden, Iceberg, Claw Shot City, Fort Rox, etc.)
 - Apply SelectableTrapSetup to RodSGa and RodIce
+- Apply SelectableTrapSetup to VVaCSC
 
 Version 1.3.0.4
 - Add SingleTrapSetupRow to be used shared between locations that need only one setup (like Acolyte Realm, Slushy Shoreline, Jungle of Dread, etc.)

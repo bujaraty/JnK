@@ -178,12 +178,6 @@ const ID_SELECT_SELECTABLE_WEAPON = "selectSelectableWeapon";
 const ID_SELECT_SELECTABLE_BASE = "selectSelectableBase";
 const ID_SELECT_SELECTABLE_BAIT = "selectSelectableBait";
 const ID_SELECT_SELECTABLE_TRINKET = "selectSelectableTrinket";
-const ID_TR_VVACSC_PHASES_TRAP_SETUP = "trVVaCSCPhasesTrapSetup";
-const ID_SELECT_VVACSC_PHASE = "selectVVaCSCPhase";
-const ID_SELECT_VVACSC_WEAPON = "selectVVaCSCWeapon";
-const ID_SELECT_VVACSC_BASE = "selectVVaCSCBase";
-const ID_SELECT_VVACSC_BAIT = "selectVVaCSCBait";
-const ID_SELECT_VVACSC_TRINKET = "selectVVaCSCTrinket";
 const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
 const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
 const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
@@ -648,9 +642,10 @@ class PolicyVVaCSC extends Policy {
     constructor () {
         super();
         this.setName(POLICY_NAME_CLAW_SHOT_CITY);
-        this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-        this.trs[1] = ID_TR_VVACSC_ATM_POSTER;
-        this.trs[2] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
+        this.trs[0] = ID_TR_VVACSC_ATM_POSTER;
+        this.trs[1] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
+        this.trs[2] = ID_TR_SELECTABLE_TRAP_SETUP;
+        this.selectableValues = VVACSC_PHASES;
     }
 
     resetTrapSetups() {
@@ -668,11 +663,7 @@ class PolicyVVaCSC extends Policy {
 
     initSelectTrapSetup() {
         const trapSetups = this.getTrapSetups();
-        const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
-        document.getElementById(ID_SELECT_VVACSC_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
-        document.getElementById(ID_SELECT_VVACSC_BASE).value = trapSetups[currentPhase][IDX_BASE];
-        document.getElementById(ID_SELECT_VVACSC_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
-        document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
+        this.setSelectableTrapSetup(trapSetups);
         document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
         document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
     }
@@ -3234,6 +3225,7 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_TISDDU;
                             break;
                         case POLICY_NAME_CLAW_SHOT_CITY:
+                            setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
                             insertVVaCSCPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_VVACSC;
                             break;
@@ -3434,32 +3426,6 @@ function embedUIStructure() {
             }
 
             function insertVVaCSCPolicyPreferences() {
-                function onChangeSelectVVaCSCPhase(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].initSelectTrapSetup();
-                }
-
-                function saveVVaCSCSetup(itemIndex, value) {
-                    const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[currentPhase][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
-
-                function saveVVaCSCWeapon(event) {
-                    saveVVaCSCSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveVVaCSCBase(event) {
-                    saveVVaCSCSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveVVaCSCBait(event) {
-                    saveVVaCSCSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveVVaCSCTrinket(event) {
-                    saveVVaCSCSetup(IDX_TRINKET, event.target.value);
-                }
-
                 function saveVVaCSCAtmPoster(event) {
                     POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
@@ -3470,36 +3436,8 @@ function embedUIStructure() {
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
                 }
 
-
                 let captionCell;
                 let tmpTxt;
-
-                const trVVaCSCPhasesTrapSetup = policyPreferencesTable.insertRow();
-                trVVaCSCPhasesTrapSetup.id = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-                trVVaCSCPhasesTrapSetup.style.height = "24px";
-                trVVaCSCPhasesTrapSetup.style.display = "none";
-                captionCell = trVVaCSCPhasesTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = getSelectItem(VVACSC_PHASES, ID_SELECT_VVACSC_PHASE, onChangeSelectVVaCSCPhase, false, false, false);
-                selectPhase.style.width = "70px";
-                captionCell.appendChild(selectPhase);
-                tmpTxt = document.createTextNode("  Phase :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trVVaCSCPhasesTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_VVACSC_WEAPON, saveVVaCSCWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_VVACSC_BASE, saveVVaCSCBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_VVACSC_BAIT, saveVVaCSCBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVACSC_TRINKET, saveVVaCSCTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-
                 const trVVaCSCAtmPoster = policyPreferencesTable.insertRow();
                 trVVaCSCAtmPoster.id = ID_TR_VVACSC_ATM_POSTER;
                 trVVaCSCAtmPoster.style.height = "24px";
