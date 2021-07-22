@@ -415,6 +415,10 @@ class Policy {
         this.name = name;
     }
 
+    resetTrapSetups() {
+        this.trapSetups = [];
+    }
+
     setSingleTrapSetup(trapSetup) {
         document.getElementById(ID_SELECT_SINGLE_WEAPON).value = trapSetup[IDX_WEAPON];
         document.getElementById(ID_SELECT_SINGLE_BASE).value = trapSetup[IDX_BASE];
@@ -543,10 +547,6 @@ class PolicyBWoARe extends Policy {
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
-    resetTrapSetups() {
-        this.trapSetups = [];
-    }
-
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOARE);
     }
@@ -573,10 +573,6 @@ class PolicyTIsDDu extends Policy {
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
-    resetTrapSetups() {
-        this.trapSetups = [];
-    }
-
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_TISDDU);
     }
@@ -586,15 +582,10 @@ class PolicyTIsDDu extends Policy {
     }
 
     recommendTrapSetup() {
-        /*
         const trapSetups = this.getTrapSetups();
-        if (getBaitNames().includes(BAIT_RUNIC)) {
-            this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
-        } else {
-            this.getArcaneTrapSetup(trapSetups);
-        }
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getPhysicalTrapSetup(trapSetups, baitName);
         this.initSelectTrapSetup();
-        */
     }
 }
 
@@ -1927,9 +1918,9 @@ function checkLocation() {
         button = undefined;
     }
 
-    function runBWoARePolicy() {
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ACOLYTE_REALM;
-        const trapSetups = POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].getTrapSetups();
+    function runSingleTrapSetupPolicy(policyName) {
+        document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
+        const trapSetups = POLICY_DICT[policyName].getTrapSetups();
         armTrap(trapSetups);
     }
 
@@ -2385,7 +2376,10 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
             runGnaHarPolicy();
             break;
         case LOCATION_ACOLYTE_REALM:
-            runBWoARePolicy();
+            runSingleTrapSetupPolicy(POLICY_NAME_ACOLYTE_REALM);
+            break;
+        case LOCATION_DERR_DUNES:
+            runSingleTrapSetupPolicy(POLICY_NAME_DERR_DUNES);
             break;
         case LOCATION_FORT_ROX:
             runVVaFRoPolicy();
@@ -2839,7 +2833,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
