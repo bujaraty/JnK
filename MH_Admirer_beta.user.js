@@ -244,6 +244,7 @@ const STORAGE_TRAP_SETUP_VVAFRO = "trapSetupVVaFRo";
 const STORAGE_TRAP_SETUP_RODSGA = "trapSetupRodSGa";
 const STORAGE_TRAP_SETUP_RODZTO = "trapSetupRodZTo";
 const STORAGE_TRAP_SETUP_RODCLI = "trapSetupRodCLi";
+const STORAGE_TRAP_SETUP_RODSSH = "trapSetupRodSSh";
 const STORAGE_TRAP_SETUP_RODICE = "trapSetupRodIce";
 const STORAGE_TRAP_SETUP_SDEFWA = "trapSetupSDeFWa";
 const STORAGE_FRIEND_INFO = "friendInfo";
@@ -342,10 +343,9 @@ const RODICE_SUBLOCATION_THE_MAD_DEPTHS = "The Mad Depths";
 const RODICE_SUBLOCATION_ICEWINGS_LAIR = "Icewing's Lair";
 const RODICE_SUBLOCATION_HIDDEN_DEPTHS = "Hidden Depths";
 const RODICE_SUBLOCATION_THE_DEEP_LAIR = "The Deep Lair";
-const RODICE_SUBLOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
 const RODICE_SUBLOCATIONS = [RODICE_SUBLOCATION_ICEBERG_GENERAL, RODICE_SUBLOCATION_TREACHEROUS_TUNNELS, RODICE_SUBLOCATION_BRUTAL_BULWARK,
                              RODICE_SUBLOCATION_BOMBING_RUN, RODICE_SUBLOCATION_THE_MAD_DEPTHS, RODICE_SUBLOCATION_ICEWINGS_LAIR,
-                             RODICE_SUBLOCATION_HIDDEN_DEPTHS, RODICE_SUBLOCATION_THE_DEEP_LAIR, RODICE_SUBLOCATION_SLUSHY_SHORELINE];
+                             RODICE_SUBLOCATION_HIDDEN_DEPTHS, RODICE_SUBLOCATION_THE_DEEP_LAIR];
 const SDEFWA_WAVE1 = "Wave 1";
 const SDEFWA_WAVE2 = "Wave 2";
 const SDEFWA_WAVE3 = "Wave 3";
@@ -376,6 +376,8 @@ const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const LOCATION_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
+const LOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
+const LOCATION_ICEBERG = "Iceberg";
 const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
@@ -388,6 +390,7 @@ const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const POLICY_NAME_CRYSTAL_LIBRARY = "Crystal Library";
+const POLICY_NAME_SLUSHY_SHORELINE = "Slushy Shoreline";
 const POLICY_NAME_ICEBERG = "Iceberg";
 const POLICY_NAME_FIERY_WARPATH = "Fiery Warpath";
 
@@ -874,6 +877,29 @@ class PolicyRodCLi extends Policy {
     }
 }
 
+class PolicyRodSSh extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_SLUSHY_SHORELINE);
+        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSSH);
+    }
+
+    initSelectTrapSetup() {
+        this.setSingleTrapSetup(this.getTrapSetups());
+    }
+
+    recommendTrapSetup() {
+        const trapSetups = this.getTrapSetups();
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getHydroTrapSetup(trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
 class PolicyRodIce extends Policy {
     constructor () {
         super();
@@ -933,7 +959,6 @@ class PolicyRodIce extends Policy {
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_ICEWINGS_LAIR], deepFreezeBase, baitName, powerCharm);
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_HIDDEN_DEPTHS], bestBase, baitName, powerCharm);
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_THE_DEEP_LAIR], bestBase, baitName, powerCharm);
-        getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_SLUSHY_SHORELINE], bestBase, brieCheese, powerCharm);
         this.initSelectTrapSetup();
     }
 }
@@ -1074,6 +1099,7 @@ function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
     POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyRodZTo();
     POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyRodCLi();
+    POLICY_DICT[POLICY_NAME_SLUSHY_SHORELINE] = new PolicyRodSSh();
     POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyRodIce();
     POLICY_DICT[POLICY_NAME_FIERY_WARPATH] = new PolicySDeFWa();
 }
@@ -1924,6 +1950,12 @@ function checkLocation() {
         }
     }
 
+    function runSingleTrapSetupPolicy(policyName) {
+        document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
+        const trapSetups = POLICY_DICT[policyName].getTrapSetups();
+        armTrap(trapSetups);
+    }
+
     function runGnaHarPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
         const status = getPageVariable("user.quests.QuestHarbour.status");
@@ -1947,12 +1979,6 @@ function checkLocation() {
         }
         canClaim = undefined;
         button = undefined;
-    }
-
-    function runSingleTrapSetupPolicy(policyName) {
-        document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
-        const trapSetups = POLICY_DICT[policyName].getTrapSetups();
-        armTrap(trapSetups);
     }
 
     function runVVaCSCPolicy() {
@@ -2432,6 +2458,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
             break;
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
+            break;
+        case LOCATION_SLUSHY_SHORELINE:
+            runSingleTrapSetupPolicy(POLICY_NAME_SLUSHY_SHORELINE);
             break;
         case LOCATION_FIERY_WARPATH:
             runSDeFWaPolicy();
@@ -3236,6 +3265,9 @@ function embedUIStructure() {
                         case POLICY_NAME_CRYSTAL_LIBRARY:
                             insertRodCLiPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODCLI;
+                            break;
+                        case POLICY_NAME_SLUSHY_SHORELINE:
+                            policyStorage = STORAGE_TRAP_SETUP_RODSSH;
                             break;
                         case POLICY_NAME_ICEBERG:
                             setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);

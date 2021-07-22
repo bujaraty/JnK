@@ -3,6 +3,7 @@ Version 1.3.0.4
 - Apply SelectableTrapSetup to RodSGa and RodIce
 - Apply SelectableTrapSetup to VVaCSC
 - Apply SelectableTrapSetup to RodZTo
+- Separate Slushy Shoreline from Iceberg Preferences and implement RodSSh Policy
 
 Version 1.3.0.4
 - Add SingleTrapSetupRow to be used shared between locations that need only one setup (like Acolyte Realm, Slushy Shoreline, Jungle of Dread, etc.)
