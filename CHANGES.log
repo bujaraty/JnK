@@ -1,6 +1,7 @@
 Version 1.3.0.4
 - Add SingleTrapSetupRow to be used shared between locations that need only one setup (like Acolyte Realm, Slushy Shoreline, Jungle of Dread, etc.)
 - Implement Policy for TIsDDu
+- Implement Policy for BurMou
 
 Version 1.3.0.3
 - Implement Fort Rox Tower Activation Policy
