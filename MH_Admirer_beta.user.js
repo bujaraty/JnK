@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.3
+// @version      1.3.0.4
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -166,11 +166,11 @@ const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
 const ID_BOTTON_UPDATE_TRAPS = "btnUpdateTtraps";
 const ID_BOTTON_UPDATE_FRIENDS = "btnUpdateFriends";
-const ID_TR_BWOARE_TRAP_SETUP = "trBWoAreTrapSetup";
-const ID_SELECT_BWOARE_WEAPON = "selectBWoAReWeapon";
-const ID_SELECT_BWOARE_BASE = "selectBWoAReBase";
-const ID_SELECT_BWOARE_BAIT = "selectBWoAReBait";
-const ID_SELECT_BWOARE_TRINKET = "selectBWoAReTrinket";
+const ID_TR_SINGLE_TRAP_SETUP = "trSingleTrapSetup";
+const ID_SELECT_SINGLE_WEAPON = "selectSingleWeapon";
+const ID_SELECT_SINGLE_BASE = "selectSingleBase";
+const ID_SELECT_SINGLE_BAIT = "selectSingleBait";
+const ID_SELECT_SINGLE_TRINKET = "selectSingleTrinket";
 const ID_TR_VVACSC_PHASES_TRAP_SETUP = "trVVaCSCPhasesTrapSetup";
 const ID_SELECT_VVACSC_PHASE = "selectVVaCSCPhase";
 const ID_SELECT_VVACSC_WEAPON = "selectVVaCSCWeapon";
@@ -253,6 +253,7 @@ const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
+const STORAGE_TRAP_SETUP_TISDDU = "trapSetupTIsDDu";
 const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
 const STORAGE_TRAP_SETUP_VVAFRO = "trapSetupVVaFRo";
 const STORAGE_TRAP_SETUP_RODSGA = "trapSetupRodSGa";
@@ -382,6 +383,7 @@ const SDEFWA_LAST_SOLDIER = "Last Soldier";
 const SDEFWA_ARMING_CHARM_SUPPORT_RETREAT = "Arming Charm";
 const LOCATION_HARBOUR = "Harbour";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
+const LOCATION_DERR_DUNES = "Derr Dunes";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
@@ -391,6 +393,7 @@ const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
+const POLICY_NAME_DERR_DUNES = "Derr Dunes";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
@@ -410,6 +413,13 @@ class Policy {
 
     setName(name) {
         this.name = name;
+    }
+
+    setSingleTrapSetup(trapSetup) {
+        document.getElementById(ID_SELECT_SINGLE_WEAPON).value = trapSetup[IDX_WEAPON];
+        document.getElementById(ID_SELECT_SINGLE_BASE).value = trapSetup[IDX_BASE];
+        document.getElementById(ID_SELECT_SINGLE_BAIT).value = trapSetup[IDX_BAIT];
+        document.getElementById(ID_SELECT_SINGLE_TRINKET).value = trapSetup[IDX_TRINKET];
     }
 
     getBestBase() {
@@ -530,7 +540,7 @@ class PolicyBWoARe extends Policy {
     constructor () {
         super();
         this.setName(POLICY_NAME_ACOLYTE_REALM);
-        this.trs[0] = ID_TR_BWOARE_TRAP_SETUP;
+        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
     resetTrapSetups() {
@@ -542,11 +552,7 @@ class PolicyBWoARe extends Policy {
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        document.getElementById(ID_SELECT_BWOARE_WEAPON).value = trapSetups[IDX_WEAPON];
-        document.getElementById(ID_SELECT_BWOARE_BASE).value = trapSetups[IDX_BASE];
-        document.getElementById(ID_SELECT_BWOARE_BAIT).value = trapSetups[IDX_BAIT];
-        document.getElementById(ID_SELECT_BWOARE_TRINKET).value = trapSetups[IDX_TRINKET];
+        this.setSingleTrapSetup(this.getTrapSetups());
     }
 
     recommendTrapSetup() {
@@ -557,6 +563,38 @@ class PolicyBWoARe extends Policy {
             this.getArcaneTrapSetup(trapSetups);
         }
         this.initSelectTrapSetup();
+    }
+}
+
+class PolicyTIsDDu extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_DERR_DUNES);
+        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this.trapSetups = [];
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_TISDDU);
+    }
+
+    initSelectTrapSetup() {
+        this.setSingleTrapSetup(this.getTrapSetups());
+    }
+
+    recommendTrapSetup() {
+        /*
+        const trapSetups = this.getTrapSetups();
+        if (getBaitNames().includes(BAIT_RUNIC)) {
+            this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
+        } else {
+            this.getArcaneTrapSetup(trapSetups);
+        }
+        this.initSelectTrapSetup();
+        */
     }
 }
 
@@ -1008,6 +1046,7 @@ class PolicySDeFWa extends Policy {
 const POLICY_DICT = {};
 function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
+    POLICY_DICT[POLICY_NAME_DERR_DUNES] = new PolicyTIsDDu();
     POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
     POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyVVaFRo();
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
@@ -2800,7 +2839,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3120,10 +3159,12 @@ function embedUIStructure() {
                         return;
                     }
                     currentPolicy = event.target.value;
-                    switch(event.target.value) {
+                    switch(currentPolicy) {
                         case POLICY_NAME_ACOLYTE_REALM:
-                            insertBWoARePolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_BWOARE;
+                            break;
+                        case POLICY_NAME_DERR_DUNES:
+                            policyStorage = STORAGE_TRAP_SETUP_TISDDU;
                             break;
                         case POLICY_NAME_CLAW_SHOT_CITY:
                             insertVVaCSCPolicyPreferences();
@@ -3160,13 +3201,24 @@ function embedUIStructure() {
                         if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
                             continue;
                         }
-                        const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
                         for (const tr of tmpPolicy.trs){
-                            document.getElementById(tr).style.display = tmpDisplay;
+                            document.getElementById(tr).style.display = "none";
                         }
-                        if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
+                    }
+                    for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
+                        if (event.target.value != policyName) {
+                            continue;
+                        }
+                        const tmpPolicy = POLICY_DICT[policyName];
+                        if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
+                            continue;
+                        }
+                        for (const tr of tmpPolicy.trs){
+                            document.getElementById(tr).style.display = "table-row";
+                        }
+                        if (isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
                             alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
-                        } else if (tmpDisplay == "table-row") {
+                        } else {
                             tmpPolicy.initSelectTrapSetup();
                         }
                     }
@@ -3183,8 +3235,6 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                let currentPolicy;
-                let policyStorage;
                 let tmpTxt;
                 const trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
@@ -3217,57 +3267,46 @@ function embedUIStructure() {
                 tmpTxt = undefined;
             }
 
-            function insertBWoARePolicyPreferences() {
-                function saveBWoAReWeapon(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_WEAPON] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+            function insertSingleTrapSetupRow() {
+                function saveSingleWeapon(event) {
+                    POLICY_DICT[currentPolicy].trapSetups[IDX_WEAPON] = event.target.value;
+                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
                 }
 
-                function saveBWoAReBase(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BASE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                function saveSingleBase(event) {
+                    POLICY_DICT[currentPolicy].trapSetups[IDX_BASE] = event.target.value;
+                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
                 }
 
-                function saveBWoAReBait(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                function saveSingleBait(event) {
+                    POLICY_DICT[currentPolicy].trapSetups[IDX_BAIT] = event.target.value;
+                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
                 }
 
-                function saveBWoAReTrinket(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_TRINKET] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function recommendBWoAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function resetBWoAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                    reloadCampPage();
+                function saveSingleTrinket(event) {
+                    POLICY_DICT[currentPolicy].trapSetups[IDX_TRINKET] = event.target.value;
+                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
                 }
 
                 let tmpTxt;
-                const trBWoAreTrapSetup = policyPreferencesTable.insertRow();
-                trBWoAreTrapSetup.id = ID_TR_BWOARE_TRAP_SETUP;
-                trBWoAreTrapSetup.style.height = "24px";
-                trBWoAreTrapSetup.style.display = "none";
-                const captionCell = trBWoAreTrapSetup.insertCell();
+                const trSingleTrapSetup = policyPreferencesTable.insertRow();
+                trSingleTrapSetup.id = ID_TR_SINGLE_TRAP_SETUP;
+                trSingleTrapSetup.style.height = "24px";
+                trSingleTrapSetup.style.display = "none";
+                const captionCell = trSingleTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup :  ";
-                const trapSetupCell = trBWoAreTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_BWOARE_WEAPON, saveBWoAReWeapon));
+                const trapSetupCell = trSingleTrapSetup.insertCell();
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_SINGLE_WEAPON, saveSingleWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_BWOARE_BASE, saveBWoAReBase));
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_SINGLE_BASE, saveSingleBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_BWOARE_BAIT, saveBWoAReBait));
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_SINGLE_BAIT, saveSingleBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_BWOARE_TRINKET, saveBWoAReTrinket));
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SINGLE_TRINKET, saveSingleTrinket));
                 tmpTxt = undefined;
             }
 
@@ -3966,12 +4005,15 @@ function embedUIStructure() {
                 tmpTxt = undefined;
             }
 
+            let currentPolicy;
+            let policyStorage;
             const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
 
             const trEmpty = policyPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
             insertSelectPolicyRow();
+            insertSingleTrapSetupRow();
 
             return policyPreferencesTable;
         }
