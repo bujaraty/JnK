@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.2
+// @version      1.3.0.3
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -23,7 +23,6 @@
 // - Modify 'Next Bot Horn Time' to use user.last_active_turn_timestamp
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
-//   - Activate-Deactivate FRo tower (After I get tower lvl 4)
 //   - IcePolicy and test
 //   - FWaPolicy
 
@@ -1956,14 +1955,34 @@ function checkLocation() {
     }
 
     function runVVaFRoPolicy() {
+        function deactivateTower() {
+            if (fortRoxInfo.tower_status == "normal active") {
+                fireEvent(document.getElementsByClassName("fortRoxHUD-spellTowerButton normal active")[0], "click");
+            }
+        }
+
+        function activateTower() {
+            if (fortRoxInfo.tower_status == "normal inactive") {
+                fireEvent(document.getElementsByClassName("fortRoxHUD-spellTowerButton normal inactive")[0], "click");
+            }
+        }
+
+        function checkFortRoxTrapSetup(trapSetup) {
+            if (trapSetup[IDX_TOWER] == VVAFRO_TOWER_DEACTIVATE) {
+                deactivateTower();
+            } else if (!trapSetups[VVAFRO_ATM_DEACTIVATE] || fortRoxInfo.hp_percent != 100) {
+                activateTower();
+            }
+            armTrap(trapSetup);
+        }
+
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
-        const currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
-        const currentPhase = getPageVariable("user.quests.QuestFortRox.current_phase");
+        const fortRoxInfo = getPageVariable("user.quests.QuestFortRox");
         const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
-        if (currentStage != false &&
+        if (fortRoxInfo.currentStage != false &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
-            parseInt(getPageVariable("user.quests.QuestFortRox.items.howlite_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
-            parseInt(getPageVariable("user.quests.QuestFortRox.items.blood_stone_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
+            parseInt(fortRoxInfo.items.howlite_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
+            parseInt(fortRoxInfo.items.blood_stone_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
             ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
                      getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
@@ -1976,32 +1995,35 @@ function checkLocation() {
                 alert("error retreating from Fort Rox");
             });
         } else {
-            switch(currentPhase) {
+            if (trapSetups[VVAFRO_ATM_DEACTIVATE] && fortRoxInfo.hp_percent == 100) {
+                deactivateTower();
+            }
+            switch(fortRoxInfo.current_phase) {
                 case "day":
-                    armTrap(trapSetups[VVAFRO_PHASE_DAY]);
+                    checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_DAY]);
                     break;
                 case "night":
-                    switch(currentStage) {
+                    switch(fortRoxInfo.current_stage) {
                         case "stage_one":
-                            armTrap(trapSetups[VVAFRO_PHASE_TWILIGHT]);
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_TWILIGHT]);
                             break;
                         case "stage_two":
-                            armTrap(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
                             break;
                         case "stage_three":
-                            armTrap(trapSetups[VVAFRO_PHASE_PITCH]);
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_PITCH]);
                             break;
                         case "stage_four":
-                            armTrap(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
                             break;
                         case "stage_five":
-                            armTrap(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
                             break;
                         default:
                     }
                     break;
                 case "dawn":
-                    armTrap(trapSetups[VVAFRO_PHASE_DAWN]);
+                    checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_DAWN]);
                     break;
                 default:
             }
@@ -4220,14 +4242,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestHarbour.can_claim;
         } else if (name == "user.quests.QuestClawShotCity.phase") {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
-        } else if (name == "user.quests.QuestFortRox.current_stage") {
-            return unsafeWindow.user.quests.QuestFortRox.current_stage;
-        } else if (name == "user.quests.QuestFortRox.current_phase") {
-            return unsafeWindow.user.quests.QuestFortRox.current_phase;
-        } else if (name == "user.quests.QuestFortRox.items.howlite_stat_item.quantity") {
-            return unsafeWindow.user.quests.QuestFortRox.items.howlite_stat_item.quantity;
-        } else if (name == "user.quests.QuestFortRox.items.blood_stone_stat_item.quantity") {
-            return unsafeWindow.user.quests.QuestFortRox.items.blood_stone_stat_item.quantity;
+        } else if (name == "user.quests.QuestFortRox") {
+            return unsafeWindow.user.quests.QuestFortRox;
         } else if (name == "user.quests.QuestZugzwangLibrary.hasResearchQuest") {
             return unsafeWindow.user.quests.QuestZugzwangLibrary.hasResearchQuest;
         } else if (name == "user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest") {
