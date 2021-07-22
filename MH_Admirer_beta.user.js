@@ -239,6 +239,7 @@ const STORAGE_TRAP_SETUP_BURMOU = "trapSetupBurMou";
 const STORAGE_TRAP_SETUP_BWOCAT = "trapSetupBWoCat";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
 const STORAGE_TRAP_SETUP_TISDDU = "trapSetupTIsDDu";
+const STORAGE_TRAP_SETUP_TISJOD = "trapSetupTIsJoD";
 const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
 const STORAGE_TRAP_SETUP_VVAFRO = "trapSetupVVaFRo";
 const STORAGE_TRAP_SETUP_RODSGA = "trapSetupRodSGa";
@@ -371,6 +372,7 @@ const LOCATION_MOUSOLEUM = "Mousoleum";
 const LOCATION_CATACOMBS = "Catacombs";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
 const LOCATION_DERR_DUNES = "Derr Dunes";
+const LOCATION_JUNGLE_OF_DREAD = "Jungle of Dread";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
@@ -385,6 +387,7 @@ const POLICY_NAME_MOUSOLEUM = "Mousoleum";
 const POLICY_NAME_CATACOMBS = "Catacombs";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
 const POLICY_NAME_DERR_DUNES = "Derr Dunes";
+const POLICY_NAME_JUNGLE_OF_DREAD = "Jungle of Dread";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
@@ -631,6 +634,29 @@ class PolicyTIsDDu extends Policy {
         const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
         this.getPhysicalTrapSetup(trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyTIsJoD extends Policy {
+    constructor () {
+        super();
+        this.setName(POLICY_NAME_JUNGLE_OF_DREAD);
+        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
+    }
+
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_TISJOD);
+    }
+
+    initSelectTrapSetup() {
+        this.setSingleTrapSetup(this.getTrapSetups());
+    }
+
+    recommendTrapSetup() {
+        const trapSetups = this.getTrapSetups();
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getShadowTrapSetup(trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
@@ -1094,6 +1120,7 @@ function initPolicyDict() {
     POLICY_DICT[POLICY_NAME_CATACOMBS] = new PolicyBWoCat();
     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
     POLICY_DICT[POLICY_NAME_DERR_DUNES] = new PolicyTIsDDu();
+    POLICY_DICT[POLICY_NAME_JUNGLE_OF_DREAD] = new PolicyTIsJoD();
     POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
     POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyVVaFRo();
     POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
@@ -2444,6 +2471,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_DERR_DUNES:
             runSingleTrapSetupPolicy(POLICY_NAME_DERR_DUNES);
             break;
+        case LOCATION_JUNGLE_OF_DREAD:
+            runSingleTrapSetupPolicy(POLICY_NAME_JUNGLE_OF_DREAD);
+            break;
         case LOCATION_FORT_ROX:
             runVVaFRoPolicy();
             break;
@@ -3243,6 +3273,9 @@ function embedUIStructure() {
                             break;
                         case POLICY_NAME_DERR_DUNES:
                             policyStorage = STORAGE_TRAP_SETUP_TISDDU;
+                            break;
+                        case POLICY_NAME_JUNGLE_OF_DREAD:
+                            policyStorage = STORAGE_TRAP_SETUP_TISJOD;
                             break;
                         case POLICY_NAME_CLAW_SHOT_CITY:
                             setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
