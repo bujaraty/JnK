@@ -2,6 +2,7 @@ Version 1.3.0.7
 - Add PolicySingleTrapSetup to be used shared between locations that need only one setup
 - Apply PolicySingleTrapSetup
 - Add SingleTrapSetup to RodCLi
+- Add SingleTrapSetup to GnaHar
 
 Version 1.3.0.6
 - Fix bug 'keep retreating during day phase' on Fort Rox

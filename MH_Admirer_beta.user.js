@@ -235,6 +235,7 @@ const STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
 const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
+const STORAGE_TRAP_SETUP_GNAHAR = "trapSetupGnaHar";
 const STORAGE_TRAP_SETUP_BURMOU = "trapSetupBurMou";
 const STORAGE_TRAP_SETUP_BWOCAT = "trapSetupBWoCat";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
@@ -566,6 +567,12 @@ class PolicySingleTrapSetup extends Policy {
         const baitName = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         this.getDefaultTrapSetup(trapSetups, baitName);
         this.initSelectTrapSetup();
+    }
+}
+
+class PolicyGnaHar extends PolicySingleTrapSetup {
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAHAR);
     }
 }
 
@@ -1077,6 +1084,7 @@ class PolicySDeFWa extends Policy {
 
 const POLICY_DICT = {};
 function initPolicyDict() {
+    POLICY_DICT[POLICY_NAME_HARBOUR] = new PolicyGnaHar();
     POLICY_DICT[POLICY_NAME_MOUSOLEUM] = new PolicyBurMou();
     POLICY_DICT[POLICY_NAME_CATACOMBS] = new PolicyBWoCat();
     POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
@@ -1946,27 +1954,22 @@ function checkLocation() {
 
     function runGnaHarPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
-        const status = getPageVariable("user.quests.QuestHarbour.status");
-        let button;
-        let canClaim;
-        switch(status) {
+        const harbourInfo = getPageVariable("user.quests.QuestHarbour");
+        switch(harbourInfo.status) {
             case "noShip":
                 break;
             case "canBeginSearch":
-                button = document.getElementsByClassName("harbourHUD-beginSearch")[0];
-                fireEvent(button, "click");
+                fireEvent(document.getElementsByClassName("harbourHUD-beginSearch")[0], "click");
                 break;
             case "searchStarted":
-                canClaim = getPageVariable("user.quests.QuestHarbour.can_claim");
-                if (canClaim) {
-                    button = document.getElementsByClassName("harbourHUD-claimBootyButton active")[0];
-                    fireEvent(button, "click");
+                if (harbourInfo.can_claim) {
+                    fireEvent(document.getElementsByClassName("harbourHUD-claimBootyButton active")[0], "click");
                 }
                 break;
             default:
         }
-        canClaim = undefined;
-        button = undefined;
+        const trapSetups = POLICY_DICT[POLICY_NAME_HARBOUR].getTrapSetups();
+        armTrap(trapSetups);
     }
 
     function runVVaCSCPolicy() {
@@ -3226,6 +3229,9 @@ function embedUIStructure() {
                     }
                     currentPolicy = event.target.value;
                     switch(currentPolicy) {
+                        case POLICY_NAME_HARBOUR:
+                            policyStorage = STORAGE_TRAP_SETUP_GNAHAR;
+                            break;
                         case POLICY_NAME_MOUSOLEUM:
                             policyStorage = STORAGE_TRAP_SETUP_BURMOU;
                             break;
@@ -4196,10 +4202,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.environment_name;
         } else if (name == "user.title_name") {
             return unsafeWindow.user.title_name;
-        } else if (name == "user.quests.QuestHarbour.status") {
-            return unsafeWindow.user.quests.QuestHarbour.status;
-        } else if (name == "user.quests.QuestHarbour.can_claim") {
-            return unsafeWindow.user.quests.QuestHarbour.can_claim;
+        } else if (name == "user.quests.QuestHarbour") {
+            return unsafeWindow.user.quests.QuestHarbour;
         } else if (name == "user.quests.QuestClawShotCity.phase") {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestFortRox") {
