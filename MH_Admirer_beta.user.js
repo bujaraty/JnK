@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.7
+// @version      1.3.0.8
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -80,16 +80,12 @@ const KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 
 // All global variable declaration and default value
 const BOT_PROCESS_IDLE = "idle";
-let g_nextBotHornTimeInSeconds;
-let g_botHornTimeDelayInSeconds;
-let g_nextTrapCheckTimeInSeconds = 0;
-let g_nextTrapCheckTimeDelayInSeconds = 0;
+let g_nextHuntTime;
+let g_botCountdownDelay;
+let g_botCountdownInterval;
+let g_nextTrapCheckTime;
+let g_trapCheckCountdownDelay;
 let g_strScriptVersion = GM_info.script.version;
-let g_nextBotHornTimeDisplay;
-let g_nextTrapCheckTimeDisplay;
-let g_nextBotHornTime;
-let g_lastBotHornTimeRecorded = new Date();
-let g_lastTrapCheckTimeRecorded = new Date();
 let g_kingsRewardRetry = 0;
 let g_trapInfo = {};
 let g_friendInfo;
@@ -150,6 +146,11 @@ const CLASSIFICATION_WEAPON = "weapon";
 const CLASSIFICATION_BASE = "base";
 const CLASSIFICATION_BAIT = "bait";
 const CLASSIFICATION_TRINKET = "trinket";
+const ID_NEXT_HUNT_TIME_TXT = "nextHuntTimeTxt";
+const ID_BOT_COUNTDOWN_TXT = "botCountdownTxt";
+const ID_BOT_INTERVAL_TXT = "botIntervalTxt";
+const ID_NEXT_TRAP_CHECK_TIME_TXT = "nextTrapCheckTimeTxt";
+const ID_TRAP_CHECK_COUNTDOWN_TXT = "trapCheckCountDownTxt";
 const ID_INPUT_BOT_HORN_TIME_DELAY_MIN = "inputBotHornTimeDelayMin";
 const ID_INPUT_BOT_HORN_TIME_DELAY_MAX = "inputBotHornTimeDelayMax";
 const ID_INPUT_TRAP_CHECK_TIME_DELAY_MIN = "inputTrapCheckTimeDelayMin";
@@ -1310,7 +1311,7 @@ function retryKRSolver(resetCaptcha) {
         setStorage("KingsRewardRetry", g_kingsRewardRetry);
         const strTemp = 'Max ' + MAX_KR_RETRY + 'retries. Pls solve it manually ASAP.';
         updateTitleTxt(strTemp);
-        updateNextBotHornTimeTxt(strTemp);
+        updateNextHuntTxt(strTemp);
         console.perror(strTemp);
     } else {
         ++g_kingsRewardRetry;
@@ -1381,17 +1382,18 @@ function execScript() {
 
 function operateBot() {
     try {
-        if (g_isKingReward) {
-            handleKingReward();
-        } else if (g_baitCount == 0) {
+        if (g_baitCount == 0) {
             updateTitleTxt("No more cheese!");
-            updateNextBotHornTimeTxt("Cannot hunt without the cheese...");
-            updateNextTrapCheckTimeTxt("Cannot hunt without the cheese...");
+            updateNextHuntTxt("Cannot hunt without the cheese...");
+            updateNextTrapCheckTxt("Cannot hunt without the cheese...");
         } else {
             // Run counddown Trap Check Timer anyway
             window.setTimeout(function () {
                 (countdownTrapCheckTimer)()
             }, 1000);
+            if (g_isKingReward) {
+                handleKingReward();
+            }
             // If the horn image exist, sound it, otherwise, countdown the timer
             if (hornExist()) {
                 window.setTimeout(function () {
@@ -1419,12 +1421,10 @@ function handleKingReward() {
 function kingRewardCountdownTimer(krDelaySec) {
     const strTemp = "Solve KR in " + timeFormat(krDelaySec) + " second(s)";
     updateTitleTxt(strTemp);
-    updateNextBotHornTimeTxt(strTemp);
-    //updateNextTrapCheckTimeTxt(strTemp);
+    updateNextHuntTxt(strTemp);
     krDelaySec -= KR_SOLVER_COUNTDOWN_INTERVAL;
     if (krDelaySec < 0) {
         if (DEBUG_MODE) console.log("START AUTOSOLVE NOW");
-
         callKRSolver();
     } else {
         window.setTimeout(function () {
@@ -1509,23 +1509,20 @@ function checkSchedule() {
 
 function countdownBotHornTimer() {
     // Update timer
-    const dateNow = new Date();
-    const intervalTime = timeElapsedInSeconds(g_lastBotHornTimeRecorded, dateNow);
-    g_lastBotHornTimeRecorded = undefined;
-    g_lastBotHornTimeRecorded = dateNow;
+    const nextBotHuntTime = new Date(g_nextHuntTime.getTime() + (g_botCountdownDelay * 1000));
+    const currentTime = new Date();
+    document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = g_nextHuntTime.toLocaleTimeString();
 
-    g_nextBotHornTimeInSeconds -= intervalTime;
-
-    if (g_nextBotHornTimeInSeconds <= 0) {
+    if (nextBotHuntTime.getTime() < currentTime.getTime()) {
         prepareSoundingHorn();
     } else {
+        const countdownTxt = timeFormat(Math.floor((nextBotHuntTime.getTime() - currentTime.getTime()) / 1000));
+        updateTitleTxt("Horn: " + countdownTxt);
+        document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_botCountdownDelay) + " delay)</i>";
 
         if (g_botProcess == BOT_PROCESS_IDLE) {
             checkSchedule();
         }
-
-        updateTitleTxt("Horn: " + timeFormat(g_nextBotHornTimeInSeconds));
-        updateNextBotHornTimeTxt(timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " delay)</i>");
 
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
@@ -1537,17 +1534,17 @@ function countdownBotHornTimer() {
 
 function countdownTrapCheckTimer() {
     // Update timer
-    const dateNow = new Date();
-    const intervalTime = timeElapsedInSeconds(g_lastTrapCheckTimeRecorded, dateNow);
-    g_lastTrapCheckTimeRecorded = dateNow;
+    const nextTrapCheckTime = new Date(g_nextTrapCheckTime.getTime() + (g_trapCheckCountdownDelay * 1000));
+    const currentTime = new Date();
+    document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = g_nextTrapCheckTime.toLocaleTimeString();
 
-    g_nextTrapCheckTimeInSeconds -= intervalTime;
-
-    if (g_nextTrapCheckTimeInSeconds <= 0) {
+    if (nextTrapCheckTime.getTime() < currentTime.getTime()) {
+        //    if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
         checkLocation();
-        updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
+        const countdownTxt = timeFormat(Math.floor((nextTrapCheckTime.getTime() - currentTime.getTime()) / 1000));
+        document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_trapCheckCountdownDelay) + " delay)</i>";
 
         window.setTimeout(function () {
             countdownTrapCheckTimer()
@@ -1572,7 +1569,7 @@ function timeFormat(time) {
 function trapCheck() {
     // Let user known that the script is going to check the trap
     updateTitleTxt("Checking The Trap...");
-    updateNextTrapCheckTimeTxt("Checking trap now...");
+    document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = "Checking trap now...";
 
     // reload the page
     setTimeout(function () {
@@ -1601,7 +1598,7 @@ function soundHorn() {
             if (parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS)) == 0 ||
                 getPageVariable(USER_HAS_PUZZLE)) {
                 updateTitleTxt("KR found. Prepare to Solve...");
-                updateNextBotHornTimeTxt("KR found. Prepare to Solve...");
+                updateNextHuntTxt("KR found. Prepare to Solve...");
                 window.setTimeout(function () {
                     reloadCampPage()
                 }, 0.5 * 1000);
@@ -1612,7 +1609,7 @@ function soundHorn() {
         checkKRPrompt();
         // update timer
         updateTitleTxt("Horn sounded. Synchronizing Data...");
-        updateNextBotHornTimeTxt("Horn sounded. Synchronizing Data...");
+        updateNextHuntTxt("Horn sounded. Synchronizing Data...");
 
         // reload data
         retrieveCampActiveData();
@@ -1627,14 +1624,9 @@ function soundHorn() {
     fireEvent(hornElement, 'click');
 
     // double check if the horn was already sounded
-    /*
     window.setTimeout(function () {
         afterSoundingHorn()
     }, 4000);
-    */
-    window.setTimeout(function () {
-        afterSoundingHorn()
-    }, 2000);
 }
 
 function prepareSoundingHorn() {
@@ -1644,7 +1636,7 @@ function prepareSoundingHorn() {
     } else {
         // The horn is missing
         updateTitleTxt("Synchronizing Data...");
-        updateNextBotHornTimeTxt("Hunter horn is missing. Synchronizing data...");
+        updateNextHuntTxt("Hunter horn is missing. Synchronizing data...");
 
         window.setTimeout(function () {
             reloadCampPage();
@@ -1669,12 +1661,12 @@ function updateTitleTxt(titleTxt) {
     document.title = titleTxt;
 }
 
-function updateNextBotHornTimeTxt(nextHornTimeTxt) {
-    g_nextBotHornTimeDisplay.innerHTML = nextHornTimeTxt;
+function updateNextHuntTxt(nextHornTimeTxt) {
+    document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = nextHornTimeTxt;
 }
 
-function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
-    g_nextTrapCheckTimeDisplay.innerHTML = trapCheckTimeTxt;
+function updateNextTrapCheckTxt(trapCheckTimeTxt) {
+    document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = trapCheckTimeTxt;
 }
 
 function loadPreferenceSettingFromStorage() {
@@ -1739,24 +1731,38 @@ function isNullOrUndefined(obj) {
 }
 
 function retrieveCampActiveData() {
+    function getActualNextHuntTime() {
+        ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
+                 getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                 function (data) {
+            g_nextHuntTime = new Date();
+            g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
+        }, function (error) {
+            console.error('ajax:', error);
+            alert("error getting hunter profile");
+        });
+    }
     // This function is to retrieve data from camp page that is actively changed, including
     // - next horn time
     // - king reward
     // - bait quantity
     if (DEBUG_MODE) console.log('RUN retrieveCampActiveData()');
 
-    // Set time stamp for when the other time stamps are queried
-    g_lastBotHornTimeRecorded = new Date();
+    // temporarily get MH horn time
+    g_nextHuntTime = new Date();
+    g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
+    getActualNextHuntTime();
+    g_botCountdownDelay = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
 
-    // Get MH horn time and use it to calculate next bot horn time
-    const nextMHHornTimeInSeconds = parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
-    g_botHornTimeDelayInSeconds = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
-    g_nextBotHornTimeInSeconds = nextMHHornTimeInSeconds + g_botHornTimeDelayInSeconds;
-    if (g_nextBotHornTimeInSeconds <= 0){
-        alert("g_nextActiveTime <= 0");
-        // K_Todo_014
-        //eventLocationCheck();
+    const trapCheckTimeOffset = getTrapCheckTime();
+    g_nextTrapCheckTime = new Date();
+    if (g_nextTrapCheckTime.getMinutes() >= trapCheckTimeOffset) {
+        g_nextTrapCheckTime.setHours(g_nextTrapCheckTime.getHours()+1, trapCheckTimeOffset, 0, 0)
+    } else {
+        g_nextTrapCheckTime.setHours(g_nextTrapCheckTime.getHours(), trapCheckTimeOffset, 0, 0)
     }
+    g_trapCheckCountdownDelay = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
+
     const trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
     const now = new Date();
     g_nextTrapCheckTimeInSeconds = trapCheckTimeOffsetInSeconds - (now.getMinutes() * 60 + now.getSeconds());
@@ -2595,9 +2601,25 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
+function testTime() {
+    //alert(typeof(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS)));
+    const currentTime = new Date();
+    alert(currentTime.toLocaleTimeString());
+    currentTime.setSeconds( currentTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS) );
+    alert(currentTime);
+    const latestTime = new Date();
+    alert(latestTime);
+    if (latestTime > currentTime) {
+        alert("correct");
+    } else {
+        alert("wrong");
+    }
+}
+
 function test1() {
+    testTime();
     //testSortObj();
-    checkLocation();
+    //checkLocation();
     //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
@@ -2832,6 +2854,7 @@ function embedUIStructure() {
 
     function embedStatusTable() {
         let tmpTxt;
+        let captionCell;
         const statusSection = document.createElement('div');
         const statusDisplayTable = document.createElement('table');
         statusDisplayTable.width = "100%";
@@ -2842,6 +2865,7 @@ function embedUIStructure() {
         statusDisplayTitle.colSpan = 2;
         statusDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
         const miscStatusCell = trFirst.insertCell();
+        miscStatusCell.colSpan = 3;
         miscStatusCell.style.fontSize = "9px";
         miscStatusCell.style.textAlign = "right";
         tmpTxt = document.createTextNode("Gifting status : " + g_statusGifting + ",  ");
@@ -2849,6 +2873,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("Balloting status : " + g_statusBalloting + "  ");
         miscStatusCell.appendChild(tmpTxt);
         const miscButtonsCell = trFirst.insertCell();
+        miscButtonsCell.colSpan = 4;
         miscButtonsCell.style.textAlign = "right";
         const sendGiftsButton = document.createElement('button');
         sendGiftsButton.onclick = manualSendingGifts
@@ -2877,26 +2902,59 @@ function embedUIStructure() {
 
         // The second row shows next bot horn time countdown
         const trSecond = statusDisplayTable.insertRow();
-        const nextBotHornTimeCaptionCell = trSecond.insertCell();
-        nextBotHornTimeCaptionCell.width = 20;
-        nextBotHornTimeCaptionCell.style.fontWeight = "bold";
-        nextBotHornTimeCaptionCell.innerHTML = "Next Hunter Horn Time : ";
-        g_nextBotHornTimeDisplay = trSecond.insertCell();
-        g_nextBotHornTimeDisplay.colSpan = 2;
-        g_nextBotHornTimeDisplay.style.textAlign = "left";
-        g_nextBotHornTimeDisplay.width = 320;
-        g_nextBotHornTimeDisplay.innerHTML = "Loading...";
+        captionCell = trSecond.insertCell();
+        captionCell.width = 20;
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Next Hunt : ";
+        const nextHuntTimeTxt = trSecond.insertCell();
+        nextHuntTimeTxt.colSpan = 2;
+        nextHuntTimeTxt.style.textAlign = "left";
+        nextHuntTimeTxt.width = 60;
+        nextHuntTimeTxt.id = ID_NEXT_HUNT_TIME_TXT;
+        nextHuntTimeTxt.innerHTML = "Loading...";
+        captionCell = trSecond.insertCell();
+        captionCell.width = 100;
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Count Down : ";
+        const botCountdownTxt = trSecond.insertCell();
+        botCountdownTxt.colSpan = 2;
+        botCountdownTxt.style.textAlign = "left";
+        botCountdownTxt.width = 50;
+        botCountdownTxt.id = ID_BOT_COUNTDOWN_TXT;
+        botCountdownTxt.innerHTML = "Loading...";
+        /*
+        captionCell = trSecond.insertCell();
+        captionCell.width = 50;
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Interval : ";
+        const botIntervalTxt = trSecond.insertCell();
+        botIntervalTxt.style.textAlign = "left";
+        botIntervalTxt.width = 100;
+        botIntervalTxt.id = ID_BOT_INTERVAL_TXT;
+        botIntervalTxt.innerHTML = "Loading...";
+        */
 
         // The third row shows next trap check time countdown
         const trThird = statusDisplayTable.insertRow();
-        const nextTrapCheckTimeCaptionCell = trThird.insertCell();
-        nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
-        nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
-        g_nextTrapCheckTimeDisplay = trThird.insertCell();
-        g_nextTrapCheckTimeDisplay.colSpan = 2;
-        g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
+        captionCell = trThird.insertCell();
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Next Trap Check : ";
+        const nextTrapCheckTimeTxt = trThird.insertCell();
+        nextTrapCheckTimeTxt.colSpan = 2;
+        nextTrapCheckTimeTxt.style.textAlign = "left";
+        nextTrapCheckTimeTxt.id = ID_NEXT_TRAP_CHECK_TIME_TXT;
+        nextTrapCheckTimeTxt.innerHTML = "Loading...";
+        captionCell = trThird.insertCell();
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Count Down : ";
+        const trapCheckCountDownTxt = trThird.insertCell();
+        trapCheckCountDownTxt.colSpan = 2;
+        trapCheckCountDownTxt.style.textAlign = "left";
+        trapCheckCountDownTxt.width = 160;
+        trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
+        trapCheckCountDownTxt.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -2917,6 +2975,8 @@ function embedUIStructure() {
 
         statusSection.appendChild(statusDisplayTable);
 
+        tmpTxt = undefined;
+        captionCell = undefined;
         return statusSection;
     }
 
