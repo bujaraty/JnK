@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.6
+// @version      1.3.0.7
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -267,6 +267,7 @@ const POWER_TYPE_PHYSICAL = "Physical";
 const POWER_TYPE_RIFT = "Rift";
 const POWER_TYPE_SHADOW = "Shadow";
 const POWER_TYPE_TACTICAL = "Tactical";
+const POWER_TYPE_OVERALL = "Overall";
 const ITEM_ARM = "Arm";
 const ITEM_DISARM = "Disarm";
 const ITEM_ARMING = [ITEM_ARM, ITEM_DISARM];
@@ -403,7 +404,6 @@ class Policy {
         this.trs = [];
         this.bestPowerWeapons = {};
         this.bestLuckWeapons = {};
-        this.bestBase = undefined;
     }
 
     setName(name) {
@@ -466,11 +466,18 @@ class Policy {
     getBestLuckWeapon(powerType) {
         const weaponInfo = getWeaponInfo();
         if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
-            this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
-                .filter(([key, value]) => value.powerType === powerType)
-                .sort(([,a], [,b]) => b.power - a.power)
-                .sort(([,a], [,b]) => b.luck - a.luck)
-                .map(x => x[1].name)[0];
+            if (powerType == POWER_TYPE_OVERALL) {
+                this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
+                    .sort(([,a], [,b]) => b.power - a.power)
+                    .sort(([,a], [,b]) => b.luck - a.luck)
+                    .map(x => x[1].name)[0];
+            } else {
+                this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
+                    .filter(([key, value]) => value.powerType === powerType)
+                    .sort(([,a], [,b]) => b.power - a.power)
+                    .sort(([,a], [,b]) => b.luck - a.luck)
+                    .map(x => x[1].name)[0];
+            }
         }
         return this.bestLuckWeapons[powerType];
     }
@@ -487,7 +494,8 @@ class Policy {
         return this.trapSetups;
     }
 
-    getDefaultTrapSetup(trapSetup, baitName, trinketName) {
+    getDefaultTrapSetup(trapSetup, baitName, trinketName=ITEM_IGNORE) {
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_OVERALL);
         trapSetup[IDX_BASE] = this.getBestBase();
         if ( !isNullOrUndefined(baitName)) {
             trapSetup[IDX_BAIT] = baitName;
@@ -543,19 +551,27 @@ class Policy {
     }
 }
 
-class PolicyBurMou extends Policy {
+class PolicySingleTrapSetup extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_MOUSOLEUM);
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
-    }
-
-    getTrapSetups() {
-        return super.getTrapSetups(STORAGE_TRAP_SETUP_BURMOU);
     }
 
     initSelectTrapSetup() {
         this.setSingleTrapSetup(this.getTrapSetups());
+    }
+
+    recommendTrapSetup() {
+        const trapSetups = this.getTrapSetups();
+        const baitName = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        this.getDefaultTrapSetup(trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyBurMou extends PolicySingleTrapSetup {
+    getTrapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_BURMOU);
     }
 
     recommendTrapSetup() {
@@ -569,7 +585,6 @@ class PolicyBurMou extends Policy {
 class PolicyBWoCat extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_CATACOMBS);
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
@@ -592,7 +607,6 @@ class PolicyBWoCat extends Policy {
 class PolicyBWoARe extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_ACOLYTE_REALM);
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
@@ -618,7 +632,6 @@ class PolicyBWoARe extends Policy {
 class PolicyTIsDDu extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_DERR_DUNES);
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
@@ -641,7 +654,6 @@ class PolicyTIsDDu extends Policy {
 class PolicyTIsJoD extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_JUNGLE_OF_DREAD);
         this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
@@ -664,7 +676,6 @@ class PolicyTIsJoD extends Policy {
 class PolicyVVaCSC extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_CLAW_SHOT_CITY);
         this.trs[0] = ID_TR_VVACSC_ATM_POSTER;
         this.trs[1] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
         this.trs[2] = ID_TR_SELECTABLE_TRAP_SETUP;
@@ -719,7 +730,6 @@ class PolicyVVaCSC extends Policy {
 class PolicyVVaFRo extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_FORT_ROX);
         this.trs[0] = ID_TR_VVAFRO_PHASES_TRAP_SETUP;
         this.trs[1] = ID_TR_VVAFRO_ATM_DEACTIVATE;
         this.trs[2] = ID_TR_VVAFRO_ATM_RETREAT;
@@ -780,7 +790,6 @@ class PolicyVVaFRo extends Policy {
 class PolicyRodSGa extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_SEASONAL_GARDEN);
         this.trs[0] = ID_TR_SELECTABLE_TRAP_SETUP;
         this.selectableValues = RODSGA_SEASONS;
     }
@@ -814,7 +823,6 @@ class PolicyRodSGa extends Policy {
 class PolicyRodZTo extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_ZUGZWANGS_TOWER);
         this.trs[0] = ID_TR_RODZTO_STRATEGY;
         this.trs[1] = ID_TR_SELECTABLE_TRAP_SETUP;
         this.selectableValues = RODZTO_CHESS_PROGRESS;
@@ -884,7 +892,6 @@ class PolicyRodZTo extends Policy {
 class PolicyRodCLi extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_CRYSTAL_LIBRARY);
         this.trs[0] = ID_TR_RODCLI_ATM_CATALOG_MICE;
     }
 
@@ -929,7 +936,6 @@ class PolicyRodSSh extends Policy {
 class PolicyRodIce extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_ICEBERG);
         this.trs[0] = ID_TR_SELECTABLE_TRAP_SETUP;
         this.selectableValues = RODICE_SUBLOCATIONS;
     }
@@ -992,7 +998,6 @@ class PolicyRodIce extends Policy {
 class PolicySDeFWa extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_FIERY_WARPATH);
         this.trs[0] = ID_TR_SELECT_SDEFWA_WAVE;
         this.trs[1] = ID_TR_SDEFWA_POWER_TYPES_TRAP_SETUP;
         this.trs[2] = ID_TR_SELECT_SDEFWA_TARGET_POPULATION;
@@ -2929,7 +2934,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
