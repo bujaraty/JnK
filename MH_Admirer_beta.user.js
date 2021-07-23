@@ -70,7 +70,6 @@ let g_statusBalloting = STATUS_INCOMPLETE;
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // Time interval for script timer to update the time. May affect timer accuracy if set too high value. (in seconds)
-const BOT_HORN_TIMER_COUNTDOWN_INTERVAL = 5;
 const TRAP_CHECK_TIMER_COUNTDOWN_INTERVAL = 20;
 const KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 
@@ -1515,17 +1514,31 @@ function countdownBotHornTimer() {
     if (nextBotHuntTime.getTime() < currentTime.getTime()) {
         prepareSoundingHorn();
     } else {
-        const countdownTxt = timeFormat(Math.floor((nextBotHuntTime.getTime() - currentTime.getTime()) / 1000));
+        const countdownInSeconds = (nextBotHuntTime.getTime() - currentTime.getTime()) / 1000;
+        const countdownTxt = timeFormat(Math.floor(countdownInSeconds));
         updateTitleTxt("Horn: " + countdownTxt);
         document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_botCountdownDelay) + " delay)</i>";
         if (g_botProcess == BOT_PROCESS_IDLE) {
             checkSchedule();
         }
+        //g_botCountdownInterval
+        if (countdownInSeconds > 60) {
+            g_botCountdownInterval = 20;
+        } else if (countdownInSeconds > 10) {
+            g_botCountdownInterval = 10;
+        } else if (countdownInSeconds > 5) {
+            g_botCountdownInterval = 5;
+        } else if (countdownInSeconds > 3) {
+            g_botCountdownInterval = 2;
+        } else {
+            g_botCountdownInterval = 1;
+        }
+        document.getElementById(ID_BOT_INTERVAL_TXT).innerHTML = parseInt(g_botCountdownInterval) + " sec";
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
         window.setTimeout(function () {
             countdownBotHornTimer()
-        }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
+        }, g_botCountdownInterval * 1000);
     }
 }
 
@@ -1736,6 +1749,7 @@ function retrieveCampActiveData() {
             alert("error getting hunter profile");
         });
     }
+
     // This function is to retrieve data from camp page that is actively changed, including
     // - next horn time
     // - trap check time (likely from storage), only from camp page at the very first time using this bot
@@ -2909,7 +2923,6 @@ function embedUIStructure() {
         botCountdownTxt.width = 50;
         botCountdownTxt.id = ID_BOT_COUNTDOWN_TXT;
         botCountdownTxt.innerHTML = "Loading...";
-        /*
         captionCell = trSecond.insertCell();
         captionCell.width = 50;
         captionCell.style.fontWeight = "bold";
@@ -2919,7 +2932,6 @@ function embedUIStructure() {
         botIntervalTxt.width = 100;
         botIntervalTxt.id = ID_BOT_INTERVAL_TXT;
         botIntervalTxt.innerHTML = "Loading...";
-        */
 
         // The third row shows next trap check time countdown
         const trThird = statusDisplayTable.insertRow();

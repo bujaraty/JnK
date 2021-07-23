@@ -1,5 +1,6 @@
 Version 1.3.0.8
 - Separate TrapCheck process from HornTime/KR process (Doing trap check while KR)
+- Make Bot Countdown Interval proportional to the remaining countdown time
 
 Version 1.3.0.7
 - Add PolicySingleTrapSetup to be used shared between locations that need only one setup
