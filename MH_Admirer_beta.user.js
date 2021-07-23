@@ -50,7 +50,7 @@ let g_autosolveKRDelayMax = 10;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
-const MAX_KR_RETRY = 5;
+const MAX_KR_RETRY = 7;
 
 // // Scheduler time that will start automatically
 const STATUS_INCOMPLETE = "Incomplete";
@@ -582,18 +582,9 @@ class PolicyBurMou extends PolicySingleTrapSetup {
     }
 }
 
-class PolicyBWoCat extends Policy {
-    constructor () {
-        super();
-        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
-    }
-
+class PolicyBWoCat extends PolicySingleTrapSetup {
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOCAT);
-    }
-
-    initSelectTrapSetup() {
-        this.setSingleTrapSetup(this.getTrapSetups());
     }
 
     recommendTrapSetup() {
@@ -604,18 +595,9 @@ class PolicyBWoCat extends Policy {
     }
 }
 
-class PolicyBWoARe extends Policy {
-    constructor () {
-        super();
-        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
-    }
-
+class PolicyBWoARe extends PolicySingleTrapSetup {
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOARE);
-    }
-
-    initSelectTrapSetup() {
-        this.setSingleTrapSetup(this.getTrapSetups());
     }
 
     recommendTrapSetup() {
@@ -629,18 +611,9 @@ class PolicyBWoARe extends Policy {
     }
 }
 
-class PolicyTIsDDu extends Policy {
-    constructor () {
-        super();
-        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
-    }
-
+class PolicyTIsDDu extends PolicySingleTrapSetup {
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_TISDDU);
-    }
-
-    initSelectTrapSetup() {
-        this.setSingleTrapSetup(this.getTrapSetups());
     }
 
     recommendTrapSetup() {
@@ -651,18 +624,9 @@ class PolicyTIsDDu extends Policy {
     }
 }
 
-class PolicyTIsJoD extends Policy {
-    constructor () {
-        super();
-        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
-    }
-
+class PolicyTIsJoD extends PolicySingleTrapSetup {
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_TISJOD);
-    }
-
-    initSelectTrapSetup() {
-        this.setSingleTrapSetup(this.getTrapSetups());
     }
 
     recommendTrapSetup() {
@@ -910,19 +874,9 @@ class PolicyRodCLi extends Policy {
     }
 }
 
-class PolicyRodSSh extends Policy {
-    constructor () {
-        super();
-        this.setName(POLICY_NAME_SLUSHY_SHORELINE);
-        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
-    }
-
+class PolicyRodSSh extends PolicySingleTrapSetup {
     getTrapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSSH);
-    }
-
-    initSelectTrapSetup() {
-        this.setSingleTrapSetup(this.getTrapSetups());
     }
 
     recommendTrapSetup() {
