@@ -1508,7 +1508,6 @@ function checkSchedule() {
 }
 
 function countdownBotHornTimer() {
-    // Update timer
     const nextBotHuntTime = new Date(g_nextHuntTime.getTime() + (g_botCountdownDelay * 1000));
     const currentTime = new Date();
     document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = g_nextHuntTime.toLocaleTimeString();
@@ -1519,11 +1518,9 @@ function countdownBotHornTimer() {
         const countdownTxt = timeFormat(Math.floor((nextBotHuntTime.getTime() - currentTime.getTime()) / 1000));
         updateTitleTxt("Horn: " + countdownTxt);
         document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_botCountdownDelay) + " delay)</i>";
-
         if (g_botProcess == BOT_PROCESS_IDLE) {
             checkSchedule();
         }
-
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
         window.setTimeout(function () {
@@ -1533,19 +1530,16 @@ function countdownBotHornTimer() {
 }
 
 function countdownTrapCheckTimer() {
-    // Update timer
     const nextTrapCheckTime = new Date(g_nextTrapCheckTime.getTime() + (g_trapCheckCountdownDelay * 1000));
     const currentTime = new Date();
     document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = g_nextTrapCheckTime.toLocaleTimeString();
 
     if (nextTrapCheckTime.getTime() < currentTime.getTime()) {
-        //    if (g_nextTrapCheckTimeInSeconds <= 0) {
         trapCheck();
     } else {
         checkLocation();
         const countdownTxt = timeFormat(Math.floor((nextTrapCheckTime.getTime() - currentTime.getTime()) / 1000));
         document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_trapCheckCountdownDelay) + " delay)</i>";
-
         window.setTimeout(function () {
             countdownTrapCheckTimer()
         }, TRAP_CHECK_TIMER_COUNTDOWN_INTERVAL * 1000);
@@ -1744,12 +1738,13 @@ function retrieveCampActiveData() {
     }
     // This function is to retrieve data from camp page that is actively changed, including
     // - next horn time
+    // - trap check time (likely from storage), only from camp page at the very first time using this bot
     // - king reward
     // - bait quantity
     if (DEBUG_MODE) console.log('RUN retrieveCampActiveData()');
 
-    // temporarily get MH horn time
-    g_nextHuntTime = new Date();
+    // get MH horn time
+    g_nextHuntTime = new Date(); //For temporary, just in case if the Ajax response doesn't come fast enough.
     g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
     getActualNextHuntTime();
     g_botCountdownDelay = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
@@ -1762,13 +1757,6 @@ function retrieveCampActiveData() {
         g_nextTrapCheckTime.setHours(g_nextTrapCheckTime.getHours(), trapCheckTimeOffset, 0, 0)
     }
     g_trapCheckCountdownDelay = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
-
-    const trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
-    const now = new Date();
-    g_nextTrapCheckTimeInSeconds = trapCheckTimeOffsetInSeconds - (now.getMinutes() * 60 + now.getSeconds());
-    g_nextTrapCheckTimeDelayInSeconds = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
-    g_nextTrapCheckTimeInSeconds = (g_nextTrapCheckTimeInSeconds <= 0) ? 3600 + g_nextTrapCheckTimeInSeconds : g_nextTrapCheckTimeInSeconds;
-    g_nextTrapCheckTimeInSeconds += g_nextTrapCheckTimeDelayInSeconds;
 
     // Check if there is King Reward ongoing
     g_isKingReward = getPageVariable(USER_HAS_PUZZLE);
@@ -2602,7 +2590,6 @@ function testSortObj() {
 }
 
 function testTime() {
-    //alert(typeof(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS)));
     const currentTime = new Date();
     alert(currentTime.toLocaleTimeString());
     currentTime.setSeconds( currentTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS) );
