@@ -34,9 +34,9 @@
 const DEBUG_MODE = true;
 
 // // Extra delay time before sounding the horn. (in seconds)
-// // Default: 10-15
-let g_botHornTimeDelayMin = 10;
-let g_botHornTimeDelayMax = 15;
+// // Default: 2-5
+let g_botHornTimeDelayMin = 2;
+let g_botHornTimeDelayMax = 5;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
