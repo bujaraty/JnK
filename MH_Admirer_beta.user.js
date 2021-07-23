@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.5
+// @version      1.3.0.6
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -2093,7 +2093,7 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
         const fortRoxInfo = getPageVariable("user.quests.QuestFortRox");
         const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
-        if (fortRoxInfo.currentStage != false &&
+        if (fortRoxInfo.current_phase != "day" &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
             parseInt(fortRoxInfo.items.howlite_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
             parseInt(fortRoxInfo.items.blood_stone_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
@@ -2929,7 +2929,7 @@ function embedUIStructure() {
         g_nextTrapCheckTimeDisplay.colSpan = 2;
         g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
