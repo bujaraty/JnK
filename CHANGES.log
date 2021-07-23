@@ -1,6 +1,9 @@
 Version 1.3.0.8
 - Separate TrapCheck process from HornTime/KR process (Doing trap check while KR)
 - Make Bot Countdown Interval proportional to the remaining countdown time
+- Add more information to statusDisplayTable
+- Make the Horn Time countdown process more precise by calculating the next actual Hunt Time (The countdown is just gimmick)
+- Calculate the next Hunt Time twice, one from getPageVarialbe, the other from Ajax (the getPageVariable one is temporary)
 
 Version 1.3.0.7
 - Add PolicySingleTrapSetup to be used shared between locations that need only one setup

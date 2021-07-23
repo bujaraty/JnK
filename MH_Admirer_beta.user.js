@@ -1669,11 +1669,11 @@ function updateTitleTxt(titleTxt) {
 }
 
 function updateNextHuntTxt(nextHornTimeTxt) {
-    document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = nextHornTimeTxt;
+    document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = nextHornTimeTxt;
 }
 
 function updateNextTrapCheckTxt(trapCheckTimeTxt) {
-    document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = trapCheckTimeTxt;
+    document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = trapCheckTimeTxt;
 }
 
 function loadPreferenceSettingFromStorage() {
@@ -1746,7 +1746,6 @@ function retrieveCampActiveData() {
             g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
         }, function (error) {
             console.error('ajax:', error);
-            alert("error getting hunter profile");
         });
     }
 
@@ -1757,10 +1756,15 @@ function retrieveCampActiveData() {
     // - bait quantity
     if (DEBUG_MODE) console.log('RUN retrieveCampActiveData()');
 
+    // Check if there is King Reward ongoing
+    g_isKingReward = getPageVariable(USER_HAS_PUZZLE);
+
     // get MH horn time
     g_nextHuntTime = new Date(); //For temporary, just in case if the Ajax response doesn't come fast enough.
     g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
-    getActualNextHuntTime();
+    if (!g_isKingReward) {
+        getActualNextHuntTime();
+    }
     g_botCountdownDelay = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
 
     const trapCheckTimeOffset = getTrapCheckTime();
@@ -1771,9 +1775,6 @@ function retrieveCampActiveData() {
         g_nextTrapCheckTime.setHours(g_nextTrapCheckTime.getHours(), trapCheckTimeOffset, 0, 0)
     }
     g_trapCheckCountdownDelay = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
-
-    // Check if there is King Reward ongoing
-    g_isKingReward = getPageVariable(USER_HAS_PUZZLE);
 
     g_baitCount = getPageVariable("user.bait_quantity");
 }
@@ -2856,17 +2857,60 @@ function embedUIStructure() {
     function embedStatusTable() {
         let tmpTxt;
         let captionCell;
+        let rulerCell;
         const statusSection = document.createElement('div');
         const statusDisplayTable = document.createElement('table');
         statusDisplayTable.width = "100%";
 
+        const trRuler = statusDisplayTable.insertRow();
+        trRuler.style.display = "none";
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 100;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 55;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 20;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 50;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 235;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 50;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 40;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = "cell 8";
+
         // The first row shows title and version (also some misc buttons)
         const trFirst = statusDisplayTable.insertRow();
         const statusDisplayTitle = trFirst.insertCell();
-        statusDisplayTitle.colSpan = 2;
+        statusDisplayTitle.colSpan = 3;
         statusDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
         const miscStatusCell = trFirst.insertCell();
-        miscStatusCell.colSpan = 3;
+        miscStatusCell.colSpan = 2;
         miscStatusCell.style.fontSize = "9px";
         miscStatusCell.style.textAlign = "right";
         tmpTxt = document.createTextNode("Gifting status : " + g_statusGifting + ",  ");
@@ -2874,7 +2918,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("Balloting status : " + g_statusBalloting + "  ");
         miscStatusCell.appendChild(tmpTxt);
         const miscButtonsCell = trFirst.insertCell();
-        miscButtonsCell.colSpan = 4;
+        miscButtonsCell.colSpan = 3;
         miscButtonsCell.style.textAlign = "right";
         const sendGiftsButton = document.createElement('button');
         sendGiftsButton.onclick = manualSendingGifts
@@ -2904,32 +2948,31 @@ function embedUIStructure() {
         // The second row shows next bot horn time countdown
         const trSecond = statusDisplayTable.insertRow();
         captionCell = trSecond.insertCell();
-        captionCell.width = 20;
+        captionCell.width = 100;
         captionCell.style.fontWeight = "bold";
         captionCell.innerHTML = "Next Hunt : ";
         const nextHuntTimeTxt = trSecond.insertCell();
-        nextHuntTimeTxt.colSpan = 2;
-        nextHuntTimeTxt.style.textAlign = "left";
         nextHuntTimeTxt.width = 60;
+        nextHuntTimeTxt.style.textAlign = "left";
         nextHuntTimeTxt.id = ID_NEXT_HUNT_TIME_TXT;
         nextHuntTimeTxt.innerHTML = "Loading...";
         captionCell = trSecond.insertCell();
-        captionCell.width = 100;
+        captionCell.width = 70;
+        captionCell.colSpan = 2;
         captionCell.style.fontWeight = "bold";
         captionCell.innerHTML = "Count Down : ";
         const botCountdownTxt = trSecond.insertCell();
-        botCountdownTxt.colSpan = 2;
+        botCountdownTxt.width = 235;
         botCountdownTxt.style.textAlign = "left";
-        botCountdownTxt.width = 50;
         botCountdownTxt.id = ID_BOT_COUNTDOWN_TXT;
         botCountdownTxt.innerHTML = "Loading...";
         captionCell = trSecond.insertCell();
-        captionCell.width = 50;
         captionCell.style.fontWeight = "bold";
+        captionCell.width = 50;
         captionCell.innerHTML = "Interval : ";
         const botIntervalTxt = trSecond.insertCell();
+        captionCell.width = 40;
         botIntervalTxt.style.textAlign = "left";
-        botIntervalTxt.width = 100;
         botIntervalTxt.id = ID_BOT_INTERVAL_TXT;
         botIntervalTxt.innerHTML = "Loading...";
 
@@ -2939,21 +2982,19 @@ function embedUIStructure() {
         captionCell.style.fontWeight = "bold";
         captionCell.innerHTML = "Next Trap Check : ";
         const nextTrapCheckTimeTxt = trThird.insertCell();
-        nextTrapCheckTimeTxt.colSpan = 2;
         nextTrapCheckTimeTxt.style.textAlign = "left";
         nextTrapCheckTimeTxt.id = ID_NEXT_TRAP_CHECK_TIME_TXT;
         nextTrapCheckTimeTxt.innerHTML = "Loading...";
         captionCell = trThird.insertCell();
+        captionCell.colSpan = 2;
         captionCell.style.fontWeight = "bold";
         captionCell.innerHTML = "Count Down : ";
         const trapCheckCountDownTxt = trThird.insertCell();
-        trapCheckCountDownTxt.colSpan = 2;
         trapCheckCountDownTxt.style.textAlign = "left";
-        trapCheckCountDownTxt.width = 160;
         trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
         trapCheckCountDownTxt.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
