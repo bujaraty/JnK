@@ -34,45 +34,9 @@
 const DEBUG_MODE = true;
 
 // // Extra delay time before sounding the horn. (in seconds)
-// ==UserScript==
-// @name         MH_Admirer_by_JnK_beta
-// @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.8
-// @description  beta version of MH Admirer
-// @author       JnK
-// @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
-// @require      https://code.jquery.com/jquery-2.2.2.min.js
-// @require      https://greasyfork.org/scripts/16046-ocrad/code/OCRAD.js?version=100053
-// @require      https://greasyfork.org/scripts/16036-mh-auto-kr-solver/code/MH%20Auto%20KR%20Solver.js?version=102270
-// @include      http://mousehuntgame.com/*
-// @include      https://mousehuntgame.com/*
-// @include      http://www.mousehuntgame.com/*
-// @include      https://www.mousehuntgame.com/*
-// @include      http://www.mousehuntgame.com/camp.php*
-// @include      https://www.mousehuntgame.com/camp.php*
-// @grant        unsafeWindow
-// @grant        GM_info
-// @run-at       document-end
-// @require      http://code.jquery.com/jquery-latest.js
-// ==/UserScript==
-// Issue list
-// - Modify 'Next Bot Horn Time' to use user.last_active_turn_timestamp
-// - Auto change trap setting
-//   - ZToPolicy 2nd half
-//   - IcePolicy and test
-//   - FWaPolicy
-
-// == Basic User Preference Setting (Begin) ==
-// // The variable in this section contain basic option will normally edit by most user to suit their own preference
-// // Reload MouseHunt page manually if edit this script while running it for immediate effect.
-
-// // ERROR CHECKING ONLY: Script debug
-const DEBUG_MODE = true;
-
-// // Extra delay time before sounding the horn. (in seconds)
-// // Default: 2-3
-let g_botHornTimeDelayMin = 2;
-let g_botHornTimeDelayMax = 3;
+// // Default: 5-15
+let g_botHornTimeDelayMin = 5;
+let g_botHornTimeDelayMax = 15;
 
 // // Extra delay time to trap check. (in seconds)
 // // Note: It only take effect if enableTrapCheck = true;
@@ -1779,7 +1743,7 @@ function retrieveCampActiveData() {
                  getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
                  function (data) {
             g_nextHuntTime = new Date();
-            g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS) - 1);
+            g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
         }, function (error) {
             console.error('ajax:', error);
         });
