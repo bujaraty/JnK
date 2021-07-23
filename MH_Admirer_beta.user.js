@@ -853,10 +853,11 @@ class PolicyRodZTo extends Policy {
     }
 }
 
-class PolicyRodCLi extends Policy {
+class PolicyRodCLi extends PolicySingleTrapSetup {
     constructor () {
         super();
         this.trs[0] = ID_TR_RODCLI_ATM_CATALOG_MICE;
+        this.trs[1] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
     resetTrapSetups() {
@@ -870,6 +871,7 @@ class PolicyRodCLi extends Policy {
 
     initSelectTrapSetup() {
         const trapSetups = this.getTrapSetups();
+        this.setSingleTrapSetup(trapSetups);
         document.getElementById(ID_CBX_RODCLI_ATM_CATALOG_MICE).checked = trapSetups[RODCLI_ATM_CATALOG_MICE];
     }
 }
@@ -2218,9 +2220,11 @@ function checkLocation() {
     function runRodCLiPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CRYSTAL_LIBRARY;
         const trapSetups = POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].getTrapSetups();
+        const libraryInfo = getPageVariable("user.quests.QuestZugzwangLibrary");
         if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
-            isNullOrUndefined(getPageVariable("user.quests.QuestZugzwangLibrary.hasResearchQuest")) &&
-            parseInt(getPageVariable("user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest")) == 0) {
+            isNullOrUndefined(libraryInfo.hasResearchQuest) &&
+            parseInt(libraryInfo.secondsRemainingUntilUserCanAcceptQuest) == 0) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Getting Assignment";
             ajaxPost(window.location.origin + '/managers/ajax/environment/zugzwanglibrary.php',
                      getAjaxHeader({"action": "purchase",
                                     "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id"),
@@ -2234,6 +2238,7 @@ function checkLocation() {
                 alert("error getting Library Assignment");
             });
         }
+        armTrap(trapSetups);
     }
 
     function runSDeFWaPolicy() {
@@ -4199,10 +4204,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestFortRox") {
             return unsafeWindow.user.quests.QuestFortRox;
-        } else if (name == "user.quests.QuestZugzwangLibrary.hasResearchQuest") {
-            return unsafeWindow.user.quests.QuestZugzwangLibrary.hasResearchQuest;
-        } else if (name == "user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest") {
-            return unsafeWindow.user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest;
+        } else if (name == "user.quests.QuestZugzwangLibrary") {
+            return unsafeWindow.user.quests.QuestZugzwangLibrary;
         } else if (name == "user.viewing_atts.desert_warpath") {
             return unsafeWindow.user.viewing_atts.desert_warpath;
         }
