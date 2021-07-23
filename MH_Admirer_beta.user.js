@@ -2899,10 +2899,6 @@ function embedUIStructure() {
         rulerCell.style.textAlign = "center";
         rulerCell.style.border = "solid #0000FF";
         rulerCell.innerHTML = rulerCell.width;
-        rulerCell = trRuler.insertCell();
-        rulerCell.style.textAlign = "center";
-        rulerCell.style.border = "solid #0000FF";
-        rulerCell.innerHTML = "cell 8";
 
         // The first row shows title and version (also some misc buttons)
         const trFirst = statusDisplayTable.insertRow();
