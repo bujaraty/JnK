@@ -3037,7 +3037,7 @@ function embedUIStructure() {
         trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
         trapCheckCountDownTxt.innerHTML = "Loading...";
 
-
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3054,7 +3054,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-
+*/
 
         statusSection.appendChild(statusDisplayTable);
 
