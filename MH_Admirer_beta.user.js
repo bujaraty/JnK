@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.9
+// @version      1.3.0.10
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -414,7 +414,7 @@ class Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = [];
+        this._trapSetups = [];
     }
 
     setSingleTrapSetup(trapSetup) {
@@ -486,15 +486,15 @@ class Policy {
     }
 
     getTrapSetups(storageName) {
-        if (isNullOrUndefined(this.trapSetups)) {
+        if (isNullOrUndefined(this._trapSetups)) {
             const tmpStorage = getStorage(storageName, undefined);
             if (isNullOrUndefined(tmpStorage)) {
                 this.resetTrapSetups();
             } else {
-                this.trapSetups = tmpStorage;
+                this._trapSetups = tmpStorage;
             }
         }
-        return this.trapSetups;
+        return this._trapSetups;
     }
 
     getDefaultTrapSetup(trapSetup, baitName, trinketName=ITEM_IGNORE) {
@@ -561,87 +561,81 @@ class PolicySingleTrapSetup extends Policy {
     }
 
     initSelectTrapSetup() {
-        this.setSingleTrapSetup(this.getTrapSetups());
+        this.setSingleTrapSetup(this.trapSetups);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
-        this.getDefaultTrapSetup(trapSetups, baitName);
+        this.getDefaultTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
 
 class PolicyGnaHar extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAHAR);
     }
 }
 
 class PolicyBurMou extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BURMOU);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_RADIOACTIVE_BLUE)? BAIT_RADIOACTIVE_BLUE: undefined;
-        this.getArcaneTrapSetup(trapSetups, baitName);
+        this.getArcaneTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
 
 class PolicyBWoCat extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOCAT);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_RADIOACTIVE_BLUE)? BAIT_RADIOACTIVE_BLUE: undefined;
-        this.getArcaneTrapSetup(trapSetups, baitName);
+        this.getArcaneTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
 
 class PolicyBWoARe extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOARE);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         if (getBaitNames().includes(BAIT_RUNIC)) {
-            this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
+            this.getForgottenTrapSetup(this.trapSetups, BAIT_RUNIC);
         } else {
-            this.getArcaneTrapSetup(trapSetups);
+            this.getArcaneTrapSetup(this.trapSetups);
         }
         this.initSelectTrapSetup();
     }
 }
 
 class PolicyTIsDDu extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_TISDDU);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getPhysicalTrapSetup(trapSetups, baitName);
+        this.getPhysicalTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
 
 class PolicyTIsJoD extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_TISJOD);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getShadowTrapSetup(trapSetups, baitName);
+        this.getShadowTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
@@ -656,20 +650,20 @@ class PolicyVVaCSC extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const phase of VVACSC_PHASES){
-            this.trapSetups[phase] = [];
+            this._trapSetups[phase] = [];
         }
-        this.trapSetups[VVACSC_ATM_POSTER] = true;
-        this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
+        this._trapSetups[VVACSC_ATM_POSTER] = true;
+        this._trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_VVACSC);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         this.setSelectableTrapSetup(trapSetups);
         document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
         document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
@@ -683,7 +677,7 @@ class PolicyVVaCSC extends Policy {
             trapSetup[IDX_TRINKET] = prospectorsCharm;
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const bestWeapon = this.getBestLuckWeapon(POWER_TYPE_LAW);
         const clawShotBase = getBaseNames().includes(BASE_CLAW_SHOT)? BASE_CLAW_SHOT: this.getBestBase();;
         const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
@@ -709,22 +703,22 @@ class PolicyVVaFRo extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const phase of VVAFRO_PHASES){
-            this.trapSetups[phase] = [];
+            this._trapSetups[phase] = [];
         }
-        this.trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
-        this.trapSetups[VVAFRO_ATM_RETREAT] = false;
-        this.trapSetups[VVAFRO_REQUIRED_HOWLITE] = 0;
-        this.trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = 0;
+        this._trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
+        this._trapSetups[VVAFRO_ATM_RETREAT] = false;
+        this._trapSetups[VVAFRO_REQUIRED_HOWLITE] = 0;
+        this._trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = 0;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_VVAFRO);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const currentPhase = document.getElementById(ID_SELECT_VVAFRO_PHASE).value;
         document.getElementById(ID_SELECT_VVAFRO_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
         document.getElementById(ID_SELECT_VVAFRO_BASE).value = trapSetups[currentPhase][IDX_BASE];
@@ -743,7 +737,7 @@ class PolicyVVaFRo extends Policy {
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const baitNames = getBaitNames();
         const brieCheese = baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const baitName = baitNames.includes(BAIT_MOON)? BAIT_MOON: baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
@@ -768,22 +762,22 @@ class PolicyRodSGa extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const season of RODSGA_SEASONS){
-            this.trapSetups[season] = [];
+            this._trapSetups[season] = [];
         }
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSGA);
     }
 
     initSelectTrapSetup() {
-        this.setSelectableTrapSetup(this.getTrapSetups());
+        this.setSelectableTrapSetup(this.trapSetups);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
         this.getPhysicalTrapSetup(trapSetups[RODSGA_SEASON_SPRING], baitName, ITEM_DISARM);
         this.getTacticalTrapSetup(trapSetups[RODSGA_SEASON_SUMMER], baitName, ITEM_DISARM);
@@ -802,19 +796,19 @@ class PolicyRodZTo extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const chessPiece of RODZTO_CHESS_PROGRESS){
-            this.trapSetups[chessPiece] = [];
+            this._trapSetups[chessPiece] = [];
         }
-        this.trapSetups[RODZTO_STRATEGY] = RODZTO_STRATEGY_MYSTIC_ONLY;
+        this._trapSetups[RODZTO_STRATEGY] = RODZTO_STRATEGY_MYSTIC_ONLY;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODZTO);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         this.setSelectableTrapSetup(trapSetups);
         document.getElementById(ID_SELECT_RODZTO_STRATEGY).value = trapSetups[RODZTO_STRATEGY];
     }
@@ -827,7 +821,7 @@ class PolicyRodZTo extends Policy {
             trapSetup[IDX_TRINKET] = trinketName;
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const weaponNames = getWeaponNames();
         const baseNames = getBaseNames();
         const baitNames = getBaitNames();
@@ -870,30 +864,29 @@ class PolicyRodCLi extends PolicySingleTrapSetup {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
-        this.trapSetups[RODCLI_ATM_CATALOG_MICE] = false;
+        this._trapSetups = {};
+        this._trapSetups[RODCLI_ATM_CATALOG_MICE] = false;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODCLI);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         this.setSingleTrapSetup(trapSetups);
         document.getElementById(ID_CBX_RODCLI_ATM_CATALOG_MICE).checked = trapSetups[RODCLI_ATM_CATALOG_MICE];
     }
 }
 
 class PolicyRodSSh extends PolicySingleTrapSetup {
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSSH);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getHydroTrapSetup(trapSetups, baitName);
+        this.getHydroTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
@@ -906,18 +899,18 @@ class PolicyRodIce extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const sublocation of RODICE_SUBLOCATIONS){
-            this.trapSetups[sublocation] = [];
+            this._trapSetups[sublocation] = [];
         }
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODICE);
     }
 
     initSelectTrapSetup() {
-        this.setSelectableTrapSetup(this.getTrapSetups());
+        this.setSelectableTrapSetup(this.trapSetups);
     }
 
     recommendTrapSetup() {
@@ -928,7 +921,7 @@ class PolicyRodIce extends Policy {
             trapSetup[IDX_TRINKET] = trinketName;
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const weaponNames = getWeaponNames();
         const baseNames = getBaseNames();
         const baitNames = getBaitNames();
@@ -973,27 +966,27 @@ class PolicySDeFWa extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const powerType of SDEFWA_POWER_TYPES){
-            this.trapSetups[powerType] = [];
+            this._trapSetups[powerType] = [];
         }
-        this.trapSetups[SDEFWA_LAST_SOLDIER] = [];
-        this.trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = ITEM_DISARM;
+        this._trapSetups[SDEFWA_LAST_SOLDIER] = [];
+        this._trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = ITEM_DISARM;
         for (const wave of SDEFWA_WAVES){
-            this.trapSetups[wave] = {};
+            this._trapSetups[wave] = {};
             if (wave == SDEFWA_WAVE4) {
-                this.trapSetups[wave][STATUS_BEFORE] = [];
-                this.trapSetups[wave][STATUS_AFTER] = [];
+                this._trapSetups[wave][STATUS_BEFORE] = [];
+                this._trapSetups[wave][STATUS_AFTER] = [];
             } else {
                 for (let steak = 0; steak <= SDEFWA_MAX_STREAKS; steak++) {
-                    this.trapSetups[wave][steak] = [];
+                    this._trapSetups[wave][steak] = [];
                 }
-                this.trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
+                this._trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
             }
         }
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEFWA);
     }
 
@@ -1010,7 +1003,7 @@ class PolicySDeFWa extends Policy {
             }
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const currentPowerType = document.getElementById(ID_SELECT_SDEFWA_POWER_TYPE).value;
         document.getElementById(ID_SELECT_SDEFWA_SOLDIER_WEAPON).value = trapSetups[currentPowerType][IDX_WEAPON];
         document.getElementById(ID_SELECT_SDEFWA_SOLDIER_BASE).value = trapSetups[currentPowerType][IDX_BASE];
@@ -1035,7 +1028,7 @@ class PolicySDeFWa extends Policy {
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const bestBase = this.getBestBase();
         const bestArcaneWeapon = this.getBestLuckWeapon(POWER_TYPE_ARCANE);
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
@@ -2014,7 +2007,7 @@ function checkLocation() {
 
     function runSingleTrapSetupPolicy(policyName) {
         document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
-        const trapSetups = g_policies.getPolicy(policyName).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(policyName).trapSetups;
         armTrap(trapSetups);
     }
 
@@ -2034,7 +2027,7 @@ function checkLocation() {
                 break;
             default:
         }
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_HARBOUR).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_HARBOUR).trapSetups;
         armTrap(trapSetups);
     }
 
@@ -2055,7 +2048,7 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups;
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
             trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
@@ -2122,7 +2115,7 @@ function checkLocation() {
 
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
         const fortRoxInfo = getPageVariable("user.quests.QuestFortRox");
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_FORT_ROX).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups;
         if (fortRoxInfo.current_phase != "day" &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
             parseInt(fortRoxInfo.items.howlite_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
@@ -2185,7 +2178,7 @@ function checkLocation() {
 
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
         const currentSeason = getRodSGaSeason();
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_SEASONAL_GARDEN).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_SEASONAL_GARDEN).trapSetups;
         armTrap(trapSetups[currentSeason]);
     }
 
@@ -2270,7 +2263,7 @@ function checkLocation() {
         const UNLOCK_CHESS_MASTER = "Unlock Chess Master";
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ZUGZWANGS_TOWER;
         const towerProgress = getTowerProgress();
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups;
         switch(trapSetups[RODZTO_STRATEGY]) {
             case RODZTO_STRATEGY_MYSTIC_ONLY:
                 armTrap(trapSetups[towerProgress[NEXT_MYSTIC_TARGET]]);
@@ -2288,7 +2281,7 @@ function checkLocation() {
 
     function runRodCLiPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CRYSTAL_LIBRARY;
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).trapSetups;
         const libraryInfo = getPageVariable("user.quests.QuestZugzwangLibrary");
         if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
             isNullOrUndefined(libraryInfo.hasResearchQuest) &&
@@ -2436,7 +2429,7 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         const SUPER_WARPATH_SCOUT_CHARM = "Super Warpath Scout Charm";
         const WARPATH_WARRIOR_CHARM = "Warpath Warrior Charm";
         const SUPER_WARPATH_WARRIOR_CHARM = "Super Warpath Warrior Charm";
-        const trapSetups = g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups;
         const warpathInfo = getPageVariable("user.viewing_atts.desert_warpath");
         const trinketNames = getTrinketNames();
         switch(warpathInfo.wave) {

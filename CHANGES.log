@@ -1,5 +1,8 @@
+Version 1.3.0.10
+- Replace getTrapSetups with trapSetups getter
+
 Version 1.3.0.9
-- instantiate the Policy class at real time only when it's needed instead of create all the instances at the beginning of the script.
+- Instantiate the Policy class at real time only when it's needed instead of create all the instances at the beginning of the script.
 
 Version 1.3.0.8
 - Separate TrapCheck process from HornTime/KR process (Doing trap check while KR)
