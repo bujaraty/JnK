@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.8
+// @version      1.3.0.9
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,7 +20,6 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - instantiate the Policy class at real time only when it's needed instead of create all the instances at the beginning of the script.
 // - Add Active Quest Preferences, which will override checklocation and automatically Travel as needed. Possible Quests include
 //   - QUEST_NO_QUEST, default, basically, only do the checkLocation
 //   - Queso Canyon area
@@ -412,10 +411,6 @@ class Policy {
         this.trs = [];
         this.bestPowerWeapons = {};
         this.bestLuckWeapons = {};
-    }
-
-    setName(name) {
-        this.name = name;
     }
 
     resetTrapSetups() {
@@ -1007,7 +1002,7 @@ class PolicySDeFWa extends Policy {
             const currentWave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
             const WAVE4_DISPLAY = currentWave == SDEFWA_WAVE4? "table-row": "none";
             const WAVE123_DISPLAY = currentWave == SDEFWA_WAVE4? "none": "table-row";
-            for (const tr of POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trs){
+            for (const tr of g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trs){
                 if (tr == ID_TR_SELECT_SDEFWA_WAVE) {
                     continue;
                 }
@@ -1089,24 +1084,79 @@ class PolicySDeFWa extends Policy {
     }
 }
 
-const POLICY_DICT = {};
-function initPolicyDict() {
-    POLICY_DICT[POLICY_NAME_HARBOUR] = new PolicyGnaHar();
-    POLICY_DICT[POLICY_NAME_MOUSOLEUM] = new PolicyBurMou();
-    POLICY_DICT[POLICY_NAME_CATACOMBS] = new PolicyBWoCat();
-    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
-    POLICY_DICT[POLICY_NAME_DERR_DUNES] = new PolicyTIsDDu();
-    POLICY_DICT[POLICY_NAME_JUNGLE_OF_DREAD] = new PolicyTIsJoD();
-    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
-    POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyVVaFRo();
-    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
-    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyRodZTo();
-    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyRodCLi();
-    POLICY_DICT[POLICY_NAME_SLUSHY_SHORELINE] = new PolicyRodSSh();
-    POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyRodIce();
-    POLICY_DICT[POLICY_NAME_FIERY_WARPATH] = new PolicySDeFWa();
+class Policies {
+    constructor() {
+        this._policyDict = {}
+        this.list = [];
+        this.list.push(POLICY_NAME_HARBOUR);
+        this.list.push(POLICY_NAME_MOUSOLEUM);
+        this.list.push(POLICY_NAME_CATACOMBS);
+        this.list.push(POLICY_NAME_ACOLYTE_REALM);
+        this.list.push(POLICY_NAME_DERR_DUNES);
+        this.list.push(POLICY_NAME_JUNGLE_OF_DREAD);
+        this.list.push(POLICY_NAME_CLAW_SHOT_CITY);
+        this.list.push(POLICY_NAME_FORT_ROX);
+        this.list.push(POLICY_NAME_SEASONAL_GARDEN);
+        this.list.push(POLICY_NAME_ZUGZWANGS_TOWER);
+        this.list.push(POLICY_NAME_CRYSTAL_LIBRARY);
+        this.list.push(POLICY_NAME_SLUSHY_SHORELINE);
+        this.list.push(POLICY_NAME_ICEBERG);
+        this.list.push(POLICY_NAME_FIERY_WARPATH);
+    }
+
+    getPolicy(policyName) {
+        if (!(policyName in this._policyDict)) {
+            switch(policyName) {
+                case POLICY_NAME_HARBOUR:
+                    this._policyDict[policyName] = new PolicyGnaHar();
+                    break;
+                case POLICY_NAME_MOUSOLEUM:
+                    this._policyDict[policyName] = new PolicyBurMou();
+                    break;
+                case POLICY_NAME_CATACOMBS:
+                    this._policyDict[policyName] = new PolicyBWoCat();
+                    break;
+                case POLICY_NAME_ACOLYTE_REALM:
+                    this._policyDict[policyName] = new PolicyBWoARe();
+                    break;
+                case POLICY_NAME_DERR_DUNES:
+                    this._policyDict[policyName] = new PolicyTIsDDu();
+                    break;
+                case POLICY_NAME_JUNGLE_OF_DREAD:
+                    this._policyDict[policyName] = new PolicyTIsJoD();
+                    break;
+                case POLICY_NAME_CLAW_SHOT_CITY:
+                    this._policyDict[policyName] = new PolicyVVaCSC();
+                    break;
+                case POLICY_NAME_FORT_ROX:
+                    this._policyDict[policyName] = new PolicyVVaFRo();
+                    break;
+                case POLICY_NAME_SEASONAL_GARDEN:
+                    this._policyDict[policyName] = new PolicyRodSGa();
+                    break;
+                case POLICY_NAME_ZUGZWANGS_TOWER:
+                    this._policyDict[policyName] = new PolicyRodZTo();
+                    break;
+                case POLICY_NAME_CRYSTAL_LIBRARY:
+                    this._policyDict[policyName] = new PolicyRodCLi();
+                    break;
+                case POLICY_NAME_SLUSHY_SHORELINE:
+                    this._policyDict[policyName] = new PolicyRodSSh();
+                    break;
+                case POLICY_NAME_ICEBERG:
+                    this._policyDict[policyName] = new PolicyRodIce();
+                    break;
+                case POLICY_NAME_FIERY_WARPATH:
+                    this._policyDict[policyName] = new PolicySDeFWa();
+                    break;
+                default:
+            }
+        }
+        return this._policyDict[policyName];
+    }
 }
 
+const g_policies = new Policies();
 function loadTrapInfo() {
     g_trapInfo = getStorage(STORAGE_TRAP_INFO, undefined);
 }
@@ -1364,7 +1414,7 @@ function execScript() {
     if (DEBUG_MODE) console.log('RUN %cexeScript()', 'color: #9cffbd');
 
     try {
-        initPolicyDict();
+//        initPolicyDict();
         setBotDocumentStyle();
         loadPreferenceSettingFromStorage();
         retrieveCampActiveData();
@@ -1964,7 +2014,7 @@ function checkLocation() {
 
     function runSingleTrapSetupPolicy(policyName) {
         document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
-        const trapSetups = POLICY_DICT[policyName].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(policyName).getTrapSetups();
         armTrap(trapSetups);
     }
 
@@ -1984,7 +2034,7 @@ function checkLocation() {
                 break;
             default:
         }
-        const trapSetups = POLICY_DICT[POLICY_NAME_HARBOUR].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_HARBOUR).getTrapSetups();
         armTrap(trapSetups);
     }
 
@@ -2005,7 +2055,7 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
-        const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).getTrapSetups();
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
             trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
@@ -2072,7 +2122,7 @@ function checkLocation() {
 
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
         const fortRoxInfo = getPageVariable("user.quests.QuestFortRox");
-        const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_FORT_ROX).getTrapSetups();
         if (fortRoxInfo.current_phase != "day" &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
             parseInt(fortRoxInfo.items.howlite_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
@@ -2135,7 +2185,7 @@ function checkLocation() {
 
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
         const currentSeason = getRodSGaSeason();
-        const trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_SEASONAL_GARDEN).getTrapSetups();
         armTrap(trapSetups[currentSeason]);
     }
 
@@ -2220,7 +2270,7 @@ function checkLocation() {
         const UNLOCK_CHESS_MASTER = "Unlock Chess Master";
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ZUGZWANGS_TOWER;
         const towerProgress = getTowerProgress();
-        const trapSetups = POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).getTrapSetups();
         switch(trapSetups[RODZTO_STRATEGY]) {
             case RODZTO_STRATEGY_MYSTIC_ONLY:
                 armTrap(trapSetups[towerProgress[NEXT_MYSTIC_TARGET]]);
@@ -2238,7 +2288,7 @@ function checkLocation() {
 
     function runRodCLiPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CRYSTAL_LIBRARY;
-        const trapSetups = POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).getTrapSetups();
         const libraryInfo = getPageVariable("user.quests.QuestZugzwangLibrary");
         if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
             isNullOrUndefined(libraryInfo.hasResearchQuest) &&
@@ -2386,7 +2436,7 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         const SUPER_WARPATH_SCOUT_CHARM = "Super Warpath Scout Charm";
         const WARPATH_WARRIOR_CHARM = "Warpath Warrior Charm";
         const SUPER_WARPATH_WARRIOR_CHARM = "Super Warpath Warrior Charm";
-        const trapSetups = POLICY_DICT[POLICY_NAME_FIERY_WARPATH].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).getTrapSetups();
         const warpathInfo = getPageVariable("user.viewing_atts.desert_warpath");
         const trinketNames = getTrinketNames();
         switch(warpathInfo.wave) {
@@ -2539,11 +2589,6 @@ function testLoadObjFromStorage() {
     debugObj(tmpInfo);
 }
 
-function testDict() {
-    const tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
-    alert(tmpPolicy.trapSetups[RODSGA_SEASON_SPRING].weapon);
-}
-
 function testSortObj() {
     function debugObj(obj) {
         let tempTxt = "";
@@ -2611,25 +2656,20 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
-function testTime() {
-    const currentTime = new Date();
-    alert(currentTime.toLocaleTimeString());
-    currentTime.setSeconds( currentTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS) );
-    alert(currentTime);
-    const latestTime = new Date();
-    alert(latestTime);
-    if (latestTime > currentTime) {
-        alert("correct");
-    } else {
-        alert("wrong");
+function testPolicies() {
+    /*
+    for (const policy of g_policies.list) {
+        alert(policy);
     }
+    */
+    alert(g_policies.harbour.trs[0]);
+    alert(g_policies.harbour.trs[0]);
 }
 
 function test1() {
-    testTime();
+    testPolicies();
     //testSortObj();
     //checkLocation();
-    //testDict();
     //testSaveObjToStorage();
     //displayDocumentStyles();
 }
@@ -2997,7 +3037,7 @@ function embedUIStructure() {
         trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
         trapCheckCountDownTxt.innerHTML = "Loading...";
 
-        /*
+
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3014,7 +3054,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("test 2");
         test2Button.appendChild(tmpTxt);
         testButtonsCell.appendChild(test2Button);
-*/
+
 
         statusSection.appendChild(statusDisplayTable);
 
@@ -3351,7 +3391,7 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_TISJOD;
                             break;
                         case POLICY_NAME_CLAW_SHOT_CITY:
-                            setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             insertVVaCSCPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_VVACSC;
                             break;
@@ -3360,11 +3400,11 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_VVAFRO;
                             break;
                         case POLICY_NAME_SEASONAL_GARDEN:
-                            setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             policyStorage = STORAGE_TRAP_SETUP_RODSGA;
                             break;
                         case POLICY_NAME_ZUGZWANGS_TOWER:
-                            setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             insertRodZToPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODZTO;
                             break;
@@ -3376,7 +3416,7 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_RODSSH;
                             break;
                         case POLICY_NAME_ICEBERG:
-                            setSelectSelectableItem(POLICY_DICT[currentPolicy].selectableValues);
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             policyStorage = STORAGE_TRAP_SETUP_RODICE;
                             break;
                         case POLICY_NAME_FIERY_WARPATH:
@@ -3385,8 +3425,9 @@ function embedUIStructure() {
                             break;
                         default:
                     }
-                    for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                        const tmpPolicy = POLICY_DICT[policyName];
+
+                    for (const policyName of g_policies.list) {
+                        const tmpPolicy = g_policies.getPolicy(policyName);
                         if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
                             continue;
                         }
@@ -3394,11 +3435,11 @@ function embedUIStructure() {
                             document.getElementById(tr).style.display = "none";
                         }
                     }
-                    for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
+                    for (const policyName of g_policies.list) {
                         if (event.target.value != policyName) {
                             continue;
                         }
-                        const tmpPolicy = POLICY_DICT[policyName];
+                        const tmpPolicy = g_policies.getPolicy(policyName);
                         if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
                             continue;
                         }
@@ -3414,13 +3455,13 @@ function embedUIStructure() {
                 }
 
                 function recommendTrapSetup() {
-                    POLICY_DICT[currentPolicy].recommendTrapSetup();
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).recommendTrapSetup();
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 function resetTrapSetup() {
-                    POLICY_DICT[currentPolicy].resetTrapSetups();
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).resetTrapSetups();
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                     reloadCampPage();
                 }
 
@@ -3434,7 +3475,7 @@ function embedUIStructure() {
                 const selectPolicyCell = trSelectPolicy.insertCell();
                 const selectPolicy = getSelectItem("Select policy", undefined, onChangePolicy, false, false, false);
                 selectPolicy.style.width = "120px";
-                addOptions(selectPolicy, Object.keys(POLICY_DICT));
+                addOptions(selectPolicy, g_policies.list);
                 selectPolicyCell.appendChild(selectPolicy);
                 tmpTxt = document.createTextNode("  ");
                 selectPolicyCell.appendChild(tmpTxt);
@@ -3458,23 +3499,23 @@ function embedUIStructure() {
 
             function insertSingleTrapSetupRow() {
                 function saveSingleWeapon(event) {
-                    POLICY_DICT[currentPolicy].trapSetups[IDX_WEAPON] = event.target.value;
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_WEAPON] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 function saveSingleBase(event) {
-                    POLICY_DICT[currentPolicy].trapSetups[IDX_BASE] = event.target.value;
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_BASE] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 function saveSingleBait(event) {
-                    POLICY_DICT[currentPolicy].trapSetups[IDX_BAIT] = event.target.value;
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_BAIT] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 function saveSingleTrinket(event) {
-                    POLICY_DICT[currentPolicy].trapSetups[IDX_TRINKET] = event.target.value;
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_TRINKET] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 let tmpTxt;
@@ -3501,13 +3542,13 @@ function embedUIStructure() {
 
             function insertSelectableTrapSetupRow() {
                 function onChangeSelectableTrapSetup(event) {
-                    POLICY_DICT[currentPolicy].initSelectTrapSetup();
+                    g_policies.getPolicy(currentPolicy).initSelectTrapSetup();
                 }
 
                 function saveSelectableItem(itemIndex, value) {
                     const selectedTrapSetup = document.getElementById(ID_SELECT_SELECTABLE_TRAP_SETUP).value;
-                    POLICY_DICT[currentPolicy].trapSetups[selectedTrapSetup][itemIndex] = value;
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).trapSetups[selectedTrapSetup][itemIndex] = value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 function saveSelectableWeapon(event) {
@@ -3557,13 +3598,13 @@ function embedUIStructure() {
 
             function insertVVaCSCPolicyPreferences() {
                 function saveVVaCSCAtmPoster(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups);
                 }
 
                 function saveVVaCSCAtmCactusCharm(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups);
                 }
 
                 let captionCell;
@@ -3615,13 +3656,13 @@ function embedUIStructure() {
 
             function insertVVaFRoPolicyPreferences() {
                 function onChangeSelectVVaFRoPhase(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).initSelectTrapSetup();
                 }
 
                 function saveVVaFRoSetup(itemIndex, value) {
                     const currentPhase = document.getElementById(ID_SELECT_VVAFRO_PHASE).value;
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[currentPhase][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[currentPhase][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 function saveVVaFRoWeapon(event) {
@@ -3645,33 +3686,33 @@ function embedUIStructure() {
                 }
 
                 function saveVVaFRoAtmDeactivate(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_DEACTIVATE] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_DEACTIVATE] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 function saveVVaFRoAtmRetreat(event) {
                     if (!event.target.checked) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
-                        setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                        g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
+                        setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                     }
                     document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).disabled = !event.target.checked;
                     document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).disabled = !event.target.checked;
                 }
 
                 function saveVVaFRoRequiredHowlite(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
                     if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
+                        g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = true;
                     }
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 function saveVVaFRoRequiredBloodstone(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
                     if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
+                        g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = true;
                     }
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 let captionCell;
@@ -3767,8 +3808,8 @@ function embedUIStructure() {
 
             function insertRodZToPolicyPreferences() {
                 function onChangeSelectRodZToStrategy(event) {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[RODZTO_STRATEGY] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups[RODZTO_STRATEGY] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_RODZTO, g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups);
                 }
 
                 const trRodZToStrategy = policyPreferencesTable.insertRow();
@@ -3787,8 +3828,8 @@ function embedUIStructure() {
 
             function insertRodCLiPolicyPreferences() {
                 function saveRodCLiCheckbox(event) {
-                    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups[RODCLI_ATM_CATALOG_MICE] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_RODCLI, POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).trapSetups[RODCLI_ATM_CATALOG_MICE] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_RODCLI, g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).trapSetups);
                 }
 
                 const trRodCLiAtmCatalogMice = policyPreferencesTable.insertRow();
@@ -3810,13 +3851,13 @@ function embedUIStructure() {
 
             function insertSDeFWaPolicyPreferences() {
                 function onChangeSelectSDeFWaWave(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
                 }
 
                 function saveSoldierSetup(itemIndex, value) {
                     const powerType = document.getElementById(ID_SELECT_SDEFWA_POWER_TYPE).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[powerType][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[powerType][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaSoldierWeapon(event) {
@@ -3829,19 +3870,19 @@ function embedUIStructure() {
 
                 function saveSDeFWaTargetPopulation(event) {
                     const wave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function onChangeSelectSDeFWaStreak(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
                 }
 
                 function saveStreakSetup(itemIndex, value) {
                     const streak = document.getElementById(ID_SELECT_SDEFWA_STREAK).value;
                     const wave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[wave][streak][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[wave][streak][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaStreakBait(event) {
@@ -3857,28 +3898,28 @@ function embedUIStructure() {
                 }
 
                 function saveSDeFWaLastSoldierBait(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaLastSoldierCharmType(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaArmingWarpathCharm(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function onChangeSelectSDeFWaBeforeAfterWardens(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
                 }
 
                 function saveWave4Setup(itemIndex, value) {
                     const status = document.getElementById(ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_WAVE4][status][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_WAVE4][status][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaWave4Weapon(event) {
