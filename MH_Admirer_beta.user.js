@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.10
+// @version      1.3.0.11
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -242,6 +242,8 @@ const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_GNAHAR = "trapSetupGnaHar";
+const STORAGE_TRAP_SETUP_WWOCCL = "trapSetupWWoCCl";
+const STORAGE_TRAP_SETUP_WWOGGT = "trapSetupWWoGGT";
 const STORAGE_TRAP_SETUP_BURMOU = "trapSetupBurMou";
 const STORAGE_TRAP_SETUP_BWOCAT = "trapSetupBWoCat";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
@@ -376,6 +378,8 @@ const SDEFWA_STREAK_SOLDIER_TYPES = [SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER, SDEFWA_
 const SDEFWA_LAST_SOLDIER = "Last Soldier";
 const SDEFWA_ARMING_CHARM_SUPPORT_RETREAT = "Arming Charm";
 const LOCATION_HARBOUR = "Harbour";
+const LOCATION_CALM_CLEARING = "Calm Clearing";
+const LOCATION_GREAT_GNARLED_TREE = "Great Gnarled Tree";
 const LOCATION_MOUSOLEUM = "Mousoleum";
 const LOCATION_CATACOMBS = "Catacombs";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
@@ -391,6 +395,8 @@ const LOCATION_ICEBERG = "Iceberg";
 const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
+const POLICY_NAME_CALM_CLEARING = "Calm Clearing";
+const POLICY_NAME_GREAT_GNARLED_TREE = "Great Gnarled Tree";
 const POLICY_NAME_MOUSOLEUM = "Mousoleum";
 const POLICY_NAME_CATACOMBS = "Catacombs";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
@@ -497,7 +503,7 @@ class Policy {
         return this._trapSetups;
     }
 
-    getDefaultTrapSetup(trapSetup, baitName, trinketName=ITEM_IGNORE) {
+    getDefaultTrapSetup(trapSetup, baitName, trinketName) {
         trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_OVERALL);
         trapSetup[IDX_BASE] = this.getBestBase();
         if ( !isNullOrUndefined(baitName)) {
@@ -574,6 +580,23 @@ class PolicySingleTrapSetup extends Policy {
 class PolicyGnaHar extends PolicySingleTrapSetup {
     get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAHAR);
+    }
+}
+
+class PolicyWWoCCl extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_WWOCCL);
+    }
+}
+
+class PolicyWWoGGT extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_WWOGGT);
+    }
+
+    recommendTrapSetup() {
+        this.getTacticalTrapSetup(this.trapSetups);
+        this.initSelectTrapSetup();
     }
 }
 
@@ -1082,6 +1105,8 @@ class Policies {
         this._policyDict = {}
         this.list = [];
         this.list.push(POLICY_NAME_HARBOUR);
+        this.list.push(POLICY_NAME_CALM_CLEARING);
+        this.list.push(POLICY_NAME_GREAT_GNARLED_TREE);
         this.list.push(POLICY_NAME_MOUSOLEUM);
         this.list.push(POLICY_NAME_CATACOMBS);
         this.list.push(POLICY_NAME_ACOLYTE_REALM);
@@ -1102,6 +1127,12 @@ class Policies {
             switch(policyName) {
                 case POLICY_NAME_HARBOUR:
                     this._policyDict[policyName] = new PolicyGnaHar();
+                    break;
+                case POLICY_NAME_CALM_CLEARING:
+                    this._policyDict[policyName] = new PolicyWWoCCl();
+                    break;
+                case POLICY_NAME_GREAT_GNARLED_TREE:
+                    this._policyDict[policyName] = new PolicyWWoGGT();
                     break;
                 case POLICY_NAME_MOUSOLEUM:
                     this._policyDict[policyName] = new PolicyBurMou();
@@ -2485,6 +2516,12 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_HARBOUR:
             runGnaHarPolicy();
             break;
+        case LOCATION_CALM_CLEARING:
+            runSingleTrapSetupPolicy(POLICY_NAME_CALM_CLEARING);
+            break;
+        case LOCATION_GREAT_GNARLED_TREE:
+            runSingleTrapSetupPolicy(POLICY_NAME_GREAT_GNARLED_TREE);
+            break;
         case LOCATION_MOUSOLEUM:
             runSingleTrapSetupPolicy(POLICY_NAME_MOUSOLEUM);
             break;
@@ -2649,18 +2686,7 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
-function testPolicies() {
-    /*
-    for (const policy of g_policies.list) {
-        alert(policy);
-    }
-    */
-    alert(g_policies.harbour.trs[0]);
-    alert(g_policies.harbour.trs[0]);
-}
-
 function test1() {
-    testPolicies();
     //testSortObj();
     //checkLocation();
     //testSaveObjToStorage();
@@ -3367,6 +3393,12 @@ function embedUIStructure() {
                     switch(currentPolicy) {
                         case POLICY_NAME_HARBOUR:
                             policyStorage = STORAGE_TRAP_SETUP_GNAHAR;
+                            break;
+                        case POLICY_NAME_CALM_CLEARING:
+                            policyStorage = STORAGE_TRAP_SETUP_WWOCCL;
+                            break;
+                        case POLICY_NAME_GREAT_GNARLED_TREE:
+                            policyStorage = STORAGE_TRAP_SETUP_WWOGGT;
                             break;
                         case POLICY_NAME_MOUSOLEUM:
                             policyStorage = STORAGE_TRAP_SETUP_BURMOU;
