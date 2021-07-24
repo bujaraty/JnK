@@ -20,7 +20,14 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-// - Modify 'Next Bot Horn Time' to use user.last_active_turn_timestamp
+// - instantiate the Policy class at real time only when it's needed instead of create all the instances at the beginning of the script.
+// - Add Active Quest Preferences, which will override checklocation and automatically Travel as needed. Possible Quests include
+//   - QUEST_NO_QUEST, default, basically, only do the checkLocation
+//   - Queso Canyon area
+//   - Treasure Map
+//   - Living Garden area
+//   - Farming Realm Ripper
+// - Add Policy for WWoGGT, GnaMou
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - IcePolicy and test
@@ -1743,7 +1750,7 @@ function retrieveCampActiveData() {
                  getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
                  function (data) {
             g_nextHuntTime = new Date();
-            g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
+            g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS) - 1);
         }, function (error) {
             console.error('ajax:', error);
         });
