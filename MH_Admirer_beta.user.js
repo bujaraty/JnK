@@ -138,7 +138,9 @@ const TRINKET_CACTUS_CHARM = "Cactus Charm";
 const TRINKET_POWER = "Power Charm";
 const TRINKET_PROSPECTORS = "Prospector's Charm";
 const TRINKET_ROOK_CRUMBLE = "Rook Crumble Charm";
+const TRINKET_SMALL_POWER = "Small Power Charm";
 const TRINKET_STICKY = "Sticky Charm";
+const TRINKET_SUPER_POWER = "Super Power Charm"
 const TRINKET_VALENTINE = "Valentine Charm";
 const TRINKET_WAX = "Wax Charm";
 const WEAPON_MYSTIC_PAWN_PINCHER = "Mystic Pawn Pincher";
@@ -184,6 +186,10 @@ const ID_SELECT_SELECTABLE_WEAPON = "selectSelectableWeapon";
 const ID_SELECT_SELECTABLE_BASE = "selectSelectableBase";
 const ID_SELECT_SELECTABLE_BAIT = "selectSelectableBait";
 const ID_SELECT_SELECTABLE_TRINKET = "selectSelectableTrinket";
+const ID_TR_GNAMOU_ATM_SMASH = "trGnaMouAtmSmash";
+const ID_CBX_GNAMOU_ATM_SMASH = "cbxGnaMouAtmSmash";
+const ID_TR_GNAMOU_ATM_SWITCH_CHARM = "trGnaMouAtmSwitchCharm";
+const ID_CBX_GNAMOU_ATM_SWITCH_CHARM = "cbxGnaMouAtmSwitchCharm";
 const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
 const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
 const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
@@ -242,6 +248,7 @@ const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
 const STORAGE_TRAP_SETUP_GNAHAR = "trapSetupGnaHar";
+const STORAGE_TRAP_SETUP_GNAMOU = "trapSetupGnaMou";
 const STORAGE_TRAP_SETUP_WWOCCL = "trapSetupWWoCCl";
 const STORAGE_TRAP_SETUP_WWOGGT = "trapSetupWWoGGT";
 const STORAGE_TRAP_SETUP_BURMOU = "trapSetupBurMou";
@@ -292,6 +299,8 @@ const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_PROCESS_TIMER = "Timer";
 const BOT_PROCESS_MANUAL = "Manual";
 const BOT_STATUS_IDLE = "Idle";
+const GNAMOU_ATM_SWITCH_CHARM = "Automatic Switch Charm";
+const GNAMOU_ATM_SMASH = "Automatic Smash";
 const VVACSC_PHASE_LAWLESS = "lawless";
 const VVACSC_PHASE_NEED_POSTER = "need_poster";
 const VVACSC_PHASE_HAS_POSTER = "has_poster";
@@ -380,6 +389,7 @@ const SDEFWA_STREAK_SOLDIER_TYPES = [SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER, SDEFWA_
 const SDEFWA_LAST_SOLDIER = "Last Soldier";
 const SDEFWA_ARMING_CHARM_SUPPORT_RETREAT = "Arming Charm";
 const LOCATION_HARBOUR = "Harbour";
+const LOCATION_MOUNTAIN = "Mountain";
 const LOCATION_CALM_CLEARING = "Calm Clearing";
 const LOCATION_GREAT_GNARLED_TREE = "Great Gnarled Tree";
 const LOCATION_MOUSOLEUM = "Mousoleum";
@@ -398,6 +408,7 @@ const LOCATION_FIERY_WARPATH = "Fiery Warpath";
 const LOCATION_MURIDAE_MARKET = "Muridae Market";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
+const POLICY_NAME_MOUNTAIN = "Mountain";
 const POLICY_NAME_CALM_CLEARING = "Calm Clearing";
 const POLICY_NAME_GREAT_GNARLED_TREE = "Great Gnarled Tree";
 const POLICY_NAME_MOUSOLEUM = "Mousoleum";
@@ -584,6 +595,32 @@ class PolicySingleTrapSetup extends Policy {
 class PolicyGnaHar extends PolicySingleTrapSetup {
     get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAHAR);
+    }
+}
+
+class PolicyGnaMou extends PolicySingleTrapSetup {
+    constructor () {
+        super();
+        this.trs[0] = ID_TR_GNAMOU_ATM_SMASH;
+        this.trs[1] = ID_TR_GNAMOU_ATM_SWITCH_CHARM;
+        this.trs[2] = ID_TR_SINGLE_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this._trapSetups = {};
+        this._trapSetups[GNAMOU_ATM_SMASH] = true;
+        this._trapSetups[GNAMOU_ATM_SWITCH_CHARM] = true;
+    }
+
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAMOU);
+    }
+
+    initSelectTrapSetup() {
+        const trapSetups = this.trapSetups;
+        this.setSingleTrapSetup(trapSetups);
+        document.getElementById(ID_CBX_GNAMOU_ATM_SMASH).checked = trapSetups[GNAMOU_ATM_SMASH];
+        document.getElementById(ID_CBX_GNAMOU_ATM_SWITCH_CHARM).checked = trapSetups[GNAMOU_ATM_SWITCH_CHARM];
     }
 }
 
@@ -1120,6 +1157,7 @@ class Policies {
         this._policyDict = {}
         this.list = [];
         this.list.push(POLICY_NAME_HARBOUR);
+        this.list.push(POLICY_NAME_MOUNTAIN);
         this.list.push(POLICY_NAME_CALM_CLEARING);
         this.list.push(POLICY_NAME_GREAT_GNARLED_TREE);
         this.list.push(POLICY_NAME_MOUSOLEUM);
@@ -1143,6 +1181,9 @@ class Policies {
             switch(policyName) {
                 case POLICY_NAME_HARBOUR:
                     this._policyDict[policyName] = new PolicyGnaHar();
+                    break;
+                case POLICY_NAME_MOUNTAIN:
+                    this._policyDict[policyName] = new PolicyGnaMou();
                     break;
                 case POLICY_NAME_CALM_CLEARING:
                     this._policyDict[policyName] = new PolicyWWoCCl();
@@ -2014,6 +2055,9 @@ function checkLocation() {
                 for (const component of data.components){
                     if (component.name == policyItemName && component.quantity > 0) {
                         // the item does exist, so arm the item !!
+                        if (!lockBot(BOT_PROCESS_POLICY)) {
+                            return;
+                        }
                         armItem(classification, targetItemType);
                         window.setTimeout(function () {
                             reloadCampPage();
@@ -2026,7 +2070,7 @@ function checkLocation() {
                 console.error('ajax:', error);
                 alert("error checking item quantity");
             });
-        } else if (!isNullOrUndefined(targetItemType)) {
+        } else if (!isNullOrUndefined(targetItemType) && lockBot(BOT_PROCESS_POLICY)) {
             // Same as the previous if condition but this apply to only Weapon and Base, which are hard to disappear
             // So no Ajax checking need, just go straight to the arming process
             armItem(classification, targetItemType);
@@ -2035,9 +2079,6 @@ function checkLocation() {
     }
 
     function armTrap(trapSetup) {
-        if (!lockBot(BOT_PROCESS_POLICY)) {
-            return;
-        }
         let delayTime = 0;
         if (!isNullOrUndefined(checkThenArmItem(CLASSIFICATION_WEAPON, trapSetup[IDX_WEAPON]))) {
             delayTime += 1;
@@ -2081,6 +2122,47 @@ function checkLocation() {
             default:
         }
         const trapSetups = g_policies.getPolicy(POLICY_NAME_HARBOUR).trapSetups;
+        armTrap(trapSetups);
+    }
+
+    function runGnaMouPolicy() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_MOUNTAIN;
+        const mountainInfo = getPageVariable("user.quests.QuestMountain");
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups;
+        if (trapSetups[GNAMOU_ATM_SMASH] && mountainInfo.boulder_hp == 0 && lockBot(BOT_PROCESS_POLICY)) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Smashing the boulder";
+            ajaxPost(window.location.origin + '/managers/ajax/environment/mountain.php',
+                     getAjaxHeader({"action": "claim_reward", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                     function (data) {
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, 2 * 1000);
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error Smashing the boulder");
+            });
+        }
+        if (trapSetups[GNAMOU_ATM_SWITCH_CHARM]) {
+            if (mountainInfo.boulder_hp > 300) {
+                if (parseInt(mountainInfo.items.super_power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_SUPER_POWER;
+                } else if (parseInt(mountainInfo.items.power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_POWER;
+                } else if (parseInt(mountainInfo.items.weak_power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_SMALL_POWER;
+                }
+            } else if (mountainInfo.boulder_hp > 60) {
+                if (parseInt(mountainInfo.items.power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_POWER;
+                } else if (parseInt(mountainInfo.items.weak_power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_SMALL_POWER;
+                }
+            } else if (parseInt(mountainInfo.items.weak_power_trinket.quantity) > 0) {
+                trapSetups[IDX_TRINKET] = TRINKET_SMALL_POWER;
+            } else if (parseInt(mountainInfo.items.power_trinket.quantity) > 0) {
+                trapSetups[IDX_TRINKET] = TRINKET_POWER;
+            }
+        }
         armTrap(trapSetups);
     }
 
@@ -2540,6 +2622,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_HARBOUR:
             runGnaHarPolicy();
             break;
+        case LOCATION_MOUNTAIN:
+            runGnaMouPolicy();
+            break;
         case LOCATION_CALM_CLEARING:
             runSingleTrapSetupPolicy(POLICY_NAME_CALM_CLEARING);
             break;
@@ -2715,7 +2800,7 @@ function testSortObj() {
 
 function test1() {
     //testSortObj();
-    //checkLocation();
+    checkLocation();
     //testSaveObjToStorage();
     //displayDocumentStyles();
 }
@@ -3083,7 +3168,7 @@ function embedUIStructure() {
         trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
         trapCheckCountDownTxt.innerHTML = "Loading...";
 
-        /*
+/*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";
@@ -3420,6 +3505,10 @@ function embedUIStructure() {
                     switch(currentPolicy) {
                         case POLICY_NAME_HARBOUR:
                             policyStorage = STORAGE_TRAP_SETUP_GNAHAR;
+                            break;
+                        case POLICY_NAME_MOUNTAIN:
+                            insertGnaMouPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_GNAMOU;
                             break;
                         case POLICY_NAME_CALM_CLEARING:
                             policyStorage = STORAGE_TRAP_SETUP_WWOCCL;
@@ -3880,6 +3969,54 @@ function embedUIStructure() {
                 addOptions(selectStrategy, RODZTO_STRATEGIES)
                 selectStrategy.style.width = "100px";
                 selectStrategyCell.appendChild(selectStrategy);
+            }
+
+            function insertGnaMouPolicyPreferences() {
+                function saveGnaMouAtmSmash(event) {
+                    g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups[GNAMOU_ATM_SMASH] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_GNAMOU, g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups);
+                }
+
+                function saveGnaMouAtmSwitchCharm(event) {
+                    g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups[GNAMOU_ATM_SWITCH_CHARM] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_GNAMOU, g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups);
+                }
+
+                let captionCell;
+                let tmpTxt;
+                const trGnaMouAtmSmash = policyPreferencesTable.insertRow();
+                trGnaMouAtmSmash.id = ID_TR_GNAMOU_ATM_SMASH;
+                trGnaMouAtmSmash.style.height = "24px";
+                trGnaMouAtmSmash.style.display = "none";
+                captionCell = trGnaMouAtmSmash.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Automatic action(s) :  ";
+                const checkboxAtmSmashCell = trGnaMouAtmSmash.insertCell();
+                const checkboxAtmSmash = document.createElement('input');
+                checkboxAtmSmash.id = ID_CBX_GNAMOU_ATM_SMASH;
+                checkboxAtmSmash.type = "checkbox";
+                checkboxAtmSmash.onchange = saveGnaMouAtmSmash;
+                checkboxAtmSmashCell.appendChild(checkboxAtmSmash);
+                tmpTxt = document.createTextNode(" Smash the boulder");
+                checkboxAtmSmashCell.appendChild(tmpTxt);
+
+                const trGnaMouAtmSwitchCharm = policyPreferencesTable.insertRow();
+                trGnaMouAtmSwitchCharm.id = ID_TR_GNAMOU_ATM_SWITCH_CHARM;
+                trGnaMouAtmSwitchCharm.style.height = "24px";
+                trGnaMouAtmSwitchCharm.style.display = "none";
+                captionCell = trGnaMouAtmSwitchCharm.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                const checkboxtmSwitchCharmCell = trGnaMouAtmSwitchCharm.insertCell();
+                const checkboxtmSwitchCharm = document.createElement('input');
+                checkboxtmSwitchCharm.id = ID_CBX_GNAMOU_ATM_SWITCH_CHARM;
+                checkboxtmSwitchCharm.type = "checkbox";
+                checkboxtmSwitchCharm.onchange = saveGnaMouAtmSwitchCharm;
+                checkboxtmSwitchCharmCell.appendChild(checkboxtmSwitchCharm);
+                tmpTxt = document.createTextNode(" Switch Power Charm");
+                checkboxtmSwitchCharmCell.appendChild(tmpTxt);
+
+                captionCell = undefined;
+                tmpTxt = undefined;
             }
 
             function insertRodCLiPolicyPreferences() {
@@ -4404,6 +4541,8 @@ function getPageVariable(name) {
             return unsafeWindow.user.title_name;
         } else if (name == "user.quests.QuestHarbour") {
             return unsafeWindow.user.quests.QuestHarbour;
+        } else if (name == "user.quests.QuestMountain") {
+            return unsafeWindow.user.quests.QuestMountain;
         } else if (name == "user.quests.QuestClawShotCity.phase") {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
         } else if (name == "user.quests.QuestFortRox") {
