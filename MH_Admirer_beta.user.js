@@ -26,7 +26,7 @@
 //   - Treasure Map
 //   - Living Garden area
 //   - Farming Realm Ripper
-// - Add Policy for WWoGGT, GnaMou
+// - Add Policy for GnaMou
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - IcePolicy and test
@@ -257,6 +257,7 @@ const STORAGE_TRAP_SETUP_RODCLI = "trapSetupRodCLi";
 const STORAGE_TRAP_SETUP_RODSSH = "trapSetupRodSSh";
 const STORAGE_TRAP_SETUP_RODICE = "trapSetupRodIce";
 const STORAGE_TRAP_SETUP_SDEFWA = "trapSetupSDeFWa";
+const STORAGE_TRAP_SETUP_SDEMMA = "trapSetupSDeMMa";
 const STORAGE_FRIEND_INFO = "friendInfo";
 const DATA_TYPE_STRING = "string";
 const DATA_TYPE_OBJECT = "object";
@@ -393,6 +394,7 @@ const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
 const LOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
 const LOCATION_ICEBERG = "Iceberg";
 const LOCATION_FIERY_WARPATH = "Fiery Warpath";
+const LOCATION_MURIDAE_MARKET = "Muridae Market";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
 const POLICY_NAME_CALM_CLEARING = "Calm Clearing";
@@ -410,6 +412,7 @@ const POLICY_NAME_CRYSTAL_LIBRARY = "Crystal Library";
 const POLICY_NAME_SLUSHY_SHORELINE = "Slushy Shoreline";
 const POLICY_NAME_ICEBERG = "Iceberg";
 const POLICY_NAME_FIERY_WARPATH = "Fiery Warpath";
+const POLICY_NAME_MURIDAE_MARKET = "Muridae Market";
 
 // Policy description
 class Policy {
@@ -1099,6 +1102,17 @@ class PolicySDeFWa extends Policy {
         this.initSelectTrapSetup();
     }
 }
+class PolicySDeMMa extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEMMA);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getPhysicalTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
 
 class Policies {
     constructor() {
@@ -1120,6 +1134,7 @@ class Policies {
         this.list.push(POLICY_NAME_SLUSHY_SHORELINE);
         this.list.push(POLICY_NAME_ICEBERG);
         this.list.push(POLICY_NAME_FIERY_WARPATH);
+        this.list.push(POLICY_NAME_MURIDAE_MARKET);
     }
 
     getPolicy(policyName) {
@@ -1172,6 +1187,9 @@ class Policies {
                     break;
                 case POLICY_NAME_FIERY_WARPATH:
                     this._policyDict[policyName] = new PolicySDeFWa();
+                    break;
+                case POLICY_NAME_MURIDAE_MARKET:
+                    this._policyDict[policyName] = new PolicySDeMMa();
                     break;
                 default:
             }
@@ -2558,6 +2576,9 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         case LOCATION_FIERY_WARPATH:
             runSDeFWaPolicy();
             break;
+        case LOCATION_MURIDAE_MARKET:
+            runSingleTrapSetupPolicy(POLICY_NAME_MURIDAE_MARKET);
+            break;
         default:
             runDefaultLocation();
     }
@@ -3447,6 +3468,10 @@ function embedUIStructure() {
                         case POLICY_NAME_FIERY_WARPATH:
                             insertSDeFWaPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_SDEFWA;
+                            break;
+                        case POLICY_NAME_MURIDAE_MARKET:
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
+                            policyStorage = STORAGE_TRAP_SETUP_SDEMMA;
                             break;
                         default:
                     }
