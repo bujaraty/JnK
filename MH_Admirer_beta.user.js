@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.11
+// @version      1.3.0.12
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -289,6 +289,7 @@ const STATUSES = [STATUS_BEFORE, STATUS_AFTER];
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
+const BOT_PROCESS_TIMER = "Timer";
 const BOT_PROCESS_MANUAL = "Manual";
 const BOT_STATUS_IDLE = "Idle";
 const VVACSC_PHASE_LAWLESS = "lawless";
@@ -1456,7 +1457,7 @@ function execScript() {
     if (DEBUG_MODE) console.log('RUN %cexeScript()', 'color: #9cffbd');
 
     try {
-//        initPolicyDict();
+        //        initPolicyDict();
         setBotDocumentStyle();
         loadPreferenceSettingFromStorage();
         retrieveCampActiveData();
@@ -1646,7 +1647,7 @@ function countdownTrapCheckTimer() {
     const currentTime = new Date();
     document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = g_nextTrapCheckTime.toLocaleTimeString();
 
-    if (nextTrapCheckTime.getTime() < currentTime.getTime()) {
+    if ((nextTrapCheckTime.getTime() < currentTime.getTime()) && lockBot(BOT_PROCESS_TIMER)) {
         trapCheck();
     } else {
         checkLocation();
@@ -2034,6 +2035,9 @@ function checkLocation() {
     }
 
     function armTrap(trapSetup) {
+        if (!lockBot(BOT_PROCESS_POLICY)) {
+            return;
+        }
         let delayTime = 0;
         if (!isNullOrUndefined(checkThenArmItem(CLASSIFICATION_WEAPON, trapSetup[IDX_WEAPON]))) {
             delayTime += 1;
@@ -2168,7 +2172,8 @@ function checkLocation() {
         if (fortRoxInfo.current_phase != "day" &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
             parseInt(fortRoxInfo.items.howlite_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
-            parseInt(fortRoxInfo.items.blood_stone_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
+            parseInt(fortRoxInfo.items.blood_stone_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE] &&
+            lockBot(BOT_PROCESS_POLICY)) {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
             ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
                      getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
@@ -2334,7 +2339,8 @@ function checkLocation() {
         const libraryInfo = getPageVariable("user.quests.QuestZugzwangLibrary");
         if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
             isNullOrUndefined(libraryInfo.hasResearchQuest) &&
-            parseInt(libraryInfo.secondsRemainingUntilUserCanAcceptQuest) == 0) {
+            parseInt(libraryInfo.secondsRemainingUntilUserCanAcceptQuest) == 0 &&
+            lockBot(BOT_PROCESS_POLICY)) {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Getting Assignment";
             ajaxPost(window.location.origin + '/managers/ajax/environment/zugzwanglibrary.php',
                      getAjaxHeader({"action": "purchase",
@@ -3077,7 +3083,7 @@ function embedUIStructure() {
         trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
         trapCheckCountDownTxt.innerHTML = "Loading...";
 
-/*
+        /*
         // The forth row is very temporary just for testing
         const trForth = statusDisplayTable.insertRow();
         trForth.id = "test row";

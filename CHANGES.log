@@ -1,3 +1,6 @@
+Version 1.3.0.12
+- Add lockBot to processes that require reloadCampPage
+
 Version 1.3.0.11
 - Implement Policy for WWoCCl and WWoGGT
 - Implement Policy for SDeMMa
