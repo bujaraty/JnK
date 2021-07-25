@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.3.0.12
+// @version      1.3.0.13
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -26,7 +26,6 @@
 //   - Treasure Map
 //   - Living Garden area
 //   - Farming Realm Ripper
-// - Add Policy for GnaMou
 // - Auto change trap setting
 //   - ZToPolicy 2nd half
 //   - IcePolicy and test
@@ -2665,7 +2664,7 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
             runSingleTrapSetupPolicy(POLICY_NAME_SLUSHY_SHORELINE);
             break;
         case LOCATION_FIERY_WARPATH:
-            runSDeFWaPolicy();
+            //runSDeFWaPolicy();
             break;
         case LOCATION_MURIDAE_MARKET:
             runSingleTrapSetupPolicy(POLICY_NAME_MURIDAE_MARKET);
