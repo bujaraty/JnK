@@ -1652,7 +1652,8 @@ function checkSchedule() {
 function countdownBotHornTimer() {
     const nextBotHuntTime = new Date(g_nextHuntTime.getTime() + (g_botCountdownDelay * 1000));
     const currentTime = new Date();
-    document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = g_nextHuntTime.toLocaleTimeString();
+    const nextHuntTimeTxt = g_nextHuntTime.toLocaleTimeString().endsWith("M")? g_nextHuntTime.toLocaleTimeString().slice(0,-3): g_nextHuntTime.toLocaleTimeString();
+    document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = nextHuntTimeTxt;
 
     if (nextBotHuntTime.getTime() < currentTime.getTime()) {
         prepareSoundingHorn();
@@ -1688,7 +1689,8 @@ function countdownBotHornTimer() {
 function countdownTrapCheckTimer() {
     const nextTrapCheckTime = new Date(g_nextTrapCheckTime.getTime() + (g_trapCheckCountdownDelay * 1000));
     const currentTime = new Date();
-    document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = g_nextTrapCheckTime.toLocaleTimeString();
+    const nextTrapCheckTimeTxt = g_nextTrapCheckTime.toLocaleTimeString().endsWith("M")? g_nextTrapCheckTime.toLocaleTimeString().slice(0,-3): g_nextTrapCheckTime.toLocaleTimeString();
+    document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = nextTrapCheckTimeTxt;
 
     if ((nextTrapCheckTime.getTime() < currentTime.getTime()) && lockBot(BOT_PROCESS_TIMER)) {
         trapCheck();
@@ -2798,6 +2800,14 @@ function updateMice() {
                                     "mouse_types[]": miceList[mouseIdx].type,
                                     last_read_journal_entry_id: lastReadJournalEntryId}),
                      function (data) {
+                const mouseInfo = data.mice[0];
+                g_mouseInfo[mouseInfo.type] = {};
+                g_mouseInfo[mouseInfo.type].name = mouseInfo.name;
+                g_mouseInfo[mouseInfo.type].id = mouseInfo.id;
+                g_mouseInfo[mouseInfo.type].groupName = mouseInfo.group_name;
+                if (!isNullOrUndefined(mouseInfo.weaknesses) && mouseInfo.weaknesses.length > 0) {
+                    g_mouseInfo[mouseInfo.type].weaknesses = {};
+                }
             }, function (error) {
                 console.error('ajax:', error);
                 alert("error getting mouse information");
@@ -2818,6 +2828,7 @@ function updateMice() {
         miceList = miceList.slice(0,2);
         getMouseData(0);
     }
+
     function processAdversariesData(data) {
         function getCategoryData(catIdx) {
             const category = categories[catIdx];
@@ -2842,6 +2853,7 @@ function updateMice() {
             }
         }
 
+        g_mouseInfo = {};
         const categories = data.page.tabs[0].subtabs[0].mouse_list.categories.slice(0,1);
         getCategoryData(0);
     }
