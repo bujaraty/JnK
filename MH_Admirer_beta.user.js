@@ -20,6 +20,7 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
+// - Add getMiceInfo to be used with Active Quest feature
 // - Add Active Quest Preferences, which will override checklocation and automatically Travel as needed. Possible Quests include
 //   - QUEST_NO_QUEST, default, basically, only do the checkLocation
 //   - Queso Canyon area
@@ -27,9 +28,10 @@
 //   - Living Garden area
 //   - Farming Realm Ripper
 // - Auto change trap setting
-//   - ZToPolicy 2nd half
-//   - IcePolicy and test
-//   - FWaPolicy
+//   - VVaGESPolicy
+//   - RodZToPolicy 2nd half
+//   - RodIcePolicy and test
+//   - SDeFWaPolicy
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -91,7 +93,7 @@ let g_nextTrapCheckTime;
 let g_trapCheckCountdownDelay;
 let g_strScriptVersion = GM_info.script.version;
 let g_kingsRewardRetry = 0;
-let g_trapInfo = {};
+let g_trapInfo;
 let g_friendInfo;
 let g_botProcess = BOT_PROCESS_IDLE;
 
@@ -1245,10 +1247,10 @@ function loadTrapInfo() {
 }
 
 function getWeaponInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
     } else {
         return g_trapInfo.weapon.info;
@@ -1256,10 +1258,10 @@ function getWeaponInfo() {
 }
 
 function getBaseInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
     } else {
         return g_trapInfo.base.info;
@@ -1267,10 +1269,10 @@ function getBaseInfo() {
 }
 
 function getBaitInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
     } else {
         return g_trapInfo.bait.info;
@@ -1278,10 +1280,10 @@ function getBaitInfo() {
 }
 
 function getTrinketInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
     } else {
         return g_trapInfo.trinket.info;
@@ -1289,10 +1291,10 @@ function getTrinketInfo() {
 }
 
 function getWeaponNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.weapon.names;
@@ -1300,10 +1302,10 @@ function getWeaponNames() {
 }
 
 function getBaseNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.base.names;
@@ -1311,10 +1313,10 @@ function getBaseNames() {
 }
 
 function getBaitNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.bait.names;
@@ -1322,10 +1324,10 @@ function getBaitNames() {
 }
 
 function getTrinketNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.trinket.names;
@@ -1497,7 +1499,6 @@ function execScript() {
     if (DEBUG_MODE) console.log('RUN %cexeScript()', 'color: #9cffbd');
 
     try {
-        //        initPolicyDict();
         setBotDocumentStyle();
         loadPreferenceSettingFromStorage();
         retrieveCampActiveData();
@@ -1881,7 +1882,7 @@ function retrieveCampActiveData() {
     function getActualNextHuntTime() {
         const timeBefore = new Date();
         ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
-                 getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                 getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
                  function (data) {
             g_nextHuntTime = new Date();
             g_nextHuntTime.setTime(g_nextHuntTime.getTime() + data.user.next_activeturn_seconds*1000 + timeBefore.getTime() - g_nextHuntTime.getTime());
@@ -2132,7 +2133,7 @@ function checkLocation() {
         if (trapSetups[GNAMOU_ATM_SMASH] && mountainInfo.boulder_hp == 0 && lockBot(BOT_PROCESS_POLICY)) {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Smashing the boulder";
             ajaxPost(window.location.origin + '/managers/ajax/environment/mountain.php',
-                     getAjaxHeader({"action": "claim_reward", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                     getAjaxHeader({"action": "claim_reward", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
                      function (data) {
                 window.setTimeout(function () {
                     reloadCampPage();
@@ -2258,7 +2259,7 @@ function checkLocation() {
             lockBot(BOT_PROCESS_POLICY)) {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
             ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
-                     getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                     getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
                      function (data) {
                 window.setTimeout(function () {
                     reloadCampPage();
@@ -2426,7 +2427,7 @@ function checkLocation() {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Getting Assignment";
             ajaxPost(window.location.origin + '/managers/ajax/environment/zugzwanglibrary.php',
                      getAjaxHeader({"action": "purchase",
-                                    "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id"),
+                                    "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId"),
                                     "convertible_item_type": "library_intro_research_assignment_convertible"}),
                      function (data) {
                 window.setTimeout(function () {
@@ -2441,27 +2442,27 @@ function checkLocation() {
     }
 
     function runSDeFWaPolicy() {
-        function getLowestPopulation(miceInfo) {
-            return Object.entries(miceInfo)
+        function getLowestPopulation(warpathMice) {
+            return Object.entries(warpathMice)
                 .filter(([key, value]) => value.powerType !== POWER_TYPE_ARCANE)
                 .sort(([,a], [,b]) => a.quantity - b.quantity)
                 .map(x => x[0])[0];
         }
 
-        function getHighestPopulation(miceInfo) {
-            return Object.entries(miceInfo)
+        function getHighestPopulation(warpathMice) {
+            return Object.entries(warpathMice)
                 .filter(([key, value]) => value.powerType !== POWER_TYPE_ARCANE)
                 .sort(([,a], [,b]) => b.quantity - a.quantity)
                 .map(x => x[0])[0];
         }
 
-        function isLastWave(miceInfo) {
-            return Object.entries(miceInfo)
+        function isLastWave(warpathMice) {
+            return Object.entries(warpathMice)
                 .filter(([key, value]) => value.quantity !== 0)
                 .length == 1;
         }
 
-        function runWave123Policy(wave, miceInfo) {
+        function runWave123Policy(wave, warpathMice) {
             if (isNullOrUndefined(trapSetups) ||
                 isNullOrUndefined(trapSetups[wave]) ||
                 isNullOrUndefined(trapSetups[wave][SDEFWA_POPULATION_PRIORITY])) {
@@ -2472,19 +2473,19 @@ function checkLocation() {
                 if (mouseName == "desert_general" || mouseName == "desert_supply") {
                     continue;
                 }
-                miceInfo[mouseName].quantity = mouseInfo.quantity;
+                warpathMice[mouseName].quantity = mouseInfo.quantity;
             }
-            if (isLastWave(miceInfo)) {
+            if (isLastWave(warpathMice)) {
                 // Charm used here are any typical charms (like Regal or Ancient)
                 // This part also checks Soldier Type of the Streak and arm the Gargantua Charm, if it's needed
             } else {
                 const SDEFWA_TARGET_POPULATION_LOWEST = "Lowest";
                 const SDEFWA_TARGET_POPULATION_HIGHEST = "Highest";
-                const targetMouse = trapSetups[wave][SDEFWA_POPULATION_PRIORITY] == SDEFWA_TARGET_POPULATION_LOWEST? getLowestPopulation(miceInfo): getHighestPopulation(miceInfo);
+                const targetMouse = trapSetups[wave][SDEFWA_POPULATION_PRIORITY] == SDEFWA_TARGET_POPULATION_LOWEST? getLowestPopulation(warpathMice): getHighestPopulation(warpathMice);
                 const streak = warpathInfo.streak_type == targetMouse? warpathInfo.streak_quantity: 0;
                 const trapSetup = [];
-                trapSetup[IDX_WEAPON] = trapSetups[miceInfo[targetMouse].powerType][IDX_WEAPON];
-                trapSetup[IDX_BASE] = trapSetups[miceInfo[targetMouse].powerType][IDX_BASE];
+                trapSetup[IDX_WEAPON] = trapSetups[warpathMice[targetMouse].powerType][IDX_WEAPON];
+                trapSetup[IDX_BASE] = trapSetups[warpathMice[targetMouse].powerType][IDX_BASE];
                 trapSetup[IDX_BAIT] = trapSetups[wave][streak][IDX_BAIT];
                 let warpathCharm = "";
                 let superWarpathCharm = "";
@@ -2732,18 +2733,6 @@ function testLoadObjFromStorage() {
 }
 
 function testSortObj() {
-    function debugObj(obj) {
-        let tempTxt = "";
-        for (const [objKey, entry] of Object.entries(obj)) {
-            tempTxt += objKey;
-            tempTxt += "\n";
-            for (const [entryKey, value] of Object.entries(entry)) {
-                tempTxt += "  - " + entryKey + " : " + value;
-                tempTxt += "\n";
-            }
-        }
-        alert(tempTxt);
-    }
     const unSorted = {}
     const WEAPON_A = "horrific_venus_mouse_trap_weapon";
     const WEAPON_B = "mystic_low_weapon";
@@ -2798,9 +2787,85 @@ function testSortObj() {
     debugObj(sortedTacticalWeapons);
 }
 
+function updateMice() {
+    function processMouseListData(data) {
+        function getMouseData(mouseIdx) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Getting information from mouse: '" + miceList[mouseIdx].name + "'";
+            ajaxPost(window.location.origin + '/managers/ajax/mice/getstat.php',
+                     getAjaxHeader({action: "get_mice",
+                                    "mouse_types[]": miceList[mouseIdx].type,
+                                    last_read_journal_entry_id: lastReadJournalEntryId}),
+                     function (data) {
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error getting mouse information");
+            });
+            mouseIdx += 1;
+            if (mouseIdx < miceList.length) {
+                window.setTimeout(function () {
+                    getMouseData(mouseIdx);
+                }, infoInterval * 1000);
+            }
+        }
+
+        let miceList = [];
+        for (const subgroup of data.mouse_list_category.subgroups) {
+            miceList = miceList.concat(subgroup.mice);
+        }
+
+        miceList = miceList.slice(0,2);
+        getMouseData(0);
+    }
+    function processAdversariesData(data) {
+        function getCategoryData(catIdx) {
+            const category = categories[catIdx];
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Fetching mouse list from category: '" + category.type + "'";
+            ajaxPost(window.location.origin + '/managers/ajax/mice/mouse_list.php',
+                     getAjaxHeader({action: "get_group",
+                                    category: category.type,
+                                    user_id: getPageVariable("user.user_id"),
+                                    display_mode: "images",
+                                    view: "ViewMouseListGroups"}),
+                     function (data) {
+                processMouseListData(data);
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error getting mouse list");
+            });
+            catIdx += 1;
+            if (catIdx < categories.length) {
+                window.setTimeout(function () {
+                    getCategoryData(catIdx);
+                }, ( 0.5 + (1.2 * category.total * infoInterval)) * 1000);
+            }
+        }
+
+        const categories = data.page.tabs[0].subtabs[0].mouse_list.categories.slice(0,1);
+        getCategoryData(0);
+    }
+
+    /*
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    */
+    const infoInterval = 1.05
+    const lastReadJournalEntryId = getPageVariable("lastReadJournalEntryId")
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Prepare updating mice inforamation";
+    ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
+             getAjaxHeader({"page_class": "Adversaries", "last_read_journal_entry_id": lastReadJournalEntryId}),
+             function (data) {
+        processAdversariesData(data);
+    }, function (error) {
+        console.error('ajax:', error);
+        alert("error updating mice information");
+    });
+}
+
 function test1() {
+    updateMice();
     //testSortObj();
-    checkLocation();
+    //checkLocation();
     //testSaveObjToStorage();
     //displayDocumentStyles();
 }
@@ -2947,7 +3012,7 @@ function prepareSendingGifts() {
         });
     }
 
-    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
+    const lastReadJournalEntryId = getPageVariable("lastReadJournalEntryId");
     const itemTimeoutInterval = 0.75;
     const friendInfo = getFriendInfo();
     const completeGifts = [];
@@ -3017,7 +3082,7 @@ function prepareSendingBallots() {
         });
     }
 
-    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
+    const lastReadJournalEntryId = getPageVariable("lastReadJournalEntryId");
     const itemTimeoutInterval = 0.75;
     const friendInfo = getFriendInfo();
     const completeBallots = [];
@@ -4521,10 +4586,12 @@ function getPageVariable(name) {
             return unsafeWindow.user.has_puzzle;
         } else if (name == 'user.unique_hash') {
             return unsafeWindow.user.unique_hash;
+        } else if (name == 'user.user_id') {
+            return unsafeWindow.user.user_id;
         } else if (name == 'user.sn_user_id') {
             return unsafeWindow.user.sn_user_id;
-        } else if (name == 'last_read_journal_entry_id') {
-            return unsafeWindow.last_read_journal_entry_id;
+        } else if (name == 'lastReadJournalEntryId') {
+            return unsafeWindow.lastReadJournalEntryId;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.weapon_item_id") {

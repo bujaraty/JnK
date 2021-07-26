@@ -1,6 +1,7 @@
 Version 1.3.0.13
 - Implement Policy for GnaMou
 - Fix bug in getActualNextHuntTime
+- Optimizing g_trapInfo
 
 Version 1.3.0.12
 - Add lockBot to processes that require reloadCampPage
