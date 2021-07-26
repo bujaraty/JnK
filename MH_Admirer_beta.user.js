@@ -1879,11 +1879,12 @@ function isNullOrUndefined(obj) {
 
 function retrieveCampActiveData() {
     function getActualNextHuntTime() {
+        const timeBefore = new Date();
         ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
                  getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
                  function (data) {
             g_nextHuntTime = new Date();
-            g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS) - 1);
+            g_nextHuntTime.setTime(g_nextHuntTime.getTime() + data.user.next_activeturn_seconds*1000 + timeBefore.getTime() - g_nextHuntTime.getTime());
         }, function (error) {
             console.error('ajax:', error);
         });
