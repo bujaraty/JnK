@@ -95,6 +95,7 @@ let g_strScriptVersion = GM_info.script.version;
 let g_kingsRewardRetry = 0;
 let g_trapInfo;
 let g_friendInfo;
+let g_mouseInfo;
 let g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
@@ -1141,13 +1142,14 @@ class PolicySDeFWa extends Policy {
         this.initSelectTrapSetup();
     }
 }
+
 class PolicySDeMMa extends PolicySingleTrapSetup {
     get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEMMA);
     }
 
     recommendTrapSetup() {
-        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        const baitName = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         this.getPhysicalTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
