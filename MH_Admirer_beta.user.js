@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MH_Admirer_by_JnK_beta
 // @namespace    https://github.com/bujaraty/JnK
-// @version      1.2.2.32
+// @version      1.3.0.13
 // @description  beta version of MH Admirer
 // @author       JnK
 // @icon         https://raw.githubusercontent.com/nobodyrandom/mhAutobot/master/resource/mice.png
@@ -20,11 +20,18 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
+// - Add getMiceInfo to be used with Active Quest feature
+// - Add Active Quest Preferences, which will override checklocation and automatically Travel as needed. Possible Quests include
+//   - QUEST_NO_QUEST, default, basically, only do the checkLocation
+//   - Queso Canyon area
+//   - Treasure Map
+//   - Living Garden area
+//   - Farming Realm Ripper
 // - Auto change trap setting
-//   - ZToPolicy 2nd half
-//   - Activate-Deactivate FRo tower (After I get tower lvl 4)
-//   - IcePolicy and test
-//   - FWaPolicy
+//   - VVaGESPolicy
+//   - RodZToPolicy 2nd half
+//   - RodIcePolicy and test
+//   - SDeFWaPolicy
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -34,8 +41,8 @@
 const DEBUG_MODE = true;
 
 // // Extra delay time before sounding the horn. (in seconds)
-// // Default: 10-15
-let g_botHornTimeDelayMin = 10;
+// // Default: 5-15
+let g_botHornTimeDelayMin = 5;
 let g_botHornTimeDelayMax = 15;
 
 // // Extra delay time to trap check. (in seconds)
@@ -50,7 +57,7 @@ let g_autosolveKRDelayMax = 10;
 
 // // Maximum retry of solving KR.
 // // If KR solved more than this number, pls solve KR manually ASAP in order to prevent MH from caught in botting
-const MAX_KR_RETRY = 5;
+const MAX_KR_RETRY = 7;
 
 // // Scheduler time that will start automatically
 const STATUS_INCOMPLETE = "Incomplete";
@@ -70,7 +77,6 @@ let g_statusBalloting = STATUS_INCOMPLETE;
 // // Reload MouseHunt page manually if edit this script while running it for immediate effect.
 
 // // Time interval for script timer to update the time. May affect timer accuracy if set too high value. (in seconds)
-const BOT_HORN_TIMER_COUNTDOWN_INTERVAL = 5;
 const TRAP_CHECK_TIMER_COUNTDOWN_INTERVAL = 20;
 const KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 
@@ -80,19 +86,16 @@ const KR_SOLVER_COUNTDOWN_INTERVAL = 1;
 
 // All global variable declaration and default value
 const BOT_PROCESS_IDLE = "idle";
-let g_nextBotHornTimeInSeconds;
-let g_botHornTimeDelayInSeconds;
-let g_nextTrapCheckTimeInSeconds = 0;
-let g_nextTrapCheckTimeDelayInSeconds = 0;
+let g_nextHuntTime;
+let g_botCountdownDelay;
+let g_botCountdownInterval;
+let g_nextTrapCheckTime;
+let g_trapCheckCountdownDelay;
 let g_strScriptVersion = GM_info.script.version;
-let g_nextBotHornTimeDisplay;
-let g_nextTrapCheckTimeDisplay;
-let g_nextBotHornTime;
-let g_lastBotHornTimeRecorded = new Date();
-let g_lastTrapCheckTimeRecorded = new Date();
 let g_kingsRewardRetry = 0;
-let g_trapInfo = {};
+let g_trapInfo;
 let g_friendInfo;
+let g_mouseInfo;
 let g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
@@ -130,13 +133,16 @@ const BAIT_CHECKMATE = "Checkmate Cheese";
 const BAIT_CRESCENT = "Crescent Cheese";
 const BAIT_GOUDA = "Gouda Cheese";
 const BAIT_MOON = "Moon Cheese";
+const BAIT_RADIOACTIVE_BLUE = "Radioactive Blue Cheese";
 const BAIT_RUNIC = "Runic Cheese";
 const TRINKET_ATTRACTION = "Attraction Charm";
 const TRINKET_CACTUS_CHARM = "Cactus Charm";
 const TRINKET_POWER = "Power Charm";
 const TRINKET_PROSPECTORS = "Prospector's Charm";
 const TRINKET_ROOK_CRUMBLE = "Rook Crumble Charm";
+const TRINKET_SMALL_POWER = "Small Power Charm";
 const TRINKET_STICKY = "Sticky Charm";
+const TRINKET_SUPER_POWER = "Super Power Charm"
 const TRINKET_VALENTINE = "Valentine Charm";
 const TRINKET_WAX = "Wax Charm";
 const WEAPON_MYSTIC_PAWN_PINCHER = "Mystic Pawn Pincher";
@@ -149,6 +155,11 @@ const CLASSIFICATION_WEAPON = "weapon";
 const CLASSIFICATION_BASE = "base";
 const CLASSIFICATION_BAIT = "bait";
 const CLASSIFICATION_TRINKET = "trinket";
+const ID_NEXT_HUNT_TIME_TXT = "nextHuntTimeTxt";
+const ID_BOT_COUNTDOWN_TXT = "botCountdownTxt";
+const ID_BOT_INTERVAL_TXT = "botIntervalTxt";
+const ID_NEXT_TRAP_CHECK_TIME_TXT = "nextTrapCheckTimeTxt";
+const ID_TRAP_CHECK_COUNTDOWN_TXT = "trapCheckCountDownTxt";
 const ID_INPUT_BOT_HORN_TIME_DELAY_MIN = "inputBotHornTimeDelayMin";
 const ID_INPUT_BOT_HORN_TIME_DELAY_MAX = "inputBotHornTimeDelayMax";
 const ID_INPUT_TRAP_CHECK_TIME_DELAY_MIN = "inputTrapCheckTimeDelayMin";
@@ -166,17 +177,21 @@ const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
 const ID_BOTTON_UPDATE_TRAPS = "btnUpdateTtraps";
 const ID_BOTTON_UPDATE_FRIENDS = "btnUpdateFriends";
-const ID_TR_BWOARE_TRAP_SETUP = "trBWoAreTrapSetup";
-const ID_SELECT_BWOARE_WEAPON = "selectBWoAReWeapon";
-const ID_SELECT_BWOARE_BASE = "selectBWoAReBase";
-const ID_SELECT_BWOARE_BAIT = "selectBWoAReBait";
-const ID_SELECT_BWOARE_TRINKET = "selectBWoAReTrinket";
-const ID_TR_VVACSC_PHASES_TRAP_SETUP = "trVVaCSCPhasesTrapSetup";
-const ID_SELECT_VVACSC_PHASE = "selectVVaCSCPhase";
-const ID_SELECT_VVACSC_WEAPON = "selectVVaCSCWeapon";
-const ID_SELECT_VVACSC_BASE = "selectVVaCSCBase";
-const ID_SELECT_VVACSC_BAIT = "selectVVaCSCBait";
-const ID_SELECT_VVACSC_TRINKET = "selectVVaCSCTrinket";
+const ID_TR_SINGLE_TRAP_SETUP = "trSingleTrapSetup";
+const ID_SELECT_SINGLE_WEAPON = "selectSingleWeapon";
+const ID_SELECT_SINGLE_BASE = "selectSingleBase";
+const ID_SELECT_SINGLE_BAIT = "selectSingleBait";
+const ID_SELECT_SINGLE_TRINKET = "selectSingleTrinket";
+const ID_TR_SELECTABLE_TRAP_SETUP = "trSelectableTrapSetup";
+const ID_SELECT_SELECTABLE_TRAP_SETUP = "selectSelectableTrapSetup";
+const ID_SELECT_SELECTABLE_WEAPON = "selectSelectableWeapon";
+const ID_SELECT_SELECTABLE_BASE = "selectSelectableBase";
+const ID_SELECT_SELECTABLE_BAIT = "selectSelectableBait";
+const ID_SELECT_SELECTABLE_TRINKET = "selectSelectableTrinket";
+const ID_TR_GNAMOU_ATM_SMASH = "trGnaMouAtmSmash";
+const ID_CBX_GNAMOU_ATM_SMASH = "cbxGnaMouAtmSmash";
+const ID_TR_GNAMOU_ATM_SWITCH_CHARM = "trGnaMouAtmSwitchCharm";
+const ID_CBX_GNAMOU_ATM_SWITCH_CHARM = "cbxGnaMouAtmSwitchCharm";
 const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
 const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
 const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
@@ -194,28 +209,10 @@ const ID_TR_VVAFRO_ATM_RETREAT = "trVVaFRoAtmRetreat";
 const ID_CBX_VVAFRO_ATM_RETREAT = "cbxVVaFRoAtmRetreat";
 const ID_INPUT_VVAFRO_REQUIRED_HOWLITE = "inputVVaFRoRequiredHowlite";
 const ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE = "inputVVaFRoRequiredBloodstone";
-const ID_TR_RODSGA_SEASONS_TRAP_SETUP = "trRodSGaSeasonsTrapSetup";
-const ID_SELECT_RODSGA_SEASON = "selectRodSGaSeason";
-const ID_SELECT_RODSGA_WEAPON = "selectRodSGaWeapon";
-const ID_SELECT_RODSGA_BASE = "selectRodSGaBase";
-const ID_SELECT_RODSGA_BAIT = "selectRodSGaBait";
-const ID_SELECT_RODSGA_TRINKET = "selectRodSGaTrinket";
 const ID_TR_RODZTO_STRATEGY = "trRodZToStrategy";
 const ID_SELECT_RODZTO_STRATEGY = "selectRodZToStrategy";
-const ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP = "trRodZToChessTrapSetup";
-const ID_SELECT_ROD_RODZTO_CHESS = "selectRodZToChess";
-const ID_SELECT_RODZTO_WEAPON = "selectRodZToWeapon";
-const ID_SELECT_RODZTO_BASE = "selectRodZToBase";
-const ID_SELECT_RODZTO_BAIT = "selectRodZToBait";
-const ID_SELECT_RODZTO_TRINKET = "selectRodZToTrinket";
 const ID_TR_RODCLI_ATM_CATALOG_MICE = "trRodCLiAtmCatalogMice";
 const ID_CBX_RODCLI_ATM_CATALOG_MICE = "cbxRodCLiAtmCatalogMice";
-const ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP = "trRodIceSublocationTrapSetup";
-const ID_SELECT_RODICE_SUBLOCATION = "selectRodIceSublocation";
-const ID_SELECT_RODICE_WEAPON = "selectRodIceWeapon";
-const ID_SELECT_RODICE_BASE = "selectRodIceBase";
-const ID_SELECT_RODICE_BAIT = "selectRodIceBait";
-const ID_SELECT_RODICE_TRINKET = "selectRodIceTrinket";
 const ID_TR_SELECT_SDEFWA_WAVE = "trSelectSDeFWaWave";
 const ID_SELECT_SDEFWA_WAVE = "selectSDeFWaWave";
 const ID_TR_SDEFWA_POWER_TYPES_TRAP_SETUP = "trSDeFWaPowerTypesTrapSetup";
@@ -252,15 +249,27 @@ const STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
 const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
+const STORAGE_TRAP_SETUP_GNAHAR = "trapSetupGnaHar";
+const STORAGE_TRAP_SETUP_GNAMOU = "trapSetupGnaMou";
+const STORAGE_TRAP_SETUP_WWOCCL = "trapSetupWWoCCl";
+const STORAGE_TRAP_SETUP_WWOGGT = "trapSetupWWoGGT";
+const STORAGE_TRAP_SETUP_BURMOU = "trapSetupBurMou";
+const STORAGE_TRAP_SETUP_BWOCAT = "trapSetupBWoCat";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
+const STORAGE_TRAP_SETUP_TISDDU = "trapSetupTIsDDu";
+const STORAGE_TRAP_SETUP_TISJOD = "trapSetupTIsJoD";
 const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
 const STORAGE_TRAP_SETUP_VVAFRO = "trapSetupVVaFRo";
 const STORAGE_TRAP_SETUP_RODSGA = "trapSetupRodSGa";
 const STORAGE_TRAP_SETUP_RODZTO = "trapSetupRodZTo";
 const STORAGE_TRAP_SETUP_RODCLI = "trapSetupRodCLi";
+const STORAGE_TRAP_SETUP_RODSSH = "trapSetupRodSSh";
 const STORAGE_TRAP_SETUP_RODICE = "trapSetupRodIce";
 const STORAGE_TRAP_SETUP_SDEFWA = "trapSetupSDeFWa";
+const STORAGE_TRAP_SETUP_SDEMMA = "trapSetupSDeMMa";
 const STORAGE_FRIEND_INFO = "friendInfo";
+const DATA_TYPE_STRING = "string";
+const DATA_TYPE_OBJECT = "object";
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
@@ -277,17 +286,23 @@ const POWER_TYPE_PHYSICAL = "Physical";
 const POWER_TYPE_RIFT = "Rift";
 const POWER_TYPE_SHADOW = "Shadow";
 const POWER_TYPE_TACTICAL = "Tactical";
-const TRINKET_ARM = "Arm";
-const TRINKET_DISARM = "Disarm";
-const TRINKET_ARMING = [TRINKET_ARM, TRINKET_DISARM];
+const POWER_TYPE_OVERALL = "Overall";
+const ITEM_ARM = "Arm";
+const ITEM_DISARM = "Disarm";
+const ITEM_ARMING = [ITEM_ARM, ITEM_DISARM];
+const ITEM_OTHER = "Other";
+const ITEM_IGNORE = "Ignore";
 const STATUS_BEFORE = "Before";
 const STATUS_AFTER = "After";
 const STATUSES = [STATUS_BEFORE, STATUS_AFTER];
 const STYLE_CLASS_NAME_JNK_CAPTION = "JnKCaption";
 const BOT_PROCESS_POLICY = "Policy";
 const BOT_PROCESS_SCHEDULER = "Scheduler";
-const BOT_PROCESS_Manual = "Manual";
+const BOT_PROCESS_TIMER = "Timer";
+const BOT_PROCESS_MANUAL = "Manual";
 const BOT_STATUS_IDLE = "Idle";
+const GNAMOU_ATM_SWITCH_CHARM = "Automatic Switch Charm";
+const GNAMOU_ATM_SMASH = "Automatic Smash";
 const VVACSC_PHASE_LAWLESS = "lawless";
 const VVACSC_PHASE_NEED_POSTER = "need_poster";
 const VVACSC_PHASE_HAS_POSTER = "has_poster";
@@ -352,10 +367,9 @@ const RODICE_SUBLOCATION_THE_MAD_DEPTHS = "The Mad Depths";
 const RODICE_SUBLOCATION_ICEWINGS_LAIR = "Icewing's Lair";
 const RODICE_SUBLOCATION_HIDDEN_DEPTHS = "Hidden Depths";
 const RODICE_SUBLOCATION_THE_DEEP_LAIR = "The Deep Lair";
-const RODICE_SUBLOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
 const RODICE_SUBLOCATIONS = [RODICE_SUBLOCATION_ICEBERG_GENERAL, RODICE_SUBLOCATION_TREACHEROUS_TUNNELS, RODICE_SUBLOCATION_BRUTAL_BULWARK,
                              RODICE_SUBLOCATION_BOMBING_RUN, RODICE_SUBLOCATION_THE_MAD_DEPTHS, RODICE_SUBLOCATION_ICEWINGS_LAIR,
-                             RODICE_SUBLOCATION_HIDDEN_DEPTHS, RODICE_SUBLOCATION_THE_DEEP_LAIR, RODICE_SUBLOCATION_SLUSHY_SHORELINE];
+                             RODICE_SUBLOCATION_HIDDEN_DEPTHS, RODICE_SUBLOCATION_THE_DEEP_LAIR];
 const SDEFWA_WAVE1 = "Wave 1";
 const SDEFWA_WAVE2 = "Wave 2";
 const SDEFWA_WAVE3 = "Wave 3";
@@ -377,23 +391,42 @@ const SDEFWA_STREAK_SOLDIER_TYPES = [SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER, SDEFWA_
 const SDEFWA_LAST_SOLDIER = "Last Soldier";
 const SDEFWA_ARMING_CHARM_SUPPORT_RETREAT = "Arming Charm";
 const LOCATION_HARBOUR = "Harbour";
+const LOCATION_MOUNTAIN = "Mountain";
+const LOCATION_CALM_CLEARING = "Calm Clearing";
+const LOCATION_GREAT_GNARLED_TREE = "Great Gnarled Tree";
+const LOCATION_MOUSOLEUM = "Mousoleum";
+const LOCATION_CATACOMBS = "Catacombs";
 const LOCATION_ACOLYTE_REALM = "Acolyte Realm";
+const LOCATION_DERR_DUNES = "Derr Dunes";
+const LOCATION_JUNGLE_OF_DREAD = "Jungle of Dread";
 const LOCATION_CLAW_SHOT_CITY = "Claw Shot City";
 const LOCATION_FORT_ROX = "Fort Rox";
 const LOCATION_SEASONAL_GARDEN = "Seasonal Garden";
 const LOCATION_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const LOCATION_CRYSTAL_LIBRARY = "Crystal Library";
+const LOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
+const LOCATION_ICEBERG = "Iceberg";
 const LOCATION_FIERY_WARPATH = "Fiery Warpath";
+const LOCATION_MURIDAE_MARKET = "Muridae Market";
 const POLICY_NAME_NONE = "None";
 const POLICY_NAME_HARBOUR = "Harbour";
+const POLICY_NAME_MOUNTAIN = "Mountain";
+const POLICY_NAME_CALM_CLEARING = "Calm Clearing";
+const POLICY_NAME_GREAT_GNARLED_TREE = "Great Gnarled Tree";
+const POLICY_NAME_MOUSOLEUM = "Mousoleum";
+const POLICY_NAME_CATACOMBS = "Catacombs";
 const POLICY_NAME_ACOLYTE_REALM = "Acolyte Realm";
+const POLICY_NAME_DERR_DUNES = "Derr Dunes";
+const POLICY_NAME_JUNGLE_OF_DREAD = "Jungle of Dread";
 const POLICY_NAME_CLAW_SHOT_CITY = "Claw Shot City";
 const POLICY_NAME_FORT_ROX = "Fort Rox";
 const POLICY_NAME_SEASONAL_GARDEN = "Seasonal Garden";
 const POLICY_NAME_ZUGZWANGS_TOWER = "Zugzwang's Tower";
 const POLICY_NAME_CRYSTAL_LIBRARY = "Crystal Library";
+const POLICY_NAME_SLUSHY_SHORELINE = "Slushy Shoreline";
 const POLICY_NAME_ICEBERG = "Iceberg";
 const POLICY_NAME_FIERY_WARPATH = "Fiery Warpath";
+const POLICY_NAME_MURIDAE_MARKET = "Muridae Market";
 
 // Policy description
 class Policy {
@@ -401,11 +434,25 @@ class Policy {
         this.trs = [];
         this.bestPowerWeapons = {};
         this.bestLuckWeapons = {};
-        this.bestBase = undefined;
     }
 
-    setName(name) {
-        this.name = name;
+    resetTrapSetups() {
+        this._trapSetups = [];
+    }
+
+    setSingleTrapSetup(trapSetup) {
+        document.getElementById(ID_SELECT_SINGLE_WEAPON).value = trapSetup[IDX_WEAPON];
+        document.getElementById(ID_SELECT_SINGLE_BASE).value = trapSetup[IDX_BASE];
+        document.getElementById(ID_SELECT_SINGLE_BAIT).value = trapSetup[IDX_BAIT];
+        document.getElementById(ID_SELECT_SINGLE_TRINKET).value = trapSetup[IDX_TRINKET];
+    }
+
+    setSelectableTrapSetup(trapSetups) {
+        const currentSelection = document.getElementById(ID_SELECT_SELECTABLE_TRAP_SETUP).value;
+        document.getElementById(ID_SELECT_SELECTABLE_WEAPON).value = trapSetups[currentSelection][IDX_WEAPON];
+        document.getElementById(ID_SELECT_SELECTABLE_BASE).value = trapSetups[currentSelection][IDX_BASE];
+        document.getElementById(ID_SELECT_SELECTABLE_BAIT).value = trapSetups[currentSelection][IDX_BAIT];
+        document.getElementById(ID_SELECT_SELECTABLE_TRINKET).value = trapSetups[currentSelection][IDX_TRINKET];
     }
 
     getBestBase() {
@@ -445,28 +492,36 @@ class Policy {
     getBestLuckWeapon(powerType) {
         const weaponInfo = getWeaponInfo();
         if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
-            this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
-                .filter(([key, value]) => value.powerType === powerType)
-                .sort(([,a], [,b]) => b.power - a.power)
-                .sort(([,a], [,b]) => b.luck - a.luck)
-                .map(x => x[1].name)[0];
+            if (powerType == POWER_TYPE_OVERALL) {
+                this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
+                    .sort(([,a], [,b]) => b.power - a.power)
+                    .sort(([,a], [,b]) => b.luck - a.luck)
+                    .map(x => x[1].name)[0];
+            } else {
+                this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
+                    .filter(([key, value]) => value.powerType === powerType)
+                    .sort(([,a], [,b]) => b.power - a.power)
+                    .sort(([,a], [,b]) => b.luck - a.luck)
+                    .map(x => x[1].name)[0];
+            }
         }
         return this.bestLuckWeapons[powerType];
     }
 
     getTrapSetups(storageName) {
-        if (isNullOrUndefined(this.trapSetups)) {
-            const tmpStorage = getStorage(storageName, null);
+        if (isNullOrUndefined(this._trapSetups)) {
+            const tmpStorage = getStorage(storageName, undefined);
             if (isNullOrUndefined(tmpStorage)) {
                 this.resetTrapSetups();
             } else {
-                this.trapSetups = tmpStorage;
+                this._trapSetups = tmpStorage;
             }
         }
-        return this.trapSetups;
+        return this._trapSetups;
     }
 
     getDefaultTrapSetup(trapSetup, baitName, trinketName) {
+        trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_OVERALL);
         trapSetup[IDX_BASE] = this.getBestBase();
         if ( !isNullOrUndefined(baitName)) {
             trapSetup[IDX_BAIT] = baitName;
@@ -522,36 +577,131 @@ class Policy {
     }
 }
 
-class PolicyBWoARe extends Policy {
+class PolicySingleTrapSetup extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_ACOLYTE_REALM);
-        this.trs[0] = ID_TR_BWOARE_TRAP_SETUP;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = [];
-    }
-
-    getTrapSetups() {
-        return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOARE);
+        this.trs[0] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        document.getElementById(ID_SELECT_BWOARE_WEAPON).value = trapSetups[IDX_WEAPON];
-        document.getElementById(ID_SELECT_BWOARE_BASE).value = trapSetups[IDX_BASE];
-        document.getElementById(ID_SELECT_BWOARE_BAIT).value = trapSetups[IDX_BAIT];
-        document.getElementById(ID_SELECT_BWOARE_TRINKET).value = trapSetups[IDX_TRINKET];
+        this.setSingleTrapSetup(this.trapSetups);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const baitName = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        this.getDefaultTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyGnaHar extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAHAR);
+    }
+}
+
+class PolicyGnaMou extends PolicySingleTrapSetup {
+    constructor () {
+        super();
+        this.trs[0] = ID_TR_GNAMOU_ATM_SMASH;
+        this.trs[1] = ID_TR_GNAMOU_ATM_SWITCH_CHARM;
+        this.trs[2] = ID_TR_SINGLE_TRAP_SETUP;
+    }
+
+    resetTrapSetups() {
+        this._trapSetups = {};
+        this._trapSetups[GNAMOU_ATM_SMASH] = true;
+        this._trapSetups[GNAMOU_ATM_SWITCH_CHARM] = true;
+    }
+
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAMOU);
+    }
+
+    initSelectTrapSetup() {
+        const trapSetups = this.trapSetups;
+        this.setSingleTrapSetup(trapSetups);
+        document.getElementById(ID_CBX_GNAMOU_ATM_SMASH).checked = trapSetups[GNAMOU_ATM_SMASH];
+        document.getElementById(ID_CBX_GNAMOU_ATM_SWITCH_CHARM).checked = trapSetups[GNAMOU_ATM_SWITCH_CHARM];
+    }
+}
+
+class PolicyWWoCCl extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_WWOCCL);
+    }
+}
+
+class PolicyWWoGGT extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_WWOGGT);
+    }
+
+    recommendTrapSetup() {
+        this.getTacticalTrapSetup(this.trapSetups);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyBurMou extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_BURMOU);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_RADIOACTIVE_BLUE)? BAIT_RADIOACTIVE_BLUE: undefined;
+        this.getArcaneTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyBWoCat extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOCAT);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_RADIOACTIVE_BLUE)? BAIT_RADIOACTIVE_BLUE: undefined;
+        this.getArcaneTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyBWoARe extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOARE);
+    }
+
+    recommendTrapSetup() {
         if (getBaitNames().includes(BAIT_RUNIC)) {
-            this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
+            this.getForgottenTrapSetup(this.trapSetups, BAIT_RUNIC);
         } else {
-            this.getArcaneTrapSetup(trapSetups);
+            this.getArcaneTrapSetup(this.trapSetups);
         }
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyTIsDDu extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_TISDDU);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getPhysicalTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
+}
+
+class PolicyTIsJoD extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_TISJOD);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getShadowTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
     }
 }
@@ -559,32 +709,28 @@ class PolicyBWoARe extends Policy {
 class PolicyVVaCSC extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_CLAW_SHOT_CITY);
-        this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-        this.trs[1] = ID_TR_VVACSC_ATM_POSTER;
-        this.trs[2] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
+        this.trs[0] = ID_TR_VVACSC_ATM_POSTER;
+        this.trs[1] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
+        this.trs[2] = ID_TR_SELECTABLE_TRAP_SETUP;
+        this.selectableValues = VVACSC_PHASES;
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const phase of VVACSC_PHASES){
-            this.trapSetups[phase] = [];
+            this._trapSetups[phase] = [];
         }
-        this.trapSetups[VVACSC_ATM_POSTER] = true;
-        this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
+        this._trapSetups[VVACSC_ATM_POSTER] = true;
+        this._trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_VVACSC);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
-        document.getElementById(ID_SELECT_VVACSC_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
-        document.getElementById(ID_SELECT_VVACSC_BASE).value = trapSetups[currentPhase][IDX_BASE];
-        document.getElementById(ID_SELECT_VVACSC_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
-        document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
+        const trapSetups = this.trapSetups;
+        this.setSelectableTrapSetup(trapSetups);
         document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
         document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
     }
@@ -597,7 +743,7 @@ class PolicyVVaCSC extends Policy {
             trapSetup[IDX_TRINKET] = prospectorsCharm;
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const bestWeapon = this.getBestLuckWeapon(POWER_TYPE_LAW);
         const clawShotBase = getBaseNames().includes(BASE_CLAW_SHOT)? BASE_CLAW_SHOT: this.getBestBase();;
         const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
@@ -617,29 +763,28 @@ class PolicyVVaCSC extends Policy {
 class PolicyVVaFRo extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_FORT_ROX);
         this.trs[0] = ID_TR_VVAFRO_PHASES_TRAP_SETUP;
         this.trs[1] = ID_TR_VVAFRO_ATM_DEACTIVATE;
         this.trs[2] = ID_TR_VVAFRO_ATM_RETREAT;
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const phase of VVAFRO_PHASES){
-            this.trapSetups[phase] = [];
+            this._trapSetups[phase] = [];
         }
-        this.trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
-        this.trapSetups[VVAFRO_ATM_RETREAT] = false;
-        this.trapSetups[VVAFRO_REQUIRED_HOWLITE] = 0;
-        this.trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = 0;
+        this._trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
+        this._trapSetups[VVAFRO_ATM_RETREAT] = false;
+        this._trapSetups[VVAFRO_REQUIRED_HOWLITE] = 0;
+        this._trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = 0;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_VVAFRO);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const currentPhase = document.getElementById(ID_SELECT_VVAFRO_PHASE).value;
         document.getElementById(ID_SELECT_VVAFRO_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
         document.getElementById(ID_SELECT_VVAFRO_BASE).value = trapSetups[currentPhase][IDX_BASE];
@@ -658,11 +803,11 @@ class PolicyVVaFRo extends Policy {
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const baitNames = getBaitNames();
         const brieCheese = baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const baitName = baitNames.includes(BAIT_MOON)? BAIT_MOON: baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
-        this.getLawTrapSetup(trapSetups[VVAFRO_PHASE_DAY], brieCheese, TRINKET_DISARM);
+        this.getLawTrapSetup(trapSetups[VVAFRO_PHASE_DAY], brieCheese, ITEM_DISARM);
         this.getShadowTrapSetup(trapSetups[VVAFRO_PHASE_TWILIGHT], baitName);
         this.getShadowTrapSetup(trapSetups[VVAFRO_PHASE_MIDNIGHT], baitName);
         this.getArcaneTrapSetup(trapSetups[VVAFRO_PHASE_PITCH], baitName);
@@ -678,37 +823,32 @@ class PolicyVVaFRo extends Policy {
 class PolicyRodSGa extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_SEASONAL_GARDEN);
-        this.trs[0] = ID_TR_RODSGA_SEASONS_TRAP_SETUP;
+        this.trs[0] = ID_TR_SELECTABLE_TRAP_SETUP;
+        this.selectableValues = RODSGA_SEASONS;
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const season of RODSGA_SEASONS){
-            this.trapSetups[season] = [];
+            this._trapSetups[season] = [];
         }
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSGA);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        const currentSeason = document.getElementById(ID_SELECT_RODSGA_SEASON).value;
-        document.getElementById(ID_SELECT_RODSGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODSGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
-        document.getElementById(ID_SELECT_RODSGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODSGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
+        this.setSelectableTrapSetup(this.trapSetups);
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getPhysicalTrapSetup(trapSetups[RODSGA_SEASON_SPRING], baitName, TRINKET_DISARM);
-        this.getTacticalTrapSetup(trapSetups[RODSGA_SEASON_SUMMER], baitName, TRINKET_DISARM);
-        this.getShadowTrapSetup(trapSetups[RODSGA_SEASON_AUTUMN], baitName, TRINKET_DISARM);
-        this.getHydroTrapSetup(trapSetups[RODSGA_SEASON_WINTER], baitName, TRINKET_DISARM);
+        this.getPhysicalTrapSetup(trapSetups[RODSGA_SEASON_SPRING], baitName, ITEM_DISARM);
+        this.getTacticalTrapSetup(trapSetups[RODSGA_SEASON_SUMMER], baitName, ITEM_DISARM);
+        this.getShadowTrapSetup(trapSetups[RODSGA_SEASON_AUTUMN], baitName, ITEM_DISARM);
+        this.getHydroTrapSetup(trapSetups[RODSGA_SEASON_WINTER], baitName, ITEM_DISARM);
         this.initSelectTrapSetup();
     }
 }
@@ -716,30 +856,26 @@ class PolicyRodSGa extends Policy {
 class PolicyRodZTo extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_ZUGZWANGS_TOWER);
         this.trs[0] = ID_TR_RODZTO_STRATEGY;
-        this.trs[1] = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
+        this.trs[1] = ID_TR_SELECTABLE_TRAP_SETUP;
+        this.selectableValues = RODZTO_CHESS_PROGRESS;
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const chessPiece of RODZTO_CHESS_PROGRESS){
-            this.trapSetups[chessPiece] = [];
+            this._trapSetups[chessPiece] = [];
         }
-        this.trapSetups[RODZTO_STRATEGY] = RODZTO_STRATEGY_MYSTIC_ONLY;
+        this._trapSetups[RODZTO_STRATEGY] = RODZTO_STRATEGY_MYSTIC_ONLY;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODZTO);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        const currentChess = document.getElementById(ID_SELECT_ROD_RODZTO_CHESS).value;
-        document.getElementById(ID_SELECT_RODZTO_WEAPON).value = trapSetups[currentChess][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODZTO_BASE).value = trapSetups[currentChess][IDX_BASE];
-        document.getElementById(ID_SELECT_RODZTO_BAIT).value = trapSetups[currentChess][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODZTO_TRINKET).value = trapSetups[currentChess][IDX_TRINKET];
+        const trapSetups = this.trapSetups;
+        this.setSelectableTrapSetup(trapSetups);
         document.getElementById(ID_SELECT_RODZTO_STRATEGY).value = trapSetups[RODZTO_STRATEGY];
     }
 
@@ -751,7 +887,7 @@ class PolicyRodZTo extends Policy {
             trapSetup[IDX_TRINKET] = trinketName;
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const weaponNames = getWeaponNames();
         const baseNames = getBaseNames();
         const baitNames = getBaitNames();
@@ -786,53 +922,61 @@ class PolicyRodZTo extends Policy {
     }
 }
 
-class PolicyRodCLi extends Policy {
+class PolicyRodCLi extends PolicySingleTrapSetup {
     constructor () {
         super();
-        this.setName(POLICY_NAME_CRYSTAL_LIBRARY);
         this.trs[0] = ID_TR_RODCLI_ATM_CATALOG_MICE;
+        this.trs[1] = ID_TR_SINGLE_TRAP_SETUP;
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
-        this.trapSetups[RODCLI_ATM_CATALOG_MICE] = false;
+        this._trapSetups = {};
+        this._trapSetups[RODCLI_ATM_CATALOG_MICE] = false;
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODCLI);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
+        this.setSingleTrapSetup(trapSetups);
         document.getElementById(ID_CBX_RODCLI_ATM_CATALOG_MICE).checked = trapSetups[RODCLI_ATM_CATALOG_MICE];
+    }
+}
+
+class PolicyRodSSh extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSSH);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
+        this.getHydroTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
     }
 }
 
 class PolicyRodIce extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_ICEBERG);
-        this.trs[0] = ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP;
+        this.trs[0] = ID_TR_SELECTABLE_TRAP_SETUP;
+        this.selectableValues = RODICE_SUBLOCATIONS;
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const sublocation of RODICE_SUBLOCATIONS){
-            this.trapSetups[sublocation] = [];
+            this._trapSetups[sublocation] = [];
         }
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODICE);
     }
 
     initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        const sublocation = document.getElementById(ID_SELECT_RODICE_SUBLOCATION).value;
-        document.getElementById(ID_SELECT_RODICE_WEAPON).value = trapSetups[sublocation][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODICE_BASE).value = trapSetups[sublocation][IDX_BASE];
-        document.getElementById(ID_SELECT_RODICE_BAIT).value = trapSetups[sublocation][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODICE_TRINKET).value = trapSetups[sublocation][IDX_TRINKET];
+        this.setSelectableTrapSetup(this.trapSetups);
     }
 
     recommendTrapSetup() {
@@ -843,7 +987,7 @@ class PolicyRodIce extends Policy {
             trapSetup[IDX_TRINKET] = trinketName;
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const weaponNames = getWeaponNames();
         const baseNames = getBaseNames();
         const baitNames = getBaitNames();
@@ -871,7 +1015,6 @@ class PolicyRodIce extends Policy {
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_ICEWINGS_LAIR], deepFreezeBase, baitName, powerCharm);
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_HIDDEN_DEPTHS], bestBase, baitName, powerCharm);
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_THE_DEEP_LAIR], bestBase, baitName, powerCharm);
-        getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_SLUSHY_SHORELINE], bestBase, brieCheese, powerCharm);
         this.initSelectTrapSetup();
     }
 }
@@ -879,7 +1022,6 @@ class PolicyRodIce extends Policy {
 class PolicySDeFWa extends Policy {
     constructor () {
         super();
-        this.setName(POLICY_NAME_FIERY_WARPATH);
         this.trs[0] = ID_TR_SELECT_SDEFWA_WAVE;
         this.trs[1] = ID_TR_SDEFWA_POWER_TYPES_TRAP_SETUP;
         this.trs[2] = ID_TR_SELECT_SDEFWA_TARGET_POPULATION;
@@ -890,27 +1032,27 @@ class PolicySDeFWa extends Policy {
     }
 
     resetTrapSetups() {
-        this.trapSetups = {};
+        this._trapSetups = {};
         for (const powerType of SDEFWA_POWER_TYPES){
-            this.trapSetups[powerType] = [];
+            this._trapSetups[powerType] = [];
         }
-        this.trapSetups[SDEFWA_LAST_SOLDIER] = [];
-        this.trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = TRINKET_DISARM;
+        this._trapSetups[SDEFWA_LAST_SOLDIER] = [];
+        this._trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = ITEM_DISARM;
         for (const wave of SDEFWA_WAVES){
-            this.trapSetups[wave] = {};
+            this._trapSetups[wave] = {};
             if (wave == SDEFWA_WAVE4) {
-                this.trapSetups[wave][STATUS_BEFORE] = [];
-                this.trapSetups[wave][STATUS_AFTER] = [];
+                this._trapSetups[wave][STATUS_BEFORE] = [];
+                this._trapSetups[wave][STATUS_AFTER] = [];
             } else {
                 for (let steak = 0; steak <= SDEFWA_MAX_STREAKS; steak++) {
-                    this.trapSetups[wave][steak] = [];
+                    this._trapSetups[wave][steak] = [];
                 }
-                this.trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
+                this._trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
             }
         }
     }
 
-    getTrapSetups() {
+    get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEFWA);
     }
 
@@ -919,7 +1061,7 @@ class PolicySDeFWa extends Policy {
             const currentWave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
             const WAVE4_DISPLAY = currentWave == SDEFWA_WAVE4? "table-row": "none";
             const WAVE123_DISPLAY = currentWave == SDEFWA_WAVE4? "none": "table-row";
-            for (const tr of POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trs){
+            for (const tr of g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trs){
                 if (tr == ID_TR_SELECT_SDEFWA_WAVE) {
                     continue;
                 }
@@ -927,7 +1069,7 @@ class PolicySDeFWa extends Policy {
             }
         }
 
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const currentPowerType = document.getElementById(ID_SELECT_SDEFWA_POWER_TYPE).value;
         document.getElementById(ID_SELECT_SDEFWA_SOLDIER_WEAPON).value = trapSetups[currentPowerType][IDX_WEAPON];
         document.getElementById(ID_SELECT_SDEFWA_SOLDIER_BASE).value = trapSetups[currentPowerType][IDX_BASE];
@@ -952,7 +1094,7 @@ class PolicySDeFWa extends Policy {
     }
 
     recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
+        const trapSetups = this.trapSetups;
         const bestBase = this.getBestBase();
         const bestArcaneWeapon = this.getBestLuckWeapon(POWER_TYPE_ARCANE);
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
@@ -965,7 +1107,7 @@ class PolicySDeFWa extends Policy {
         trapSetups[POWER_TYPE_TACTICAL][IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_TACTICAL);;
         trapSetups[POWER_TYPE_TACTICAL][IDX_BASE] = bestBase;
         trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = baitName;
-        trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = TRINKET_DISARM;
+        trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = ITEM_DISARM;
         for (const wave of SDEFWA_WAVES){
             if (wave == SDEFWA_WAVE4) {
                 for (const status of STATUSES){
@@ -1001,71 +1143,160 @@ class PolicySDeFWa extends Policy {
     }
 }
 
-const POLICY_DICT = {};
-function initPolicyDict() {
-    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
-    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
-    POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyVVaFRo();
-    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
-    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyRodZTo();
-    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyRodCLi();
-    POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyRodIce();
-    POLICY_DICT[POLICY_NAME_FIERY_WARPATH] = new PolicySDeFWa();
+class PolicySDeMMa extends PolicySingleTrapSetup {
+    get trapSetups() {
+        return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEMMA);
+    }
+
+    recommendTrapSetup() {
+        const baitName = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
+        this.getPhysicalTrapSetup(this.trapSetups, baitName);
+        this.initSelectTrapSetup();
+    }
 }
 
+class Policies {
+    constructor() {
+        this._policyDict = {}
+        this.list = [];
+        this.list.push(POLICY_NAME_HARBOUR);
+        this.list.push(POLICY_NAME_MOUNTAIN);
+        this.list.push(POLICY_NAME_CALM_CLEARING);
+        this.list.push(POLICY_NAME_GREAT_GNARLED_TREE);
+        this.list.push(POLICY_NAME_MOUSOLEUM);
+        this.list.push(POLICY_NAME_CATACOMBS);
+        this.list.push(POLICY_NAME_ACOLYTE_REALM);
+        this.list.push(POLICY_NAME_DERR_DUNES);
+        this.list.push(POLICY_NAME_JUNGLE_OF_DREAD);
+        this.list.push(POLICY_NAME_CLAW_SHOT_CITY);
+        this.list.push(POLICY_NAME_FORT_ROX);
+        this.list.push(POLICY_NAME_SEASONAL_GARDEN);
+        this.list.push(POLICY_NAME_ZUGZWANGS_TOWER);
+        this.list.push(POLICY_NAME_CRYSTAL_LIBRARY);
+        this.list.push(POLICY_NAME_SLUSHY_SHORELINE);
+        this.list.push(POLICY_NAME_ICEBERG);
+        this.list.push(POLICY_NAME_FIERY_WARPATH);
+        this.list.push(POLICY_NAME_MURIDAE_MARKET);
+    }
+
+    getPolicy(policyName) {
+        if (!(policyName in this._policyDict)) {
+            switch(policyName) {
+                case POLICY_NAME_HARBOUR:
+                    this._policyDict[policyName] = new PolicyGnaHar();
+                    break;
+                case POLICY_NAME_MOUNTAIN:
+                    this._policyDict[policyName] = new PolicyGnaMou();
+                    break;
+                case POLICY_NAME_CALM_CLEARING:
+                    this._policyDict[policyName] = new PolicyWWoCCl();
+                    break;
+                case POLICY_NAME_GREAT_GNARLED_TREE:
+                    this._policyDict[policyName] = new PolicyWWoGGT();
+                    break;
+                case POLICY_NAME_MOUSOLEUM:
+                    this._policyDict[policyName] = new PolicyBurMou();
+                    break;
+                case POLICY_NAME_CATACOMBS:
+                    this._policyDict[policyName] = new PolicyBWoCat();
+                    break;
+                case POLICY_NAME_ACOLYTE_REALM:
+                    this._policyDict[policyName] = new PolicyBWoARe();
+                    break;
+                case POLICY_NAME_DERR_DUNES:
+                    this._policyDict[policyName] = new PolicyTIsDDu();
+                    break;
+                case POLICY_NAME_JUNGLE_OF_DREAD:
+                    this._policyDict[policyName] = new PolicyTIsJoD();
+                    break;
+                case POLICY_NAME_CLAW_SHOT_CITY:
+                    this._policyDict[policyName] = new PolicyVVaCSC();
+                    break;
+                case POLICY_NAME_FORT_ROX:
+                    this._policyDict[policyName] = new PolicyVVaFRo();
+                    break;
+                case POLICY_NAME_SEASONAL_GARDEN:
+                    this._policyDict[policyName] = new PolicyRodSGa();
+                    break;
+                case POLICY_NAME_ZUGZWANGS_TOWER:
+                    this._policyDict[policyName] = new PolicyRodZTo();
+                    break;
+                case POLICY_NAME_CRYSTAL_LIBRARY:
+                    this._policyDict[policyName] = new PolicyRodCLi();
+                    break;
+                case POLICY_NAME_SLUSHY_SHORELINE:
+                    this._policyDict[policyName] = new PolicyRodSSh();
+                    break;
+                case POLICY_NAME_ICEBERG:
+                    this._policyDict[policyName] = new PolicyRodIce();
+                    break;
+                case POLICY_NAME_FIERY_WARPATH:
+                    this._policyDict[policyName] = new PolicySDeFWa();
+                    break;
+                case POLICY_NAME_MURIDAE_MARKET:
+                    this._policyDict[policyName] = new PolicySDeMMa();
+                    break;
+                default:
+            }
+        }
+        return this._policyDict[policyName];
+    }
+}
+
+const g_policies = new Policies();
 function loadTrapInfo() {
-    g_trapInfo = getStorage(STORAGE_TRAP_INFO, null);
+    g_trapInfo = getStorage(STORAGE_TRAP_INFO, undefined);
 }
 
 function getWeaponInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
-        return null
+    if (isNullOrUndefined(g_trapInfo)) {
+        return undefined;
     } else {
         return g_trapInfo.weapon.info;
     }
 }
 
 function getBaseInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
-        return null;
+    if (isNullOrUndefined(g_trapInfo)) {
+        return undefined;
     } else {
         return g_trapInfo.base.info;
     }
 }
 
 function getBaitInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
-        return null;
+    if (isNullOrUndefined(g_trapInfo)) {
+        return undefined;
     } else {
         return g_trapInfo.bait.info;
     }
 }
 
 function getTrinketInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
-        return null;
+    if (isNullOrUndefined(g_trapInfo)) {
+        return undefined;
     } else {
         return g_trapInfo.trinket.info;
     }
 }
 
 function getWeaponNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.weapon.names;
@@ -1073,10 +1304,10 @@ function getWeaponNames() {
 }
 
 function getBaseNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.base.names;
@@ -1084,10 +1315,10 @@ function getBaseNames() {
 }
 
 function getBaitNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.bait.names;
@@ -1095,10 +1326,10 @@ function getBaitNames() {
 }
 
 function getTrinketNames() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
+    if (isNullOrUndefined(g_trapInfo)) {
         return [];
     } else {
         return g_trapInfo.trinket.names;
@@ -1107,7 +1338,7 @@ function getTrinketNames() {
 
 function getFriendInfo() {
     if (isNullOrUndefined(g_friendInfo)) {
-        g_friendInfo = getStorage(STORAGE_FRIEND_INFO, null);
+        g_friendInfo = getStorage(STORAGE_FRIEND_INFO, undefined);
         if (isNullOrUndefined(g_friendInfo)) {
             document.getElementById(ID_BOTTON_UPDATE_FRIENDS).click();
             return;
@@ -1223,7 +1454,7 @@ function retryKRSolver(resetCaptcha) {
         setStorage("KingsRewardRetry", g_kingsRewardRetry);
         const strTemp = 'Max ' + MAX_KR_RETRY + 'retries. Pls solve it manually ASAP.';
         updateTitleTxt(strTemp);
-        updateNextBotHornTimeTxt(strTemp);
+        updateNextHuntTxt(strTemp);
         console.perror(strTemp);
     } else {
         ++g_kingsRewardRetry;
@@ -1270,7 +1501,6 @@ function execScript() {
     if (DEBUG_MODE) console.log('RUN %cexeScript()', 'color: #9cffbd');
 
     try {
-        initPolicyDict();
         setBotDocumentStyle();
         loadPreferenceSettingFromStorage();
         retrieveCampActiveData();
@@ -1294,17 +1524,18 @@ function execScript() {
 
 function operateBot() {
     try {
-        if (g_isKingReward) {
-            handleKingReward();
-        } else if (g_baitCount == 0) {
+        if (g_baitCount == 0) {
             updateTitleTxt("No more cheese!");
-            updateNextBotHornTimeTxt("Cannot hunt without the cheese...");
-            updateNextTrapCheckTimeTxt("Cannot hunt without the cheese...");
+            updateNextHuntTxt("Cannot hunt without the cheese...");
+            updateNextTrapCheckTxt("Cannot hunt without the cheese...");
         } else {
             // Run counddown Trap Check Timer anyway
             window.setTimeout(function () {
                 (countdownTrapCheckTimer)()
             }, 1000);
+            if (g_isKingReward) {
+                handleKingReward();
+            }
             // If the horn image exist, sound it, otherwise, countdown the timer
             if (hornExist()) {
                 window.setTimeout(function () {
@@ -1332,12 +1563,10 @@ function handleKingReward() {
 function kingRewardCountdownTimer(krDelaySec) {
     const strTemp = "Solve KR in " + timeFormat(krDelaySec) + " second(s)";
     updateTitleTxt(strTemp);
-    updateNextBotHornTimeTxt(strTemp);
-    //updateNextTrapCheckTimeTxt(strTemp);
+    updateNextHuntTxt(strTemp);
     krDelaySec -= KR_SOLVER_COUNTDOWN_INTERVAL;
     if (krDelaySec < 0) {
         if (DEBUG_MODE) console.log("START AUTOSOLVE NOW");
-
         callKRSolver();
     } else {
         window.setTimeout(function () {
@@ -1421,47 +1650,54 @@ function checkSchedule() {
 }
 
 function countdownBotHornTimer() {
-    // Update timer
-    const dateNow = new Date();
-    const intervalTime = timeElapsedInSeconds(g_lastBotHornTimeRecorded, dateNow);
-    g_lastBotHornTimeRecorded = undefined;
-    g_lastBotHornTimeRecorded = dateNow;
+    const nextBotHuntTime = new Date(g_nextHuntTime.getTime() + (g_botCountdownDelay * 1000));
+    const currentTime = new Date();
+    const nextHuntTimeTxt = g_nextHuntTime.toLocaleTimeString().endsWith("M")? g_nextHuntTime.toLocaleTimeString().slice(0,-3): g_nextHuntTime.toLocaleTimeString();
+    document.getElementById(ID_NEXT_HUNT_TIME_TXT).innerHTML = nextHuntTimeTxt;
 
-    g_nextBotHornTimeInSeconds -= intervalTime;
-
-    if (g_nextBotHornTimeInSeconds <= 0) {
+    if (nextBotHuntTime.getTime() < currentTime.getTime()) {
         prepareSoundingHorn();
     } else {
-
+        const countdownInSeconds = (nextBotHuntTime.getTime() - currentTime.getTime()) / 1000;
+        const countdownTxt = timeFormat(Math.floor(countdownInSeconds));
+        updateTitleTxt("Horn: " + countdownTxt);
+        document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_botCountdownDelay) + " delay)</i>";
         if (g_botProcess == BOT_PROCESS_IDLE) {
             checkSchedule();
         }
-
-        updateTitleTxt("Horn: " + timeFormat(g_nextBotHornTimeInSeconds));
-        updateNextBotHornTimeTxt(timeFormat(g_nextBotHornTimeInSeconds) + "  <i>(including " + timeFormat(g_botHornTimeDelayInSeconds) + " delay)</i>");
-
+        //g_botCountdownInterval
+        if (countdownInSeconds > 60) {
+            g_botCountdownInterval = 20;
+        } else if (countdownInSeconds > 12) {
+            g_botCountdownInterval = 10;
+        } else if (countdownInSeconds > 7) {
+            g_botCountdownInterval = 5;
+        } else if (countdownInSeconds > 3) {
+            g_botCountdownInterval = 2;
+        } else {
+            g_botCountdownInterval = 1;
+        }
+        document.getElementById(ID_BOT_INTERVAL_TXT).innerHTML = parseInt(g_botCountdownInterval) + " sec";
         // Check if user manaually sounded the horn
         //codeForCheckingIfUserManuallySoundedTheHorn();
         window.setTimeout(function () {
             countdownBotHornTimer()
-        }, BOT_HORN_TIMER_COUNTDOWN_INTERVAL * 1000);
+        }, g_botCountdownInterval * 1000);
     }
 }
 
 function countdownTrapCheckTimer() {
-    // Update timer
-    const dateNow = new Date();
-    const intervalTime = timeElapsedInSeconds(g_lastTrapCheckTimeRecorded, dateNow);
-    g_lastTrapCheckTimeRecorded = dateNow;
+    const nextTrapCheckTime = new Date(g_nextTrapCheckTime.getTime() + (g_trapCheckCountdownDelay * 1000));
+    const currentTime = new Date();
+    const nextTrapCheckTimeTxt = g_nextTrapCheckTime.toLocaleTimeString().endsWith("M")? g_nextTrapCheckTime.toLocaleTimeString().slice(0,-3): g_nextTrapCheckTime.toLocaleTimeString();
+    document.getElementById(ID_NEXT_TRAP_CHECK_TIME_TXT).innerHTML = nextTrapCheckTimeTxt;
 
-    g_nextTrapCheckTimeInSeconds -= intervalTime;
-
-    if (g_nextTrapCheckTimeInSeconds <= 0) {
+    if ((nextTrapCheckTime.getTime() < currentTime.getTime()) && lockBot(BOT_PROCESS_TIMER)) {
         trapCheck();
     } else {
         checkLocation();
-        updateNextTrapCheckTimeTxt(timeFormat(g_nextTrapCheckTimeInSeconds) + "  <i>(including " + timeFormat(g_nextTrapCheckTimeDelayInSeconds) + " delay)</i>");
-
+        const countdownTxt = timeFormat(Math.floor((nextTrapCheckTime.getTime() - currentTime.getTime()) / 1000));
+        document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = countdownTxt + "  <i>(incl " + timeFormat(g_trapCheckCountdownDelay) + " delay)</i>";
         window.setTimeout(function () {
             countdownTrapCheckTimer()
         }, TRAP_CHECK_TIMER_COUNTDOWN_INTERVAL * 1000);
@@ -1485,7 +1721,7 @@ function timeFormat(time) {
 function trapCheck() {
     // Let user known that the script is going to check the trap
     updateTitleTxt("Checking The Trap...");
-    updateNextTrapCheckTimeTxt("Checking trap now...");
+    document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = "Checking trap now...";
 
     // reload the page
     setTimeout(function () {
@@ -1514,7 +1750,7 @@ function soundHorn() {
             if (parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS)) == 0 ||
                 getPageVariable(USER_HAS_PUZZLE)) {
                 updateTitleTxt("KR found. Prepare to Solve...");
-                updateNextBotHornTimeTxt("KR found. Prepare to Solve...");
+                updateNextHuntTxt("KR found. Prepare to Solve...");
                 window.setTimeout(function () {
                     reloadCampPage()
                 }, 0.5 * 1000);
@@ -1525,7 +1761,7 @@ function soundHorn() {
         checkKRPrompt();
         // update timer
         updateTitleTxt("Horn sounded. Synchronizing Data...");
-        updateNextBotHornTimeTxt("Horn sounded. Synchronizing Data...");
+        updateNextHuntTxt("Horn sounded. Synchronizing Data...");
 
         // reload data
         retrieveCampActiveData();
@@ -1540,14 +1776,9 @@ function soundHorn() {
     fireEvent(hornElement, 'click');
 
     // double check if the horn was already sounded
-    /*
     window.setTimeout(function () {
         afterSoundingHorn()
     }, 4000);
-    */
-    window.setTimeout(function () {
-        afterSoundingHorn()
-    }, 2000);
 }
 
 function prepareSoundingHorn() {
@@ -1557,7 +1788,7 @@ function prepareSoundingHorn() {
     } else {
         // The horn is missing
         updateTitleTxt("Synchronizing Data...");
-        updateNextBotHornTimeTxt("Hunter horn is missing. Synchronizing data...");
+        updateNextHuntTxt("Hunter horn is missing. Synchronizing data...");
 
         window.setTimeout(function () {
             reloadCampPage();
@@ -1582,12 +1813,12 @@ function updateTitleTxt(titleTxt) {
     document.title = titleTxt;
 }
 
-function updateNextBotHornTimeTxt(nextHornTimeTxt) {
-    g_nextBotHornTimeDisplay.innerHTML = nextHornTimeTxt;
+function updateNextHuntTxt(nextHornTimeTxt) {
+    document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = nextHornTimeTxt;
 }
 
-function updateNextTrapCheckTimeTxt(trapCheckTimeTxt) {
-    g_nextTrapCheckTimeDisplay.innerHTML = trapCheckTimeTxt;
+function updateNextTrapCheckTxt(trapCheckTimeTxt) {
+    document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = trapCheckTimeTxt;
 }
 
 function loadPreferenceSettingFromStorage() {
@@ -1652,33 +1883,44 @@ function isNullOrUndefined(obj) {
 }
 
 function retrieveCampActiveData() {
+    function getActualNextHuntTime() {
+        const timeBefore = new Date();
+        ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
+                 getAjaxHeader({"page_class": "Camp", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
+                 function (data) {
+            g_nextHuntTime = new Date();
+            g_nextHuntTime.setTime(g_nextHuntTime.getTime() + data.user.next_activeturn_seconds*1000 + timeBefore.getTime() - g_nextHuntTime.getTime());
+        }, function (error) {
+            console.error('ajax:', error);
+        });
+    }
+
     // This function is to retrieve data from camp page that is actively changed, including
     // - next horn time
+    // - trap check time (likely from storage), only from camp page at the very first time using this bot
     // - king reward
     // - bait quantity
     if (DEBUG_MODE) console.log('RUN retrieveCampActiveData()');
 
-    // Set time stamp for when the other time stamps are queried
-    g_lastBotHornTimeRecorded = new Date();
-
-    // Get MH horn time and use it to calculate next bot horn time
-    const nextMHHornTimeInSeconds = parseInt(getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
-    g_botHornTimeDelayInSeconds = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
-    g_nextBotHornTimeInSeconds = nextMHHornTimeInSeconds + g_botHornTimeDelayInSeconds;
-    if (g_nextBotHornTimeInSeconds <= 0){
-        alert("g_nextActiveTime <= 0");
-        // K_Todo_014
-        //eventLocationCheck();
-    }
-    const trapCheckTimeOffsetInSeconds = getTrapCheckTime() * 60;
-    const now = new Date();
-    g_nextTrapCheckTimeInSeconds = trapCheckTimeOffsetInSeconds - (now.getMinutes() * 60 + now.getSeconds());
-    g_nextTrapCheckTimeDelayInSeconds = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
-    g_nextTrapCheckTimeInSeconds = (g_nextTrapCheckTimeInSeconds <= 0) ? 3600 + g_nextTrapCheckTimeInSeconds : g_nextTrapCheckTimeInSeconds;
-    g_nextTrapCheckTimeInSeconds += g_nextTrapCheckTimeDelayInSeconds;
-
     // Check if there is King Reward ongoing
     g_isKingReward = getPageVariable(USER_HAS_PUZZLE);
+
+    // get MH horn time
+    g_nextHuntTime = new Date(); //For temporary, just in case if the Ajax response doesn't come fast enough.
+    g_nextHuntTime.setSeconds(g_nextHuntTime.getSeconds() + getPageVariable(USER_NEXT_ACTIVETURN_SECONDS));
+    if (!g_isKingReward) {
+        getActualNextHuntTime();
+    }
+    g_botCountdownDelay = g_botHornTimeDelayMin + Math.round(Math.random() * (g_botHornTimeDelayMax - g_botHornTimeDelayMin));
+
+    const trapCheckTimeOffset = getTrapCheckTime();
+    g_nextTrapCheckTime = new Date();
+    if (g_nextTrapCheckTime.getMinutes() >= trapCheckTimeOffset) {
+        g_nextTrapCheckTime.setHours(g_nextTrapCheckTime.getHours()+1, trapCheckTimeOffset, 0, 0)
+    } else {
+        g_nextTrapCheckTime.setHours(g_nextTrapCheckTime.getHours(), trapCheckTimeOffset, 0, 0)
+    }
+    g_trapCheckCountdownDelay = g_trapCheckTimeDelayMin + Math.round(Math.random() * (g_trapCheckTimeDelayMax - g_trapCheckTimeDelayMin));
 
     g_baitCount = getPageVariable("user.bait_quantity");
 }
@@ -1706,7 +1948,7 @@ function getTrapCheckTimeFromPage() {
         }
     } catch (e) {
         console.perror('GetTrapCheckTime', e.message);
-        return null;
+        return undefined;
     }
 }
 
@@ -1777,6 +2019,9 @@ function checkLocation() {
     }
 
     function checkThenArmItem(classification, policyItemName) {
+        if (isNullOrUndefined(policyItemName) || policyItemName == ITEM_IGNORE || policyItemName == ITEM_OTHER) {
+            return;
+        }
         let currentItemId;
         let itemInfo;
         if (classification == CLASSIFICATION_WEAPON) {
@@ -1794,12 +2039,12 @@ function checkLocation() {
         }
         let targetItemType;
         if (classification == CLASSIFICATION_TRINKET &&
-            policyItemName == TRINKET_DISARM &&
+            policyItemName == ITEM_DISARM &&
             !isNullOrUndefined(currentItemId)) {
             targetItemType = policyItemName.toLowerCase();
         } else if (classification == CLASSIFICATION_TRINKET &&
                    !isNullOrUndefined(policyItemName) &&
-                   policyItemName != TRINKET_DISARM) {
+                   policyItemName != ITEM_DISARM) {
             targetItemType = checkArmedItem(currentItemId, policyItemName, itemInfo);
         } else if (classification != CLASSIFICATION_TRINKET) {
             targetItemType = checkArmedItem(currentItemId, policyItemName, itemInfo);
@@ -1815,6 +2060,9 @@ function checkLocation() {
                 for (const component of data.components){
                     if (component.name == policyItemName && component.quantity > 0) {
                         // the item does exist, so arm the item !!
+                        if (!lockBot(BOT_PROCESS_POLICY)) {
+                            return;
+                        }
                         armItem(classification, targetItemType);
                         window.setTimeout(function () {
                             reloadCampPage();
@@ -1827,7 +2075,7 @@ function checkLocation() {
                 console.error('ajax:', error);
                 alert("error checking item quantity");
             });
-        } else if (!isNullOrUndefined(targetItemType)) {
+        } else if (!isNullOrUndefined(targetItemType) && lockBot(BOT_PROCESS_POLICY)) {
             // Same as the previous if condition but this apply to only Weapon and Base, which are hard to disappear
             // So no Ajax checking need, just go straight to the arming process
             armItem(classification, targetItemType);
@@ -1835,7 +2083,7 @@ function checkLocation() {
         }
     }
 
-    function armTraps(trapSetup) {
+    function armTrap(trapSetup) {
         let delayTime = 0;
         if (!isNullOrUndefined(checkThenArmItem(CLASSIFICATION_WEAPON, trapSetup[IDX_WEAPON]))) {
             delayTime += 1;
@@ -1856,35 +2104,71 @@ function checkLocation() {
         }
     }
 
+    function runSingleTrapSetupPolicy(policyName) {
+        document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
+        const trapSetups = g_policies.getPolicy(policyName).trapSetups;
+        armTrap(trapSetups);
+    }
+
     function runGnaHarPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
-        const status = getPageVariable("user.quests.QuestHarbour.status");
-        let button;
-        let canClaim;
-        switch(status) {
+        const harbourInfo = getPageVariable("user.quests.QuestHarbour");
+        switch(harbourInfo.status) {
             case "noShip":
                 break;
             case "canBeginSearch":
-                button = document.getElementsByClassName("harbourHUD-beginSearch")[0];
-                fireEvent(button, "click");
+                fireEvent(document.getElementsByClassName("harbourHUD-beginSearch")[0], "click");
                 break;
             case "searchStarted":
-                canClaim = getPageVariable("user.quests.QuestHarbour.can_claim");
-                if (canClaim) {
-                    button = document.getElementsByClassName("harbourHUD-claimBootyButton active")[0];
-                    fireEvent(button, "click");
+                if (harbourInfo.can_claim) {
+                    fireEvent(document.getElementsByClassName("harbourHUD-claimBootyButton active")[0], "click");
                 }
                 break;
             default:
         }
-        canClaim = null;
-        button = null;
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_HARBOUR).trapSetups;
+        armTrap(trapSetups);
     }
 
-    function runBWoARePolicy() {
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ACOLYTE_REALM;
-        const trapSetups = POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].getTrapSetups();
-        armTraps(trapSetups);
+    function runGnaMouPolicy() {
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_MOUNTAIN;
+        const mountainInfo = getPageVariable("user.quests.QuestMountain");
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups;
+        if (trapSetups[GNAMOU_ATM_SMASH] && mountainInfo.boulder_hp == 0 && lockBot(BOT_PROCESS_POLICY)) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Smashing the boulder";
+            ajaxPost(window.location.origin + '/managers/ajax/environment/mountain.php',
+                     getAjaxHeader({"action": "claim_reward", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
+                     function (data) {
+                window.setTimeout(function () {
+                    reloadCampPage();
+                }, 2 * 1000);
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error Smashing the boulder");
+            });
+        }
+        if (trapSetups[GNAMOU_ATM_SWITCH_CHARM]) {
+            if (mountainInfo.boulder_hp > 300) {
+                if (parseInt(mountainInfo.items.super_power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_SUPER_POWER;
+                } else if (parseInt(mountainInfo.items.power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_POWER;
+                } else if (parseInt(mountainInfo.items.weak_power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_SMALL_POWER;
+                }
+            } else if (mountainInfo.boulder_hp > 60) {
+                if (parseInt(mountainInfo.items.power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_POWER;
+                } else if (parseInt(mountainInfo.items.weak_power_trinket.quantity) > 0) {
+                    trapSetups[IDX_TRINKET] = TRINKET_SMALL_POWER;
+                }
+            } else if (parseInt(mountainInfo.items.weak_power_trinket.quantity) > 0) {
+                trapSetups[IDX_TRINKET] = TRINKET_SMALL_POWER;
+            } else if (parseInt(mountainInfo.items.power_trinket.quantity) > 0) {
+                trapSetups[IDX_TRINKET] = TRINKET_POWER;
+            }
+        }
+        armTrap(trapSetups);
     }
 
     function runVVaCSCPolicy() {
@@ -1904,17 +2188,17 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
-        const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups;
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
             trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
         }
         switch(phase) {
             case VVACSC_PHASE_LAWLESS:
-                armTraps(trapSetups[phase]);
+                armTrap(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_NEED_POSTER:
-                armTraps(trapSetups[phase]);
+                armTrap(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_POSTER:
                 if (!trapSetups[VVACSC_ATM_POSTER]) {
@@ -1927,7 +2211,7 @@ function checkLocation() {
                 }, 5 * 1000);
                 break;
             case VVACSC_PHASE_ACTIVE_POSTER:
-                armTraps(trapSetups[phase]);
+                armTrap(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_HAS_REWARD:
                 if (!trapSetups[VVACSC_ATM_POSTER] || !lockBot(BOT_PROCESS_POLICY)) {
@@ -1944,20 +2228,42 @@ function checkLocation() {
                 break;
             default:
         }
-        poster = null;
+        poster = undefined;
     }
 
     function runVVaFRoPolicy() {
+        function deactivateTower() {
+            if (fortRoxInfo.tower_status == "normal active") {
+                fireEvent(document.getElementsByClassName("fortRoxHUD-spellTowerButton normal active")[0], "click");
+            }
+        }
+
+        function activateTower() {
+            if (fortRoxInfo.tower_status == "normal inactive") {
+                fireEvent(document.getElementsByClassName("fortRoxHUD-spellTowerButton normal inactive")[0], "click");
+            }
+        }
+
+        function checkFortRoxTrapSetup(trapSetup) {
+            if (trapSetup[IDX_TOWER] == VVAFRO_TOWER_DEACTIVATE) {
+                deactivateTower();
+            } else if (!trapSetups[VVAFRO_ATM_DEACTIVATE] || fortRoxInfo.hp_percent != 100) {
+                activateTower();
+            }
+            armTrap(trapSetup);
+        }
+
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
-        const currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
-        const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
-        if (currentStage != false &&
+        const fortRoxInfo = getPageVariable("user.quests.QuestFortRox");
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups;
+        if (fortRoxInfo.current_phase != "day" &&
             trapSetups[VVAFRO_ATM_RETREAT] &&
-            parseInt(getPageVariable("user.quests.QuestFortRox.items.howlite_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
-            parseInt(getPageVariable("user.quests.QuestFortRox.items.blood_stone_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
+            parseInt(fortRoxInfo.items.howlite_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
+            parseInt(fortRoxInfo.items.blood_stone_stat_item.quantity) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE] &&
+            lockBot(BOT_PROCESS_POLICY)) {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
             ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
-                     getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
+                     getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
                      function (data) {
                 window.setTimeout(function () {
                     reloadCampPage();
@@ -1967,27 +2273,35 @@ function checkLocation() {
                 alert("error retreating from Fort Rox");
             });
         } else {
-            switch(currentStage) {
-                case false:
-                    armTraps(trapSetups[VVAFRO_PHASE_DAY]);
+            if (trapSetups[VVAFRO_ATM_DEACTIVATE] && fortRoxInfo.hp_percent == 100) {
+                deactivateTower();
+            }
+            switch(fortRoxInfo.current_phase) {
+                case "day":
+                    checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_DAY]);
                     break;
-                case "stage_one":
-                    armTraps(trapSetups[VVAFRO_PHASE_TWILIGHT]);
+                case "night":
+                    switch(fortRoxInfo.current_stage) {
+                        case "stage_one":
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_TWILIGHT]);
+                            break;
+                        case "stage_two":
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
+                            break;
+                        case "stage_three":
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_PITCH]);
+                            break;
+                        case "stage_four":
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
+                            break;
+                        case "stage_five":
+                            checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
+                            break;
+                        default:
+                    }
                     break;
-                case "stage_two":
-                    armTraps(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
-                    break;
-                case "stage_three":
-                    armTraps(trapSetups[VVAFRO_PHASE_PITCH]);
-                    break;
-                case "stage_four":
-                    armTraps(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
-                    break;
-                case "stage_five":
-                    armTraps(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
-                    break;
-                case "DAWN":
-                    armTraps(trapSetups[VVAFRO_PHASE_DAWN]);
+                case "dawn":
+                    checkFortRoxTrapSetup(trapSetups[VVAFRO_PHASE_DAWN]);
                     break;
                 default:
             }
@@ -2005,8 +2319,8 @@ function checkLocation() {
 
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
         const currentSeason = getRodSGaSeason();
-        const trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
-        armTraps(trapSetups[currentSeason]);
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_SEASONAL_GARDEN).trapSetups;
+        armTrap(trapSetups[currentSeason]);
     }
 
     function runRodZToPolicy() {
@@ -2090,13 +2404,13 @@ function checkLocation() {
         const UNLOCK_CHESS_MASTER = "Unlock Chess Master";
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ZUGZWANGS_TOWER;
         const towerProgress = getTowerProgress();
-        const trapSetups = POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups;
         switch(trapSetups[RODZTO_STRATEGY]) {
             case RODZTO_STRATEGY_MYSTIC_ONLY:
-                armTraps(trapSetups[towerProgress[NEXT_MYSTIC_TARGET]]);
+                armTrap(trapSetups[towerProgress[NEXT_MYSTIC_TARGET]]);
                 break;
             case RODZTO_STRATEGY_TECHNIC_ONLY:
-                armTraps(trapSetups[towerProgress[NEXT_TECHNIC_TARGET]]);
+                armTrap(trapSetups[towerProgress[NEXT_TECHNIC_TARGET]]);
                 break;
             case RODZTO_STRATEGY_MYSTIC_FIRST:
                 break;
@@ -2108,13 +2422,16 @@ function checkLocation() {
 
     function runRodCLiPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CRYSTAL_LIBRARY;
-        const trapSetups = POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].getTrapSetups();
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).trapSetups;
+        const libraryInfo = getPageVariable("user.quests.QuestZugzwangLibrary");
         if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
-            isNullOrUndefined(getPageVariable("user.quests.QuestZugzwangLibrary.hasResearchQuest")) &&
-            parseInt(getPageVariable("user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest")) == 0) {
+            isNullOrUndefined(libraryInfo.hasResearchQuest) &&
+            parseInt(libraryInfo.secondsRemainingUntilUserCanAcceptQuest) == 0 &&
+            lockBot(BOT_PROCESS_POLICY)) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Getting Assignment";
             ajaxPost(window.location.origin + '/managers/ajax/environment/zugzwanglibrary.php',
                      getAjaxHeader({"action": "purchase",
-                                    "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id"),
+                                    "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId"),
                                     "convertible_item_type": "library_intro_research_assignment_convertible"}),
                      function (data) {
                 window.setTimeout(function () {
@@ -2125,8 +2442,180 @@ function checkLocation() {
                 alert("error getting Library Assignment");
             });
         }
+        armTrap(trapSetups);
     }
 
+    function runSDeFWaPolicy() {
+        function getLowestPopulation(warpathMice) {
+            return Object.entries(warpathMice)
+                .filter(([key, value]) => value.powerType !== POWER_TYPE_ARCANE)
+                .sort(([,a], [,b]) => a.quantity - b.quantity)
+                .map(x => x[0])[0];
+        }
+
+        function getHighestPopulation(warpathMice) {
+            return Object.entries(warpathMice)
+                .filter(([key, value]) => value.powerType !== POWER_TYPE_ARCANE)
+                .sort(([,a], [,b]) => b.quantity - a.quantity)
+                .map(x => x[0])[0];
+        }
+
+        function isLastWave(warpathMice) {
+            return Object.entries(warpathMice)
+                .filter(([key, value]) => value.quantity !== 0)
+                .length == 1;
+        }
+
+        function runWave123Policy(wave, warpathMice) {
+            if (isNullOrUndefined(trapSetups) ||
+                isNullOrUndefined(trapSetups[wave]) ||
+                isNullOrUndefined(trapSetups[wave][SDEFWA_POPULATION_PRIORITY])) {
+                return;
+            }
+            // Count how many mice left in the wave
+            for (const [mouseName, mouseInfo] of Object.entries(warpathInfo.mice)) {
+                if (mouseName == "desert_general" || mouseName == "desert_supply") {
+                    continue;
+                }
+                warpathMice[mouseName].quantity = mouseInfo.quantity;
+            }
+            if (isLastWave(warpathMice)) {
+                // Charm used here are any typical charms (like Regal or Ancient)
+                // This part also checks Soldier Type of the Streak and arm the Gargantua Charm, if it's needed
+            } else {
+                const SDEFWA_TARGET_POPULATION_LOWEST = "Lowest";
+                const SDEFWA_TARGET_POPULATION_HIGHEST = "Highest";
+                const targetMouse = trapSetups[wave][SDEFWA_POPULATION_PRIORITY] == SDEFWA_TARGET_POPULATION_LOWEST? getLowestPopulation(warpathMice): getHighestPopulation(warpathMice);
+                const streak = warpathInfo.streak_type == targetMouse? warpathInfo.streak_quantity: 0;
+                const trapSetup = [];
+                trapSetup[IDX_WEAPON] = trapSetups[warpathMice[targetMouse].powerType][IDX_WEAPON];
+                trapSetup[IDX_BASE] = trapSetups[warpathMice[targetMouse].powerType][IDX_BASE];
+                trapSetup[IDX_BAIT] = trapSetups[wave][streak][IDX_BAIT];
+                let warpathCharm = "";
+                let superWarpathCharm = "";
+                switch(trapSetups[wave][streak][IDX_SOLDIER_TYPE]) {
+                    case SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER:
+                        break;
+                    case SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER:
+                        warpathCharm == trinketNames.includes(WARPATH_COMMANDERS_CHARM)? WARPATH_COMMANDERS_CHARM: undefined;
+                        superWarpathCharm == trinketNames.includes(SUPER_WARPATH_COMMANDERS_CHARM)? SUPER_WARPATH_COMMANDERS_CHARM: WARPATH_COMMANDERS_CHARM;
+                        break;
+                    case SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA:
+                        if (trinketNames.includes(GARGANTUA_CHARM)) {
+                            trapSetup[IDX_BAIT] = GARGANTUA_CHARM;
+                        }
+                        break;
+                    default:
+                }
+                alert(trapSetup);
+            }
+            /*
+            const IDX_CHARM_TYPE = 4;
+const IDX_SOLDIER_TYPE = 5;
+        const WARPATH_COMMANDERS_CHARM = "Warpath Commander's Charm";
+        const SUPER_WARPATH_COMMANDERS_CHARM = "Super Warpath Commander's Charm";
+const SDEFWA_STREAK_SOLDIER_TYPE_SOLIDER = "Soldier";
+const SDEFWA_STREAK_SOLDIER_TYPE_COMMANDER = "Commander";
+const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
+*/
+        }
+
+        function runWave1Policy() {
+        }
+
+        function runWave2Policy() {
+        }
+
+        function runWave3Policy() {
+            const miceWave3 = {}
+            miceWave3.desert_archer_epic = {}
+            miceWave3.desert_archer_epic.powerType = POWER_TYPE_PHYSICAL;
+            miceWave3.desert_archer_epic[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_ARCHER_CHARM;
+            miceWave3.desert_archer_epic[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_ARCHER_CHARM;
+            miceWave3.desert_artillery = {}
+            miceWave3.desert_artillery.powerType = POWER_TYPE_ARCANE;
+            miceWave3.desert_cavalry_strong = {}
+            miceWave3.desert_cavalry_strong.powerType = POWER_TYPE_TACTICAL;
+            miceWave3.desert_cavalry_strong[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_CAVALRY_CHARM;
+            miceWave3.desert_cavalry_strong[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_CAVALRY_CHARM;
+            miceWave3.desert_mage_strong = {}
+            miceWave3.desert_mage_strong.powerType = POWER_TYPE_HYDRO;
+            miceWave3.desert_mage_strong[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_MAGE_CHARM;
+            miceWave3.desert_mage_strong[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_MAGE_CHARM;
+            miceWave3.desert_scout_epic = {}
+            miceWave3.desert_scout_epic.powerType = POWER_TYPE_PHYSICAL;
+            miceWave3.desert_scout_epic[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_SCOUT_CHARM;
+            miceWave3.desert_scout_epic[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_SCOUT_CHARM;
+            miceWave3.desert_warrior_epic = {}
+            miceWave3.desert_warrior_epic.powerType = POWER_TYPE_PHYSICAL;
+            miceWave3.desert_warrior_epic[SDEFWA_CHARM_TYPE_WARPATH] = WARPATH_WARRIOR_CHARM;
+            miceWave3.desert_warrior_epic[SDEFWA_CHARM_TYPE_SUPER_WARPATH] = SUPER_WARPATH_WARRIOR_CHARM;
+
+            return runWave123Policy(SDEFWA_WAVE3, miceWave3);
+        }
+
+        function runWave4Policy() {
+        }
+
+        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FIERY_WARPATH;
+        const GARGANTUA_CHARM = "Gargantua Charm";
+        const WARPATH_ARCHER_CHARM = "Warpath Archer Charm";
+        const SUPER_WARPATH_ARCHER_CHARM = "Super Warpath Archer Charm";
+        const WARPATH_CAVALRY_CHARM = "Warpath Cavalry Charm";
+        const SUPER_WARPATH_CAVALRY_CHARM = "Super Warpath Cavalry Charm";
+        const WARPATH_COMMANDERS_CHARM = "Warpath Commander's Charm";
+        const SUPER_WARPATH_COMMANDERS_CHARM = "Super Warpath Commander's Charm";
+        const WARPATH_MAGE_CHARM = "Warpath Mage Charm";
+        const SUPER_WARPATH_MAGE_CHARM = "Super Warpath Mage Charm";
+        const WARPATH_SCOUT_CHARM = "Warpath Scout Charm";
+        const SUPER_WARPATH_SCOUT_CHARM = "Super Warpath Scout Charm";
+        const WARPATH_WARRIOR_CHARM = "Warpath Warrior Charm";
+        const SUPER_WARPATH_WARRIOR_CHARM = "Super Warpath Warrior Charm";
+        const trapSetups = g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups;
+        const warpathInfo = getPageVariable("user.viewing_atts.desert_warpath");
+        const trinketNames = getTrinketNames();
+        switch(warpathInfo.wave) {
+            case 1:
+                runWave1Policy();
+                break;
+            case 2:
+                runWave2Policy();
+                break;
+            case 3:
+                runWave3Policy();
+                break;
+            case 4:
+                runWave4Policy();
+                break;
+            default:
+        }
+        /*
+        alert(warpathInfo.wave);
+        listAttributes(warpathInfo);
+        */
+    }
+    /*
+        resetTrapSetups() {
+        this.trapSetups = {};
+        for (const powerType of SDEFWA_POWER_TYPES){
+            this.trapSetups[powerType] = [];
+        }
+        this.trapSetups[SDEFWA_LAST_SOLDIER] = [];
+        this.trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = ITEM_DISARM;
+        for (const wave of SDEFWA_WAVES){
+            this.trapSetups[wave] = {};
+            if (wave == SDEFWA_WAVE4) {
+                this.trapSetups[wave][STATUS_BEFORE] = [];
+                this.trapSetups[wave][STATUS_AFTER] = [];
+            } else {
+                for (let steak = 0; steak <= SDEFWA_MAX_STREAKS; steak++) {
+                    this.trapSetups[wave][steak] = [];
+                }
+                this.trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
+            }
+        }
+    }
+*/
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
         return;
     }
@@ -2138,8 +2627,29 @@ function checkLocation() {
         case LOCATION_HARBOUR:
             runGnaHarPolicy();
             break;
+        case LOCATION_MOUNTAIN:
+            runGnaMouPolicy();
+            break;
+        case LOCATION_CALM_CLEARING:
+            runSingleTrapSetupPolicy(POLICY_NAME_CALM_CLEARING);
+            break;
+        case LOCATION_GREAT_GNARLED_TREE:
+            runSingleTrapSetupPolicy(POLICY_NAME_GREAT_GNARLED_TREE);
+            break;
+        case LOCATION_MOUSOLEUM:
+            runSingleTrapSetupPolicy(POLICY_NAME_MOUSOLEUM);
+            break;
+        case LOCATION_CATACOMBS:
+            runSingleTrapSetupPolicy(POLICY_NAME_CATACOMBS);
+            break;
         case LOCATION_ACOLYTE_REALM:
-            runBWoARePolicy();
+            runSingleTrapSetupPolicy(POLICY_NAME_ACOLYTE_REALM);
+            break;
+        case LOCATION_DERR_DUNES:
+            runSingleTrapSetupPolicy(POLICY_NAME_DERR_DUNES);
+            break;
+        case LOCATION_JUNGLE_OF_DREAD:
+            runSingleTrapSetupPolicy(POLICY_NAME_JUNGLE_OF_DREAD);
             break;
         case LOCATION_FORT_ROX:
             runVVaFRoPolicy();
@@ -2155,6 +2665,15 @@ function checkLocation() {
             break;
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
+            break;
+        case LOCATION_SLUSHY_SHORELINE:
+            runSingleTrapSetupPolicy(POLICY_NAME_SLUSHY_SHORELINE);
+            break;
+        case LOCATION_FIERY_WARPATH:
+            //runSDeFWaPolicy();
+            break;
+        case LOCATION_MURIDAE_MARKET:
+            runSingleTrapSetupPolicy(POLICY_NAME_MURIDAE_MARKET);
             break;
         default:
             runDefaultLocation();
@@ -2213,28 +2732,11 @@ function testSaveObjToStorage() {
 
 function testLoadObjFromStorage() {
     let tmpInfo;
-    tmpInfo = getStorage(STORAGE_TRAP_INFO, null);
+    tmpInfo = getStorage(STORAGE_TRAP_INFO, undefined);
     debugObj(tmpInfo);
 }
 
-function testDict() {
-    const tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
-    alert(tmpPolicy.trapSetups[RODSGA_SEASON_SPRING].weapon);
-}
-
 function testSortObj() {
-    function debugObj(obj) {
-        let tempTxt = "";
-        for (const [objKey, entry] of Object.entries(obj)) {
-            tempTxt += objKey;
-            tempTxt += "\n";
-            for (const [entryKey, value] of Object.entries(entry)) {
-                tempTxt += "  - " + entryKey + " : " + value;
-                tempTxt += "\n";
-            }
-        }
-        alert(tempTxt);
-    }
     const unSorted = {}
     const WEAPON_A = "horrific_venus_mouse_trap_weapon";
     const WEAPON_B = "mystic_low_weapon";
@@ -2287,6 +2789,186 @@ function testSortObj() {
     debugObj(sorted);
     debugObj(tacticalWeapons);
     debugObj(sortedTacticalWeapons);
+}
+
+function updateMice() {
+    function processMouseListData(data) {
+        function getMouseData(mouseIdx) {
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Getting information from mouse: '" + miceList[mouseIdx].name + "'";
+            ajaxPost(window.location.origin + '/managers/ajax/mice/getstat.php',
+                     getAjaxHeader({action: "get_mice",
+                                    "mouse_types[]": miceList[mouseIdx].type,
+                                    last_read_journal_entry_id: lastReadJournalEntryId}),
+                     function (data) {
+                const mouseInfo = data.mice[0];
+                g_mouseInfo[mouseInfo.type] = {};
+                g_mouseInfo[mouseInfo.type].name = mouseInfo.name;
+                g_mouseInfo[mouseInfo.type].id = mouseInfo.id;
+                g_mouseInfo[mouseInfo.type].groupName = mouseInfo.group_name;
+                if (!isNullOrUndefined(mouseInfo.weaknesses) && mouseInfo.weaknesses.length > 0) {
+                    g_mouseInfo[mouseInfo.type].weaknesses = {};
+                }
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error getting mouse information");
+            });
+            mouseIdx += 1;
+            if (mouseIdx < miceList.length) {
+                window.setTimeout(function () {
+                    getMouseData(mouseIdx);
+                }, infoInterval * 1000);
+            }
+        }
+
+        let miceList = [];
+        for (const subgroup of data.mouse_list_category.subgroups) {
+            miceList = miceList.concat(subgroup.mice);
+        }
+
+        miceList = miceList.slice(0,2);
+        getMouseData(0);
+    }
+
+    function processAdversariesData(data) {
+        function getCategoryData(catIdx) {
+            const category = categories[catIdx];
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Fetching mouse list from category: '" + category.type + "'";
+            ajaxPost(window.location.origin + '/managers/ajax/mice/mouse_list.php',
+                     getAjaxHeader({action: "get_group",
+                                    category: category.type,
+                                    user_id: getPageVariable("user.user_id"),
+                                    display_mode: "images",
+                                    view: "ViewMouseListGroups"}),
+                     function (data) {
+                processMouseListData(data);
+            }, function (error) {
+                console.error('ajax:', error);
+                alert("error getting mouse list");
+            });
+            catIdx += 1;
+            if (catIdx < categories.length) {
+                window.setTimeout(function () {
+                    getCategoryData(catIdx);
+                }, ( 0.5 + (1.2 * category.total * infoInterval)) * 1000);
+            }
+        }
+
+        g_mouseInfo = {};
+        const categories = data.page.tabs[0].subtabs[0].mouse_list.categories.slice(0,1);
+        getCategoryData(0);
+    }
+
+    /*
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    */
+    const infoInterval = 1.05
+    const lastReadJournalEntryId = getPageVariable("lastReadJournalEntryId")
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Prepare updating mice inforamation";
+    ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
+             getAjaxHeader({"page_class": "Adversaries", "last_read_journal_entry_id": lastReadJournalEntryId}),
+             function (data) {
+        processAdversariesData(data);
+    }, function (error) {
+        console.error('ajax:', error);
+        alert("error updating mice information");
+    });
+}
+
+function test1() {
+    updateMice();
+    //testSortObj();
+    //checkLocation();
+    //testSaveObjToStorage();
+    //displayDocumentStyles();
+}
+
+function test2() {
+    //testLoadObjFromStorage();
+}
+
+function getAjaxHeader(addedData) {
+    const mainData = {};
+    mainData.sn = 'Hitgrab';
+    mainData.hg_is_ajax = 1;
+    mainData.uh = getPageVariable('user.unique_hash');
+    return Object.assign(mainData, addedData);
+}
+
+function ajaxPost(postURL, objData, callback, throwerror) {
+    try {
+        jQuery.ajax({
+            type: 'POST',
+            url: postURL,
+            data: objData,
+            contentType: 'application/x-www-form-urlencoded',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: false
+            },
+            success: callback,
+            error: throwerror,
+        });
+    }
+    catch (e) {
+        throwerror(e);
+    }
+}
+
+function manualClaimingYesterdayGifts() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
+    prepareClaimingGifts(false);
+}
+
+function manualClaimingTodayGifts() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
+    prepareClaimingGifts(true);
+}
+
+function prepareClaimingGifts(fromTop) {
+    function claimGifts(fromTop) {
+        function claimingGifts(fromTop, giftIndex) {
+            const giftRow = fromTop? giftRows[giftIndex]: giftRows[nGiftRows-giftIndex-1];
+            const senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
+            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
+            const actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
+            if (!actionButton.classList.contains("disabled")) {
+                fireEvent(actionButton, "click");
+            }
+            giftIndex++;
+            if (giftIndex < 15 && giftIndex < nGiftRows) {
+                window.setTimeout(function () {
+                    claimingGifts(fromTop, giftIndex);
+                }, 1 * 1000);
+            }
+        }
+        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving gift list";
+        const giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
+        const nGiftRows = giftRows.length
+        window.setTimeout(function () {
+            claimingGifts(fromTop, 0);
+        }, 0.5 * 1000);
+    }
+    const giftButton = document.getElementsByClassName("freeGifts")[0];
+    fireEvent(giftButton, "click");
+    window.setTimeout(function () {
+        claimGifts(fromTop)
+    }, 4.5 * 1000);
+}
+
+function manualSendingGifts() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts";
+    prepareSendingGifts();
 }
 
 function prepareSendingGifts() {
@@ -2344,12 +3026,20 @@ function prepareSendingGifts() {
         });
     }
 
-    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
+    const lastReadJournalEntryId = getPageVariable("lastReadJournalEntryId");
     const itemTimeoutInterval = 0.75;
     const friendInfo = getFriendInfo();
     const completeGifts = [];
     const snuids = Object.keys(friendInfo);
     sendingGifts(0);
+}
+
+function manualSendingBallots() {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
+        return;
+    }
+    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Ballots";
+    prepareSendingBallots();
 }
 
 function prepareSendingBallots() {
@@ -2406,115 +3096,12 @@ function prepareSendingBallots() {
         });
     }
 
-    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
+    const lastReadJournalEntryId = getPageVariable("lastReadJournalEntryId");
     const itemTimeoutInterval = 0.75;
     const friendInfo = getFriendInfo();
     const completeBallots = [];
     const snuids = Object.keys(friendInfo);
     sendingBallots(0);
-}
-
-function test1() {
-    //testSortObj();
-    checkLocation();
-    //testDict();
-    //testSaveObjToStorage();
-    //displayDocumentStyles();
-}
-
-function test2() {
-    //testLoadObjFromStorage();
-}
-
-function getAjaxHeader(addedData) {
-    const mainData = {};
-    mainData.sn = 'Hitgrab';
-    mainData.hg_is_ajax = 1;
-    mainData.uh = getPageVariable('user.unique_hash');
-    return Object.assign(mainData, addedData);
-}
-
-function ajaxPost(postURL, objData, callback, throwerror) {
-    try {
-        jQuery.ajax({
-            type: 'POST',
-            url: postURL,
-            data: objData,
-            contentType: 'application/x-www-form-urlencoded',
-            dataType: 'json',
-            xhrFields: {
-                withCredentials: false
-            },
-            success: callback,
-            error: throwerror,
-        });
-    }
-    catch (e) {
-        throwerror(e);
-    }
-}
-
-function manualClaimingYesterdayGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
-    prepareClaimingGifts(false);
-}
-
-function manualClaimingTodayGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming today Gifts";
-    prepareClaimingGifts(true);
-}
-
-function prepareClaimingGifts(fromTop) {
-    function claimGifts(fromTop) {
-        function claimingGifts(fromTop, giftIndex) {
-            const giftRow = fromTop? giftRows[giftIndex]: giftRows[nGiftRows-giftIndex-1];
-            const senderName = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-details")[0].getElementsByTagName("a")[0].text;
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Claiming a gift from " + senderName;
-            const actionButton = giftRow.getElementsByClassName("giftSelectorView-inbox-gift-actions")[0].getElementsByClassName("claim mousehuntActionButton")[0];
-            if (!actionButton.classList.contains("disabled")) {
-                fireEvent(actionButton, "click");
-            }
-            giftIndex++;
-            if (giftIndex < 15 && giftIndex < nGiftRows) {
-                window.setTimeout(function () {
-                    claimingGifts(fromTop, giftIndex);
-                }, 1 * 1000);
-            }
-        }
-        document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retrieving gift list";
-        const giftRows = document.getElementsByClassName("giftSelectorView-inbox-giftContainer")[0].getElementsByClassName("giftSelectorView-inbox-giftRow");
-        const nGiftRows = giftRows.length
-        window.setTimeout(function () {
-            claimingGifts(fromTop, 0);
-        }, 0.5 * 1000);
-    }
-    const giftButton = document.getElementsByClassName("freeGifts")[0];
-    fireEvent(giftButton, "click");
-    window.setTimeout(function () {
-        claimGifts(fromTop)
-    }, 4.5 * 1000);
-}
-
-function manualSendingGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts";
-    prepareSendingGifts();
-}
-
-function manualSendingBallots() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-        return;
-    }
-    document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Ballots";
-    prepareSendingBallots();
 }
 
 function embedUIStructure() {
@@ -2526,16 +3113,57 @@ function embedUIStructure() {
 
     function embedStatusTable() {
         let tmpTxt;
+        let captionCell;
+        let rulerCell;
         const statusSection = document.createElement('div');
         const statusDisplayTable = document.createElement('table');
         statusDisplayTable.width = "100%";
 
+        const trRuler = statusDisplayTable.insertRow();
+        trRuler.style.display = "none";
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 100;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 55;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 20;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 50;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 235;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 50;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+        rulerCell = trRuler.insertCell();
+        rulerCell.width = 40;
+        rulerCell.style.textAlign = "center";
+        rulerCell.style.border = "solid #0000FF";
+        rulerCell.innerHTML = rulerCell.width;
+
         // The first row shows title and version (also some misc buttons)
         const trFirst = statusDisplayTable.insertRow();
         const statusDisplayTitle = trFirst.insertCell();
-        statusDisplayTitle.colSpan = 2;
+        statusDisplayTitle.colSpan = 3;
         statusDisplayTitle.innerHTML = "<b><a href=\"https://github.com/bujaraty/JnK/blob/main/MH_Admirer.user.js\" target=\"_blank\">J n K Admirer (version " + g_strScriptVersion + ")</a></b>";
         const miscStatusCell = trFirst.insertCell();
+        miscStatusCell.colSpan = 2;
         miscStatusCell.style.fontSize = "9px";
         miscStatusCell.style.textAlign = "right";
         tmpTxt = document.createTextNode("Gifting status : " + g_statusGifting + ",  ");
@@ -2543,6 +3171,7 @@ function embedUIStructure() {
         tmpTxt = document.createTextNode("Balloting status : " + g_statusBalloting + "  ");
         miscStatusCell.appendChild(tmpTxt);
         const miscButtonsCell = trFirst.insertCell();
+        miscButtonsCell.colSpan = 3;
         miscButtonsCell.style.textAlign = "right";
         const sendGiftsButton = document.createElement('button');
         sendGiftsButton.onclick = manualSendingGifts
@@ -2571,24 +3200,52 @@ function embedUIStructure() {
 
         // The second row shows next bot horn time countdown
         const trSecond = statusDisplayTable.insertRow();
-        const nextBotHornTimeCaptionCell = trSecond.insertCell();
-        nextBotHornTimeCaptionCell.width = 20;
-        nextBotHornTimeCaptionCell.style.fontWeight = "bold";
-        nextBotHornTimeCaptionCell.innerHTML = "Next Hunter Horn Time : ";
-        g_nextBotHornTimeDisplay = trSecond.insertCell();
-        g_nextBotHornTimeDisplay.colSpan = 2;
-        g_nextBotHornTimeDisplay.style.textAlign = "left";
-        g_nextBotHornTimeDisplay.width = 320;
-        g_nextBotHornTimeDisplay.innerHTML = "Loading...";
+        captionCell = trSecond.insertCell();
+        captionCell.width = 100;
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Next Hunt : ";
+        const nextHuntTimeTxt = trSecond.insertCell();
+        nextHuntTimeTxt.width = 60;
+        nextHuntTimeTxt.style.textAlign = "left";
+        nextHuntTimeTxt.id = ID_NEXT_HUNT_TIME_TXT;
+        nextHuntTimeTxt.innerHTML = "Loading...";
+        captionCell = trSecond.insertCell();
+        captionCell.width = 70;
+        captionCell.colSpan = 2;
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Count Down : ";
+        const botCountdownTxt = trSecond.insertCell();
+        botCountdownTxt.width = 235;
+        botCountdownTxt.style.textAlign = "left";
+        botCountdownTxt.id = ID_BOT_COUNTDOWN_TXT;
+        botCountdownTxt.innerHTML = "Loading...";
+        captionCell = trSecond.insertCell();
+        captionCell.style.fontWeight = "bold";
+        captionCell.width = 50;
+        captionCell.innerHTML = "Interval : ";
+        const botIntervalTxt = trSecond.insertCell();
+        captionCell.width = 40;
+        botIntervalTxt.style.textAlign = "left";
+        botIntervalTxt.id = ID_BOT_INTERVAL_TXT;
+        botIntervalTxt.innerHTML = "Loading...";
 
         // The third row shows next trap check time countdown
         const trThird = statusDisplayTable.insertRow();
-        const nextTrapCheckTimeCaptionCell = trThird.insertCell();
-        nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
-        nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
-        g_nextTrapCheckTimeDisplay = trThird.insertCell();
-        g_nextTrapCheckTimeDisplay.colSpan = 2;
-        g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
+        captionCell = trThird.insertCell();
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Next Trap Check : ";
+        const nextTrapCheckTimeTxt = trThird.insertCell();
+        nextTrapCheckTimeTxt.style.textAlign = "left";
+        nextTrapCheckTimeTxt.id = ID_NEXT_TRAP_CHECK_TIME_TXT;
+        nextTrapCheckTimeTxt.innerHTML = "Loading...";
+        captionCell = trThird.insertCell();
+        captionCell.colSpan = 2;
+        captionCell.style.fontWeight = "bold";
+        captionCell.innerHTML = "Count Down : ";
+        const trapCheckCountDownTxt = trThird.insertCell();
+        trapCheckCountDownTxt.style.textAlign = "left";
+        trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
+        trapCheckCountDownTxt.innerHTML = "Loading...";
 
 /*
         // The forth row is very temporary just for testing
@@ -2611,6 +3268,8 @@ function embedUIStructure() {
 
         statusSection.appendChild(statusDisplayTable);
 
+        tmpTxt = undefined;
+        captionCell = undefined;
         return statusSection;
     }
 
@@ -2756,8 +3415,8 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode("  ");
                 saveButtonCell.appendChild(tmpTxt);
 
-                captionCell = null;
-                tmpTxt = null;
+                captionCell = undefined;
+                tmpTxt = undefined;
             }
             const toggleLink = document.getElementById(ID_TIMER_LINK);
             const preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
@@ -2842,60 +3501,78 @@ function embedUIStructure() {
         }
 
         function embedPolicyPreferences() {
-            function getSelectItem(itemNames, itemId, onchangeFunction) {
+            function addOptions(selectItem, options) {
+                if (typeof(options) == DATA_TYPE_OBJECT) {
+                    for (const option of options) {
+                        const itemOption = document.createElement("option");
+                        itemOption.value = option;
+                        itemOption.text = option;
+                        selectItem.appendChild(itemOption);
+                    }
+                } else if (typeof(options) == DATA_TYPE_STRING) {
+                    const itemOption = document.createElement("option");
+                    itemOption.value = options;
+                    itemOption.text = options;
+                    selectItem.appendChild(itemOption);
+                }
+            }
+
+            function getSelectItem(itemNames, itemId, onchangeFunction, optionIgnore = true, optionOther = false, optionDisarm = false) {
                 const selectItem = document.createElement('select');
                 selectItem.style.width = "80px";
                 selectItem.style.fontSize = "90%";
-                for (const itemName of itemNames) {
-                    const itemOption = document.createElement("option");
-                    itemOption.value = itemName;
-                    itemOption.text = itemName;
-                    selectItem.appendChild(itemOption);
+                if (optionIgnore) {
+                    addOptions(selectItem, ITEM_IGNORE);
+                    selectItem.value = ITEM_IGNORE;
+                } else {
+                    selectItem.selectedIndex = -1;
                 }
-                selectItem.selectedIndex = -1;
+                if (optionOther) {
+                    addOptions(selectItem, ITEM_OTHER);
+                }
+                if (optionDisarm) {
+                    addOptions(selectItem, ITEM_DISARM);
+                }
+                addOptions(selectItem, itemNames);
                 selectItem.id = itemId;
                 selectItem.onchange = onchangeFunction;
                 return selectItem;
             }
 
+            function setSelectItem(selectItem, itemNames) {
+                for(let idx = selectItem.options.length - 1; idx >= 0; idx--) {
+                    selectItem.remove(idx);
+                }
+                addOptions(selectItem, itemNames);
+            }
+
+            function setSelectSelectableItem(itemNames) {
+                const selectItem = document.getElementById(ID_SELECT_SELECTABLE_TRAP_SETUP);
+                setSelectItem(selectItem, itemNames);
+            }
+
             function getSelectWeapon(itemId, onchangeFunction) {
                 const tmpNames = getWeaponNames();
                 const weaponNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-                return getSelectItem(weaponNames, itemId, onchangeFunction);
+                return getSelectItem(weaponNames, itemId, onchangeFunction, true, false, false);
             }
 
             function getSelectBase(itemId, onchangeFunction) {
                 const tmpNames = getBaseNames();
                 const baseNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-                return getSelectItem(baseNames, itemId, onchangeFunction);
+                return getSelectItem(baseNames, itemId, onchangeFunction, true, false, false);
             }
 
             function getSelectBait(itemId, onchangeFunction) {
                 const tmpNames = getBaitNames();
                 const baitNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-                return getSelectItem(baitNames, itemId, onchangeFunction);
+                return getSelectItem(baitNames, itemId, onchangeFunction, true, false, false);
             }
 
             function getSelectTrinket(itemId, onchangeFunction) {
-                const selectTrinket = document.createElement('select');
-                selectTrinket.style.width = "80px";
-                selectTrinket.style.fontSize = "90%";
-                const itemOption = document.createElement("option");
-                itemOption.value = TRINKET_DISARM;
-                itemOption.text = TRINKET_DISARM;
-                selectTrinket.appendChild(itemOption);
                 const tmpNames = getTrinketNames();
                 const trinketNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-                for (const trinketName of trinketNames) {
-                    const itemOption = document.createElement("option");
-                    itemOption.value = trinketName;
-                    itemOption.text = trinketName;
-                    selectTrinket.appendChild(itemOption);
-                }
-                selectTrinket.selectedIndex = -1;
-                selectTrinket.id = itemId;
-                selectTrinket.onchange = onchangeFunction;
-                return selectTrinket;
+                return getSelectItem(trinketNames, itemId, onchangeFunction, true, false, true);
             }
 
             function insertSelectPolicyRow() {
@@ -2904,12 +3581,37 @@ function embedUIStructure() {
                         return;
                     }
                     currentPolicy = event.target.value;
-                    switch(event.target.value) {
+                    switch(currentPolicy) {
+                        case POLICY_NAME_HARBOUR:
+                            policyStorage = STORAGE_TRAP_SETUP_GNAHAR;
+                            break;
+                        case POLICY_NAME_MOUNTAIN:
+                            insertGnaMouPolicyPreferences();
+                            policyStorage = STORAGE_TRAP_SETUP_GNAMOU;
+                            break;
+                        case POLICY_NAME_CALM_CLEARING:
+                            policyStorage = STORAGE_TRAP_SETUP_WWOCCL;
+                            break;
+                        case POLICY_NAME_GREAT_GNARLED_TREE:
+                            policyStorage = STORAGE_TRAP_SETUP_WWOGGT;
+                            break;
+                        case POLICY_NAME_MOUSOLEUM:
+                            policyStorage = STORAGE_TRAP_SETUP_BURMOU;
+                            break;
+                        case POLICY_NAME_CATACOMBS:
+                            policyStorage = STORAGE_TRAP_SETUP_BWOCAT;
+                            break;
                         case POLICY_NAME_ACOLYTE_REALM:
-                            insertBWoARePolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_BWOARE;
                             break;
+                        case POLICY_NAME_DERR_DUNES:
+                            policyStorage = STORAGE_TRAP_SETUP_TISDDU;
+                            break;
+                        case POLICY_NAME_JUNGLE_OF_DREAD:
+                            policyStorage = STORAGE_TRAP_SETUP_TISJOD;
+                            break;
                         case POLICY_NAME_CLAW_SHOT_CITY:
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             insertVVaCSCPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_VVACSC;
                             break;
@@ -2918,10 +3620,11 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_VVAFRO;
                             break;
                         case POLICY_NAME_SEASONAL_GARDEN:
-                            insertRodSGaPolicyPreferences();
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             policyStorage = STORAGE_TRAP_SETUP_RODSGA;
                             break;
                         case POLICY_NAME_ZUGZWANGS_TOWER:
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             insertRodZToPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODZTO;
                             break;
@@ -2929,47 +3632,63 @@ function embedUIStructure() {
                             insertRodCLiPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODCLI;
                             break;
+                        case POLICY_NAME_SLUSHY_SHORELINE:
+                            policyStorage = STORAGE_TRAP_SETUP_RODSSH;
+                            break;
                         case POLICY_NAME_ICEBERG:
-                            insertRodIcePolicyPreferences();
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             policyStorage = STORAGE_TRAP_SETUP_RODICE;
                             break;
                         case POLICY_NAME_FIERY_WARPATH:
                             insertSDeFWaPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_SDEFWA;
                             break;
+                        case POLICY_NAME_MURIDAE_MARKET:
+                            setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
+                            policyStorage = STORAGE_TRAP_SETUP_SDEMMA;
+                            break;
                         default:
                     }
-                    for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                        const tmpPolicy = POLICY_DICT[policyName];
+
+                    for (const policyName of g_policies.list) {
+                        const tmpPolicy = g_policies.getPolicy(policyName);
                         if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
                             continue;
                         }
-                        const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
                         for (const tr of tmpPolicy.trs){
-                            document.getElementById(tr).style.display = tmpDisplay;
+                            document.getElementById(tr).style.display = "none";
                         }
-                        if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
+                    }
+                    for (const policyName of g_policies.list) {
+                        if (event.target.value != policyName) {
+                            continue;
+                        }
+                        const tmpPolicy = g_policies.getPolicy(policyName);
+                        if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
+                            continue;
+                        }
+                        for (const tr of tmpPolicy.trs){
+                            document.getElementById(tr).style.display = "table-row";
+                        }
+                        if (isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
                             alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
-                        } else if (tmpDisplay == "table-row") {
+                        } else {
                             tmpPolicy.initSelectTrapSetup();
                         }
                     }
                 }
 
                 function recommendTrapSetup() {
-                    POLICY_DICT[currentPolicy].recommendTrapSetup();
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).recommendTrapSetup();
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 function resetTrapSetup() {
-                    POLICY_DICT[currentPolicy].resetTrapSetups();
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
+                    g_policies.getPolicy(currentPolicy).resetTrapSetups();
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                     reloadCampPage();
                 }
 
-                let itemOption;
-                let currentPolicy;
-                let policyStorage;
                 let tmpTxt;
                 const trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
@@ -2978,20 +3697,9 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Select Location :  ";
                 const selectPolicyCell = trSelectPolicy.insertCell();
-                const selectPolicy = document.createElement('select');
+                const selectPolicy = getSelectItem("Select policy", undefined, onChangePolicy, false, false, false);
                 selectPolicy.style.width = "120px";
-                selectPolicy.style.fontSize = "90%";
-                selectPolicy.onchange = onChangePolicy;
-                itemOption = document.createElement("option");
-                itemOption.value = "Select policy";
-                itemOption.text = "Select policy";
-                selectPolicy.appendChild(itemOption);
-                for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                    itemOption = document.createElement("option");
-                    itemOption.value = policyName;
-                    itemOption.text = policyName;
-                    selectPolicy.appendChild(itemOption);
-                }
+                addOptions(selectPolicy, g_policies.list);
                 selectPolicyCell.appendChild(selectPolicy);
                 tmpTxt = document.createTextNode("  ");
                 selectPolicyCell.appendChild(tmpTxt);
@@ -3010,140 +3718,121 @@ function embedUIStructure() {
                 resetButton.appendChild(tmpTxt);
                 selectPolicyCell.appendChild(resetButton);
 
-                tmpTxt = null;
-                itemOption = null;
+                tmpTxt = undefined;
             }
 
-            function insertBWoARePolicyPreferences() {
-                function saveBWoAReWeapon(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_WEAPON] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+            function insertSingleTrapSetupRow() {
+                function saveSingleWeapon(event) {
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_WEAPON] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
-                function saveBWoAReBase(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BASE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                function saveSingleBase(event) {
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_BASE] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
-                function saveBWoAReBait(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
+                function saveSingleBait(event) {
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_BAIT] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
-                function saveBWoAReTrinket(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_TRINKET] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function recommendBWoAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function resetBWoAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                    reloadCampPage();
+                function saveSingleTrinket(event) {
+                    g_policies.getPolicy(currentPolicy).trapSetups[IDX_TRINKET] = event.target.value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
                 let tmpTxt;
-                const trBWoAreTrapSetup = policyPreferencesTable.insertRow();
-                trBWoAreTrapSetup.id = ID_TR_BWOARE_TRAP_SETUP;
-                trBWoAreTrapSetup.style.height = "24px";
-                trBWoAreTrapSetup.style.display = "none";
-                const captionCell = trBWoAreTrapSetup.insertCell();
+                const trSingleTrapSetup = policyPreferencesTable.insertRow();
+                trSingleTrapSetup.id = ID_TR_SINGLE_TRAP_SETUP;
+                trSingleTrapSetup.style.height = "24px";
+                trSingleTrapSetup.style.display = "none";
+                const captionCell = trSingleTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup :  ";
-                const trapSetupCell = trBWoAreTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_BWOARE_WEAPON, saveBWoAReWeapon));
+                const trapSetupCell = trSingleTrapSetup.insertCell();
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_SINGLE_WEAPON, saveSingleWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_BWOARE_BASE, saveBWoAReBase));
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_SINGLE_BASE, saveSingleBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_BWOARE_BAIT, saveBWoAReBait));
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_SINGLE_BAIT, saveSingleBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_BWOARE_TRINKET, saveBWoAReTrinket));
-                tmpTxt = null;
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SINGLE_TRINKET, saveSingleTrinket));
+                tmpTxt = undefined;
             }
 
-            function insertVVaCSCPolicyPreferences() {
-                function onChangeSelectVVaCSCPhase(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].initSelectTrapSetup();
+            function insertSelectableTrapSetupRow() {
+                function onChangeSelectableTrapSetup(event) {
+                    g_policies.getPolicy(currentPolicy).initSelectTrapSetup();
                 }
 
-                function saveVVaCSCSetup(itemIndex, value) {
-                    const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[currentPhase][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
+                function saveSelectableItem(itemIndex, value) {
+                    const selectedTrapSetup = document.getElementById(ID_SELECT_SELECTABLE_TRAP_SETUP).value;
+                    g_policies.getPolicy(currentPolicy).trapSetups[selectedTrapSetup][itemIndex] = value;
+                    setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
 
-                function saveVVaCSCWeapon(event) {
-                    saveVVaCSCSetup(IDX_WEAPON, event.target.value);
+                function saveSelectableWeapon(event) {
+                    saveSelectableItem(IDX_WEAPON, event.target.value);
                 }
 
-                function saveVVaCSCBase(event) {
-                    saveVVaCSCSetup(IDX_BASE, event.target.value);
+                function saveSelectableBase(event) {
+                    saveSelectableItem(IDX_BASE, event.target.value);
                 }
 
-                function saveVVaCSCBait(event) {
-                    saveVVaCSCSetup(IDX_BAIT, event.target.value);
+                function saveSelectableBait(event) {
+                    saveSelectableItem(IDX_BAIT, event.target.value);
                 }
 
-                function saveVVaCSCTrinket(event) {
-                    saveVVaCSCSetup(IDX_TRINKET, event.target.value);
+                function saveSelectableTrinket(event) {
+                    saveSelectableItem(IDX_TRINKET, event.target.value);
                 }
-
-                function saveVVaCSCAtmPoster(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
-
-                function saveVVaCSCAtmCactusCharm(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
-
 
                 let captionCell;
                 let tmpTxt;
-
-                const trVVaCSCPhasesTrapSetup = policyPreferencesTable.insertRow();
-                trVVaCSCPhasesTrapSetup.id = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-                trVVaCSCPhasesTrapSetup.style.height = "24px";
-                trVVaCSCPhasesTrapSetup.style.display = "none";
-                captionCell = trVVaCSCPhasesTrapSetup.insertCell();
+                const trSelectableTrapSetup = policyPreferencesTable.insertRow();
+                trSelectableTrapSetup.id = ID_TR_SELECTABLE_TRAP_SETUP;
+                trSelectableTrapSetup.style.height = "24px";
+                trSelectableTrapSetup.style.display = "none";
+                captionCell = trSelectableTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = document.createElement('select');
-                selectPhase.id = ID_SELECT_VVACSC_PHASE;
-                selectPhase.style.width = "70px";
-                selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeSelectVVaCSCPhase;
-                for (const phase of VVACSC_PHASES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectPhase.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectPhase);
-                tmpTxt = document.createTextNode("  Phase :  ");
+                const selectSelectableTrapSetup = getSelectItem([], ID_SELECT_SELECTABLE_TRAP_SETUP, onChangeSelectableTrapSetup, false, false, false);
+                selectSelectableTrapSetup.style.width = "100px";
+                captionCell.appendChild(selectSelectableTrapSetup);
+                tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trVVaCSCPhasesTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_VVACSC_WEAPON, saveVVaCSCWeapon));
+                const trapSetupCell = trSelectableTrapSetup.insertCell();
+                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_SELECTABLE_WEAPON, saveSelectableWeapon));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_VVACSC_BASE, saveVVaCSCBase));
+                trapSetupCell.appendChild(getSelectBase(ID_SELECT_SELECTABLE_BASE, saveSelectableBase));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_VVACSC_BAIT, saveVVaCSCBait));
+                trapSetupCell.appendChild(getSelectBait(ID_SELECT_SELECTABLE_BAIT, saveSelectableBait));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVACSC_TRINKET, saveVVaCSCTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
+                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SELECTABLE_TRINKET, saveSelectableTrinket));
+                captionCell = undefined;
+                tmpTxt = undefined;
+            }
 
+            function insertVVaCSCPolicyPreferences() {
+                function saveVVaCSCAtmPoster(event) {
+                    g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups);
+                }
+
+                function saveVVaCSCAtmCactusCharm(event) {
+                    g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVACSC, g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups);
+                }
+
+                let captionCell;
+                let tmpTxt;
                 const trVVaCSCAtmPoster = policyPreferencesTable.insertRow();
                 trVVaCSCAtmPoster.id = ID_TR_VVACSC_ATM_POSTER;
                 trVVaCSCAtmPoster.style.height = "24px";
@@ -3175,29 +3864,29 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" Arm Super Cactus Charm ");
                 checkboxAtmCactusCharmCell.appendChild(tmpTxt);
                 const imgSuperCactusCharm = document.createElement("img");
-                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
+                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/SuperCactusCharm.gif"
                 imgSuperCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgSuperCactusCharm);
                 tmpTxt = document.createTextNode(" and Cactus Charm ");
                 checkboxAtmCactusCharmCell.appendChild(tmpTxt);
                 const imgCactusCharm = document.createElement("img");
-                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
+                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/CactusCharm.gif"
                 imgCactusCharm.height = 15;
                 checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
 
-                tmpTxt = null;
-                captionCell = null;
+                tmpTxt = undefined;
+                captionCell = undefined;
             }
 
             function insertVVaFRoPolicyPreferences() {
                 function onChangeSelectVVaFRoPhase(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).initSelectTrapSetup();
                 }
 
                 function saveVVaFRoSetup(itemIndex, value) {
                     const currentPhase = document.getElementById(ID_SELECT_VVAFRO_PHASE).value;
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[currentPhase][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[currentPhase][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 function saveVVaFRoWeapon(event) {
@@ -3221,33 +3910,33 @@ function embedUIStructure() {
                 }
 
                 function saveVVaFRoAtmDeactivate(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_DEACTIVATE] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_DEACTIVATE] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 function saveVVaFRoAtmRetreat(event) {
                     if (!event.target.checked) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
-                        setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                        g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
+                        setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                     }
                     document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).disabled = !event.target.checked;
                     document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).disabled = !event.target.checked;
                 }
 
                 function saveVVaFRoRequiredHowlite(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
                     if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
+                        g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = true;
                     }
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 function saveVVaFRoRequiredBloodstone(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
+                    g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
                     if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
+                        g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = true;
                     }
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
+                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
                 }
 
                 let captionCell;
@@ -3260,17 +3949,8 @@ function embedUIStructure() {
                 captionCell = trVVaFRoPhasesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = document.createElement('select');
-                selectPhase.id = ID_SELECT_VVAFRO_PHASE;
+                const selectPhase = getSelectItem(VVAFRO_PHASES, ID_SELECT_VVAFRO_PHASE, onChangeSelectVVaFRoPhase, false, false, false);
                 selectPhase.style.width = "70px";
-                selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeSelectVVaFRoPhase;
-                for (const phase of VVAFRO_PHASES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectPhase.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectPhase);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3287,17 +3967,7 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVAFRO_TRINKET, saveVVaFRoTrinket));
                 tmpTxt = document.createTextNode(" ");
                 trapSetupCell.appendChild(tmpTxt);
-                const selectTower = document.createElement('select');
-                selectTower.id = ID_SELECT_VVAFRO_TOWER;
-                selectTower.style.fontSize = "90%";
-                selectTower.style.width = "80px";
-                selectTower.onchange = saveVVaFRoTower;
-                for (const phase of VVAFRO_TOWER_ACTIVATION){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectTower.appendChild(itemOption);
-                }
+                const selectTower = getSelectItem(VVAFRO_TOWER_ACTIVATION, ID_SELECT_VVAFRO_TOWER, saveVVaFRoTower, false, false, false);
                 trapSetupCell.appendChild(selectTower);
 
                 const trVVaFRoAtmDeactivate = policyPreferencesTable.insertRow();
@@ -3339,7 +4009,7 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 checkboxAtmRetreatCell.appendChild(tmpTxt);
                 const imgHowlite = document.createElement("img");
-                imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Howlite.gif"
+                imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/Howlite.gif"
                 imgHowlite.height = 15;
                 checkboxAtmRetreatCell.appendChild(imgHowlite);
                 tmpTxt = document.createTextNode(" ");
@@ -3352,179 +4022,86 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode(" ");
                 checkboxAtmRetreatCell.appendChild(tmpTxt);
                 const imgBloodStone = document.createElement("img");
-                imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Bloodstone.gif"
+                imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/main/imgs/Bloodstone.gif"
                 imgBloodStone.height = 15;
                 checkboxAtmRetreatCell.appendChild(imgBloodStone);
 
-                tmpTxt = null;
-                captionCell = null;
-            }
-
-            function insertRodSGaPolicyPreferences() {
-                function onChangeSelectRodSGaSeason(event) {
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
-                }
-
-                function saveRodSGaSetup(itemIndex, value) {
-                    const currentSeason = document.getElementById(ID_SELECT_RODSGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODSGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                }
-
-                function saveRodSGaWeapon(event) {
-                    saveRodSGaSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodSGaBase(event) {
-                    saveRodSGaSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodSGaBait(event) {
-                    saveRodSGaSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodSGaTrinket(event) {
-                    saveRodSGaSetup(IDX_TRINKET, event.target.value);
-                }
-
-                let captionCell;
-                let tmpTxt;
-                const trRodSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
-                trRodSGaSeasonsTrapSetup.id = ID_TR_RODSGA_SEASONS_TRAP_SETUP;
-                trRodSGaSeasonsTrapSetup.style.height = "24px";
-                trRodSGaSeasonsTrapSetup.style.display = "none";
-                captionCell = trRodSGaSeasonsTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectSeason = document.createElement('select');
-                selectSeason.id = ID_SELECT_RODSGA_SEASON;
-                selectSeason.style.fontSize = "90%";
-                selectSeason.style.width = "70px";
-                selectSeason.onchange = onChangeSelectRodSGaSeason;
-                for (const season of RODSGA_SEASONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = season
-                    itemOption.text = season
-                    selectSeason.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectSeason);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodSGaSeasonsTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODSGA_WEAPON, saveRodSGaWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODSGA_BASE, saveRodSGaBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODSGA_BAIT, saveRodSGaBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODSGA_TRINKET, saveRodSGaTrinket));
-                captionCell = null;
-                tmpTxt = null;
+                tmpTxt = undefined;
+                captionCell = undefined;
             }
 
             function insertRodZToPolicyPreferences() {
                 function onChangeSelectRodZToStrategy(event) {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[RODZTO_STRATEGY] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups[RODZTO_STRATEGY] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_RODZTO, g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups);
                 }
 
-                function onChangeRodZToSelectChess(event) {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].initSelectTrapSetup();
-                }
-
-                function saveRodZToSetup(itemIndex, value) {
-                    const currentChess = document.getElementById(ID_SELECT_ROD_RODZTO_CHESS).value;
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[currentChess][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
-                }
-
-                function saveRodZToWeapon(event) {
-                    saveRodZToSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodZToBase(event) {
-                    saveRodZToSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodZToBait(event) {
-                    saveRodZToSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodZToTrinket(event) {
-                    saveRodZToSetup(IDX_TRINKET, event.target.value);
-                }
-
-                let captionCell;
-                let tmpTxt;
                 const trRodZToStrategy = policyPreferencesTable.insertRow();
                 trRodZToStrategy.id = ID_TR_RODZTO_STRATEGY;
                 trRodZToStrategy.style.height = "24px";
                 trRodZToStrategy.style.display = "none";
-                captionCell = trRodZToStrategy.insertCell();
+                const captionCell = trRodZToStrategy.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Strategy :  ";
                 const selectStrategyCell = trRodZToStrategy.insertCell();
-                const selectStrategy = document.createElement('select');
-                selectStrategy.id = ID_SELECT_RODZTO_STRATEGY;
-                selectStrategy.style.fontSize = "90%";
-                selectStrategy.style.width = "120px";
-                selectStrategy.onchange = onChangeSelectRodZToStrategy;
-                const itemOption = document.createElement("option");
-                itemOption.value = "Select strategy";
-                itemOption.text = "Select strategy";
-                selectStrategy.appendChild(itemOption);
-                for (const strategy of RODZTO_STRATEGIES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = strategy
-                    itemOption.text = strategy
-                    selectStrategy.appendChild(itemOption);
-                }
+                const selectStrategy = getSelectItem("Select strategy", ID_SELECT_RODZTO_STRATEGY, onChangeSelectRodZToStrategy, false, false, false);
+                addOptions(selectStrategy, RODZTO_STRATEGIES)
+                selectStrategy.style.width = "100px";
                 selectStrategyCell.appendChild(selectStrategy);
+            }
 
-                const trRodZToChessTrapSetup = policyPreferencesTable.insertRow();
-                trRodZToChessTrapSetup.id = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
-                trRodZToChessTrapSetup.style.height = "24px";
-                trRodZToChessTrapSetup.style.display = "none";
-                captionCell = trRodZToChessTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectChess = document.createElement('select');
-                selectChess.id = ID_SELECT_ROD_RODZTO_CHESS;
-                selectChess.style.fontSize = "90%";
-                selectChess.style.width = "70px";
-                selectChess.onchange = onChangeRodZToSelectChess;
-                for (const name of RODZTO_CHESS_PROGRESS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = name
-                    itemOption.text = name
-                    selectChess.appendChild(itemOption);
+            function insertGnaMouPolicyPreferences() {
+                function saveGnaMouAtmSmash(event) {
+                    g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups[GNAMOU_ATM_SMASH] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_GNAMOU, g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups);
                 }
-                captionCell.appendChild(selectChess);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodZToChessTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODZTO_WEAPON, saveRodZToWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODZTO_BASE, saveRodZToBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODZTO_BAIT, saveRodZToBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODZTO_TRINKET, saveRodZToTrinket));
 
-                captionCell = null;
-                tmpTxt = null;
+                function saveGnaMouAtmSwitchCharm(event) {
+                    g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups[GNAMOU_ATM_SWITCH_CHARM] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_GNAMOU, g_policies.getPolicy(POLICY_NAME_MOUNTAIN).trapSetups);
+                }
+
+                let captionCell;
+                let tmpTxt;
+                const trGnaMouAtmSmash = policyPreferencesTable.insertRow();
+                trGnaMouAtmSmash.id = ID_TR_GNAMOU_ATM_SMASH;
+                trGnaMouAtmSmash.style.height = "24px";
+                trGnaMouAtmSmash.style.display = "none";
+                captionCell = trGnaMouAtmSmash.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                captionCell.innerHTML = "Automatic action(s) :  ";
+                const checkboxAtmSmashCell = trGnaMouAtmSmash.insertCell();
+                const checkboxAtmSmash = document.createElement('input');
+                checkboxAtmSmash.id = ID_CBX_GNAMOU_ATM_SMASH;
+                checkboxAtmSmash.type = "checkbox";
+                checkboxAtmSmash.onchange = saveGnaMouAtmSmash;
+                checkboxAtmSmashCell.appendChild(checkboxAtmSmash);
+                tmpTxt = document.createTextNode(" Smash the boulder");
+                checkboxAtmSmashCell.appendChild(tmpTxt);
+
+                const trGnaMouAtmSwitchCharm = policyPreferencesTable.insertRow();
+                trGnaMouAtmSwitchCharm.id = ID_TR_GNAMOU_ATM_SWITCH_CHARM;
+                trGnaMouAtmSwitchCharm.style.height = "24px";
+                trGnaMouAtmSwitchCharm.style.display = "none";
+                captionCell = trGnaMouAtmSwitchCharm.insertCell();
+                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
+                const checkboxtmSwitchCharmCell = trGnaMouAtmSwitchCharm.insertCell();
+                const checkboxtmSwitchCharm = document.createElement('input');
+                checkboxtmSwitchCharm.id = ID_CBX_GNAMOU_ATM_SWITCH_CHARM;
+                checkboxtmSwitchCharm.type = "checkbox";
+                checkboxtmSwitchCharm.onchange = saveGnaMouAtmSwitchCharm;
+                checkboxtmSwitchCharmCell.appendChild(checkboxtmSwitchCharm);
+                tmpTxt = document.createTextNode(" Switch Power Charm");
+                checkboxtmSwitchCharmCell.appendChild(tmpTxt);
+
+                captionCell = undefined;
+                tmpTxt = undefined;
             }
 
             function insertRodCLiPolicyPreferences() {
                 function saveRodCLiCheckbox(event) {
-                    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups[RODCLI_ATM_CATALOG_MICE] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_RODCLI, POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).trapSetups[RODCLI_ATM_CATALOG_MICE] = event.target.checked;
+                    setStorage(STORAGE_TRAP_SETUP_RODCLI, g_policies.getPolicy(POLICY_NAME_CRYSTAL_LIBRARY).trapSetups);
                 }
 
                 const trRodCLiAtmCatalogMice = policyPreferencesTable.insertRow();
@@ -3544,78 +4121,15 @@ function embedUIStructure() {
                 checkboxCell.appendChild(tmpTxt);
             }
 
-            function insertRodIcePolicyPreferences() {
-                function onChangeSelectRodIceSublocation(event) {
-                    POLICY_DICT[POLICY_NAME_ICEBERG].initSelectTrapSetup();
-                }
-
-                function saveRodIceSetup(itemIndex, value) {
-                    const sublocation = document.getElementById(ID_SELECT_RODICE_SUBLOCATION).value;
-                    POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups[sublocation][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
-                }
-
-                function saveRodIceWeapon(event) {
-                    saveRodIceSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodIceBase(event) {
-                    saveRodIceSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodIceBait(event) {
-                    saveRodIceSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodIceTrinket(event) {
-                    saveRodIceSetup(IDX_TRINKET, event.target.value);
-                }
-
-                let tmpTxt;
-                const trRodIceSublocationTrapSetup = policyPreferencesTable.insertRow();
-                trRodIceSublocationTrapSetup.id = ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP;
-                trRodIceSublocationTrapSetup.style.height = "24px";
-                trRodIceSublocationTrapSetup.style.display = "none";
-                const captionCell = trRodIceSublocationTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectSublocation = document.createElement('select');
-                selectSublocation.id = ID_SELECT_RODICE_SUBLOCATION;
-                selectSublocation.style.fontSize = "90%";
-                selectSublocation.style.width = "70px";
-                selectSublocation.onchange = onChangeSelectRodIceSublocation;
-                for (const sublocation of RODICE_SUBLOCATIONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = sublocation
-                    itemOption.text = sublocation
-                    selectSublocation.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectSublocation);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodIceSublocationTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODICE_WEAPON, saveRodIceWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODICE_BASE, saveRodIceBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODICE_BAIT, saveRodIceBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODICE_TRINKET, saveRodIceTrinket));
-                tmpTxt = null;
-            }
-
             function insertSDeFWaPolicyPreferences() {
                 function onChangeSelectSDeFWaWave(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
                 }
 
                 function saveSoldierSetup(itemIndex, value) {
                     const powerType = document.getElementById(ID_SELECT_SDEFWA_POWER_TYPE).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[powerType][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[powerType][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaSoldierWeapon(event) {
@@ -3628,19 +4142,19 @@ function embedUIStructure() {
 
                 function saveSDeFWaTargetPopulation(event) {
                     const wave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function onChangeSelectSDeFWaStreak(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
                 }
 
                 function saveStreakSetup(itemIndex, value) {
                     const streak = document.getElementById(ID_SELECT_SDEFWA_STREAK).value;
                     const wave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[wave][streak][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[wave][streak][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaStreakBait(event) {
@@ -3656,28 +4170,28 @@ function embedUIStructure() {
                 }
 
                 function saveSDeFWaLastSoldierBait(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaLastSoldierCharmType(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaArmingWarpathCharm(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = event.target.value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function onChangeSelectSDeFWaBeforeAfterWardens(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
                 }
 
                 function saveWave4Setup(itemIndex, value) {
                     const status = document.getElementById(ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS).value;
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_WAVE4][status][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
+                    g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_WAVE4][status][itemIndex] = value;
+                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function saveSDeFWaWave4Weapon(event) {
@@ -3706,17 +4220,8 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Wave :  ";
                 const selectSDeFWaWaveCell = trSelectSDeFWaWave.insertCell();
-                const selectSDeFWaWave = document.createElement('select');
-                selectSDeFWaWave.id = ID_SELECT_SDEFWA_WAVE;
-                selectSDeFWaWave.style.fontSize = "90%";
-                selectSDeFWaWave.style.width = "70px";
-                selectSDeFWaWave.onchange = onChangeSelectSDeFWaWave;
-                for (const wave of SDEFWA_WAVES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = wave
-                    itemOption.text = wave
-                    selectSDeFWaWave.appendChild(itemOption);
-                }
+                const selectSDeFWaWave = getSelectItem(SDEFWA_WAVES, ID_SELECT_SDEFWA_WAVE, onChangeSelectSDeFWaWave, false, false, false);
+                selectSDeFWaWave.style.width = "65px";
                 selectSDeFWaWaveCell.appendChild(selectSDeFWaWave);
 
                 const trSDeFWaPowerTypesTrapSetup = policyPreferencesTable.insertRow();
@@ -3726,17 +4231,8 @@ function embedUIStructure() {
                 captionCell = trSDeFWaPowerTypesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectSDeFWaPowerType = document.createElement('select');
-                selectSDeFWaPowerType.id = ID_SELECT_SDEFWA_POWER_TYPE;
-                selectSDeFWaPowerType.style.fontSize = "90%";
+                const selectSDeFWaPowerType = getSelectItem(SDEFWA_POWER_TYPES, ID_SELECT_SDEFWA_POWER_TYPE, onChangeSelectSDeFWaWave, false, false, false);
                 selectSDeFWaPowerType.style.width = "65px";
-                selectSDeFWaPowerType.onchange = onChangeSelectSDeFWaWave;
-                for (const power_type of SDEFWA_POWER_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = power_type
-                    itemOption.text = power_type
-                    selectSDeFWaPowerType.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSDeFWaPowerType);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3754,17 +4250,11 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Target Population :  ";
                 const selectSDeFWaTargetPopulationCell = trSelectSDeFWaTargetPopulation.insertCell();
-                const selectSDeFWaTargetPopulation = document.createElement('select');
-                selectSDeFWaTargetPopulation.id = ID_SELECT_SDEFWA_TARGET_POPULATION;
-                selectSDeFWaTargetPopulation.style.fontSize = "90%";
+                const selectSDeFWaTargetPopulation = getSelectItem(SDEFWA_TARGET_POPULATIONS,
+                                                                   ID_SELECT_SDEFWA_TARGET_POPULATION,
+                                                                   saveSDeFWaTargetPopulation,
+                                                                   false, false, false);
                 selectSDeFWaTargetPopulation.style.width = "65px";
-                selectSDeFWaTargetPopulation.onchange = saveSDeFWaTargetPopulation;
-                for (const target_population of SDEFWA_TARGET_POPULATIONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = target_population;
-                    itemOption.text = target_population;
-                    selectSDeFWaTargetPopulation.appendChild(itemOption);
-                }
                 selectSDeFWaTargetPopulationCell.appendChild(selectSDeFWaTargetPopulation);
 
                 const trSDeFWaStreaksTrapSetup = policyPreferencesTable.insertRow();
@@ -3774,17 +4264,8 @@ function embedUIStructure() {
                 captionCell = trSDeFWaStreaksTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-                const selectSDeFWaStreak = document.createElement('select');
-                selectSDeFWaStreak.id = ID_SELECT_SDEFWA_STREAK;
-                selectSDeFWaStreak.style.fontSize = "90%";
+                const selectSDeFWaStreak = getSelectItem(Array(SDEFWA_MAX_STREAKS+1).keys(), ID_SELECT_SDEFWA_STREAK, onChangeSelectSDeFWaStreak, false, false, false);
                 selectSDeFWaStreak.style.width = "35px";
-                selectSDeFWaStreak.onchange = onChangeSelectSDeFWaStreak;
-                for (let i = 0; i <= SDEFWA_MAX_STREAKS; i++){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = i;
-                    itemOption.text = i;
-                    selectSDeFWaStreak.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSDeFWaStreak);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3792,33 +4273,14 @@ function embedUIStructure() {
                 streakTrapSetupCell.appendChild(getSelectBait(ID_SELECT_SDEFWA_STREAK_BAIT, saveSDeFWaStreakBait));
                 tmpTxt = document.createTextNode(" ");
                 streakTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaStreakCharmType = document.createElement('select');
-                selectSDeFWaStreakCharmType.id = ID_SELECT_SDEFWA_STREAK_CHARM_TYPE;
-                selectSDeFWaStreakCharmType.style.fontSize = "90%";
-                selectSDeFWaStreakCharmType.style.width = "80px";
-                selectSDeFWaStreakCharmType.onchange = saveSDeFWaStreakCharmType;
-                for (const charmType of SDEFWA_CHARM_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = charmType;
-                    itemOption.text = charmType;
-                    selectSDeFWaStreakCharmType.appendChild(itemOption);
-                }
-                selectSDeFWaStreakCharmType.selectedIndex = -1;
+                const selectSDeFWaStreakCharmType = getSelectItem(SDEFWA_CHARM_TYPES, ID_SELECT_SDEFWA_STREAK_CHARM_TYPE, saveSDeFWaStreakCharmType, true, false, false);
                 streakTrapSetupCell.appendChild(selectSDeFWaStreakCharmType);
                 tmpTxt = document.createTextNode(" ");
                 streakTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaStreakSoldierType = document.createElement('select');
-                selectSDeFWaStreakSoldierType.id = ID_SELECT_SDEFWA_STREAK_SOLDIER_TYPE;
-                selectSDeFWaStreakSoldierType.style.fontSize = "90%";
-                selectSDeFWaStreakSoldierType.style.width = "80px";
-                selectSDeFWaStreakSoldierType.onchange = saveSDeFWaStreakSoldierType;
-                for (const soldierType of SDEFWA_STREAK_SOLDIER_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = soldierType;
-                    itemOption.text = soldierType;
-                    selectSDeFWaStreakSoldierType.appendChild(itemOption);
-                }
-                selectSDeFWaStreakSoldierType.selectedIndex = -1;
+                const selectSDeFWaStreakSoldierType = getSelectItem(SDEFWA_STREAK_SOLDIER_TYPES,
+                                                                    ID_SELECT_SDEFWA_STREAK_SOLDIER_TYPE,
+                                                                    saveSDeFWaStreakSoldierType,
+                                                                    false, false, false);
                 streakTrapSetupCell.appendChild(selectSDeFWaStreakSoldierType);
 
                 const trSDeFWaLastSoldierTrapSetup = policyPreferencesTable.insertRow();
@@ -3832,22 +4294,10 @@ function embedUIStructure() {
                 lastSoldierTrapSetupCell.appendChild(getSelectBait(ID_SELECT_SDEFWA_LAST_SOLDIER_BAIT, saveSDeFWaLastSoldierBait));
                 tmpTxt = document.createTextNode(" ");
                 lastSoldierTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaLastSoldierCharmType = document.createElement('select');
-                selectSDeFWaLastSoldierCharmType.id = ID_SELECT_SDEFWA_LAST_SOLDIER_CHARM_TYPE;
-                selectSDeFWaLastSoldierCharmType.style.fontSize = "90%";
-                selectSDeFWaLastSoldierCharmType.style.width = "80px";
-                selectSDeFWaLastSoldierCharmType.onchange = saveSDeFWaLastSoldierCharmType;
-                const itemOption = document.createElement("option");
-                itemOption.value = TRINKET_DISARM;
-                itemOption.text = TRINKET_DISARM;
-                selectSDeFWaLastSoldierCharmType.appendChild(itemOption);
-                for (const charmType of SDEFWA_CHARM_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = charmType;
-                    itemOption.text = charmType;
-                    selectSDeFWaLastSoldierCharmType.appendChild(itemOption);
-                }
-                selectSDeFWaLastSoldierCharmType.selectedIndex = -1;
+                const selectSDeFWaLastSoldierCharmType = getSelectItem(SDEFWA_CHARM_TYPES,
+                                                                       ID_SELECT_SDEFWA_LAST_SOLDIER_CHARM_TYPE,
+                                                                       saveSDeFWaLastSoldierCharmType,
+                                                                       true, true, false);
                 lastSoldierTrapSetupCell.appendChild(selectSDeFWaLastSoldierCharmType);
 
                 const trSDeFWaWhenSupportRetreat = policyPreferencesTable.insertRow();
@@ -3858,17 +4308,8 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "When Support Retreat :  ";
                 const trinketArmingCell = trSDeFWaWhenSupportRetreat.insertCell();
-                const selectSDeFWaArmingWarpathCharm = document.createElement('select');
-                selectSDeFWaArmingWarpathCharm.id = ID_SELECT_SDEFWA_ARMING_WARPATH_CHARM;
-                selectSDeFWaArmingWarpathCharm.style.fontSize = "90%";
+                const selectSDeFWaArmingWarpathCharm = getSelectItem(ITEM_ARMING, ID_SELECT_SDEFWA_ARMING_WARPATH_CHARM, saveSDeFWaArmingWarpathCharm, false, false, false);
                 selectSDeFWaArmingWarpathCharm.style.width = "60px";
-                selectSDeFWaArmingWarpathCharm.onchange = saveSDeFWaArmingWarpathCharm;
-                for (const armStatus of TRINKET_ARMING){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = armStatus;
-                    itemOption.text = armStatus;
-                    selectSDeFWaArmingWarpathCharm.appendChild(itemOption);
-                }
                 trinketArmingCell.appendChild(selectSDeFWaArmingWarpathCharm);
                 tmpTxt = document.createTextNode("  Warpath Charm");
                 trinketArmingCell.appendChild(tmpTxt);
@@ -3880,17 +4321,11 @@ function embedUIStructure() {
                 captionCell = trSDeFWaWave4TrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup ";
-                const selectSDeFWaBeforeAfterWardens = document.createElement('select');
-                selectSDeFWaBeforeAfterWardens.id = ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS;
-                selectSDeFWaBeforeAfterWardens.style.fontSize = "90%";
+                const selectSDeFWaBeforeAfterWardens = getSelectItem(STATUSES,
+                                                                     ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS,
+                                                                     onChangeSelectSDeFWaBeforeAfterWardens,
+                                                                     false, false, false);
                 selectSDeFWaBeforeAfterWardens.style.width = "60px";
-                selectSDeFWaBeforeAfterWardens.onchange = onChangeSelectSDeFWaBeforeAfterWardens;
-                for (const status of STATUSES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = status;
-                    itemOption.text = status;
-                    selectSDeFWaBeforeAfterWardens.appendChild(itemOption);
-                }
                 captionCell.appendChild(selectSDeFWaBeforeAfterWardens);
                 tmpTxt = document.createTextNode("  Clear Wardens :  ");
                 captionCell.appendChild(tmpTxt);
@@ -3906,16 +4341,19 @@ function embedUIStructure() {
                 wave4TrapSetupCell.appendChild(tmpTxt);
                 wave4TrapSetupCell.appendChild(getSelectTrinket(ID_SELECT_SDEFWA_WAVE4_TRINKET, saveSDeFWaWave4Trinket));
 
-                tmpTxt = null;
+                tmpTxt = undefined;
             }
 
-            //let tmpTxt;
+            let currentPolicy;
+            let policyStorage;
             const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
 
             const trEmpty = policyPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
             insertSelectPolicyRow();
+            insertSingleTrapSetupRow();
+            insertSelectableTrapSetupRow();
 
             return policyPreferencesTable;
         }
@@ -3981,7 +4419,7 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-                if (!lockBot(BOT_PROCESS_Manual)) {
+                if (!lockBot(BOT_PROCESS_MANUAL)) {
                     return;
                 }
                 g_trapInfo = {};
@@ -4062,7 +4500,7 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode("  ");
             applyButtonCell.appendChild(tmpTxt);
 
-            tmpTxt = null;
+            tmpTxt = undefined;
             return preferencesFooterTable;
         }
 
@@ -4127,9 +4565,9 @@ function embedUIStructure() {
 
         preferencesSection.appendChild(preferencesBox);
 
-        separationLine = null;
-        blankLine = null;
-        tmpTitle = null;
+        separationLine = undefined;
+        blankLine = undefined;
+        tmpTitle = undefined;
 
         return preferencesSection;
     }
@@ -4162,10 +4600,12 @@ function getPageVariable(name) {
             return unsafeWindow.user.has_puzzle;
         } else if (name == 'user.unique_hash') {
             return unsafeWindow.user.unique_hash;
+        } else if (name == 'user.user_id') {
+            return unsafeWindow.user.user_id;
         } else if (name == 'user.sn_user_id') {
             return unsafeWindow.user.sn_user_id;
-        } else if (name == 'last_read_journal_entry_id') {
-            return unsafeWindow.last_read_journal_entry_id;
+        } else if (name == 'lastReadJournalEntryId') {
+            return unsafeWindow.lastReadJournalEntryId;
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.weapon_item_id") {
@@ -4180,22 +4620,18 @@ function getPageVariable(name) {
             return unsafeWindow.user.environment_name;
         } else if (name == "user.title_name") {
             return unsafeWindow.user.title_name;
-        } else if (name == "user.quests.QuestHarbour.status") {
-            return unsafeWindow.user.quests.QuestHarbour.status;
-        } else if (name == "user.quests.QuestHarbour.can_claim") {
-            return unsafeWindow.user.quests.QuestHarbour.can_claim;
+        } else if (name == "user.quests.QuestHarbour") {
+            return unsafeWindow.user.quests.QuestHarbour;
+        } else if (name == "user.quests.QuestMountain") {
+            return unsafeWindow.user.quests.QuestMountain;
         } else if (name == "user.quests.QuestClawShotCity.phase") {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
-        } else if (name == "user.quests.QuestFortRox.current_stage") {
-            return unsafeWindow.user.quests.QuestFortRox.current_stage;
-        } else if (name == "user.quests.QuestFortRox.items.howlite_stat_item.quantity") {
-            return unsafeWindow.user.quests.QuestFortRox.items.howlite_stat_item.quantity;
-        } else if (name == "user.quests.QuestFortRox.items.blood_stone_stat_item.quantity") {
-            return unsafeWindow.user.quests.QuestFortRox.items.blood_stone_stat_item.quantity;
-        } else if (name == "user.quests.QuestZugzwangLibrary.hasResearchQuest") {
-            return unsafeWindow.user.quests.QuestZugzwangLibrary.hasResearchQuest;
-        } else if (name == "user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest") {
-            return unsafeWindow.user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest;
+        } else if (name == "user.quests.QuestFortRox") {
+            return unsafeWindow.user.quests.QuestFortRox;
+        } else if (name == "user.quests.QuestZugzwangLibrary") {
+            return unsafeWindow.user.quests.QuestZugzwangLibrary;
+        } else if (name == "user.viewing_atts.desert_warpath") {
+            return unsafeWindow.user.viewing_atts.desert_warpath;
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
