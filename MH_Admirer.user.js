@@ -20,13 +20,6 @@
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 // Issue list
-<<<<<<< HEAD
-// - Auto change trap setting
-//   - ZToPolicy 2nd half
-//   - Activate-Deactivate FRo tower (After I get tower lvl 4)
-//   - IcePolicy and test
-//   - FWaPolicy
-=======
 // - Add getMiceInfo to be used with Active Quest feature
 // - Add Active Quest Preferences, which will override checklocation and automatically Travel as needed. Possible Quests include
 //   - QUEST_NO_QUEST, default, basically, only do the checkLocation
@@ -39,7 +32,6 @@
 //   - RodZToPolicy 2nd half
 //   - RodIcePolicy and test
 //   - SDeFWaPolicy
->>>>>>> ft_AutochangeTrap
 
 // == Basic User Preference Setting (Begin) ==
 // // The variable in this section contain basic option will normally edit by most user to suit their own preference
@@ -101,14 +93,9 @@ let g_nextTrapCheckTime;
 let g_trapCheckCountdownDelay;
 let g_strScriptVersion = GM_info.script.version;
 let g_kingsRewardRetry = 0;
-<<<<<<< HEAD
-let g_trapInfo = {};
-let g_friendInfo;
-=======
 let g_trapInfo;
 let g_friendInfo;
 let g_mouseInfo;
->>>>>>> ft_AutochangeTrap
 let g_botProcess = BOT_PROCESS_IDLE;
 
 // I have to re-define the default value of the following variables somewhere else
@@ -168,14 +155,11 @@ const CLASSIFICATION_WEAPON = "weapon";
 const CLASSIFICATION_BASE = "base";
 const CLASSIFICATION_BAIT = "bait";
 const CLASSIFICATION_TRINKET = "trinket";
-<<<<<<< HEAD
-=======
 const ID_NEXT_HUNT_TIME_TXT = "nextHuntTimeTxt";
 const ID_BOT_COUNTDOWN_TXT = "botCountdownTxt";
 const ID_BOT_INTERVAL_TXT = "botIntervalTxt";
 const ID_NEXT_TRAP_CHECK_TIME_TXT = "nextTrapCheckTimeTxt";
 const ID_TRAP_CHECK_COUNTDOWN_TXT = "trapCheckCountDownTxt";
->>>>>>> ft_AutochangeTrap
 const ID_INPUT_BOT_HORN_TIME_DELAY_MIN = "inputBotHornTimeDelayMin";
 const ID_INPUT_BOT_HORN_TIME_DELAY_MAX = "inputBotHornTimeDelayMax";
 const ID_INPUT_TRAP_CHECK_TIME_DELAY_MIN = "inputTrapCheckTimeDelayMin";
@@ -193,19 +177,6 @@ const ID_TIMER_LINK = 'timerLink';
 const ID_POLICY_TXT = "policyTxt";
 const ID_BOTTON_UPDATE_TRAPS = "btnUpdateTtraps";
 const ID_BOTTON_UPDATE_FRIENDS = "btnUpdateFriends";
-<<<<<<< HEAD
-const ID_TR_BWOARE_TRAP_SETUP = "trBWoAreTrapSetup";
-const ID_SELECT_BWOARE_WEAPON = "selectBWoAReWeapon";
-const ID_SELECT_BWOARE_BASE = "selectBWoAReBase";
-const ID_SELECT_BWOARE_BAIT = "selectBWoAReBait";
-const ID_SELECT_BWOARE_TRINKET = "selectBWoAReTrinket";
-const ID_TR_VVACSC_PHASES_TRAP_SETUP = "trVVaCSCPhasesTrapSetup";
-const ID_SELECT_VVACSC_PHASE = "selectVVaCSCPhase";
-const ID_SELECT_VVACSC_WEAPON = "selectVVaCSCWeapon";
-const ID_SELECT_VVACSC_BASE = "selectVVaCSCBase";
-const ID_SELECT_VVACSC_BAIT = "selectVVaCSCBait";
-const ID_SELECT_VVACSC_TRINKET = "selectVVaCSCTrinket";
-=======
 const ID_TR_SINGLE_TRAP_SETUP = "trSingleTrapSetup";
 const ID_SELECT_SINGLE_WEAPON = "selectSingleWeapon";
 const ID_SELECT_SINGLE_BASE = "selectSingleBase";
@@ -221,7 +192,6 @@ const ID_TR_GNAMOU_ATM_SMASH = "trGnaMouAtmSmash";
 const ID_CBX_GNAMOU_ATM_SMASH = "cbxGnaMouAtmSmash";
 const ID_TR_GNAMOU_ATM_SWITCH_CHARM = "trGnaMouAtmSwitchCharm";
 const ID_CBX_GNAMOU_ATM_SWITCH_CHARM = "cbxGnaMouAtmSwitchCharm";
->>>>>>> ft_AutochangeTrap
 const ID_TR_VVACSC_ATM_POSTER = "trVVaCSCAtmPoster";
 const ID_CBX_VVACSC_ATM_POSTER = "cbxVVaCSCAtmPoster";
 const ID_TR_VVACSC_ATM_CACTUS_CHARM = "trVVaCSCAtmCactusCharm";
@@ -239,35 +209,10 @@ const ID_TR_VVAFRO_ATM_RETREAT = "trVVaFRoAtmRetreat";
 const ID_CBX_VVAFRO_ATM_RETREAT = "cbxVVaFRoAtmRetreat";
 const ID_INPUT_VVAFRO_REQUIRED_HOWLITE = "inputVVaFRoRequiredHowlite";
 const ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE = "inputVVaFRoRequiredBloodstone";
-<<<<<<< HEAD
-const ID_TR_RODSGA_SEASONS_TRAP_SETUP = "trRodSGaSeasonsTrapSetup";
-const ID_SELECT_RODSGA_SEASON = "selectRodSGaSeason";
-const ID_SELECT_RODSGA_WEAPON = "selectRodSGaWeapon";
-const ID_SELECT_RODSGA_BASE = "selectRodSGaBase";
-const ID_SELECT_RODSGA_BAIT = "selectRodSGaBait";
-const ID_SELECT_RODSGA_TRINKET = "selectRodSGaTrinket";
-const ID_TR_RODZTO_STRATEGY = "trRodZToStrategy";
-const ID_SELECT_RODZTO_STRATEGY = "selectRodZToStrategy";
-const ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP = "trRodZToChessTrapSetup";
-const ID_SELECT_ROD_RODZTO_CHESS = "selectRodZToChess";
-const ID_SELECT_RODZTO_WEAPON = "selectRodZToWeapon";
-const ID_SELECT_RODZTO_BASE = "selectRodZToBase";
-const ID_SELECT_RODZTO_BAIT = "selectRodZToBait";
-const ID_SELECT_RODZTO_TRINKET = "selectRodZToTrinket";
-const ID_TR_RODCLI_ATM_CATALOG_MICE = "trRodCLiAtmCatalogMice";
-const ID_CBX_RODCLI_ATM_CATALOG_MICE = "cbxRodCLiAtmCatalogMice";
-const ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP = "trRodIceSublocationTrapSetup";
-const ID_SELECT_RODICE_SUBLOCATION = "selectRodIceSublocation";
-const ID_SELECT_RODICE_WEAPON = "selectRodIceWeapon";
-const ID_SELECT_RODICE_BASE = "selectRodIceBase";
-const ID_SELECT_RODICE_BAIT = "selectRodIceBait";
-const ID_SELECT_RODICE_TRINKET = "selectRodIceTrinket";
-=======
 const ID_TR_RODZTO_STRATEGY = "trRodZToStrategy";
 const ID_SELECT_RODZTO_STRATEGY = "selectRodZToStrategy";
 const ID_TR_RODCLI_ATM_CATALOG_MICE = "trRodCLiAtmCatalogMice";
 const ID_CBX_RODCLI_ATM_CATALOG_MICE = "cbxRodCLiAtmCatalogMice";
->>>>>>> ft_AutochangeTrap
 const ID_TR_SELECT_SDEFWA_WAVE = "trSelectSDeFWaWave";
 const ID_SELECT_SDEFWA_WAVE = "selectSDeFWaWave";
 const ID_TR_SDEFWA_POWER_TYPES_TRAP_SETUP = "trSDeFWaPowerTypesTrapSetup";
@@ -304,9 +249,6 @@ const STORAGE_SCHEDULED_RESET_TIME = "scheduledResetTime";
 const STORAGE_STATUS_GIFTING = "statusGifting";
 const STORAGE_STATUS_BALLOTING = "statusBalloting";
 const STORAGE_TRAP_INFO = "trapInfo";
-<<<<<<< HEAD
-const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
-=======
 const STORAGE_TRAP_SETUP_GNAHAR = "trapSetupGnaHar";
 const STORAGE_TRAP_SETUP_GNAMOU = "trapSetupGnaMou";
 const STORAGE_TRAP_SETUP_WWOCCL = "trapSetupWWoCCl";
@@ -316,17 +258,11 @@ const STORAGE_TRAP_SETUP_BWOCAT = "trapSetupBWoCat";
 const STORAGE_TRAP_SETUP_BWOARE = "trapSetupBWoARe";
 const STORAGE_TRAP_SETUP_TISDDU = "trapSetupTIsDDu";
 const STORAGE_TRAP_SETUP_TISJOD = "trapSetupTIsJoD";
->>>>>>> ft_AutochangeTrap
 const STORAGE_TRAP_SETUP_VVACSC = "trapSetupVVaCSC";
 const STORAGE_TRAP_SETUP_VVAFRO = "trapSetupVVaFRo";
 const STORAGE_TRAP_SETUP_RODSGA = "trapSetupRodSGa";
 const STORAGE_TRAP_SETUP_RODZTO = "trapSetupRodZTo";
 const STORAGE_TRAP_SETUP_RODCLI = "trapSetupRodCLi";
-<<<<<<< HEAD
-const STORAGE_TRAP_SETUP_RODICE = "trapSetupRodIce";
-const STORAGE_TRAP_SETUP_SDEFWA = "trapSetupSDeFWa";
-const STORAGE_FRIEND_INFO = "friendInfo";
-=======
 const STORAGE_TRAP_SETUP_RODSSH = "trapSetupRodSSh";
 const STORAGE_TRAP_SETUP_RODICE = "trapSetupRodIce";
 const STORAGE_TRAP_SETUP_SDEFWA = "trapSetupSDeFWa";
@@ -334,7 +270,6 @@ const STORAGE_TRAP_SETUP_SDEMMA = "trapSetupSDeMMa";
 const STORAGE_FRIEND_INFO = "friendInfo";
 const DATA_TYPE_STRING = "string";
 const DATA_TYPE_OBJECT = "object";
->>>>>>> ft_AutochangeTrap
 const IDX_WEAPON = 0;
 const IDX_BASE = 1;
 const IDX_BAIT = 2;
@@ -351,18 +286,12 @@ const POWER_TYPE_PHYSICAL = "Physical";
 const POWER_TYPE_RIFT = "Rift";
 const POWER_TYPE_SHADOW = "Shadow";
 const POWER_TYPE_TACTICAL = "Tactical";
-<<<<<<< HEAD
-const TRINKET_ARM = "Arm";
-const TRINKET_DISARM = "Disarm";
-const TRINKET_ARMING = [TRINKET_ARM, TRINKET_DISARM];
-=======
 const POWER_TYPE_OVERALL = "Overall";
 const ITEM_ARM = "Arm";
 const ITEM_DISARM = "Disarm";
 const ITEM_ARMING = [ITEM_ARM, ITEM_DISARM];
 const ITEM_OTHER = "Other";
 const ITEM_IGNORE = "Ignore";
->>>>>>> ft_AutochangeTrap
 const STATUS_BEFORE = "Before";
 const STATUS_AFTER = "After";
 const STATUSES = [STATUS_BEFORE, STATUS_AFTER];
@@ -372,11 +301,8 @@ const BOT_PROCESS_SCHEDULER = "Scheduler";
 const BOT_PROCESS_TIMER = "Timer";
 const BOT_PROCESS_MANUAL = "Manual";
 const BOT_STATUS_IDLE = "Idle";
-<<<<<<< HEAD
-=======
 const GNAMOU_ATM_SWITCH_CHARM = "Automatic Switch Charm";
 const GNAMOU_ATM_SMASH = "Automatic Smash";
->>>>>>> ft_AutochangeTrap
 const VVACSC_PHASE_LAWLESS = "lawless";
 const VVACSC_PHASE_NEED_POSTER = "need_poster";
 const VVACSC_PHASE_HAS_POSTER = "has_poster";
@@ -441,16 +367,9 @@ const RODICE_SUBLOCATION_THE_MAD_DEPTHS = "The Mad Depths";
 const RODICE_SUBLOCATION_ICEWINGS_LAIR = "Icewing's Lair";
 const RODICE_SUBLOCATION_HIDDEN_DEPTHS = "Hidden Depths";
 const RODICE_SUBLOCATION_THE_DEEP_LAIR = "The Deep Lair";
-<<<<<<< HEAD
-const RODICE_SUBLOCATION_SLUSHY_SHORELINE = "Slushy Shoreline";
-const RODICE_SUBLOCATIONS = [RODICE_SUBLOCATION_ICEBERG_GENERAL, RODICE_SUBLOCATION_TREACHEROUS_TUNNELS, RODICE_SUBLOCATION_BRUTAL_BULWARK,
-                             RODICE_SUBLOCATION_BOMBING_RUN, RODICE_SUBLOCATION_THE_MAD_DEPTHS, RODICE_SUBLOCATION_ICEWINGS_LAIR,
-                             RODICE_SUBLOCATION_HIDDEN_DEPTHS, RODICE_SUBLOCATION_THE_DEEP_LAIR, RODICE_SUBLOCATION_SLUSHY_SHORELINE];
-=======
 const RODICE_SUBLOCATIONS = [RODICE_SUBLOCATION_ICEBERG_GENERAL, RODICE_SUBLOCATION_TREACHEROUS_TUNNELS, RODICE_SUBLOCATION_BRUTAL_BULWARK,
                              RODICE_SUBLOCATION_BOMBING_RUN, RODICE_SUBLOCATION_THE_MAD_DEPTHS, RODICE_SUBLOCATION_ICEWINGS_LAIR,
                              RODICE_SUBLOCATION_HIDDEN_DEPTHS, RODICE_SUBLOCATION_THE_DEEP_LAIR];
->>>>>>> ft_AutochangeTrap
 const SDEFWA_WAVE1 = "Wave 1";
 const SDEFWA_WAVE2 = "Wave 2";
 const SDEFWA_WAVE3 = "Wave 3";
@@ -515,9 +434,6 @@ class Policy {
         this.trs = [];
         this.bestPowerWeapons = {};
         this.bestLuckWeapons = {};
-<<<<<<< HEAD
-        this.bestBase = undefined;
-=======
     }
 
     resetTrapSetups() {
@@ -571,7 +487,6 @@ class Policy {
                 .map(x => x[1].name)[0];
         }
         return this.bestPowerWeapons[powerType];
->>>>>>> ft_AutochangeTrap
     }
 
     getBestLuckWeapon(powerType) {
@@ -593,52 +508,6 @@ class Policy {
         return this.bestLuckWeapons[powerType];
     }
 
-    getBestBase() {
-        const baseInfo = getBaseInfo();
-        if (isNullOrUndefined(this.bestBase)) {
-            const bestBases = Object.entries(baseInfo)
-            .sort(([,a], [,b]) => b.power - a.power)
-            .sort(([,a], [,b]) => b.luck - a.luck)
-            .map(x => x[1].name);
-            const hunterTitle = getPageVariable("user.title_name");
-            if (HUNTER_TITLES.indexOf(hunterTitle) > 16 && bestBases.includes(BASE_THIEF)) {
-                this.bestBase = BASE_THIEF;
-            } else {
-                for (const base of bestBases){
-                    if (base != BASE_THIEF && base != BASE_FORECASTER) {
-                        this.bestBase = base;
-                        break;
-                    }
-                }
-            }
-        }
-        return this.bestBase;
-    }
-
-    getBestPowerWeapon(powerType) {
-        const weaponInfo = getWeaponInfo();
-        if (isNullOrUndefined(this.bestPowerWeapons[powerType])) {
-            this.bestPowerWeapons[powerType] = Object.entries(weaponInfo)
-                .filter(([key, value]) => value.powerType === powerType)
-                .sort(([,a], [,b]) => b.luck - a.luck)
-                .sort(([,a], [,b]) => b.power - a.power)
-                .map(x => x[1].name)[0];
-        }
-        return this.bestPowerWeapons[powerType];
-    }
-
-    getBestLuckWeapon(powerType) {
-        const weaponInfo = getWeaponInfo();
-        if (isNullOrUndefined(this.bestLuckWeapons[powerType])) {
-            this.bestLuckWeapons[powerType] = Object.entries(weaponInfo)
-                .filter(([key, value]) => value.powerType === powerType)
-                .sort(([,a], [,b]) => b.power - a.power)
-                .sort(([,a], [,b]) => b.luck - a.luck)
-                .map(x => x[1].name)[0];
-        }
-        return this.bestLuckWeapons[powerType];
-    }
-
     getTrapSetups(storageName) {
         if (isNullOrUndefined(this._trapSetups)) {
             const tmpStorage = getStorage(storageName, undefined);
@@ -652,10 +521,7 @@ class Policy {
     }
 
     getDefaultTrapSetup(trapSetup, baitName, trinketName) {
-<<<<<<< HEAD
-=======
         trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_OVERALL);
->>>>>>> ft_AutochangeTrap
         trapSetup[IDX_BASE] = this.getBestBase();
         if ( !isNullOrUndefined(baitName)) {
             trapSetup[IDX_BAIT] = baitName;
@@ -708,16 +574,6 @@ class Policy {
     getTacticalTrapSetup(trapSetup, baitName, trinketName) {
         this.getDefaultTrapSetup(trapSetup, baitName, trinketName);
         trapSetup[IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_TACTICAL);
-<<<<<<< HEAD
-    }
-}
-
-class PolicyBWoARe extends Policy {
-    constructor () {
-        super();
-        this.setName(POLICY_NAME_ACOLYTE_REALM);
-        this.trs[0] = ID_TR_BWOARE_TRAP_SETUP;
-=======
     }
 }
 
@@ -750,7 +606,6 @@ class PolicyGnaMou extends PolicySingleTrapSetup {
         this.trs[0] = ID_TR_GNAMOU_ATM_SMASH;
         this.trs[1] = ID_TR_GNAMOU_ATM_SWITCH_CHARM;
         this.trs[2] = ID_TR_SINGLE_TRAP_SETUP;
->>>>>>> ft_AutochangeTrap
     }
 
     resetTrapSetups() {
@@ -759,24 +614,6 @@ class PolicyGnaMou extends PolicySingleTrapSetup {
         this._trapSetups[GNAMOU_ATM_SWITCH_CHARM] = true;
     }
 
-<<<<<<< HEAD
-    getTrapSetups() {
-        return super.getTrapSetups(STORAGE_TRAP_SETUP_BWOARE);
-    }
-
-    initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        document.getElementById(ID_SELECT_BWOARE_WEAPON).value = trapSetups[IDX_WEAPON];
-        document.getElementById(ID_SELECT_BWOARE_BASE).value = trapSetups[IDX_BASE];
-        document.getElementById(ID_SELECT_BWOARE_BAIT).value = trapSetups[IDX_BAIT];
-        document.getElementById(ID_SELECT_BWOARE_TRINKET).value = trapSetups[IDX_TRINKET];
-    }
-
-    recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        if (getBaitNames().includes(BAIT_RUNIC)) {
-            this.getForgottenTrapSetup(trapSetups, BAIT_RUNIC);
-=======
     get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_GNAMOU);
     }
@@ -838,7 +675,6 @@ class PolicyBWoARe extends PolicySingleTrapSetup {
     recommendTrapSetup() {
         if (getBaitNames().includes(BAIT_RUNIC)) {
             this.getForgottenTrapSetup(this.trapSetups, BAIT_RUNIC);
->>>>>>> ft_AutochangeTrap
         } else {
             this.getArcaneTrapSetup(this.trapSetups);
         }
@@ -846,62 +682,6 @@ class PolicyBWoARe extends PolicySingleTrapSetup {
     }
 }
 
-<<<<<<< HEAD
-class PolicyVVaCSC extends Policy {
-    constructor () {
-        super();
-        this.setName(POLICY_NAME_CLAW_SHOT_CITY);
-        this.trs[0] = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-        this.trs[1] = ID_TR_VVACSC_ATM_POSTER;
-        this.trs[2] = ID_TR_VVACSC_ATM_CACTUS_CHARM;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = {};
-        for (const phase of VVACSC_PHASES){
-            this.trapSetups[phase] = [];
-        }
-        this.trapSetups[VVACSC_ATM_POSTER] = true;
-        this.trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
-    }
-
-    getTrapSetups() {
-        return super.getTrapSetups(STORAGE_TRAP_SETUP_VVACSC);
-    }
-
-    initSelectTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
-        document.getElementById(ID_SELECT_VVACSC_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
-        document.getElementById(ID_SELECT_VVACSC_BASE).value = trapSetups[currentPhase][IDX_BASE];
-        document.getElementById(ID_SELECT_VVACSC_BAIT).value = trapSetups[currentPhase][IDX_BAIT];
-        document.getElementById(ID_SELECT_VVACSC_TRINKET).value = trapSetups[currentPhase][IDX_TRINKET];
-        document.getElementById(ID_CBX_VVACSC_ATM_POSTER).checked = trapSetups[VVACSC_ATM_POSTER];
-        document.getElementById(ID_CBX_VVACSC_ATM_CACTUS_CHARM).checked = trapSetups[VVACSC_ATM_CACTUS_CHARM];
-    }
-
-    recommendTrapSetup() {
-        function getVVaCSCTrapSetup(trapSetup) {
-            trapSetup[IDX_WEAPON] = bestWeapon;
-            trapSetup[IDX_BASE] = clawShotBase;
-            trapSetup[IDX_BAIT] = brieCheese;
-            trapSetup[IDX_TRINKET] = prospectorsCharm;
-        }
-
-        const trapSetups = this.getTrapSetups();
-        const bestWeapon = this.getBestLuckWeapon(POWER_TYPE_LAW);
-        const clawShotBase = getBaseNames().includes(BASE_CLAW_SHOT)? BASE_CLAW_SHOT: this.getBestBase();;
-        const brieCheese = getBaitNames().includes(BAIT_BRIE)? BAIT_BRIE: undefined;
-        const prospectorsCharm = getTrinketNames().includes(TRINKET_PROSPECTORS)? TRINKET_PROSPECTORS: undefined;
-        if (isNullOrUndefined(trapSetups[VVACSC_PHASE_LAWLESS])) {
-            trapSetups[VVACSC_PHASE_LAWLESS] = [];
-        }
-        getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_LAWLESS]);
-        getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_NEED_POSTER]);
-        getVVaCSCTrapSetup(trapSetups[VVACSC_PHASE_ACTIVE_POSTER]);
-        trapSetups[VVACSC_ATM_POSTER] = true;
-        trapSetups[VVACSC_ATM_CACTUS_CHARM] = true;
-=======
 class PolicyTIsDDu extends PolicySingleTrapSetup {
     get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_TISDDU);
@@ -922,34 +702,10 @@ class PolicyTIsJoD extends PolicySingleTrapSetup {
     recommendTrapSetup() {
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
         this.getShadowTrapSetup(this.trapSetups, baitName);
->>>>>>> ft_AutochangeTrap
         this.initSelectTrapSetup();
     }
 }
 
-<<<<<<< HEAD
-class PolicyVVaFRo extends Policy {
-    constructor () {
-        super();
-        this.setName(POLICY_NAME_FORT_ROX);
-        this.trs[0] = ID_TR_VVAFRO_PHASES_TRAP_SETUP;
-        this.trs[1] = ID_TR_VVAFRO_ATM_DEACTIVATE;
-        this.trs[2] = ID_TR_VVAFRO_ATM_RETREAT;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = {};
-        for (const phase of VVAFRO_PHASES){
-            this.trapSetups[phase] = [];
-        }
-        this.trapSetups[VVAFRO_ATM_DEACTIVATE] = true;
-        this.trapSetups[VVAFRO_ATM_RETREAT] = false;
-        this.trapSetups[VVAFRO_REQUIRED_HOWLITE] = 0;
-        this.trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = 0;
-    }
-
-    getTrapSetups() {
-=======
 class PolicyVVaCSC extends Policy {
     constructor () {
         super();
@@ -1024,16 +780,11 @@ class PolicyVVaFRo extends Policy {
     }
 
     get trapSetups() {
->>>>>>> ft_AutochangeTrap
         return super.getTrapSetups(STORAGE_TRAP_SETUP_VVAFRO);
     }
 
     initSelectTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-=======
         const trapSetups = this.trapSetups;
->>>>>>> ft_AutochangeTrap
         const currentPhase = document.getElementById(ID_SELECT_VVAFRO_PHASE).value;
         document.getElementById(ID_SELECT_VVAFRO_WEAPON).value = trapSetups[currentPhase][IDX_WEAPON];
         document.getElementById(ID_SELECT_VVAFRO_BASE).value = trapSetups[currentPhase][IDX_BASE];
@@ -1052,19 +803,11 @@ class PolicyVVaFRo extends Policy {
     }
 
     recommendTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-        const baitNames = getBaitNames();
-        const brieCheese = baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
-        const baitName = baitNames.includes(BAIT_MOON)? BAIT_MOON: baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
-        this.getLawTrapSetup(trapSetups[VVAFRO_PHASE_DAY], brieCheese, TRINKET_DISARM);
-=======
         const trapSetups = this.trapSetups;
         const baitNames = getBaitNames();
         const brieCheese = baitNames.includes(BAIT_BRIE)? BAIT_BRIE: undefined;
         const baitName = baitNames.includes(BAIT_MOON)? BAIT_MOON: baitNames.includes(BAIT_CRESCENT)? BAIT_CRESCENT: undefined;
         this.getLawTrapSetup(trapSetups[VVAFRO_PHASE_DAY], brieCheese, ITEM_DISARM);
->>>>>>> ft_AutochangeTrap
         this.getShadowTrapSetup(trapSetups[VVAFRO_PHASE_TWILIGHT], baitName);
         this.getShadowTrapSetup(trapSetups[VVAFRO_PHASE_MIDNIGHT], baitName);
         this.getArcaneTrapSetup(trapSetups[VVAFRO_PHASE_PITCH], baitName);
@@ -1080,20 +823,6 @@ class PolicyVVaFRo extends Policy {
 class PolicyRodSGa extends Policy {
     constructor () {
         super();
-<<<<<<< HEAD
-        this.setName(POLICY_NAME_SEASONAL_GARDEN);
-        this.trs[0] = ID_TR_RODSGA_SEASONS_TRAP_SETUP;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = {};
-        for (const season of RODSGA_SEASONS){
-            this.trapSetups[season] = [];
-        }
-    }
-
-    getTrapSetups() {
-=======
         this.trs[0] = ID_TR_SELECTABLE_TRAP_SETUP;
         this.selectableValues = RODSGA_SEASONS;
     }
@@ -1106,28 +835,10 @@ class PolicyRodSGa extends Policy {
     }
 
     get trapSetups() {
->>>>>>> ft_AutochangeTrap
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODSGA);
     }
 
     initSelectTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-        const currentSeason = document.getElementById(ID_SELECT_RODSGA_SEASON).value;
-        document.getElementById(ID_SELECT_RODSGA_WEAPON).value = trapSetups[currentSeason][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODSGA_BASE).value = trapSetups[currentSeason][IDX_BASE];
-        document.getElementById(ID_SELECT_RODSGA_BAIT).value = trapSetups[currentSeason][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODSGA_TRINKET).value = trapSetups[currentSeason][IDX_TRINKET];
-    }
-
-    recommendTrapSetup() {
-        const trapSetups = this.getTrapSetups();
-        const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
-        this.getPhysicalTrapSetup(trapSetups[RODSGA_SEASON_SPRING], baitName, TRINKET_DISARM);
-        this.getTacticalTrapSetup(trapSetups[RODSGA_SEASON_SUMMER], baitName, TRINKET_DISARM);
-        this.getShadowTrapSetup(trapSetups[RODSGA_SEASON_AUTUMN], baitName, TRINKET_DISARM);
-        this.getHydroTrapSetup(trapSetups[RODSGA_SEASON_WINTER], baitName, TRINKET_DISARM);
-=======
         this.setSelectableTrapSetup(this.trapSetups);
     }
 
@@ -1138,7 +849,6 @@ class PolicyRodSGa extends Policy {
         this.getTacticalTrapSetup(trapSetups[RODSGA_SEASON_SUMMER], baitName, ITEM_DISARM);
         this.getShadowTrapSetup(trapSetups[RODSGA_SEASON_AUTUMN], baitName, ITEM_DISARM);
         this.getHydroTrapSetup(trapSetups[RODSGA_SEASON_WINTER], baitName, ITEM_DISARM);
->>>>>>> ft_AutochangeTrap
         this.initSelectTrapSetup();
     }
 }
@@ -1146,22 +856,6 @@ class PolicyRodSGa extends Policy {
 class PolicyRodZTo extends Policy {
     constructor () {
         super();
-<<<<<<< HEAD
-        this.setName(POLICY_NAME_ZUGZWANGS_TOWER);
-        this.trs[0] = ID_TR_RODZTO_STRATEGY;
-        this.trs[1] = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = {};
-        for (const chessPiece of RODZTO_CHESS_PROGRESS){
-            this.trapSetups[chessPiece] = [];
-        }
-        this.trapSetups[RODZTO_STRATEGY] = RODZTO_STRATEGY_MYSTIC_ONLY;
-    }
-
-    getTrapSetups() {
-=======
         this.trs[0] = ID_TR_RODZTO_STRATEGY;
         this.trs[1] = ID_TR_SELECTABLE_TRAP_SETUP;
         this.selectableValues = RODZTO_CHESS_PROGRESS;
@@ -1176,22 +870,12 @@ class PolicyRodZTo extends Policy {
     }
 
     get trapSetups() {
->>>>>>> ft_AutochangeTrap
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODZTO);
     }
 
     initSelectTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-        const currentChess = document.getElementById(ID_SELECT_ROD_RODZTO_CHESS).value;
-        document.getElementById(ID_SELECT_RODZTO_WEAPON).value = trapSetups[currentChess][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODZTO_BASE).value = trapSetups[currentChess][IDX_BASE];
-        document.getElementById(ID_SELECT_RODZTO_BAIT).value = trapSetups[currentChess][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODZTO_TRINKET).value = trapSetups[currentChess][IDX_TRINKET];
-=======
         const trapSetups = this.trapSetups;
         this.setSelectableTrapSetup(trapSetups);
->>>>>>> ft_AutochangeTrap
         document.getElementById(ID_SELECT_RODZTO_STRATEGY).value = trapSetups[RODZTO_STRATEGY];
     }
 
@@ -1203,11 +887,7 @@ class PolicyRodZTo extends Policy {
             trapSetup[IDX_TRINKET] = trinketName;
         }
 
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-=======
         const trapSetups = this.trapSetups;
->>>>>>> ft_AutochangeTrap
         const weaponNames = getWeaponNames();
         const baseNames = getBaseNames();
         const baitNames = getBaitNames();
@@ -1242,21 +922,6 @@ class PolicyRodZTo extends Policy {
     }
 }
 
-<<<<<<< HEAD
-class PolicyRodCLi extends Policy {
-    constructor () {
-        super();
-        this.setName(POLICY_NAME_CRYSTAL_LIBRARY);
-        this.trs[0] = ID_TR_RODCLI_ATM_CATALOG_MICE;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = {};
-        this.trapSetups[RODCLI_ATM_CATALOG_MICE] = false;
-    }
-
-    getTrapSetups() {
-=======
 class PolicyRodCLi extends PolicySingleTrapSetup {
     constructor () {
         super();
@@ -1270,15 +935,10 @@ class PolicyRodCLi extends PolicySingleTrapSetup {
     }
 
     get trapSetups() {
->>>>>>> ft_AutochangeTrap
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODCLI);
     }
 
     initSelectTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-        document.getElementById(ID_CBX_RODCLI_ATM_CATALOG_MICE).checked = trapSetups[RODCLI_ATM_CATALOG_MICE];
-=======
         const trapSetups = this.trapSetups;
         this.setSingleTrapSetup(trapSetups);
         document.getElementById(ID_CBX_RODCLI_ATM_CATALOG_MICE).checked = trapSetups[RODCLI_ATM_CATALOG_MICE];
@@ -1294,27 +954,12 @@ class PolicyRodSSh extends PolicySingleTrapSetup {
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
         this.getHydroTrapSetup(this.trapSetups, baitName);
         this.initSelectTrapSetup();
->>>>>>> ft_AutochangeTrap
     }
 }
 
 class PolicyRodIce extends Policy {
     constructor () {
         super();
-<<<<<<< HEAD
-        this.setName(POLICY_NAME_ICEBERG);
-        this.trs[0] = ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP;
-    }
-
-    resetTrapSetups() {
-        this.trapSetups = {};
-        for (const sublocation of RODICE_SUBLOCATIONS){
-            this.trapSetups[sublocation] = [];
-        }
-    }
-
-    getTrapSetups() {
-=======
         this.trs[0] = ID_TR_SELECTABLE_TRAP_SETUP;
         this.selectableValues = RODICE_SUBLOCATIONS;
     }
@@ -1327,21 +972,11 @@ class PolicyRodIce extends Policy {
     }
 
     get trapSetups() {
->>>>>>> ft_AutochangeTrap
         return super.getTrapSetups(STORAGE_TRAP_SETUP_RODICE);
     }
 
     initSelectTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-        const sublocation = document.getElementById(ID_SELECT_RODICE_SUBLOCATION).value;
-        document.getElementById(ID_SELECT_RODICE_WEAPON).value = trapSetups[sublocation][IDX_WEAPON];
-        document.getElementById(ID_SELECT_RODICE_BASE).value = trapSetups[sublocation][IDX_BASE];
-        document.getElementById(ID_SELECT_RODICE_BAIT).value = trapSetups[sublocation][IDX_BAIT];
-        document.getElementById(ID_SELECT_RODICE_TRINKET).value = trapSetups[sublocation][IDX_TRINKET];
-=======
         this.setSelectableTrapSetup(this.trapSetups);
->>>>>>> ft_AutochangeTrap
     }
 
     recommendTrapSetup() {
@@ -1352,11 +987,7 @@ class PolicyRodIce extends Policy {
             trapSetup[IDX_TRINKET] = trinketName;
         }
 
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-=======
         const trapSetups = this.trapSetups;
->>>>>>> ft_AutochangeTrap
         const weaponNames = getWeaponNames();
         const baseNames = getBaseNames();
         const baitNames = getBaitNames();
@@ -1384,10 +1015,6 @@ class PolicyRodIce extends Policy {
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_ICEWINGS_LAIR], deepFreezeBase, baitName, powerCharm);
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_HIDDEN_DEPTHS], bestBase, baitName, powerCharm);
         getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_THE_DEEP_LAIR], bestBase, baitName, powerCharm);
-<<<<<<< HEAD
-        getRodIceTrapSetup(trapSetups[RODICE_SUBLOCATION_SLUSHY_SHORELINE], bestBase, brieCheese, powerCharm);
-=======
->>>>>>> ft_AutochangeTrap
         this.initSelectTrapSetup();
     }
 }
@@ -1395,10 +1022,6 @@ class PolicyRodIce extends Policy {
 class PolicySDeFWa extends Policy {
     constructor () {
         super();
-<<<<<<< HEAD
-        this.setName(POLICY_NAME_FIERY_WARPATH);
-=======
->>>>>>> ft_AutochangeTrap
         this.trs[0] = ID_TR_SELECT_SDEFWA_WAVE;
         this.trs[1] = ID_TR_SDEFWA_POWER_TYPES_TRAP_SETUP;
         this.trs[2] = ID_TR_SELECT_SDEFWA_TARGET_POPULATION;
@@ -1409,24 +1032,6 @@ class PolicySDeFWa extends Policy {
     }
 
     resetTrapSetups() {
-<<<<<<< HEAD
-        this.trapSetups = {};
-        for (const powerType of SDEFWA_POWER_TYPES){
-            this.trapSetups[powerType] = [];
-        }
-        this.trapSetups[SDEFWA_LAST_SOLDIER] = [];
-        this.trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = TRINKET_DISARM;
-        for (const wave of SDEFWA_WAVES){
-            this.trapSetups[wave] = {};
-            if (wave == SDEFWA_WAVE4) {
-                this.trapSetups[wave][STATUS_BEFORE] = [];
-                this.trapSetups[wave][STATUS_AFTER] = [];
-            } else {
-                for (let steak = 0; steak <= SDEFWA_MAX_STREAKS; steak++) {
-                    this.trapSetups[wave][steak] = [];
-                }
-                this.trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
-=======
         this._trapSetups = {};
         for (const powerType of SDEFWA_POWER_TYPES){
             this._trapSetups[powerType] = [];
@@ -1443,16 +1048,11 @@ class PolicySDeFWa extends Policy {
                     this._trapSetups[wave][steak] = [];
                 }
                 this._trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = SDEFWA_TARGET_POPULATION_LOWEST;
->>>>>>> ft_AutochangeTrap
             }
         }
     }
 
-<<<<<<< HEAD
-    getTrapSetups() {
-=======
     get trapSetups() {
->>>>>>> ft_AutochangeTrap
         return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEFWA);
     }
 
@@ -1461,11 +1061,7 @@ class PolicySDeFWa extends Policy {
             const currentWave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
             const WAVE4_DISPLAY = currentWave == SDEFWA_WAVE4? "table-row": "none";
             const WAVE123_DISPLAY = currentWave == SDEFWA_WAVE4? "none": "table-row";
-<<<<<<< HEAD
-            for (const tr of POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trs){
-=======
             for (const tr of g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trs){
->>>>>>> ft_AutochangeTrap
                 if (tr == ID_TR_SELECT_SDEFWA_WAVE) {
                     continue;
                 }
@@ -1473,11 +1069,7 @@ class PolicySDeFWa extends Policy {
             }
         }
 
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-=======
         const trapSetups = this.trapSetups;
->>>>>>> ft_AutochangeTrap
         const currentPowerType = document.getElementById(ID_SELECT_SDEFWA_POWER_TYPE).value;
         document.getElementById(ID_SELECT_SDEFWA_SOLDIER_WEAPON).value = trapSetups[currentPowerType][IDX_WEAPON];
         document.getElementById(ID_SELECT_SDEFWA_SOLDIER_BASE).value = trapSetups[currentPowerType][IDX_BASE];
@@ -1502,11 +1094,7 @@ class PolicySDeFWa extends Policy {
     }
 
     recommendTrapSetup() {
-<<<<<<< HEAD
-        const trapSetups = this.getTrapSetups();
-=======
         const trapSetups = this.trapSetups;
->>>>>>> ft_AutochangeTrap
         const bestBase = this.getBestBase();
         const bestArcaneWeapon = this.getBestLuckWeapon(POWER_TYPE_ARCANE);
         const baitName = getBaitNames().includes(BAIT_GOUDA)? BAIT_GOUDA: undefined;
@@ -1519,11 +1107,7 @@ class PolicySDeFWa extends Policy {
         trapSetups[POWER_TYPE_TACTICAL][IDX_WEAPON] = this.getBestLuckWeapon(POWER_TYPE_TACTICAL);;
         trapSetups[POWER_TYPE_TACTICAL][IDX_BASE] = bestBase;
         trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = baitName;
-<<<<<<< HEAD
-        trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = TRINKET_DISARM;
-=======
         trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = ITEM_DISARM;
->>>>>>> ft_AutochangeTrap
         for (const wave of SDEFWA_WAVES){
             if (wave == SDEFWA_WAVE4) {
                 for (const status of STATUSES){
@@ -1559,30 +1143,6 @@ class PolicySDeFWa extends Policy {
     }
 }
 
-<<<<<<< HEAD
-const POLICY_DICT = {};
-function initPolicyDict() {
-    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM] = new PolicyBWoARe();
-    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY] = new PolicyVVaCSC();
-    POLICY_DICT[POLICY_NAME_FORT_ROX] = new PolicyVVaFRo();
-    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN] = new PolicyRodSGa();
-    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER] = new PolicyRodZTo();
-    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY] = new PolicyRodCLi();
-    POLICY_DICT[POLICY_NAME_ICEBERG] = new PolicyRodIce();
-    POLICY_DICT[POLICY_NAME_FIERY_WARPATH] = new PolicySDeFWa();
-}
-
-function loadTrapInfo() {
-    g_trapInfo = getStorage(STORAGE_TRAP_INFO, null);
-}
-
-function getWeaponInfo() {
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
-        return null
-=======
 class PolicySDeMMa extends PolicySingleTrapSetup {
     get trapSetups() {
         return super.getTrapSetups(STORAGE_TRAP_SETUP_SDEMMA);
@@ -1694,81 +1254,49 @@ function getWeaponInfo() {
     }
     if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
->>>>>>> ft_AutochangeTrap
     } else {
         return g_trapInfo.weapon.info;
     }
 }
 
 function getBaseInfo() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
-        return null;
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
->>>>>>> ft_AutochangeTrap
     } else {
         return g_trapInfo.base.info;
     }
 }
 
 function getBaitInfo() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
-        return null;
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
->>>>>>> ft_AutochangeTrap
     } else {
         return g_trapInfo.bait.info;
     }
 }
 
 function getTrinketInfo() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
-        return null;
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
         return undefined;
->>>>>>> ft_AutochangeTrap
     } else {
         return g_trapInfo.trinket.info;
     }
 }
 
 function getWeaponNames() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.weapon)) {
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
->>>>>>> ft_AutochangeTrap
         return [];
     } else {
         return g_trapInfo.weapon.names;
@@ -1776,17 +1304,10 @@ function getWeaponNames() {
 }
 
 function getBaseNames() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.base)) {
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
->>>>>>> ft_AutochangeTrap
         return [];
     } else {
         return g_trapInfo.base.names;
@@ -1794,17 +1315,10 @@ function getBaseNames() {
 }
 
 function getBaitNames() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.bait)) {
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
->>>>>>> ft_AutochangeTrap
         return [];
     } else {
         return g_trapInfo.bait.names;
@@ -1812,17 +1326,10 @@ function getBaitNames() {
 }
 
 function getTrinketNames() {
-<<<<<<< HEAD
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
-        loadTrapInfo();
-    }
-    if (isNullOrUndefined(g_trapInfo) || isNullOrUndefined(g_trapInfo.trinket)) {
-=======
     if (isNullOrUndefined(g_trapInfo)) {
         loadTrapInfo();
     }
     if (isNullOrUndefined(g_trapInfo)) {
->>>>>>> ft_AutochangeTrap
         return [];
     } else {
         return g_trapInfo.trinket.names;
@@ -1831,11 +1338,7 @@ function getTrinketNames() {
 
 function getFriendInfo() {
     if (isNullOrUndefined(g_friendInfo)) {
-<<<<<<< HEAD
-        g_friendInfo = getStorage(STORAGE_FRIEND_INFO, null);
-=======
         g_friendInfo = getStorage(STORAGE_FRIEND_INFO, undefined);
->>>>>>> ft_AutochangeTrap
         if (isNullOrUndefined(g_friendInfo)) {
             document.getElementById(ID_BOTTON_UPDATE_FRIENDS).click();
             return;
@@ -2060,12 +1563,7 @@ function handleKingReward() {
 function kingRewardCountdownTimer(krDelaySec) {
     const strTemp = "Solve KR in " + timeFormat(krDelaySec) + " second(s)";
     updateTitleTxt(strTemp);
-<<<<<<< HEAD
-    updateNextBotHornTimeTxt(strTemp);
-    //updateNextTrapCheckTimeTxt(strTemp);
-=======
     updateNextHuntTxt(strTemp);
->>>>>>> ft_AutochangeTrap
     krDelaySec -= KR_SOLVER_COUNTDOWN_INTERVAL;
     if (krDelaySec < 0) {
         if (DEBUG_MODE) console.log("START AUTOSOLVE NOW");
@@ -2319,13 +1817,10 @@ function updateNextHuntTxt(nextHornTimeTxt) {
     document.getElementById(ID_BOT_COUNTDOWN_TXT).innerHTML = nextHornTimeTxt;
 }
 
-<<<<<<< HEAD
-=======
 function updateNextTrapCheckTxt(trapCheckTimeTxt) {
     document.getElementById(ID_TRAP_CHECK_COUNTDOWN_TXT).innerHTML = trapCheckTimeTxt;
 }
 
->>>>>>> ft_AutochangeTrap
 function loadPreferenceSettingFromStorage() {
     g_botHornTimeDelayMin = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MIN, g_botHornTimeDelayMin);
     g_botHornTimeDelayMax = getStorageVarInt(STORAGE_BOT_HORN_TIME_DELAY_MAX, g_botHornTimeDelayMax);
@@ -2524,12 +2019,9 @@ function checkLocation() {
     }
 
     function checkThenArmItem(classification, policyItemName) {
-<<<<<<< HEAD
-=======
         if (isNullOrUndefined(policyItemName) || policyItemName == ITEM_IGNORE || policyItemName == ITEM_OTHER) {
             return;
         }
->>>>>>> ft_AutochangeTrap
         let currentItemId;
         let itemInfo;
         if (classification == CLASSIFICATION_WEAPON) {
@@ -2547,20 +2039,12 @@ function checkLocation() {
         }
         let targetItemType;
         if (classification == CLASSIFICATION_TRINKET &&
-<<<<<<< HEAD
-            policyItemName == TRINKET_DISARM &&
-=======
             policyItemName == ITEM_DISARM &&
->>>>>>> ft_AutochangeTrap
             !isNullOrUndefined(currentItemId)) {
             targetItemType = policyItemName.toLowerCase();
         } else if (classification == CLASSIFICATION_TRINKET &&
                    !isNullOrUndefined(policyItemName) &&
-<<<<<<< HEAD
-                   policyItemName != TRINKET_DISARM) {
-=======
                    policyItemName != ITEM_DISARM) {
->>>>>>> ft_AutochangeTrap
             targetItemType = checkArmedItem(currentItemId, policyItemName, itemInfo);
         } else if (classification != CLASSIFICATION_TRINKET) {
             targetItemType = checkArmedItem(currentItemId, policyItemName, itemInfo);
@@ -2576,12 +2060,9 @@ function checkLocation() {
                 for (const component of data.components){
                     if (component.name == policyItemName && component.quantity > 0) {
                         // the item does exist, so arm the item !!
-<<<<<<< HEAD
-=======
                         if (!lockBot(BOT_PROCESS_POLICY)) {
                             return;
                         }
->>>>>>> ft_AutochangeTrap
                         armItem(classification, targetItemType);
                         window.setTimeout(function () {
                             reloadCampPage();
@@ -2594,11 +2075,7 @@ function checkLocation() {
                 console.error('ajax:', error);
                 alert("error checking item quantity");
             });
-<<<<<<< HEAD
-        } else if (!isNullOrUndefined(targetItemType)) {
-=======
         } else if (!isNullOrUndefined(targetItemType) && lockBot(BOT_PROCESS_POLICY)) {
->>>>>>> ft_AutochangeTrap
             // Same as the previous if condition but this apply to only Weapon and Base, which are hard to disappear
             // So no Ajax checking need, just go straight to the arming process
             armItem(classification, targetItemType);
@@ -2606,11 +2083,7 @@ function checkLocation() {
         }
     }
 
-<<<<<<< HEAD
-    function armTraps(trapSetup) {
-=======
     function armTrap(trapSetup) {
->>>>>>> ft_AutochangeTrap
         let delayTime = 0;
         if (!isNullOrUndefined(checkThenArmItem(CLASSIFICATION_WEAPON, trapSetup[IDX_WEAPON]))) {
             delayTime += 1;
@@ -2631,15 +2104,12 @@ function checkLocation() {
         }
     }
 
-<<<<<<< HEAD
-=======
     function runSingleTrapSetupPolicy(policyName) {
         document.getElementById(ID_POLICY_TXT).innerHTML = policyName;
         const trapSetups = g_policies.getPolicy(policyName).trapSetups;
         armTrap(trapSetups);
     }
 
->>>>>>> ft_AutochangeTrap
     function runGnaHarPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_HARBOUR;
         const harbourInfo = getPageVariable("user.quests.QuestHarbour");
@@ -2660,12 +2130,6 @@ function checkLocation() {
         armTrap(trapSetups);
     }
 
-<<<<<<< HEAD
-    function runBWoARePolicy() {
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ACOLYTE_REALM;
-        const trapSetups = POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].getTrapSetups();
-        armTraps(trapSetups);
-=======
     function runGnaMouPolicy() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_MOUNTAIN;
         const mountainInfo = getPageVariable("user.quests.QuestMountain");
@@ -2705,7 +2169,6 @@ function checkLocation() {
             }
         }
         armTrap(trapSetups);
->>>>>>> ft_AutochangeTrap
     }
 
     function runVVaCSCPolicy() {
@@ -2725,30 +2188,18 @@ function checkLocation() {
         document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CLAW_SHOT_CITY;
         let poster;
         const phase = getPageVariable("user.quests.QuestClawShotCity.phase");
-<<<<<<< HEAD
-        const trapSetups = POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].getTrapSetups();
-=======
         const trapSetups = g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups;
->>>>>>> ft_AutochangeTrap
         if (trapSetups[VVACSC_ATM_CACTUS_CHARM] &&
             getTrinketNames().includes(TRINKET_CACTUS_CHARM)) {
             trapSetups[phase][IDX_TRINKET] = TRINKET_CACTUS_CHARM;
         }
         switch(phase) {
             case VVACSC_PHASE_LAWLESS:
-<<<<<<< HEAD
-                armTraps(trapSetups[phase]);
-                break;
-            case VVACSC_PHASE_NEED_POSTER:
-                armTraps(trapSetups[phase]);
-                break;
-=======
                 armTrap(trapSetups[phase]);
                 break;
             case VVACSC_PHASE_NEED_POSTER:
                 armTrap(trapSetups[phase]);
                 break;
->>>>>>> ft_AutochangeTrap
             case VVACSC_PHASE_HAS_POSTER:
                 if (!trapSetups[VVACSC_ATM_POSTER]) {
                     return;
@@ -2760,11 +2211,7 @@ function checkLocation() {
                 }, 5 * 1000);
                 break;
             case VVACSC_PHASE_ACTIVE_POSTER:
-<<<<<<< HEAD
-                armTraps(trapSetups[phase]);
-=======
                 armTrap(trapSetups[phase]);
->>>>>>> ft_AutochangeTrap
                 break;
             case VVACSC_PHASE_HAS_REWARD:
                 if (!trapSetups[VVACSC_ATM_POSTER] || !lockBot(BOT_PROCESS_POLICY)) {
@@ -2785,18 +2232,6 @@ function checkLocation() {
     }
 
     function runVVaFRoPolicy() {
-<<<<<<< HEAD
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_FORT_ROX;
-        const currentStage = getPageVariable("user.quests.QuestFortRox.current_stage");
-        const trapSetups = POLICY_DICT[POLICY_NAME_FORT_ROX].getTrapSetups();
-        if (currentStage != false &&
-            trapSetups[VVAFRO_ATM_RETREAT] &&
-            parseInt(getPageVariable("user.quests.QuestFortRox.items.howlite_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_HOWLITE] &&
-            parseInt(getPageVariable("user.quests.QuestFortRox.items.blood_stone_stat_item.quantity")) >= trapSetups[VVAFRO_REQUIRED_BLOODSTONE]) {
-            document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
-            ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
-                     getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id")}),
-=======
         function deactivateTower() {
             if (fortRoxInfo.tower_status == "normal active") {
                 fireEvent(document.getElementsByClassName("fortRoxHUD-spellTowerButton normal active")[0], "click");
@@ -2829,7 +2264,6 @@ function checkLocation() {
             document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Retreating ";
             ajaxPost(window.location.origin + '/managers/ajax/environment/fort_rox.php',
                      getAjaxHeader({"action": "retreat", "last_read_journal_entry_id": getPageVariable("lastReadJournalEntryId")}),
->>>>>>> ft_AutochangeTrap
                      function (data) {
                 window.setTimeout(function () {
                     reloadCampPage();
@@ -2839,32 +2273,6 @@ function checkLocation() {
                 alert("error retreating from Fort Rox");
             });
         } else {
-<<<<<<< HEAD
-            switch(currentStage) {
-                case false:
-                    armTraps(trapSetups[VVAFRO_PHASE_DAY]);
-                    break;
-                case "stage_one":
-                    armTraps(trapSetups[VVAFRO_PHASE_TWILIGHT]);
-                    break;
-                case "stage_two":
-                    armTraps(trapSetups[VVAFRO_PHASE_MIDNIGHT]);
-                    break;
-                case "stage_three":
-                    armTraps(trapSetups[VVAFRO_PHASE_PITCH]);
-                    break;
-                case "stage_four":
-                    armTraps(trapSetups[VVAFRO_PHASE_UTTER_DARKNESS]);
-                    break;
-                case "stage_five":
-                    armTraps(trapSetups[VVAFRO_PHASE_FIRST_LIGHT]);
-                    break;
-                case "DAWN":
-                    armTraps(trapSetups[VVAFRO_PHASE_DAWN]);
-                    break;
-                default:
-            }
-=======
             if (trapSetups[VVAFRO_ATM_DEACTIVATE] && fortRoxInfo.hp_percent == 100) {
                 deactivateTower();
             }
@@ -3180,149 +2588,12 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
                 runWave4Policy();
                 break;
             default:
->>>>>>> ft_AutochangeTrap
         }
         /*
         alert(warpathInfo.wave);
         listAttributes(warpathInfo);
         */
     }
-<<<<<<< HEAD
-
-    function runRodSGaPolicy() {
-        function getRodSGaSeason() {
-            const nTimeStamp = Date.parse(new Date()) / 1000;
-            const nFirstSeasonTimeStamp = 1283328000;
-            const nSeasonLength = 288000; // 80hr
-            const seasonIdx = Math.floor((nTimeStamp - nFirstSeasonTimeStamp) / nSeasonLength) % RODSGA_SEASONS.length;
-            return RODSGA_SEASONS[seasonIdx];
-        }
-
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_SEASONAL_GARDEN;
-        const currentSeason = getRodSGaSeason();
-        const trapSetups = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].getTrapSetups();
-        armTraps(trapSetups[currentSeason]);
-    }
-
-    function runRodZToPolicy() {
-        function getTowerProgress() {
-            const towerProgress = {};
-            for (const chess of RODZTO_CHESS_MYSTIC){
-                towerProgress[chess] = 0;
-            }
-            for (const chess of RODZTO_CHESS_TECHNIC){
-                towerProgress[chess] = 0;
-            }
-            towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MYSTIC_PAWN;
-            towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_TECHNIC_PAWN;
-            towerProgress[UNLOCK_CHESS_MASTER] = false;
-
-            const progressMagic = document.getElementsByClassName("zuzwangsTowerHUD-progress magic")[0].children;
-            for (const item of progressMagic){
-                if (item.src.indexOf("pawn") > -1) {
-                    towerProgress[RODZTO_CHESS_MYSTIC_PAWN] += 1
-                } else if (item.src.indexOf("knight") > -1) {
-                    towerProgress[RODZTO_CHESS_MYSTIC_KNIGHT] += 1
-                } else if (item.src.indexOf("bishop") > -1) {
-                    towerProgress[RODZTO_CHESS_MYSTIC_BISHOP] += 1
-                } else if (item.src.indexOf("rook") > -1) {
-                    towerProgress[RODZTO_CHESS_MYSTIC_ROOK] += 1
-                } else if (item.src.indexOf("queen") > -1) {
-                    towerProgress[RODZTO_CHESS_MYSTIC_QUEEN] += 1
-                } else if (item.src.indexOf("king") > -1) {
-                    towerProgress[RODZTO_CHESS_MYSTIC_KING] += 1
-                }
-            }
-            const progressTechnic = document.getElementsByClassName("zuzwangsTowerHUD-progress tech")[0].children;
-            for (const item of progressTechnic){
-                if (item.src.indexOf("pawn") > -1) {
-                    towerProgress[RODZTO_CHESS_TECHNIC_PAWN] += 1
-                } else if (item.src.indexOf("knight") > -1) {
-                    towerProgress[RODZTO_CHESS_TECHNIC_KNIGHT] += 1
-                } else if (item.src.indexOf("bishop") > -1) {
-                    towerProgress[RODZTO_CHESS_TECHNIC_BISHOP] += 1
-                } else if (item.src.indexOf("rook") > -1) {
-                    towerProgress[RODZTO_CHESS_TECHNIC_ROOK] += 1
-                } else if (item.src.indexOf("queen") > -1) {
-                    towerProgress[RODZTO_CHESS_TECHNIC_QUEEN] += 1
-                } else if (item.src.indexOf("king") > -1) {
-                    towerProgress[RODZTO_CHESS_TECHNIC_KING] += 1
-                }
-            }
-            if (towerProgress[RODZTO_CHESS_MYSTIC_KING] == 1) {
-                towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MASTER;
-                towerProgress[UNLOCK_CHESS_MASTER] = true;
-            } else if (towerProgress[RODZTO_CHESS_MYSTIC_QUEEN] == 1) {
-                towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MYSTIC_KING;
-            } else if (towerProgress[RODZTO_CHESS_MYSTIC_ROOK] == 2) {
-                towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MYSTIC_QUEEN;
-            } else if (towerProgress[RODZTO_CHESS_MYSTIC_BISHOP] == 2) {
-                towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MYSTIC_ROOK;
-            } else if (towerProgress[RODZTO_CHESS_MYSTIC_KNIGHT] == 2) {
-                towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MYSTIC_BISHOP;
-            } else if (towerProgress[RODZTO_CHESS_MYSTIC_PAWN] == 8) {
-                towerProgress[NEXT_MYSTIC_TARGET] = RODZTO_CHESS_MYSTIC_KNIGHT;
-            }
-            if (towerProgress[RODZTO_CHESS_TECHNIC_KING] == 1) {
-                towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_MASTER;
-                towerProgress[UNLOCK_CHESS_MASTER] = true;
-            } else if (towerProgress[RODZTO_CHESS_TECHNIC_QUEEN] == 1) {
-                towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_TECHNIC_KING;
-            } else if (towerProgress[RODZTO_CHESS_TECHNIC_ROOK] == 2) {
-                towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_TECHNIC_QUEEN;
-            } else if (towerProgress[RODZTO_CHESS_TECHNIC_BISHOP] == 2) {
-                towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_TECHNIC_ROOK;
-            } else if (towerProgress[RODZTO_CHESS_TECHNIC_KNIGHT] == 2) {
-                towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_TECHNIC_BISHOP;
-            } else if (towerProgress[RODZTO_CHESS_TECHNIC_PAWN] == 8) {
-                towerProgress[NEXT_TECHNIC_TARGET] = RODZTO_CHESS_TECHNIC_KNIGHT;
-            }
-            return towerProgress;
-        }
-
-        const NEXT_MYSTIC_TARGET = "Next Mystic Target";
-        const NEXT_TECHNIC_TARGET = "Next Technic Target";
-        const UNLOCK_CHESS_MASTER = "Unlock Chess Master";
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_ZUGZWANGS_TOWER;
-        const towerProgress = getTowerProgress();
-        const trapSetups = POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].getTrapSetups();
-        switch(trapSetups[RODZTO_STRATEGY]) {
-            case RODZTO_STRATEGY_MYSTIC_ONLY:
-                armTraps(trapSetups[towerProgress[NEXT_MYSTIC_TARGET]]);
-                break;
-            case RODZTO_STRATEGY_TECHNIC_ONLY:
-                armTraps(trapSetups[towerProgress[NEXT_TECHNIC_TARGET]]);
-                break;
-            case RODZTO_STRATEGY_MYSTIC_FIRST:
-                break;
-            case RODZTO_STRATEGY_TECHNIC_FIRST:
-                break;
-            default:
-        }
-    }
-
-    function runRodCLiPolicy() {
-        document.getElementById(ID_POLICY_TXT).innerHTML = POLICY_NAME_CRYSTAL_LIBRARY;
-        const trapSetups = POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].getTrapSetups();
-        if (trapSetups[RODCLI_ATM_CATALOG_MICE] &&
-            isNullOrUndefined(getPageVariable("user.quests.QuestZugzwangLibrary.hasResearchQuest")) &&
-            parseInt(getPageVariable("user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest")) == 0) {
-            ajaxPost(window.location.origin + '/managers/ajax/environment/zugzwanglibrary.php',
-                     getAjaxHeader({"action": "purchase",
-                                    "last_read_journal_entry_id": getPageVariable("last_read_journal_entry_id"),
-                                    "convertible_item_type": "library_intro_research_assignment_convertible"}),
-                     function (data) {
-                window.setTimeout(function () {
-                    reloadCampPage();
-                }, 2 * 1000);
-            }, function (error) {
-                console.error('ajax:', error);
-                alert("error getting Library Assignment");
-            });
-        }
-    }
-
-=======
     /*
         resetTrapSetups() {
         this.trapSetups = {};
@@ -3345,7 +2616,6 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
         }
     }
 */
->>>>>>> ft_AutochangeTrap
     if (document.getElementById(ID_BOT_PROCESS_TXT).innerHTML != BOT_PROCESS_IDLE) {
         return;
     }
@@ -3356,11 +2626,6 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
     switch(currentLocation) {
         case LOCATION_HARBOUR:
             runGnaHarPolicy();
-<<<<<<< HEAD
-            break;
-        case LOCATION_ACOLYTE_REALM:
-            runBWoARePolicy();
-=======
             break;
         case LOCATION_MOUNTAIN:
             runGnaMouPolicy();
@@ -3385,7 +2650,6 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
             break;
         case LOCATION_JUNGLE_OF_DREAD:
             runSingleTrapSetupPolicy(POLICY_NAME_JUNGLE_OF_DREAD);
->>>>>>> ft_AutochangeTrap
             break;
         case LOCATION_FORT_ROX:
             runVVaFRoPolicy();
@@ -3401,8 +2665,6 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
             break;
         case LOCATION_ZUGZWANGS_TOWER:
             runRodZToPolicy();
-<<<<<<< HEAD
-=======
             break;
         case LOCATION_SLUSHY_SHORELINE:
             runSingleTrapSetupPolicy(POLICY_NAME_SLUSHY_SHORELINE);
@@ -3412,7 +2674,6 @@ const SDEFWA_STREAK_SOLDIER_TYPE_GARGANTUA = "Gargantua";
             break;
         case LOCATION_MURIDAE_MARKET:
             runSingleTrapSetupPolicy(POLICY_NAME_MURIDAE_MARKET);
->>>>>>> ft_AutochangeTrap
             break;
         default:
             runDefaultLocation();
@@ -3471,96 +2732,6 @@ function testSaveObjToStorage() {
 
 function testLoadObjFromStorage() {
     let tmpInfo;
-<<<<<<< HEAD
-    tmpInfo = getStorage(STORAGE_TRAP_INFO, null);
-    debugObj(tmpInfo);
-}
-
-function testDict() {
-    const tmpPolicy = POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN];
-    alert(tmpPolicy.trapSetups[RODSGA_SEASON_SPRING].weapon);
-}
-
-function testSortObj() {
-    function debugObj(obj) {
-        let tempTxt = "";
-        for (const [objKey, entry] of Object.entries(obj)) {
-            tempTxt += objKey;
-            tempTxt += "\n";
-            for (const [entryKey, value] of Object.entries(entry)) {
-                tempTxt += "  - " + entryKey + " : " + value;
-                tempTxt += "\n";
-            }
-        }
-        alert(tempTxt);
-    }
-    const unSorted = {}
-    const WEAPON_A = "horrific_venus_mouse_trap_weapon";
-    const WEAPON_B = "mystic_low_weapon";
-    const WEAPON_C = "bottomless_grave_weapon";
-    const WEAPON_D = "ambush_weapon";
-    const WEAPON_E = "acronym_weapon";
-    const POWER_TYPE = "Power Type";
-    const POWER = "Power";
-    const LUCK = "Luck";
-    const NAME = "Name";
-
-    unSorted[WEAPON_A] = {};
-    unSorted[WEAPON_A].powerType = POWER_TYPE_TACTICAL;
-    unSorted[WEAPON_A].power = 3400;
-    unSorted[WEAPON_A][LUCK] = 16;
-    unSorted[WEAPON_A][NAME] = "Horrific Venus Mouse Trap";
-    unSorted[WEAPON_B] = {};
-    unSorted[WEAPON_B].powerType = POWER_TYPE_TACTICAL;
-    unSorted[WEAPON_B].power = 60;
-    unSorted[WEAPON_B][LUCK] = 0;
-    unSorted[WEAPON_B][NAME] = "Mystic Pawn Pincher";
-    unSorted[WEAPON_C] = {};
-    unSorted[WEAPON_C].powerType = "Shadow";
-    unSorted[WEAPON_C].power = 1500;
-    unSorted[WEAPON_C][LUCK] = 5;
-    unSorted[WEAPON_C][NAME] = "Bottomless Grave";
-    unSorted[WEAPON_D] = {};
-    unSorted[WEAPON_D].powerType = POWER_TYPE_TACTICAL;
-    unSorted[WEAPON_D].power = 3000;
-    unSorted[WEAPON_D][LUCK] = 12;
-    unSorted[WEAPON_D][NAME] = "Ambush Trap";
-    unSorted[WEAPON_E] = {};
-    unSorted[WEAPON_E].powerType = POWER_TYPE_ARCANE;
-    unSorted[WEAPON_E].power = 3000;
-    unSorted[WEAPON_E][LUCK] = 18;
-    unSorted[WEAPON_E][NAME] = "Arcane Capturing Rod Of Never Yielding Mystery";
-
-    const sorted = Object.keys(unSorted).sort().reduce(
-        (obj, key) => {
-            obj[key] = unSorted[key];
-            return obj;
-        },
-        {}
-    );
-    const tacticalWeapons = Object.fromEntries(Object.entries(unSorted).filter(([key, value]) => value.powerType === POWER_TYPE_TACTICAL) );
-    const sortedTacticalWeapons = Object.fromEntries(Object.entries(unSorted)
-                                                     .filter(([key, value]) => value.powerType === POWER_TYPE_TACTICAL)
-                                                     .sort(([,a], [,b]) => b.power - a.power) );
-    debugObj(unSorted);
-    debugObj(sorted);
-    debugObj(tacticalWeapons);
-    debugObj(sortedTacticalWeapons);
-}
-
-function prepareSendingGifts() {
-    function sendingGifts(snuidIdx) {
-        function processPageData(data) {
-            function checkCompleteGifts() {
-                if (completeGifts.length == snuids.length) {
-                    g_statusGifting = STATUS_COMPLETE;
-                    setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
-                }
-                window.setTimeout(function () {
-                    reloadCampPage();
-                }, itemTimeoutInterval * 1000);
-            }
-=======
     tmpInfo = getStorage(STORAGE_TRAP_INFO, undefined);
     debugObj(tmpInfo);
 }
@@ -3712,161 +2883,6 @@ function test1() {
     //testSaveObjToStorage();
     //displayDocumentStyles();
 }
->>>>>>> ft_AutochangeTrap
-
-            const sendDailyGiftInfo = Object.entries(data.page.tabs.profile.subtabs)[0][1].friends_profile_view.user_interactions.actions.send_daily_gift;
-            if (sendDailyGiftInfo.is_allowed) {
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a gift to " + friendInfo[snuid].name;
-                ajaxPost(window.location.origin + '/managers/ajax/users/socialGift.php',
-                         getAjaxHeader({"action": "send_daily_gift", "snuid": snuid}),
-                         function (data) {
-                }, function (error) {
-                    console.error('ajax:', error);
-                    alert("error sending gift to " + snuid);
-                });
-            } else if (sendDailyGiftInfo.is_daily_total_limit_reached) {
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a gift to " + friendInfo[snuid].name + " (limit reached)";
-                g_statusGifting = STATUS_COMPLETE;
-                setStorage(STORAGE_STATUS_GIFTING, g_statusGifting);
-                reloadCampPage();
-            } else if (sendDailyGiftInfo.is_complete) {
-                completeGifts.push(snuid);
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a gift to " + friendInfo[snuid].name + " (already sent)";
-            }
-            snuidIdx += 1
-            if (snuidIdx < snuids.length) {
-                window.setTimeout(function () {
-                    sendingGifts(snuidIdx);
-                }, itemTimeoutInterval * 1000);
-            } else {
-                window.setTimeout(function () {
-                    checkCompleteGifts();
-                }, 2 * itemTimeoutInterval * 1000);
-            }
-        }
-
-<<<<<<< HEAD
-        const snuid = snuids[snuidIdx];
-        ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
-                 getAjaxHeader({"page_class": "HunterProfile", "page_arguments[snuid]": snuid, "last_read_journal_entry_id": lastReadJournalEntryId}),
-                 function (data) {
-            processPageData(data);
-        }, function (error) {
-            console.error('ajax:', error);
-            alert("error getting hunter profile");
-        });
-=======
-function getAjaxHeader(addedData) {
-    const mainData = {};
-    mainData.sn = 'Hitgrab';
-    mainData.hg_is_ajax = 1;
-    mainData.uh = getPageVariable('user.unique_hash');
-    return Object.assign(mainData, addedData);
-}
-
-function ajaxPost(postURL, objData, callback, throwerror) {
-    try {
-        jQuery.ajax({
-            type: 'POST',
-            url: postURL,
-            data: objData,
-            contentType: 'application/x-www-form-urlencoded',
-            dataType: 'json',
-            xhrFields: {
-                withCredentials: false
-            },
-            success: callback,
-            error: throwerror,
-        });
-    }
-    catch (e) {
-        throwerror(e);
-    }
-}
-
-function manualClaimingYesterdayGifts() {
-    if (!lockBot(BOT_PROCESS_MANUAL)) {
-        return;
->>>>>>> ft_AutochangeTrap
-    }
-
-    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
-    const itemTimeoutInterval = 0.75;
-    const friendInfo = getFriendInfo();
-    const completeGifts = [];
-    const snuids = Object.keys(friendInfo);
-    sendingGifts(0);
-}
-
-function prepareSendingBallots() {
-    function sendingBallots(snuidIdx) {
-        function processPageData(data) {
-            function checkCompleteBallots() {
-                if (completeBallots.length == 20) {
-                    g_statusBalloting = STATUS_COMPLETE;
-                    setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
-                }
-                window.setTimeout(function () {
-                    reloadCampPage();
-                }, itemTimeoutInterval * 1000);
-            }
-            const sendDrawBallot = Object.entries(data.page.tabs.profile.subtabs)[0][1].friends_profile_view.user_interactions.actions.send_draw_ballot;
-            if (sendDrawBallot.is_allowed) {
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Sending a Ballot to " + friendInfo[snuid].name;
-                ajaxPost(window.location.origin + '/managers/ajax/users/givefriendballot.php',
-                         getAjaxHeader({"snuid": snuid}),
-                         function (data) {
-                }, function (error) {
-                    console.error('ajax:', error);
-                    alert("error sending ballot to " + snuid);
-                });
-            } else if (sendDrawBallot.is_limit_reached) {
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a ballot to " + friendInfo[snuid].name + " (limit reached)";
-                g_statusBalloting = STATUS_COMPLETE;
-                setStorage(STORAGE_STATUS_BALLOTING, g_statusBalloting);
-                reloadCampPage();
-            } else if (sendDrawBallot.is_complete) {
-                completeBallots.push(snuid);
-                document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Cannot send a ballot to " + friendInfo[snuid].name + " (already sent)";
-            }
-            snuidIdx += 1
-            if (snuidIdx < snuids.length) {
-                window.setTimeout(function () {
-                    sendingBallots(snuidIdx);
-                }, itemTimeoutInterval * 1000);
-            } else {
-                window.setTimeout(function () {
-                    checkCompleteBallots();
-                }, 2 * itemTimeoutInterval * 1000);
-            }
-        }
-
-        const snuid = snuids[snuidIdx];
-        ajaxPost(window.location.origin + '/managers/ajax/pages/page.php',
-                 getAjaxHeader({"page_class": "HunterProfile", "page_arguments[snuid]": snuid, "last_read_journal_entry_id": lastReadJournalEntryId}),
-                 function (data) {
-            processPageData(data);
-        }, function (error) {
-            console.error('ajax:', error);
-            alert("error getting hunter profile");
-        });
-    }
-
-    const lastReadJournalEntryId = getPageVariable("last_read_journal_entry_id");
-    const itemTimeoutInterval = 0.75;
-    const friendInfo = getFriendInfo();
-    const completeBallots = [];
-    const snuids = Object.keys(friendInfo);
-    sendingBallots(0);
-}
-
-function test1() {
-    //testSortObj();
-    checkLocation();
-    //testDict();
-    //testSaveObjToStorage();
-    //displayDocumentStyles();
-}
 
 function test2() {
     //testLoadObjFromStorage();
@@ -3901,7 +2917,7 @@ function ajaxPost(postURL, objData, callback, throwerror) {
 }
 
 function manualClaimingYesterdayGifts() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
+    if (!lockBot(BOT_PROCESS_MANUAL)) {
         return;
     }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual claiming yesterday Gifts";
@@ -3948,21 +2964,13 @@ function prepareClaimingGifts(fromTop) {
 }
 
 function manualSendingGifts() {
-<<<<<<< HEAD
-    if (!lockBot(BOT_PROCESS_Manual)) {
-=======
     if (!lockBot(BOT_PROCESS_MANUAL)) {
->>>>>>> ft_AutochangeTrap
         return;
     }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Gifts";
     prepareSendingGifts();
 }
 
-<<<<<<< HEAD
-function manualSendingBallots() {
-    if (!lockBot(BOT_PROCESS_Manual)) {
-=======
 function prepareSendingGifts() {
     function sendingGifts(snuidIdx) {
         function processPageData(data) {
@@ -4028,13 +3036,10 @@ function prepareSendingGifts() {
 
 function manualSendingBallots() {
     if (!lockBot(BOT_PROCESS_MANUAL)) {
->>>>>>> ft_AutochangeTrap
         return;
     }
     document.getElementById(ID_BOT_STATUS_TXT).innerHTML = "Manual sending Ballots";
     prepareSendingBallots();
-<<<<<<< HEAD
-=======
 }
 
 function prepareSendingBallots() {
@@ -4097,7 +3102,6 @@ function prepareSendingBallots() {
     const completeBallots = [];
     const snuids = Object.keys(friendInfo);
     sendingBallots(0);
->>>>>>> ft_AutochangeTrap
 }
 
 function embedUIStructure() {
@@ -4227,14 +3231,6 @@ function embedUIStructure() {
 
         // The third row shows next trap check time countdown
         const trThird = statusDisplayTable.insertRow();
-<<<<<<< HEAD
-        const nextTrapCheckTimeCaptionCell = trThird.insertCell();
-        nextTrapCheckTimeCaptionCell.style.fontWeight = "bold";
-        nextTrapCheckTimeCaptionCell.innerHTML = "Next Trap Check Time :  ";
-        g_nextTrapCheckTimeDisplay = trThird.insertCell();
-        g_nextTrapCheckTimeDisplay.colSpan = 2;
-        g_nextTrapCheckTimeDisplay.innerHTML = "Loading...";
-=======
         captionCell = trThird.insertCell();
         captionCell.style.fontWeight = "bold";
         captionCell.innerHTML = "Next Trap Check : ";
@@ -4250,7 +3246,6 @@ function embedUIStructure() {
         trapCheckCountDownTxt.style.textAlign = "left";
         trapCheckCountDownTxt.id = ID_TRAP_CHECK_COUNTDOWN_TXT;
         trapCheckCountDownTxt.innerHTML = "Loading...";
->>>>>>> ft_AutochangeTrap
 
 /*
         // The forth row is very temporary just for testing
@@ -4420,13 +3415,8 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode("  ");
                 saveButtonCell.appendChild(tmpTxt);
 
-<<<<<<< HEAD
-                captionCell = null;
-                tmpTxt = null;
-=======
                 captionCell = undefined;
                 tmpTxt = undefined;
->>>>>>> ft_AutochangeTrap
             }
             const toggleLink = document.getElementById(ID_TIMER_LINK);
             const preferencesTable = document.getElementById(ID_TIMER_PREFERENCES_TABLE);
@@ -4511,17 +3501,6 @@ function embedUIStructure() {
         }
 
         function embedPolicyPreferences() {
-<<<<<<< HEAD
-            function getSelectItem(itemNames, itemId, onchangeFunction) {
-                const selectItem = document.createElement('select');
-                selectItem.style.width = "80px";
-                selectItem.style.fontSize = "90%";
-                for (const itemName of itemNames) {
-                    const itemOption = document.createElement("option");
-                    itemOption.value = itemName;
-                    itemOption.text = itemName;
-                    selectItem.appendChild(itemOption);
-=======
             function addOptions(selectItem, options) {
                 if (typeof(options) == DATA_TYPE_OBJECT) {
                     for (const option of options) {
@@ -4547,7 +3526,6 @@ function embedUIStructure() {
                     selectItem.value = ITEM_IGNORE;
                 } else {
                     selectItem.selectedIndex = -1;
->>>>>>> ft_AutochangeTrap
                 }
                 if (optionOther) {
                     addOptions(selectItem, ITEM_OTHER);
@@ -4576,51 +3554,18 @@ function embedUIStructure() {
             function getSelectWeapon(itemId, onchangeFunction) {
                 const tmpNames = getWeaponNames();
                 const weaponNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-<<<<<<< HEAD
-                return getSelectItem(weaponNames, itemId, onchangeFunction);
-=======
                 return getSelectItem(weaponNames, itemId, onchangeFunction, true, false, false);
->>>>>>> ft_AutochangeTrap
             }
 
             function getSelectBase(itemId, onchangeFunction) {
                 const tmpNames = getBaseNames();
                 const baseNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-<<<<<<< HEAD
-                return getSelectItem(baseNames, itemId, onchangeFunction);
-=======
                 return getSelectItem(baseNames, itemId, onchangeFunction, true, false, false);
->>>>>>> ft_AutochangeTrap
             }
 
             function getSelectBait(itemId, onchangeFunction) {
                 const tmpNames = getBaitNames();
                 const baitNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-<<<<<<< HEAD
-                return getSelectItem(baitNames, itemId, onchangeFunction);
-            }
-
-            function getSelectTrinket(itemId, onchangeFunction) {
-                const selectTrinket = document.createElement('select');
-                selectTrinket.style.width = "80px";
-                selectTrinket.style.fontSize = "90%";
-                const itemOption = document.createElement("option");
-                itemOption.value = TRINKET_DISARM;
-                itemOption.text = TRINKET_DISARM;
-                selectTrinket.appendChild(itemOption);
-                const tmpNames = getTrinketNames();
-                const trinketNames = isNullOrUndefined(tmpNames)? []: tmpNames;
-                for (const trinketName of trinketNames) {
-                    const itemOption = document.createElement("option");
-                    itemOption.value = trinketName;
-                    itemOption.text = trinketName;
-                    selectTrinket.appendChild(itemOption);
-                }
-                selectTrinket.selectedIndex = -1;
-                selectTrinket.id = itemId;
-                selectTrinket.onchange = onchangeFunction;
-                return selectTrinket;
-=======
                 return getSelectItem(baitNames, itemId, onchangeFunction, true, false, false);
             }
 
@@ -4628,7 +3573,6 @@ function embedUIStructure() {
                 const tmpNames = getTrinketNames();
                 const trinketNames = isNullOrUndefined(tmpNames)? []: tmpNames;
                 return getSelectItem(trinketNames, itemId, onchangeFunction, true, false, true);
->>>>>>> ft_AutochangeTrap
             }
 
             function insertSelectPolicyRow() {
@@ -4637,14 +3581,6 @@ function embedUIStructure() {
                         return;
                     }
                     currentPolicy = event.target.value;
-<<<<<<< HEAD
-                    switch(event.target.value) {
-                        case POLICY_NAME_ACOLYTE_REALM:
-                            insertBWoARePolicyPreferences();
-                            policyStorage = STORAGE_TRAP_SETUP_BWOARE;
-                            break;
-                        case POLICY_NAME_CLAW_SHOT_CITY:
-=======
                     switch(currentPolicy) {
                         case POLICY_NAME_HARBOUR:
                             policyStorage = STORAGE_TRAP_SETUP_GNAHAR;
@@ -4676,7 +3612,6 @@ function embedUIStructure() {
                             break;
                         case POLICY_NAME_CLAW_SHOT_CITY:
                             setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
->>>>>>> ft_AutochangeTrap
                             insertVVaCSCPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_VVACSC;
                             break;
@@ -4685,18 +3620,11 @@ function embedUIStructure() {
                             policyStorage = STORAGE_TRAP_SETUP_VVAFRO;
                             break;
                         case POLICY_NAME_SEASONAL_GARDEN:
-<<<<<<< HEAD
-                            insertRodSGaPolicyPreferences();
-                            policyStorage = STORAGE_TRAP_SETUP_RODSGA;
-                            break;
-                        case POLICY_NAME_ZUGZWANGS_TOWER:
-=======
                             setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             policyStorage = STORAGE_TRAP_SETUP_RODSGA;
                             break;
                         case POLICY_NAME_ZUGZWANGS_TOWER:
                             setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
->>>>>>> ft_AutochangeTrap
                             insertRodZToPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODZTO;
                             break;
@@ -4704,38 +3632,17 @@ function embedUIStructure() {
                             insertRodCLiPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_RODCLI;
                             break;
-<<<<<<< HEAD
-                        case POLICY_NAME_ICEBERG:
-                            insertRodIcePolicyPreferences();
-=======
                         case POLICY_NAME_SLUSHY_SHORELINE:
                             policyStorage = STORAGE_TRAP_SETUP_RODSSH;
                             break;
                         case POLICY_NAME_ICEBERG:
                             setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
->>>>>>> ft_AutochangeTrap
                             policyStorage = STORAGE_TRAP_SETUP_RODICE;
                             break;
                         case POLICY_NAME_FIERY_WARPATH:
                             insertSDeFWaPolicyPreferences();
                             policyStorage = STORAGE_TRAP_SETUP_SDEFWA;
                             break;
-<<<<<<< HEAD
-                        default:
-                    }
-                    for (const [policyName, policyObj] of Object.entries(POLICY_DICT)) {
-                        const tmpPolicy = POLICY_DICT[policyName];
-                        if (isNullOrUndefined(document.getElementById(tmpPolicy.trs[0]))) {
-                            continue;
-                        }
-                        const tmpDisplay = (event.target.value == policyName)? "table-row" : "none";
-                        for (const tr of tmpPolicy.trs){
-                            document.getElementById(tr).style.display = tmpDisplay;
-                        }
-                        if (tmpDisplay == "table-row" && isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
-                            alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
-                        } else if (tmpDisplay == "table-row") {
-=======
                         case POLICY_NAME_MURIDAE_MARKET:
                             setSelectSelectableItem(g_policies.getPolicy(currentPolicy).selectableValues);
                             policyStorage = STORAGE_TRAP_SETUP_SDEMMA;
@@ -4766,28 +3673,12 @@ function embedUIStructure() {
                         if (isNullOrUndefined(tmpPolicy.initSelectTrapSetup)) {
                             alert("Cannot find function initSelectTrapSetup for policy: " + policyName);
                         } else {
->>>>>>> ft_AutochangeTrap
                             tmpPolicy.initSelectTrapSetup();
                         }
                     }
                 }
 
                 function recommendTrapSetup() {
-<<<<<<< HEAD
-                    POLICY_DICT[currentPolicy].recommendTrapSetup();
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
-                }
-
-                function resetTrapSetup() {
-                    POLICY_DICT[currentPolicy].resetTrapSetups();
-                    setStorage(policyStorage, POLICY_DICT[currentPolicy].trapSetups);
-                    reloadCampPage();
-                }
-
-                let itemOption;
-                let currentPolicy;
-                let policyStorage;
-=======
                     g_policies.getPolicy(currentPolicy).recommendTrapSetup();
                     setStorage(policyStorage, g_policies.getPolicy(currentPolicy).trapSetups);
                 }
@@ -4798,7 +3689,6 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
->>>>>>> ft_AutochangeTrap
                 let tmpTxt;
                 const trSelectPolicy = policyPreferencesTable.insertRow();
                 trSelectPolicy.style.height = "24px"
@@ -4827,247 +3717,6 @@ function embedUIStructure() {
                 tmpTxt = document.createTextNode("Reset & Reload");
                 resetButton.appendChild(tmpTxt);
                 selectPolicyCell.appendChild(resetButton);
-<<<<<<< HEAD
-
-                tmpTxt = null;
-                itemOption = null;
-            }
-
-            function insertBWoARePolicyPreferences() {
-                function saveBWoAReWeapon(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_WEAPON] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function saveBWoAReBase(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BASE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function saveBWoAReBait(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function saveBWoAReTrinket(event) {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups[IDX_TRINKET] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function recommendBWoAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].recommendTrapSetup();
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                }
-
-                function resetBWoAReTrapSetup() {
-                    POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].resetTrapSetups();
-                    setStorage(STORAGE_TRAP_SETUP_BWOARE, POLICY_DICT[POLICY_NAME_ACOLYTE_REALM].trapSetups);
-                    reloadCampPage();
-                }
-
-                let tmpTxt;
-                const trBWoAreTrapSetup = policyPreferencesTable.insertRow();
-                trBWoAreTrapSetup.id = ID_TR_BWOARE_TRAP_SETUP;
-                trBWoAreTrapSetup.style.height = "24px";
-                trBWoAreTrapSetup.style.display = "none";
-                const captionCell = trBWoAreTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup :  ";
-                const trapSetupCell = trBWoAreTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_BWOARE_WEAPON, saveBWoAReWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_BWOARE_BASE, saveBWoAReBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_BWOARE_BAIT, saveBWoAReBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_BWOARE_TRINKET, saveBWoAReTrinket));
-                tmpTxt = null;
-            }
-
-            function insertVVaCSCPolicyPreferences() {
-                function onChangeSelectVVaCSCPhase(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].initSelectTrapSetup();
-                }
-
-                function saveVVaCSCSetup(itemIndex, value) {
-                    const currentPhase = document.getElementById(ID_SELECT_VVACSC_PHASE).value;
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[currentPhase][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
-
-                function saveVVaCSCWeapon(event) {
-                    saveVVaCSCSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveVVaCSCBase(event) {
-                    saveVVaCSCSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveVVaCSCBait(event) {
-                    saveVVaCSCSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveVVaCSCTrinket(event) {
-                    saveVVaCSCSetup(IDX_TRINKET, event.target.value);
-                }
-
-                function saveVVaCSCAtmPoster(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_POSTER] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
-
-                function saveVVaCSCAtmCactusCharm(event) {
-                    POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVACSC, POLICY_DICT[POLICY_NAME_CLAW_SHOT_CITY].trapSetups);
-                }
-
-
-                let captionCell;
-                let tmpTxt;
-
-                const trVVaCSCPhasesTrapSetup = policyPreferencesTable.insertRow();
-                trVVaCSCPhasesTrapSetup.id = ID_TR_VVACSC_PHASES_TRAP_SETUP;
-                trVVaCSCPhasesTrapSetup.style.height = "24px";
-                trVVaCSCPhasesTrapSetup.style.display = "none";
-                captionCell = trVVaCSCPhasesTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = document.createElement('select');
-                selectPhase.id = ID_SELECT_VVACSC_PHASE;
-                selectPhase.style.width = "70px";
-                selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeSelectVVaCSCPhase;
-                for (const phase of VVACSC_PHASES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectPhase.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectPhase);
-                tmpTxt = document.createTextNode("  Phase :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trVVaCSCPhasesTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_VVACSC_WEAPON, saveVVaCSCWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_VVACSC_BASE, saveVVaCSCBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_VVACSC_BAIT, saveVVaCSCBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVACSC_TRINKET, saveVVaCSCTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-
-                const trVVaCSCAtmPoster = policyPreferencesTable.insertRow();
-                trVVaCSCAtmPoster.id = ID_TR_VVACSC_ATM_POSTER;
-                trVVaCSCAtmPoster.style.height = "24px";
-                trVVaCSCAtmPoster.style.display = "none";
-                captionCell = trVVaCSCAtmPoster.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Automatic action(s) :  ";
-                const checkboxAtmPosterCell = trVVaCSCAtmPoster.insertCell();
-                const checkboxAtmPoster = document.createElement('input');
-                checkboxAtmPoster.id = ID_CBX_VVACSC_ATM_POSTER;
-                checkboxAtmPoster.type = "checkbox";
-                checkboxAtmPoster.onchange = saveVVaCSCAtmPoster;
-                checkboxAtmPosterCell.appendChild(checkboxAtmPoster);
-                tmpTxt = document.createTextNode(" Open Poster and Claim Bounty Reward");
-                checkboxAtmPosterCell.appendChild(tmpTxt);
-
-                const trVVaCSCAtmCactusCharm = policyPreferencesTable.insertRow();
-                trVVaCSCAtmCactusCharm.id = ID_TR_VVACSC_ATM_CACTUS_CHARM;
-                trVVaCSCAtmCactusCharm.style.height = "24px";
-                trVVaCSCAtmCactusCharm.style.display = "none";
-                captionCell = trVVaCSCAtmCactusCharm.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                const checkboxAtmCactusCharmCell = trVVaCSCAtmCactusCharm.insertCell();
-                const checkboxAtmCactusCharm = document.createElement('input');
-                checkboxAtmCactusCharm.id = ID_CBX_VVACSC_ATM_CACTUS_CHARM;
-                checkboxAtmCactusCharm.type = "checkbox";
-                checkboxAtmCactusCharm.onchange = saveVVaCSCAtmCactusCharm;
-                checkboxAtmCactusCharmCell.appendChild(checkboxAtmCactusCharm);
-                tmpTxt = document.createTextNode(" Arm Super Cactus Charm ");
-                checkboxAtmCactusCharmCell.appendChild(tmpTxt);
-                const imgSuperCactusCharm = document.createElement("img");
-                imgSuperCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/SuperCactusCharm.gif"
-                imgSuperCactusCharm.height = 15;
-                checkboxAtmCactusCharmCell.appendChild(imgSuperCactusCharm);
-                tmpTxt = document.createTextNode(" and Cactus Charm ");
-                checkboxAtmCactusCharmCell.appendChild(tmpTxt);
-                const imgCactusCharm = document.createElement("img");
-                imgCactusCharm.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/CactusCharm.gif"
-                imgCactusCharm.height = 15;
-                checkboxAtmCactusCharmCell.appendChild(imgCactusCharm);
-
-                tmpTxt = null;
-                captionCell = null;
-            }
-
-            function insertVVaFRoPolicyPreferences() {
-                function onChangeSelectVVaFRoPhase(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].initSelectTrapSetup();
-                }
-
-                function saveVVaFRoSetup(itemIndex, value) {
-                    const currentPhase = document.getElementById(ID_SELECT_VVAFRO_PHASE).value;
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[currentPhase][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-                }
-
-                function saveVVaFRoWeapon(event) {
-                    saveVVaFRoSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveVVaFRoBase(event) {
-                    saveVVaFRoSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveVVaFRoBait(event) {
-                    saveVVaFRoSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveVVaFRoTrinket(event) {
-                    saveVVaFRoSetup(IDX_TRINKET, event.target.value);
-                }
-
-                function saveVVaFRoTower(event) {
-                    saveVVaFRoSetup(IDX_TOWER, event.target.value);
-                }
-
-                function saveVVaFRoAtmDeactivate(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_DEACTIVATE] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-                }
-
-                function saveVVaFRoAtmRetreat(event) {
-                    if (!event.target.checked) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = event.target.checked;
-                        setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-                    }
-                    document.getElementById(ID_INPUT_VVAFRO_REQUIRED_HOWLITE).disabled = !event.target.checked;
-                    document.getElementById(ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE).disabled = !event.target.checked;
-                }
-
-                function saveVVaFRoRequiredHowlite(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_HOWLITE] = event.target.value;
-                    if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
-                    }
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-                }
-
-                function saveVVaFRoRequiredBloodstone(event) {
-                    POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_REQUIRED_BLOODSTONE] = event.target.value;
-                    if (!isNullOrUndefined(event.target.value) && event.target.value > 0) {
-                        POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups[VVAFRO_ATM_RETREAT] = true;
-                    }
-                    setStorage(STORAGE_TRAP_SETUP_VVAFRO, POLICY_DICT[POLICY_NAME_FORT_ROX].trapSetups);
-=======
 
                 tmpTxt = undefined;
             }
@@ -5140,146 +3789,10 @@ function embedUIStructure() {
 
                 function saveSelectableTrinket(event) {
                     saveSelectableItem(IDX_TRINKET, event.target.value);
->>>>>>> ft_AutochangeTrap
                 }
 
                 let captionCell;
                 let tmpTxt;
-<<<<<<< HEAD
-
-                const trVVaFRoPhasesTrapSetup = policyPreferencesTable.insertRow();
-                trVVaFRoPhasesTrapSetup.id = ID_TR_VVAFRO_PHASES_TRAP_SETUP;
-                trVVaFRoPhasesTrapSetup.style.height = "24px";
-                trVVaFRoPhasesTrapSetup.style.display = "none";
-                captionCell = trVVaFRoPhasesTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectPhase = document.createElement('select');
-                selectPhase.id = ID_SELECT_VVAFRO_PHASE;
-                selectPhase.style.width = "70px";
-                selectPhase.style.fontSize = "90%";
-                selectPhase.onchange = onChangeSelectVVaFRoPhase;
-                for (const phase of VVAFRO_PHASES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectPhase.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectPhase);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trVVaFRoPhasesTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_VVAFRO_WEAPON, saveVVaFRoWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_VVAFRO_BASE, saveVVaFRoBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_VVAFRO_BAIT, saveVVaFRoBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_VVAFRO_TRINKET, saveVVaFRoTrinket));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                const selectTower = document.createElement('select');
-                selectTower.id = ID_SELECT_VVAFRO_TOWER;
-                selectTower.style.fontSize = "90%";
-                selectTower.style.width = "80px";
-                selectTower.onchange = saveVVaFRoTower;
-                for (const phase of VVAFRO_TOWER_ACTIVATION){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = phase
-                    itemOption.text = phase
-                    selectTower.appendChild(itemOption);
-                }
-                trapSetupCell.appendChild(selectTower);
-
-                const trVVaFRoAtmDeactivate = policyPreferencesTable.insertRow();
-                trVVaFRoAtmDeactivate.id = ID_TR_VVAFRO_ATM_DEACTIVATE;
-                trVVaFRoAtmDeactivate.style.height = "24px";
-                trVVaFRoAtmDeactivate.style.display = "none";
-                captionCell = trVVaFRoAtmDeactivate.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Automatic action(s) :  ";
-                const checkboxAtmDeactivateCell = trVVaFRoAtmDeactivate.insertCell();
-                const checkboxAtmDeactivate = document.createElement('input');
-                checkboxAtmDeactivate.id = ID_CBX_VVAFRO_ATM_DEACTIVATE;
-                checkboxAtmDeactivate.type = "checkbox";
-                checkboxAtmDeactivate.onchange = saveVVaFRoAtmDeactivate;
-                checkboxAtmDeactivateCell.appendChild(checkboxAtmDeactivate);
-                tmpTxt = document.createTextNode(" Deactivate Mage Tower when HP is full");
-                checkboxAtmDeactivateCell.appendChild(tmpTxt);
-
-                const trVVaFRoAtmRetreat = policyPreferencesTable.insertRow();
-                trVVaFRoAtmRetreat.id = ID_TR_VVAFRO_ATM_RETREAT;
-                trVVaFRoAtmRetreat.style.height = "24px";
-                trVVaFRoAtmRetreat.style.display = "none";
-                captionCell = trVVaFRoAtmRetreat.insertCell();
-                const checkboxAtmRetreatCell = trVVaFRoAtmRetreat.insertCell();
-                const checkboxAtmRetreat = document.createElement('input');
-                checkboxAtmRetreat.id = ID_CBX_VVAFRO_ATM_RETREAT;
-                checkboxAtmRetreat.type = "checkbox";
-                checkboxAtmRetreat.onchange = saveVVaFRoAtmRetreat;
-                checkboxAtmRetreatCell.appendChild(checkboxAtmRetreat);
-                tmpTxt = document.createTextNode(" Retreat when having");
-                checkboxAtmRetreatCell.appendChild(tmpTxt);
-                tmpTxt = document.createTextNode("  ");
-                checkboxAtmRetreatCell.appendChild(tmpTxt);
-                const inputVVaFRoRequiredHowlite = getNumberInput();
-                inputVVaFRoRequiredHowlite.id = ID_INPUT_VVAFRO_REQUIRED_HOWLITE;
-                inputVVaFRoRequiredHowlite.onchange = saveVVaFRoRequiredHowlite;
-                inputVVaFRoRequiredHowlite.value = 0;
-                checkboxAtmRetreatCell.appendChild(inputVVaFRoRequiredHowlite);
-                tmpTxt = document.createTextNode(" ");
-                checkboxAtmRetreatCell.appendChild(tmpTxt);
-                const imgHowlite = document.createElement("img");
-                imgHowlite.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Howlite.gif"
-                imgHowlite.height = 15;
-                checkboxAtmRetreatCell.appendChild(imgHowlite);
-                tmpTxt = document.createTextNode(" ");
-                checkboxAtmRetreatCell.appendChild(tmpTxt);
-                const inputVVaFRoRequiredBloodstone = getNumberInput();
-                inputVVaFRoRequiredBloodstone.id = ID_INPUT_VVAFRO_REQUIRED_BLOODSTONE;
-                inputVVaFRoRequiredBloodstone.onchange = saveVVaFRoRequiredBloodstone;
-                inputVVaFRoRequiredBloodstone.value = 0;
-                checkboxAtmRetreatCell.appendChild(inputVVaFRoRequiredBloodstone);
-                tmpTxt = document.createTextNode(" ");
-                checkboxAtmRetreatCell.appendChild(tmpTxt);
-                const imgBloodStone = document.createElement("img");
-                imgBloodStone.src = "https://raw.githubusercontent.com/bujaraty/JnK/ft_AutochangeTrap/imgs/Bloodstone.gif"
-                imgBloodStone.height = 15;
-                checkboxAtmRetreatCell.appendChild(imgBloodStone);
-
-                tmpTxt = null;
-                captionCell = null;
-            }
-
-            function insertRodSGaPolicyPreferences() {
-                function onChangeSelectRodSGaSeason(event) {
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].initSelectTrapSetup();
-                }
-
-                function saveRodSGaSetup(itemIndex, value) {
-                    const currentSeason = document.getElementById(ID_SELECT_RODSGA_SEASON).value;
-                    POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups[currentSeason][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODSGA, POLICY_DICT[POLICY_NAME_SEASONAL_GARDEN].trapSetups);
-                }
-
-                function saveRodSGaWeapon(event) {
-                    saveRodSGaSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodSGaBase(event) {
-                    saveRodSGaSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodSGaBait(event) {
-                    saveRodSGaSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodSGaTrinket(event) {
-                    saveRodSGaSetup(IDX_TRINKET, event.target.value);
-=======
                 const trSelectableTrapSetup = policyPreferencesTable.insertRow();
                 trSelectableTrapSetup.id = ID_TR_SELECTABLE_TRAP_SETUP;
                 trSelectableTrapSetup.style.height = "24px";
@@ -5316,79 +3829,10 @@ function embedUIStructure() {
                 function saveVVaCSCAtmCactusCharm(event) {
                     g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups[VVACSC_ATM_CACTUS_CHARM] = event.target.checked;
                     setStorage(STORAGE_TRAP_SETUP_VVACSC, g_policies.getPolicy(POLICY_NAME_CLAW_SHOT_CITY).trapSetups);
->>>>>>> ft_AutochangeTrap
                 }
 
                 let captionCell;
                 let tmpTxt;
-<<<<<<< HEAD
-                const trRodSGaSeasonsTrapSetup = policyPreferencesTable.insertRow();
-                trRodSGaSeasonsTrapSetup.id = ID_TR_RODSGA_SEASONS_TRAP_SETUP;
-                trRodSGaSeasonsTrapSetup.style.height = "24px";
-                trRodSGaSeasonsTrapSetup.style.display = "none";
-                captionCell = trRodSGaSeasonsTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectSeason = document.createElement('select');
-                selectSeason.id = ID_SELECT_RODSGA_SEASON;
-                selectSeason.style.fontSize = "90%";
-                selectSeason.style.width = "70px";
-                selectSeason.onchange = onChangeSelectRodSGaSeason;
-                for (const season of RODSGA_SEASONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = season
-                    itemOption.text = season
-                    selectSeason.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectSeason);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodSGaSeasonsTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODSGA_WEAPON, saveRodSGaWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODSGA_BASE, saveRodSGaBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODSGA_BAIT, saveRodSGaBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODSGA_TRINKET, saveRodSGaTrinket));
-                captionCell = null;
-                tmpTxt = null;
-            }
-
-            function insertRodZToPolicyPreferences() {
-                function onChangeSelectRodZToStrategy(event) {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[RODZTO_STRATEGY] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
-                }
-
-                function onChangeRodZToSelectChess(event) {
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].initSelectTrapSetup();
-                }
-
-                function saveRodZToSetup(itemIndex, value) {
-                    const currentChess = document.getElementById(ID_SELECT_ROD_RODZTO_CHESS).value;
-                    POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups[currentChess][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODZTO, POLICY_DICT[POLICY_NAME_ZUGZWANGS_TOWER].trapSetups);
-                }
-
-                function saveRodZToWeapon(event) {
-                    saveRodZToSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodZToBase(event) {
-                    saveRodZToSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodZToBait(event) {
-                    saveRodZToSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodZToTrinket(event) {
-                    saveRodZToSetup(IDX_TRINKET, event.target.value);
-=======
                 const trVVaCSCAtmPoster = policyPreferencesTable.insertRow();
                 trVVaCSCAtmPoster.id = ID_TR_VVACSC_ATM_POSTER;
                 trVVaCSCAtmPoster.style.height = "24px";
@@ -5493,70 +3937,10 @@ function embedUIStructure() {
                         g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups[VVAFRO_ATM_RETREAT] = true;
                     }
                     setStorage(STORAGE_TRAP_SETUP_VVAFRO, g_policies.getPolicy(POLICY_NAME_FORT_ROX).trapSetups);
->>>>>>> ft_AutochangeTrap
                 }
 
                 let captionCell;
                 let tmpTxt;
-<<<<<<< HEAD
-                const trRodZToStrategy = policyPreferencesTable.insertRow();
-                trRodZToStrategy.id = ID_TR_RODZTO_STRATEGY;
-                trRodZToStrategy.style.height = "24px";
-                trRodZToStrategy.style.display = "none";
-                captionCell = trRodZToStrategy.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Strategy :  ";
-                const selectStrategyCell = trRodZToStrategy.insertCell();
-                const selectStrategy = document.createElement('select');
-                selectStrategy.id = ID_SELECT_RODZTO_STRATEGY;
-                selectStrategy.style.fontSize = "90%";
-                selectStrategy.style.width = "120px";
-                selectStrategy.onchange = onChangeSelectRodZToStrategy;
-                const itemOption = document.createElement("option");
-                itemOption.value = "Select strategy";
-                itemOption.text = "Select strategy";
-                selectStrategy.appendChild(itemOption);
-                for (const strategy of RODZTO_STRATEGIES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = strategy
-                    itemOption.text = strategy
-                    selectStrategy.appendChild(itemOption);
-                }
-                selectStrategyCell.appendChild(selectStrategy);
-
-                const trRodZToChessTrapSetup = policyPreferencesTable.insertRow();
-                trRodZToChessTrapSetup.id = ID_TR_ROD_RODZTO_CHESS_TRAP_SETUP;
-                trRodZToChessTrapSetup.style.height = "24px";
-                trRodZToChessTrapSetup.style.display = "none";
-                captionCell = trRodZToChessTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectChess = document.createElement('select');
-                selectChess.id = ID_SELECT_ROD_RODZTO_CHESS;
-                selectChess.style.fontSize = "90%";
-                selectChess.style.width = "70px";
-                selectChess.onchange = onChangeRodZToSelectChess;
-                for (const name of RODZTO_CHESS_PROGRESS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = name
-                    itemOption.text = name
-                    selectChess.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectChess);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodZToChessTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODZTO_WEAPON, saveRodZToWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODZTO_BASE, saveRodZToBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODZTO_BAIT, saveRodZToBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODZTO_TRINKET, saveRodZToTrinket));
-=======
 
                 const trVVaFRoPhasesTrapSetup = policyPreferencesTable.insertRow();
                 trVVaFRoPhasesTrapSetup.id = ID_TR_VVAFRO_PHASES_TRAP_SETUP;
@@ -5585,7 +3969,6 @@ function embedUIStructure() {
                 trapSetupCell.appendChild(tmpTxt);
                 const selectTower = getSelectItem(VVAFRO_TOWER_ACTIVATION, ID_SELECT_VVAFRO_TOWER, saveVVaFRoTower, false, false, false);
                 trapSetupCell.appendChild(selectTower);
->>>>>>> ft_AutochangeTrap
 
                 const trVVaFRoAtmDeactivate = policyPreferencesTable.insertRow();
                 trVVaFRoAtmDeactivate.id = ID_TR_VVAFRO_ATM_DEACTIVATE;
@@ -5647,92 +4030,6 @@ function embedUIStructure() {
                 captionCell = undefined;
             }
 
-<<<<<<< HEAD
-            function insertRodCLiPolicyPreferences() {
-                function saveRodCLiCheckbox(event) {
-                    POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups[RODCLI_ATM_CATALOG_MICE] = event.target.checked;
-                    setStorage(STORAGE_TRAP_SETUP_RODCLI, POLICY_DICT[POLICY_NAME_CRYSTAL_LIBRARY].trapSetups);
-                }
-
-                const trRodCLiAtmCatalogMice = policyPreferencesTable.insertRow();
-                trRodCLiAtmCatalogMice.id = ID_TR_RODCLI_ATM_CATALOG_MICE;
-                trRodCLiAtmCatalogMice.style.height = "24px";
-                trRodCLiAtmCatalogMice.style.display = "none";
-                const captionCell = trRodCLiAtmCatalogMice.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Automatic action(s) :  ";
-                const checkboxCell = trRodCLiAtmCatalogMice.insertCell();
-                const checkbox = document.createElement('input');
-                checkbox.id = ID_CBX_RODCLI_ATM_CATALOG_MICE;
-                checkbox.type = "checkbox";
-                checkbox.onchange = saveRodCLiCheckbox;
-                checkboxCell.appendChild(checkbox);
-                const tmpTxt = document.createTextNode(" Start Calalog Mice Library Assignment");
-                checkboxCell.appendChild(tmpTxt);
-            }
-
-            function insertRodIcePolicyPreferences() {
-                function onChangeSelectRodIceSublocation(event) {
-                    POLICY_DICT[POLICY_NAME_ICEBERG].initSelectTrapSetup();
-                }
-
-                function saveRodIceSetup(itemIndex, value) {
-                    const sublocation = document.getElementById(ID_SELECT_RODICE_SUBLOCATION).value;
-                    POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups[sublocation][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_RODICE, POLICY_DICT[POLICY_NAME_ICEBERG].trapSetups);
-                }
-
-                function saveRodIceWeapon(event) {
-                    saveRodIceSetup(IDX_WEAPON, event.target.value);
-                }
-
-                function saveRodIceBase(event) {
-                    saveRodIceSetup(IDX_BASE, event.target.value);
-                }
-
-                function saveRodIceBait(event) {
-                    saveRodIceSetup(IDX_BAIT, event.target.value);
-                }
-
-                function saveRodIceTrinket(event) {
-                    saveRodIceSetup(IDX_TRINKET, event.target.value);
-                }
-
-                let tmpTxt;
-                const trRodIceSublocationTrapSetup = policyPreferencesTable.insertRow();
-                trRodIceSublocationTrapSetup.id = ID_TR_RODICE_SUBLOCATIONS_TRAP_SETUP;
-                trRodIceSublocationTrapSetup.style.height = "24px";
-                trRodIceSublocationTrapSetup.style.display = "none";
-                const captionCell = trRodIceSublocationTrapSetup.insertCell();
-                captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
-                captionCell.innerHTML = "Trap Setup for ";
-                const selectSublocation = document.createElement('select');
-                selectSublocation.id = ID_SELECT_RODICE_SUBLOCATION;
-                selectSublocation.style.fontSize = "90%";
-                selectSublocation.style.width = "70px";
-                selectSublocation.onchange = onChangeSelectRodIceSublocation;
-                for (const sublocation of RODICE_SUBLOCATIONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = sublocation
-                    itemOption.text = sublocation
-                    selectSublocation.appendChild(itemOption);
-                }
-                captionCell.appendChild(selectSublocation);
-                tmpTxt = document.createTextNode(" :  ");
-                captionCell.appendChild(tmpTxt);
-                const trapSetupCell = trRodIceSublocationTrapSetup.insertCell();
-                trapSetupCell.appendChild(getSelectWeapon(ID_SELECT_RODICE_WEAPON, saveRodIceWeapon));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBase(ID_SELECT_RODICE_BASE, saveRodIceBase));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectBait(ID_SELECT_RODICE_BAIT, saveRodIceBait));
-                tmpTxt = document.createTextNode(" ");
-                trapSetupCell.appendChild(tmpTxt);
-                trapSetupCell.appendChild(getSelectTrinket(ID_SELECT_RODICE_TRINKET, saveRodIceTrinket));
-                tmpTxt = null;
-=======
             function insertRodZToPolicyPreferences() {
                 function onChangeSelectRodZToStrategy(event) {
                     g_policies.getPolicy(POLICY_NAME_ZUGZWANGS_TOWER).trapSetups[RODZTO_STRATEGY] = event.target.value;
@@ -5822,27 +4119,17 @@ function embedUIStructure() {
                 checkboxCell.appendChild(checkbox);
                 const tmpTxt = document.createTextNode(" Start Calalog Mice Library Assignment");
                 checkboxCell.appendChild(tmpTxt);
->>>>>>> ft_AutochangeTrap
             }
 
             function insertSDeFWaPolicyPreferences() {
                 function onChangeSelectSDeFWaWave(event) {
-<<<<<<< HEAD
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
-=======
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
->>>>>>> ft_AutochangeTrap
                 }
 
                 function saveSoldierSetup(itemIndex, value) {
                     const powerType = document.getElementById(ID_SELECT_SDEFWA_POWER_TYPE).value;
-<<<<<<< HEAD
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[powerType][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-=======
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[powerType][itemIndex] = value;
                     setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
->>>>>>> ft_AutochangeTrap
                 }
 
                 function saveSDeFWaSoldierWeapon(event) {
@@ -5855,33 +4142,19 @@ function embedUIStructure() {
 
                 function saveSDeFWaTargetPopulation(event) {
                     const wave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
-<<<<<<< HEAD
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-                }
-
-                function onChangeSelectSDeFWaStreak(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
-=======
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[wave][SDEFWA_POPULATION_PRIORITY] = event.target.value;
                     setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
 
                 function onChangeSelectSDeFWaStreak(event) {
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
->>>>>>> ft_AutochangeTrap
                 }
 
                 function saveStreakSetup(itemIndex, value) {
                     const streak = document.getElementById(ID_SELECT_SDEFWA_STREAK).value;
                     const wave = document.getElementById(ID_SELECT_SDEFWA_WAVE).value;
-<<<<<<< HEAD
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[wave][streak][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-=======
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[wave][streak][itemIndex] = value;
                     setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
->>>>>>> ft_AutochangeTrap
                 }
 
                 function saveSDeFWaStreakBait(event) {
@@ -5897,24 +4170,6 @@ function embedUIStructure() {
                 }
 
                 function saveSDeFWaLastSoldierBait(event) {
-<<<<<<< HEAD
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-                }
-
-                function saveSDeFWaLastSoldierCharmType(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_LAST_SOLDIER][IDX_CHARM_TYPE] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-                }
-
-                function saveSDeFWaArmingWarpathCharm(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_ARMING_CHARM_SUPPORT_RETREAT] = event.target.value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-                }
-
-                function onChangeSelectSDeFWaBeforeAfterWardens(event) {
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].initSelectTrapSetup();
-=======
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_LAST_SOLDIER][IDX_BAIT] = event.target.value;
                     setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
                 }
@@ -5931,18 +4186,12 @@ function embedUIStructure() {
 
                 function onChangeSelectSDeFWaBeforeAfterWardens(event) {
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).initSelectTrapSetup();
->>>>>>> ft_AutochangeTrap
                 }
 
                 function saveWave4Setup(itemIndex, value) {
                     const status = document.getElementById(ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS).value;
-<<<<<<< HEAD
-                    POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups[SDEFWA_WAVE4][status][itemIndex] = value;
-                    setStorage(STORAGE_TRAP_SETUP_SDEFWA, POLICY_DICT[POLICY_NAME_FIERY_WARPATH].trapSetups);
-=======
                     g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups[SDEFWA_WAVE4][status][itemIndex] = value;
                     setStorage(STORAGE_TRAP_SETUP_SDEFWA, g_policies.getPolicy(POLICY_NAME_FIERY_WARPATH).trapSetups);
->>>>>>> ft_AutochangeTrap
                 }
 
                 function saveSDeFWaWave4Weapon(event) {
@@ -5971,22 +4220,8 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Wave :  ";
                 const selectSDeFWaWaveCell = trSelectSDeFWaWave.insertCell();
-<<<<<<< HEAD
-                const selectSDeFWaWave = document.createElement('select');
-                selectSDeFWaWave.id = ID_SELECT_SDEFWA_WAVE;
-                selectSDeFWaWave.style.fontSize = "90%";
-                selectSDeFWaWave.style.width = "70px";
-                selectSDeFWaWave.onchange = onChangeSelectSDeFWaWave;
-                for (const wave of SDEFWA_WAVES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = wave
-                    itemOption.text = wave
-                    selectSDeFWaWave.appendChild(itemOption);
-                }
-=======
                 const selectSDeFWaWave = getSelectItem(SDEFWA_WAVES, ID_SELECT_SDEFWA_WAVE, onChangeSelectSDeFWaWave, false, false, false);
                 selectSDeFWaWave.style.width = "65px";
->>>>>>> ft_AutochangeTrap
                 selectSDeFWaWaveCell.appendChild(selectSDeFWaWave);
 
                 const trSDeFWaPowerTypesTrapSetup = policyPreferencesTable.insertRow();
@@ -5996,22 +4231,8 @@ function embedUIStructure() {
                 captionCell = trSDeFWaPowerTypesTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-<<<<<<< HEAD
-                const selectSDeFWaPowerType = document.createElement('select');
-                selectSDeFWaPowerType.id = ID_SELECT_SDEFWA_POWER_TYPE;
-                selectSDeFWaPowerType.style.fontSize = "90%";
-                selectSDeFWaPowerType.style.width = "65px";
-                selectSDeFWaPowerType.onchange = onChangeSelectSDeFWaWave;
-                for (const power_type of SDEFWA_POWER_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = power_type
-                    itemOption.text = power_type
-                    selectSDeFWaPowerType.appendChild(itemOption);
-                }
-=======
                 const selectSDeFWaPowerType = getSelectItem(SDEFWA_POWER_TYPES, ID_SELECT_SDEFWA_POWER_TYPE, onChangeSelectSDeFWaWave, false, false, false);
                 selectSDeFWaPowerType.style.width = "65px";
->>>>>>> ft_AutochangeTrap
                 captionCell.appendChild(selectSDeFWaPowerType);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -6029,25 +4250,11 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Target Population :  ";
                 const selectSDeFWaTargetPopulationCell = trSelectSDeFWaTargetPopulation.insertCell();
-<<<<<<< HEAD
-                const selectSDeFWaTargetPopulation = document.createElement('select');
-                selectSDeFWaTargetPopulation.id = ID_SELECT_SDEFWA_TARGET_POPULATION;
-                selectSDeFWaTargetPopulation.style.fontSize = "90%";
-                selectSDeFWaTargetPopulation.style.width = "65px";
-                selectSDeFWaTargetPopulation.onchange = saveSDeFWaTargetPopulation;
-                for (const target_population of SDEFWA_TARGET_POPULATIONS){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = target_population;
-                    itemOption.text = target_population;
-                    selectSDeFWaTargetPopulation.appendChild(itemOption);
-                }
-=======
                 const selectSDeFWaTargetPopulation = getSelectItem(SDEFWA_TARGET_POPULATIONS,
                                                                    ID_SELECT_SDEFWA_TARGET_POPULATION,
                                                                    saveSDeFWaTargetPopulation,
                                                                    false, false, false);
                 selectSDeFWaTargetPopulation.style.width = "65px";
->>>>>>> ft_AutochangeTrap
                 selectSDeFWaTargetPopulationCell.appendChild(selectSDeFWaTargetPopulation);
 
                 const trSDeFWaStreaksTrapSetup = policyPreferencesTable.insertRow();
@@ -6057,22 +4264,8 @@ function embedUIStructure() {
                 captionCell = trSDeFWaStreaksTrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup for ";
-<<<<<<< HEAD
-                const selectSDeFWaStreak = document.createElement('select');
-                selectSDeFWaStreak.id = ID_SELECT_SDEFWA_STREAK;
-                selectSDeFWaStreak.style.fontSize = "90%";
-                selectSDeFWaStreak.style.width = "35px";
-                selectSDeFWaStreak.onchange = onChangeSelectSDeFWaStreak;
-                for (let i = 0; i <= SDEFWA_MAX_STREAKS; i++){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = i;
-                    itemOption.text = i;
-                    selectSDeFWaStreak.appendChild(itemOption);
-                }
-=======
                 const selectSDeFWaStreak = getSelectItem(Array(SDEFWA_MAX_STREAKS+1).keys(), ID_SELECT_SDEFWA_STREAK, onChangeSelectSDeFWaStreak, false, false, false);
                 selectSDeFWaStreak.style.width = "35px";
->>>>>>> ft_AutochangeTrap
                 captionCell.appendChild(selectSDeFWaStreak);
                 tmpTxt = document.createTextNode(" :  ");
                 captionCell.appendChild(tmpTxt);
@@ -6080,35 +4273,6 @@ function embedUIStructure() {
                 streakTrapSetupCell.appendChild(getSelectBait(ID_SELECT_SDEFWA_STREAK_BAIT, saveSDeFWaStreakBait));
                 tmpTxt = document.createTextNode(" ");
                 streakTrapSetupCell.appendChild(tmpTxt);
-<<<<<<< HEAD
-                const selectSDeFWaStreakCharmType = document.createElement('select');
-                selectSDeFWaStreakCharmType.id = ID_SELECT_SDEFWA_STREAK_CHARM_TYPE;
-                selectSDeFWaStreakCharmType.style.fontSize = "90%";
-                selectSDeFWaStreakCharmType.style.width = "80px";
-                selectSDeFWaStreakCharmType.onchange = saveSDeFWaStreakCharmType;
-                for (const charmType of SDEFWA_CHARM_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = charmType;
-                    itemOption.text = charmType;
-                    selectSDeFWaStreakCharmType.appendChild(itemOption);
-                }
-                selectSDeFWaStreakCharmType.selectedIndex = -1;
-                streakTrapSetupCell.appendChild(selectSDeFWaStreakCharmType);
-                tmpTxt = document.createTextNode(" ");
-                streakTrapSetupCell.appendChild(tmpTxt);
-                const selectSDeFWaStreakSoldierType = document.createElement('select');
-                selectSDeFWaStreakSoldierType.id = ID_SELECT_SDEFWA_STREAK_SOLDIER_TYPE;
-                selectSDeFWaStreakSoldierType.style.fontSize = "90%";
-                selectSDeFWaStreakSoldierType.style.width = "80px";
-                selectSDeFWaStreakSoldierType.onchange = saveSDeFWaStreakSoldierType;
-                for (const soldierType of SDEFWA_STREAK_SOLDIER_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = soldierType;
-                    itemOption.text = soldierType;
-                    selectSDeFWaStreakSoldierType.appendChild(itemOption);
-                }
-                selectSDeFWaStreakSoldierType.selectedIndex = -1;
-=======
                 const selectSDeFWaStreakCharmType = getSelectItem(SDEFWA_CHARM_TYPES, ID_SELECT_SDEFWA_STREAK_CHARM_TYPE, saveSDeFWaStreakCharmType, true, false, false);
                 streakTrapSetupCell.appendChild(selectSDeFWaStreakCharmType);
                 tmpTxt = document.createTextNode(" ");
@@ -6117,7 +4281,6 @@ function embedUIStructure() {
                                                                     ID_SELECT_SDEFWA_STREAK_SOLDIER_TYPE,
                                                                     saveSDeFWaStreakSoldierType,
                                                                     false, false, false);
->>>>>>> ft_AutochangeTrap
                 streakTrapSetupCell.appendChild(selectSDeFWaStreakSoldierType);
 
                 const trSDeFWaLastSoldierTrapSetup = policyPreferencesTable.insertRow();
@@ -6131,29 +4294,10 @@ function embedUIStructure() {
                 lastSoldierTrapSetupCell.appendChild(getSelectBait(ID_SELECT_SDEFWA_LAST_SOLDIER_BAIT, saveSDeFWaLastSoldierBait));
                 tmpTxt = document.createTextNode(" ");
                 lastSoldierTrapSetupCell.appendChild(tmpTxt);
-<<<<<<< HEAD
-                const selectSDeFWaLastSoldierCharmType = document.createElement('select');
-                selectSDeFWaLastSoldierCharmType.id = ID_SELECT_SDEFWA_LAST_SOLDIER_CHARM_TYPE;
-                selectSDeFWaLastSoldierCharmType.style.fontSize = "90%";
-                selectSDeFWaLastSoldierCharmType.style.width = "80px";
-                selectSDeFWaLastSoldierCharmType.onchange = saveSDeFWaLastSoldierCharmType;
-                const itemOption = document.createElement("option");
-                itemOption.value = TRINKET_DISARM;
-                itemOption.text = TRINKET_DISARM;
-                selectSDeFWaLastSoldierCharmType.appendChild(itemOption);
-                for (const charmType of SDEFWA_CHARM_TYPES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = charmType;
-                    itemOption.text = charmType;
-                    selectSDeFWaLastSoldierCharmType.appendChild(itemOption);
-                }
-                selectSDeFWaLastSoldierCharmType.selectedIndex = -1;
-=======
                 const selectSDeFWaLastSoldierCharmType = getSelectItem(SDEFWA_CHARM_TYPES,
                                                                        ID_SELECT_SDEFWA_LAST_SOLDIER_CHARM_TYPE,
                                                                        saveSDeFWaLastSoldierCharmType,
                                                                        true, true, false);
->>>>>>> ft_AutochangeTrap
                 lastSoldierTrapSetupCell.appendChild(selectSDeFWaLastSoldierCharmType);
 
                 const trSDeFWaWhenSupportRetreat = policyPreferencesTable.insertRow();
@@ -6164,22 +4308,8 @@ function embedUIStructure() {
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "When Support Retreat :  ";
                 const trinketArmingCell = trSDeFWaWhenSupportRetreat.insertCell();
-<<<<<<< HEAD
-                const selectSDeFWaArmingWarpathCharm = document.createElement('select');
-                selectSDeFWaArmingWarpathCharm.id = ID_SELECT_SDEFWA_ARMING_WARPATH_CHARM;
-                selectSDeFWaArmingWarpathCharm.style.fontSize = "90%";
-                selectSDeFWaArmingWarpathCharm.style.width = "60px";
-                selectSDeFWaArmingWarpathCharm.onchange = saveSDeFWaArmingWarpathCharm;
-                for (const armStatus of TRINKET_ARMING){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = armStatus;
-                    itemOption.text = armStatus;
-                    selectSDeFWaArmingWarpathCharm.appendChild(itemOption);
-                }
-=======
                 const selectSDeFWaArmingWarpathCharm = getSelectItem(ITEM_ARMING, ID_SELECT_SDEFWA_ARMING_WARPATH_CHARM, saveSDeFWaArmingWarpathCharm, false, false, false);
                 selectSDeFWaArmingWarpathCharm.style.width = "60px";
->>>>>>> ft_AutochangeTrap
                 trinketArmingCell.appendChild(selectSDeFWaArmingWarpathCharm);
                 tmpTxt = document.createTextNode("  Warpath Charm");
                 trinketArmingCell.appendChild(tmpTxt);
@@ -6191,25 +4321,11 @@ function embedUIStructure() {
                 captionCell = trSDeFWaWave4TrapSetup.insertCell();
                 captionCell.className = STYLE_CLASS_NAME_JNK_CAPTION;
                 captionCell.innerHTML = "Trap Setup ";
-<<<<<<< HEAD
-                const selectSDeFWaBeforeAfterWardens = document.createElement('select');
-                selectSDeFWaBeforeAfterWardens.id = ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS;
-                selectSDeFWaBeforeAfterWardens.style.fontSize = "90%";
-                selectSDeFWaBeforeAfterWardens.style.width = "60px";
-                selectSDeFWaBeforeAfterWardens.onchange = onChangeSelectSDeFWaBeforeAfterWardens;
-                for (const status of STATUSES){
-                    const itemOption = document.createElement("option");
-                    itemOption.value = status;
-                    itemOption.text = status;
-                    selectSDeFWaBeforeAfterWardens.appendChild(itemOption);
-                }
-=======
                 const selectSDeFWaBeforeAfterWardens = getSelectItem(STATUSES,
                                                                      ID_SELECT_SDEFWA_BEFORE_AFTER_WARDENS,
                                                                      onChangeSelectSDeFWaBeforeAfterWardens,
                                                                      false, false, false);
                 selectSDeFWaBeforeAfterWardens.style.width = "60px";
->>>>>>> ft_AutochangeTrap
                 captionCell.appendChild(selectSDeFWaBeforeAfterWardens);
                 tmpTxt = document.createTextNode("  Clear Wardens :  ");
                 captionCell.appendChild(tmpTxt);
@@ -6228,23 +4344,16 @@ function embedUIStructure() {
                 tmpTxt = undefined;
             }
 
-<<<<<<< HEAD
-            //let tmpTxt;
-=======
             let currentPolicy;
             let policyStorage;
->>>>>>> ft_AutochangeTrap
             const policyPreferencesTable = document.createElement('table');
             policyPreferencesTable.width = "100%";
 
             const trEmpty = policyPreferencesTable.insertRow();
             trEmpty.style.height = "4px"
             insertSelectPolicyRow();
-<<<<<<< HEAD
-=======
             insertSingleTrapSetupRow();
             insertSelectableTrapSetupRow();
->>>>>>> ft_AutochangeTrap
 
             return policyPreferencesTable;
         }
@@ -6310,11 +4419,7 @@ function embedUIStructure() {
                     reloadCampPage();
                 }
 
-<<<<<<< HEAD
-                if (!lockBot(BOT_PROCESS_Manual)) {
-=======
                 if (!lockBot(BOT_PROCESS_MANUAL)) {
->>>>>>> ft_AutochangeTrap
                     return;
                 }
                 g_trapInfo = {};
@@ -6395,11 +4500,7 @@ function embedUIStructure() {
             tmpTxt = document.createTextNode("  ");
             applyButtonCell.appendChild(tmpTxt);
 
-<<<<<<< HEAD
-            tmpTxt = null;
-=======
             tmpTxt = undefined;
->>>>>>> ft_AutochangeTrap
             return preferencesFooterTable;
         }
 
@@ -6499,19 +4600,12 @@ function getPageVariable(name) {
             return unsafeWindow.user.has_puzzle;
         } else if (name == 'user.unique_hash') {
             return unsafeWindow.user.unique_hash;
-<<<<<<< HEAD
-        } else if (name == 'user.sn_user_id') {
-            return unsafeWindow.user.sn_user_id;
-        } else if (name == 'last_read_journal_entry_id') {
-            return unsafeWindow.last_read_journal_entry_id;
-=======
         } else if (name == 'user.user_id') {
             return unsafeWindow.user.user_id;
         } else if (name == 'user.sn_user_id') {
             return unsafeWindow.user.sn_user_id;
         } else if (name == 'lastReadJournalEntryId') {
             return unsafeWindow.lastReadJournalEntryId;
->>>>>>> ft_AutochangeTrap
         } else if (name == "user.bait_quantity") {
             return unsafeWindow.user.bait_quantity;
         } else if (name == "user.weapon_item_id") {
@@ -6532,25 +4626,12 @@ function getPageVariable(name) {
             return unsafeWindow.user.quests.QuestMountain;
         } else if (name == "user.quests.QuestClawShotCity.phase") {
             return unsafeWindow.user.quests.QuestClawShotCity.phase;
-<<<<<<< HEAD
-        } else if (name == "user.quests.QuestFortRox.current_stage") {
-            return unsafeWindow.user.quests.QuestFortRox.current_stage;
-        } else if (name == "user.quests.QuestFortRox.items.howlite_stat_item.quantity") {
-            return unsafeWindow.user.quests.QuestFortRox.items.howlite_stat_item.quantity;
-        } else if (name == "user.quests.QuestFortRox.items.blood_stone_stat_item.quantity") {
-            return unsafeWindow.user.quests.QuestFortRox.items.blood_stone_stat_item.quantity;
-        } else if (name == "user.quests.QuestZugzwangLibrary.hasResearchQuest") {
-            return unsafeWindow.user.quests.QuestZugzwangLibrary.hasResearchQuest;
-        } else if (name == "user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest") {
-            return unsafeWindow.user.quests.QuestZugzwangLibrary.secondsRemainingUntilUserCanAcceptQuest;
-=======
         } else if (name == "user.quests.QuestFortRox") {
             return unsafeWindow.user.quests.QuestFortRox;
         } else if (name == "user.quests.QuestZugzwangLibrary") {
             return unsafeWindow.user.quests.QuestZugzwangLibrary;
         } else if (name == "user.viewing_atts.desert_warpath") {
             return unsafeWindow.user.viewing_atts.desert_warpath;
->>>>>>> ft_AutochangeTrap
         }
 
         if (DEBUG_MODE) console.log('GPV other: ' + name + ' not found.');
